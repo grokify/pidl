@@ -21,15 +21,23 @@ type DOTRenderer struct {
 
 	// ShowPhases groups nodes by phase using subgraphs.
 	ShowPhases bool
+
+	// ShowConditions includes condition text in edge labels.
+	ShowConditions bool
+
+	// ShowAnnotations includes annotation counts in edge labels.
+	ShowAnnotations bool
 }
 
 // NewDOT creates a new DOT renderer with default options.
 func NewDOT() *DOTRenderer {
 	return &DOTRenderer{
-		Title:      true,
-		RankDir:    "LR",
-		MergeEdges: true,
-		ShowPhases: false,
+		Title:           true,
+		RankDir:         "LR",
+		MergeEdges:      true,
+		ShowPhases:      false,
+		ShowConditions:  true,
+		ShowAnnotations: false,
 	}
 }
 
@@ -129,8 +137,32 @@ func (r *DOTRenderer) renderAllEdges(sb *strings.Builder, p *pidl.Protocol) {
 	for i, f := range p.Flows {
 		style := r.modeToStyle(f.EffectiveMode())
 		label := r.escapeString(f.DisplayLabel())
+
+		// Add condition prefix if present and enabled
+		if r.ShowConditions && f.HasCondition() {
+			label = fmt.Sprintf("[%s]\\n%s", r.escapeString(f.Condition), label)
+		}
+
+		// Add annotation indicator if present and enabled
+		if r.ShowAnnotations && f.HasAnnotations() {
+			label = fmt.Sprintf("%s\\n(%d annotations)", label, len(f.Annotations))
+		}
+
 		fmt.Fprintf(sb, "    %s -> %s [label=\"%d. %s\"%s];\n",
 			f.From, f.To, i+1, label, style)
+
+		// Render alternative edges if present
+		for _, alt := range f.Alternatives {
+			for j, altFlow := range alt.Flows {
+				altStyle := r.modeToStyle(altFlow.EffectiveMode())
+				altLabel := r.escapeString(altFlow.DisplayLabel())
+				if r.ShowConditions {
+					altLabel = fmt.Sprintf("[ALT: %s]\\n%s", r.escapeString(alt.Condition), altLabel)
+				}
+				fmt.Fprintf(sb, "    %s -> %s [label=\"%d.%d. %s\"%s, color=gray];\n",
+					altFlow.From, altFlow.To, i+1, j+1, altLabel, altStyle)
+			}
+		}
 	}
 }
 

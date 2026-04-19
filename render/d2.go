@@ -33,6 +33,18 @@ type D2Renderer struct {
 
 	// Direction sets the diagram direction (down, right, left, up).
 	Direction string
+
+	// ShowNotes renders flow notes as D2 notes/labels.
+	ShowNotes bool
+
+	// ShowAnnotations renders flow annotations.
+	ShowAnnotations bool
+
+	// ShowConditions indicates conditional flows.
+	ShowConditions bool
+
+	// ShowAlternatives renders alternative paths.
+	ShowAlternatives bool
 }
 
 // NewD2 creates a new D2 renderer with default options (sequence diagram).
@@ -42,6 +54,10 @@ func NewD2() *D2Renderer {
 		Title:            true,
 		ShowDescriptions: false,
 		Direction:        "right",
+		ShowNotes:        true,
+		ShowAnnotations:  true,
+		ShowConditions:   true,
+		ShowAlternatives: true,
 	}
 }
 
@@ -52,6 +68,10 @@ func NewD2Flow() *D2Renderer {
 		Title:            true,
 		ShowDescriptions: false,
 		Direction:        "right",
+		ShowNotes:        true,
+		ShowAnnotations:  true,
+		ShowConditions:   true,
+		ShowAlternatives: true,
 	}
 }
 
@@ -62,6 +82,10 @@ func NewD2Arch() *D2Renderer {
 		Title:            true,
 		ShowDescriptions: false,
 		Direction:        "right",
+		ShowNotes:        true,
+		ShowAnnotations:  true,
+		ShowConditions:   true,
+		ShowAlternatives: true,
 	}
 }
 
@@ -122,52 +146,144 @@ func (r *D2Renderer) renderSequence(p *pidl.Protocol) string {
 	// Track sequence number for ordering
 	seq := 1
 
-	// Track current phase for grouping
+	// Track current phase for grouping and nesting
 	currentPhase := ""
-	inPhaseGroup := false
+	phaseStack := []string{}
 
 	for _, f := range p.Flows {
-		// Handle phase changes
-		if f.Phase != "" && f.Phase != currentPhase {
-			if inPhaseGroup {
+		// Handle phase changes with nesting support
+		if f.Phase != currentPhase {
+			// Close previous phase groups
+			for range phaseStack {
 				sb.WriteString("  }\n\n")
 			}
-			phase := p.PhaseByID(f.Phase)
-			if phase != nil {
-				fmt.Fprintf(&sb, "  %s: %s {\n", r.sanitizeID(f.Phase), phase.Name)
-				inPhaseGroup = true
+			phaseStack = nil
+
+			// Open new phase groups (including parent hierarchy)
+			if f.Phase != "" {
+				phase := p.PhaseByID(f.Phase)
+				if phase != nil {
+					phaseStack = r.openPhaseGroups(&sb, p, phase)
+				}
 			}
 			currentPhase = f.Phase
 		}
 
 		// Render the flow
 		indent := "  "
-		if inPhaseGroup {
-			indent = "    "
+		for range phaseStack {
+			indent += "  "
 		}
 
-		from := r.sanitizeID(f.From)
-		to := r.sanitizeID(f.To)
-		label := f.DisplayLabel()
-
-		// Add mode annotation
-		if ann := r.modeAnnotation(f.EffectiveMode()); ann != "" {
-			label = fmt.Sprintf("%s (%s)", label, ann)
-		}
-
-		// D2 sequence diagram message syntax
-		arrow := r.modeToArrow(f.EffectiveMode())
-		fmt.Fprintf(&sb, "%sseq%d: %s %s %s: %s\n", indent, seq, from, arrow, to, label)
-		seq++
+		seq = r.renderSequenceFlow(&sb, p, f, indent, seq)
 	}
 
-	if inPhaseGroup {
+	// Close remaining phase groups
+	for range phaseStack {
 		sb.WriteString("  }\n")
 	}
 
 	sb.WriteString("}\n")
 
 	return sb.String()
+}
+
+// openPhaseGroups opens D2 groups for a phase and its parent hierarchy, returns the stack.
+func (r *D2Renderer) openPhaseGroups(sb *strings.Builder, p *pidl.Protocol, phase *pidl.Phase) []string {
+	// Build the hierarchy from root to current phase
+	var hierarchy []*pidl.Phase
+	current := phase
+	for current != nil {
+		hierarchy = append([]*pidl.Phase{current}, hierarchy...)
+		if current.Parent == "" {
+			break
+		}
+		current = p.PhaseByID(current.Parent)
+	}
+
+	// Open groups from root to leaf
+	var stack []string
+	for i, ph := range hierarchy {
+		indent := "  "
+		for j := 0; j < i; j++ {
+			indent += "  "
+		}
+		fmt.Fprintf(sb, "%s%s: %s {\n", indent, r.sanitizeID(ph.ID), ph.Name)
+		stack = append(stack, ph.ID)
+	}
+
+	return stack
+}
+
+// renderSequenceFlow renders a single flow in a D2 sequence diagram.
+func (r *D2Renderer) renderSequenceFlow(sb *strings.Builder, _ *pidl.Protocol, f pidl.Flow, indent string, seq int) int {
+	from := r.sanitizeID(f.From)
+	to := r.sanitizeID(f.To)
+	label := f.DisplayLabel()
+
+	// Add condition to label if present
+	if r.ShowConditions && f.HasCondition() {
+		label = fmt.Sprintf("[%s] %s", f.Condition, label)
+	}
+
+	// Add mode annotation
+	if ann := r.modeAnnotation(f.EffectiveMode()); ann != "" {
+		label = fmt.Sprintf("%s (%s)", label, ann)
+	}
+
+	// D2 sequence diagram message syntax
+	arrow := r.modeToArrow(f.EffectiveMode())
+	fmt.Fprintf(sb, "%sseq%d: %s %s %s: %s", indent, seq, from, arrow, to, label)
+
+	// Add note as tooltip if present
+	if r.ShowNotes && f.HasNote() {
+		fmt.Fprintf(sb, " {\n%s  tooltip: %s\n%s}", indent, f.Note, indent)
+	}
+
+	sb.WriteString("\n")
+	seq++
+
+	// Render annotations as separate note messages
+	if r.ShowAnnotations && f.HasAnnotations() {
+		for _, ann := range f.Annotations {
+			prefix := r.annotationPrefix(ann.Type)
+			fmt.Fprintf(sb, "%snote%d: %s -> %s: %s%s\n", indent, seq, to, to, prefix, ann.Text)
+			seq++
+		}
+	}
+
+	// Render alternatives as additional flows
+	if r.ShowAlternatives && f.HasAlternatives() {
+		for _, alt := range f.Alternatives {
+			fmt.Fprintf(sb, "%salt%d: [%s] {\n", indent, seq, alt.Condition)
+			altIndent := indent + "  "
+			for _, altFlow := range alt.Flows {
+				seq = r.renderSequenceFlow(sb, nil, altFlow, altIndent, seq)
+			}
+			fmt.Fprintf(sb, "%s}\n", indent)
+			seq++
+		}
+	}
+
+	return seq
+}
+
+// annotationPrefix returns a visual prefix for annotation types.
+func (r *D2Renderer) annotationPrefix(t pidl.AnnotationType) string {
+	switch t {
+	case pidl.AnnotationTypeSecurity:
+		return "⚠️ SECURITY: "
+	case pidl.AnnotationTypePerformance:
+		return "⏱️ PERF: "
+	case pidl.AnnotationTypeDeprecated:
+		return "🚫 DEPRECATED: "
+	case pidl.AnnotationTypeWarning:
+		return "⚠️ WARNING: "
+	case pidl.AnnotationTypeError:
+		return "❌ ERROR: "
+	default:
+		return ""
+	}
 }
 
 // renderFlow renders a D2 data flow diagram.
