@@ -31,11 +31,11 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 
 ## Features
 
-- **JSON-based DSL** for describing protocol flows
-- **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT
-- **Built-in examples**: OAuth 2.0, PKCE, OIDC, MCP, A2A
-- **CLI tool** for validation and diagram generation
-- **Go library** for programmatic use
+- 📋 **JSON-based DSL** for describing protocol flows
+- 🎨 **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT
+- 📚 **Built-in examples**: OAuth 2.0, PKCE, OIDC, MCP, A2A
+- ⌨️ **CLI tool** for validation and diagram generation
+- 📦 **Go library** for programmatic use
 
 ## Installation
 
