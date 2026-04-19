@@ -1,0 +1,22 @@
+# OS
+.DS_Store
+
+# Environment
+.env
+
+# Temporary/scratch
+_*
+*.tar
+*.tmp
+
+# Test artifacts
+coverage.txt
+debug.test
+
+# Binaries
+main
+main.zip
+pidl
+
+# Ideation/scratch files
+IDEATION_CHAT*.md
