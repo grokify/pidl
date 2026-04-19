@@ -36,6 +36,10 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 - 📚 **Built-in examples**: OAuth 2.0, PKCE, OIDC, MCP, A2A
 - ⌨️ **CLI tool** for validation and diagram generation
 - 📦 **Go library** for programmatic use
+- 🔀 **Conditional flows** with `condition` field for when clauses
+- 🔄 **Alternative paths** with `alternatives` for error handling and branching
+- 📝 **Annotations** with typed notes (security, performance, deprecated, etc.)
+- 📊 **Nested phases** with parent hierarchy support
 
 ## Installation
 
@@ -116,10 +120,31 @@ A PIDL document is a JSON file with three main sections:
     {"id": "server", "name": "Server", "type": "server"}
   ],
   "phases": [
-    {"id": "main", "name": "Main Flow"}
+    {"id": "main", "name": "Main Flow"},
+    {"id": "error_handling", "name": "Error Handling", "parent": "main"}
   ],
   "flows": [
-    {"from": "client", "to": "server", "action": "request", "label": "Request", "mode": "request", "phase": "main"},
+    {
+      "from": "client",
+      "to": "server",
+      "action": "request",
+      "label": "Request",
+      "mode": "request",
+      "phase": "main",
+      "condition": "token_valid",
+      "note": "Requires valid token",
+      "annotations": [
+        {"type": "security", "text": "Validate token signature"}
+      ],
+      "alternatives": [
+        {
+          "condition": "token_expired",
+          "flows": [
+            {"from": "server", "to": "client", "action": "refresh_required", "mode": "response"}
+          ]
+        }
+      ]
+    },
     {"from": "server", "to": "client", "action": "response", "label": "Response", "mode": "response", "phase": "main"}
   ]
 }
@@ -150,6 +175,40 @@ A PIDL document is a JSON file with three main sections:
 | `event` | Asynchronous event | Dashed |
 | `tool_call` | Tool invocation (MCP) | Solid with annotation |
 | `tool_result` | Tool result (MCP) | Dashed with annotation |
+
+### Flow Extensions
+
+| Field | Description |
+|-------|-------------|
+| `condition` | Conditional execution clause (renders as `opt` block) |
+| `note` | Visible note displayed on diagram |
+| `annotations` | Array of typed annotations for tooling |
+| `alternatives` | Alternative paths (renders as `alt/else` blocks) |
+
+### Annotation Types
+
+| Type | Description |
+|------|-------------|
+| `security` | Security-related notes |
+| `performance` | Performance considerations |
+| `deprecated` | Deprecated functionality |
+| `info` | General information |
+| `warning` | Warning messages |
+| `error` | Error conditions |
+
+### Nested Phases
+
+Phases support hierarchical nesting via the `parent` field:
+
+```json
+{
+  "phases": [
+    {"id": "auth", "name": "Authentication"},
+    {"id": "mfa", "name": "Multi-Factor Auth", "parent": "auth"},
+    {"id": "token", "name": "Token Exchange", "parent": "auth"}
+  ]
+}
+```
 
 ## CLI Reference
 
