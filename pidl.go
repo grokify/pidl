@@ -102,6 +102,45 @@ type Phase struct {
 
 	// Description of the phase.
 	Description string `json:"description,omitempty"`
+
+	// Parent is the ID of the parent phase for nested phases.
+	Parent string `json:"parent,omitempty"`
+}
+
+// AnnotationType represents the type of annotation.
+type AnnotationType string
+
+const (
+	AnnotationTypeSecurity    AnnotationType = "security"
+	AnnotationTypePerformance AnnotationType = "performance"
+	AnnotationTypeDeprecated  AnnotationType = "deprecated"
+	AnnotationTypeInfo        AnnotationType = "info"
+	AnnotationTypeWarning     AnnotationType = "warning"
+	AnnotationTypeError       AnnotationType = "error"
+)
+
+// Annotation represents a typed annotation on a flow.
+type Annotation struct {
+	// Type categorizes the annotation.
+	Type AnnotationType `json:"type"`
+
+	// Text is the annotation message.
+	Text string `json:"text"`
+
+	// Details provides additional context.
+	Details string `json:"details,omitempty"`
+}
+
+// Alternative represents an alternative path in the flow.
+type Alternative struct {
+	// Condition describes when this alternative is taken.
+	Condition string `json:"condition"`
+
+	// Flows are the steps in this alternative path.
+	Flows []Flow `json:"flows"`
+
+	// Description provides additional context.
+	Description string `json:"description,omitempty"`
 }
 
 // Flow represents an interaction between two entities.
@@ -129,6 +168,18 @@ type Flow struct {
 
 	// Sequence provides explicit ordering.
 	Sequence int `json:"sequence,omitempty"`
+
+	// Condition specifies when this flow is executed (e.g., "token_valid", "error").
+	Condition string `json:"condition,omitempty"`
+
+	// Note is a visible annotation displayed on the diagram.
+	Note string `json:"note,omitempty"`
+
+	// Annotations are typed annotations for tooling and documentation.
+	Annotations []Annotation `json:"annotations,omitempty"`
+
+	// Alternatives are alternative paths from this flow point.
+	Alternatives []Alternative `json:"alternatives,omitempty"`
 }
 
 // FlowMode represents the type of interaction.
@@ -208,4 +259,67 @@ func (p *Protocol) PhaseIDs() []string {
 		ids[i] = ph.ID
 	}
 	return ids
+}
+
+// RootPhases returns phases that have no parent (top-level phases).
+func (p *Protocol) RootPhases() []Phase {
+	var roots []Phase
+	for _, ph := range p.Phases {
+		if ph.Parent == "" {
+			roots = append(roots, ph)
+		}
+	}
+	return roots
+}
+
+// ChildPhases returns phases that have the given parent ID.
+func (p *Protocol) ChildPhases(parentID string) []Phase {
+	var children []Phase
+	for _, ph := range p.Phases {
+		if ph.Parent == parentID {
+			children = append(children, ph)
+		}
+	}
+	return children
+}
+
+// PhaseDepth returns the nesting depth of a phase (0 for root phases).
+func (p *Protocol) PhaseDepth(phaseID string) int {
+	depth := 0
+	current := p.PhaseByID(phaseID)
+	for current != nil && current.Parent != "" {
+		depth++
+		current = p.PhaseByID(current.Parent)
+	}
+	return depth
+}
+
+// HasCondition returns true if the flow has a condition.
+func (f Flow) HasCondition() bool {
+	return f.Condition != ""
+}
+
+// HasAlternatives returns true if the flow has alternative paths.
+func (f Flow) HasAlternatives() bool {
+	return len(f.Alternatives) > 0
+}
+
+// HasAnnotations returns true if the flow has annotations.
+func (f Flow) HasAnnotations() bool {
+	return len(f.Annotations) > 0
+}
+
+// HasNote returns true if the flow has a note.
+func (f Flow) HasNote() bool {
+	return f.Note != ""
+}
+
+// IsValidAnnotationType checks if the annotation type is valid.
+func IsValidAnnotationType(t AnnotationType) bool {
+	switch t {
+	case AnnotationTypeSecurity, AnnotationTypePerformance, AnnotationTypeDeprecated,
+		AnnotationTypeInfo, AnnotationTypeWarning, AnnotationTypeError:
+		return true
+	}
+	return false
 }
