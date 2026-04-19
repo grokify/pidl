@@ -1,0 +1,174 @@
+{
+  "$schema": "../schema/pidl.schema.json",
+  "protocol": {
+    "id": "oauth2-pkce",
+    "name": "OAuth 2.0 Authorization Code Flow with PKCE",
+    "version": "1.0",
+    "description": "OAuth 2.0 Authorization Code Grant with Proof Key for Code Exchange (PKCE) as defined in RFC 7636",
+    "category": "auth",
+    "references": [
+      {
+        "name": "RFC 7636 - PKCE",
+        "url": "https://datatracker.ietf.org/doc/html/rfc7636"
+      },
+      {
+        "name": "RFC 6749 - OAuth 2.0",
+        "url": "https://datatracker.ietf.org/doc/html/rfc6749"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "user",
+      "name": "Resource Owner",
+      "type": "user",
+      "description": "End user who owns the protected resources"
+    },
+    {
+      "id": "browser",
+      "name": "User Agent",
+      "type": "browser",
+      "description": "User's web browser or native app"
+    },
+    {
+      "id": "client",
+      "name": "Public Client",
+      "type": "client",
+      "description": "Public client (SPA or native app) that cannot securely store secrets"
+    },
+    {
+      "id": "auth_server",
+      "name": "Authorization Server",
+      "type": "authorization_server",
+      "description": "Server that authenticates the user and issues tokens"
+    },
+    {
+      "id": "resource_server",
+      "name": "Resource Server",
+      "type": "resource_server",
+      "description": "Server hosting the protected resources"
+    }
+  ],
+  "phases": [
+    {
+      "id": "pkce_setup",
+      "name": "PKCE Setup",
+      "description": "Generate code verifier and challenge"
+    },
+    {
+      "id": "authorization",
+      "name": "Authorization",
+      "description": "User authentication and consent with code challenge"
+    },
+    {
+      "id": "token_exchange",
+      "name": "Token Exchange",
+      "description": "Exchange code for tokens with code verifier"
+    },
+    {
+      "id": "resource_access",
+      "name": "Resource Access",
+      "description": "Access protected resources"
+    }
+  ],
+  "flows": [
+    {
+      "from": "user",
+      "to": "client",
+      "action": "initiate_login",
+      "label": "Click Login",
+      "mode": "interactive",
+      "phase": "pkce_setup"
+    },
+    {
+      "from": "client",
+      "to": "client",
+      "action": "generate_pkce",
+      "label": "Generate code_verifier + code_challenge",
+      "mode": "request",
+      "phase": "pkce_setup",
+      "description": "Client generates random code_verifier and derives code_challenge = SHA256(code_verifier)"
+    },
+    {
+      "from": "client",
+      "to": "browser",
+      "action": "redirect_to_auth",
+      "label": "Redirect with code_challenge",
+      "mode": "redirect",
+      "phase": "authorization"
+    },
+    {
+      "from": "browser",
+      "to": "auth_server",
+      "action": "authorization_request",
+      "label": "GET /authorize?code_challenge=...&code_challenge_method=S256",
+      "mode": "request",
+      "phase": "authorization"
+    },
+    {
+      "from": "auth_server",
+      "to": "user",
+      "action": "login_prompt",
+      "label": "Login + Consent Form",
+      "mode": "interactive",
+      "phase": "authorization"
+    },
+    {
+      "from": "user",
+      "to": "auth_server",
+      "action": "authenticate",
+      "label": "Submit Credentials + Grant Consent",
+      "mode": "interactive",
+      "phase": "authorization"
+    },
+    {
+      "from": "auth_server",
+      "to": "browser",
+      "action": "authorization_response",
+      "label": "Redirect with code (code_challenge stored server-side)",
+      "mode": "redirect",
+      "phase": "authorization"
+    },
+    {
+      "from": "browser",
+      "to": "client",
+      "action": "callback",
+      "label": "Callback with Authorization Code",
+      "mode": "callback",
+      "phase": "authorization"
+    },
+    {
+      "from": "client",
+      "to": "auth_server",
+      "action": "token_request",
+      "label": "POST /token (code + code_verifier)",
+      "mode": "request",
+      "phase": "token_exchange",
+      "description": "Server verifies SHA256(code_verifier) matches stored code_challenge"
+    },
+    {
+      "from": "auth_server",
+      "to": "client",
+      "action": "token_response",
+      "label": "Access Token + Refresh Token",
+      "mode": "response",
+      "phase": "token_exchange"
+    },
+    {
+      "from": "client",
+      "to": "resource_server",
+      "action": "api_request",
+      "label": "API Request (Authorization: Bearer <token>)",
+      "mode": "request",
+      "phase": "resource_access"
+    },
+    {
+      "from": "resource_server",
+      "to": "client",
+      "action": "api_response",
+      "label": "Protected Resource",
+      "mode": "response",
+      "phase": "resource_access"
+    }
+  ]
+}

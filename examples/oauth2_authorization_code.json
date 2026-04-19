@@ -1,0 +1,155 @@
+{
+  "$schema": "../schema/pidl.schema.json",
+  "protocol": {
+    "id": "oauth2-authorization-code",
+    "name": "OAuth 2.0 Authorization Code Flow",
+    "version": "1.0",
+    "description": "OAuth 2.0 Authorization Code Grant as defined in RFC 6749 Section 4.1",
+    "category": "auth",
+    "references": [
+      {
+        "name": "RFC 6749 Section 4.1",
+        "url": "https://datatracker.ietf.org/doc/html/rfc6749#section-4.1"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "user",
+      "name": "Resource Owner",
+      "type": "user",
+      "description": "End user who owns the protected resources"
+    },
+    {
+      "id": "browser",
+      "name": "User Agent",
+      "type": "browser",
+      "description": "User's web browser"
+    },
+    {
+      "id": "client",
+      "name": "Client Application",
+      "type": "client",
+      "description": "Application requesting access to protected resources"
+    },
+    {
+      "id": "auth_server",
+      "name": "Authorization Server",
+      "type": "authorization_server",
+      "description": "Server that authenticates the user and issues tokens"
+    },
+    {
+      "id": "resource_server",
+      "name": "Resource Server",
+      "type": "resource_server",
+      "description": "Server hosting the protected resources"
+    }
+  ],
+  "phases": [
+    {
+      "id": "authorization",
+      "name": "Authorization",
+      "description": "User authentication and consent"
+    },
+    {
+      "id": "token_exchange",
+      "name": "Token Exchange",
+      "description": "Exchange authorization code for access token"
+    },
+    {
+      "id": "resource_access",
+      "name": "Resource Access",
+      "description": "Access protected resources using access token"
+    }
+  ],
+  "flows": [
+    {
+      "from": "user",
+      "to": "client",
+      "action": "initiate_login",
+      "label": "Click Login",
+      "mode": "interactive",
+      "phase": "authorization"
+    },
+    {
+      "from": "client",
+      "to": "browser",
+      "action": "redirect_to_auth",
+      "label": "Redirect to Authorization Server",
+      "mode": "redirect",
+      "phase": "authorization"
+    },
+    {
+      "from": "browser",
+      "to": "auth_server",
+      "action": "authorization_request",
+      "label": "GET /authorize?response_type=code&client_id=...&redirect_uri=...&scope=...",
+      "mode": "request",
+      "phase": "authorization"
+    },
+    {
+      "from": "auth_server",
+      "to": "user",
+      "action": "login_prompt",
+      "label": "Login + Consent Form",
+      "mode": "interactive",
+      "phase": "authorization"
+    },
+    {
+      "from": "user",
+      "to": "auth_server",
+      "action": "authenticate",
+      "label": "Submit Credentials + Grant Consent",
+      "mode": "interactive",
+      "phase": "authorization"
+    },
+    {
+      "from": "auth_server",
+      "to": "browser",
+      "action": "authorization_response",
+      "label": "Redirect to redirect_uri?code=...&state=...",
+      "mode": "redirect",
+      "phase": "authorization"
+    },
+    {
+      "from": "browser",
+      "to": "client",
+      "action": "callback",
+      "label": "Callback with Authorization Code",
+      "mode": "callback",
+      "phase": "authorization"
+    },
+    {
+      "from": "client",
+      "to": "auth_server",
+      "action": "token_request",
+      "label": "POST /token (grant_type=authorization_code&code=...)",
+      "mode": "request",
+      "phase": "token_exchange"
+    },
+    {
+      "from": "auth_server",
+      "to": "client",
+      "action": "token_response",
+      "label": "Access Token + Refresh Token",
+      "mode": "response",
+      "phase": "token_exchange"
+    },
+    {
+      "from": "client",
+      "to": "resource_server",
+      "action": "api_request",
+      "label": "API Request (Authorization: Bearer <token>)",
+      "mode": "request",
+      "phase": "resource_access"
+    },
+    {
+      "from": "resource_server",
+      "to": "client",
+      "action": "api_response",
+      "label": "Protected Resource",
+      "mode": "response",
+      "phase": "resource_access"
+    }
+  ]
+}

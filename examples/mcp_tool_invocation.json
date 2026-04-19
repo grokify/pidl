@@ -1,0 +1,141 @@
+{
+  "$schema": "../schema/pidl.schema.json",
+  "protocol": {
+    "id": "mcp-tool-invocation",
+    "name": "MCP Tool Invocation Flow",
+    "version": "1.0",
+    "description": "Model Context Protocol tool invocation between an LLM agent and tool server",
+    "category": "agent",
+    "references": [
+      {
+        "name": "Model Context Protocol Specification",
+        "url": "https://modelcontextprotocol.io/specification"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "user",
+      "name": "User",
+      "type": "user",
+      "description": "Human user interacting with the agent"
+    },
+    {
+      "id": "agent",
+      "name": "LLM Agent",
+      "type": "agent",
+      "description": "AI agent powered by a large language model"
+    },
+    {
+      "id": "mcp_client",
+      "name": "MCP Client",
+      "type": "client",
+      "description": "MCP client runtime embedded in the agent"
+    },
+    {
+      "id": "tool_server",
+      "name": "MCP Tool Server",
+      "type": "tool_server",
+      "description": "Server exposing tools via MCP protocol"
+    }
+  ],
+  "phases": [
+    {
+      "id": "discovery",
+      "name": "Tool Discovery",
+      "description": "Agent discovers available tools from server"
+    },
+    {
+      "id": "invocation",
+      "name": "Tool Invocation",
+      "description": "Agent invokes a tool and receives result"
+    },
+    {
+      "id": "response",
+      "name": "Response Generation",
+      "description": "Agent generates response using tool result"
+    }
+  ],
+  "flows": [
+    {
+      "from": "mcp_client",
+      "to": "tool_server",
+      "action": "initialize",
+      "label": "Initialize Connection",
+      "mode": "request",
+      "phase": "discovery"
+    },
+    {
+      "from": "tool_server",
+      "to": "mcp_client",
+      "action": "server_info",
+      "label": "Server Info + Capabilities",
+      "mode": "response",
+      "phase": "discovery"
+    },
+    {
+      "from": "mcp_client",
+      "to": "tool_server",
+      "action": "list_tools",
+      "label": "tools/list",
+      "mode": "request",
+      "phase": "discovery"
+    },
+    {
+      "from": "tool_server",
+      "to": "mcp_client",
+      "action": "tools_list",
+      "label": "Available Tools + Schemas",
+      "mode": "response",
+      "phase": "discovery"
+    },
+    {
+      "from": "user",
+      "to": "agent",
+      "action": "user_prompt",
+      "label": "User Message",
+      "mode": "interactive",
+      "phase": "invocation"
+    },
+    {
+      "from": "agent",
+      "to": "mcp_client",
+      "action": "tool_decision",
+      "label": "Decide to Call Tool",
+      "mode": "request",
+      "phase": "invocation"
+    },
+    {
+      "from": "mcp_client",
+      "to": "tool_server",
+      "action": "tools_call",
+      "label": "tools/call (tool_name, arguments)",
+      "mode": "tool_call",
+      "phase": "invocation"
+    },
+    {
+      "from": "tool_server",
+      "to": "mcp_client",
+      "action": "tool_result",
+      "label": "Tool Execution Result",
+      "mode": "tool_result",
+      "phase": "invocation"
+    },
+    {
+      "from": "mcp_client",
+      "to": "agent",
+      "action": "result_delivery",
+      "label": "Tool Result",
+      "mode": "response",
+      "phase": "invocation"
+    },
+    {
+      "from": "agent",
+      "to": "user",
+      "action": "final_response",
+      "label": "Generated Response",
+      "mode": "response",
+      "phase": "response"
+    }
+  ]
+}

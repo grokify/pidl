@@ -1,0 +1,191 @@
+{
+  "$schema": "../schema/pidl.schema.json",
+  "protocol": {
+    "id": "a2a-agent-delegation",
+    "name": "A2A Agent Delegation Flow",
+    "version": "1.0",
+    "description": "Agent-to-Agent protocol for task delegation between autonomous agents",
+    "category": "agent",
+    "references": [
+      {
+        "name": "Google A2A Protocol",
+        "url": "https://github.com/google/A2A"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "user",
+      "name": "User",
+      "type": "user",
+      "description": "Human user initiating a task"
+    },
+    {
+      "id": "primary_agent",
+      "name": "Primary Agent",
+      "type": "agent",
+      "description": "Main agent orchestrating the task"
+    },
+    {
+      "id": "agent_registry",
+      "name": "Agent Registry",
+      "type": "server",
+      "description": "Registry of available agents and their capabilities"
+    },
+    {
+      "id": "specialist_agent",
+      "name": "Specialist Agent",
+      "type": "delegated_agent",
+      "description": "Agent with specialized capabilities for subtasks"
+    },
+    {
+      "id": "tool_server",
+      "name": "Tool Server",
+      "type": "tool_server",
+      "description": "External tools used by specialist agent"
+    }
+  ],
+  "phases": [
+    {
+      "id": "task_initiation",
+      "name": "Task Initiation",
+      "description": "User initiates a complex task"
+    },
+    {
+      "id": "agent_discovery",
+      "name": "Agent Discovery",
+      "description": "Primary agent discovers suitable specialist agents"
+    },
+    {
+      "id": "task_delegation",
+      "name": "Task Delegation",
+      "description": "Primary agent delegates subtask to specialist"
+    },
+    {
+      "id": "task_execution",
+      "name": "Task Execution",
+      "description": "Specialist agent executes the delegated task"
+    },
+    {
+      "id": "result_aggregation",
+      "name": "Result Aggregation",
+      "description": "Primary agent aggregates results and responds to user"
+    }
+  ],
+  "flows": [
+    {
+      "from": "user",
+      "to": "primary_agent",
+      "action": "task_request",
+      "label": "Complex Task Request",
+      "mode": "request",
+      "phase": "task_initiation"
+    },
+    {
+      "from": "primary_agent",
+      "to": "primary_agent",
+      "action": "task_analysis",
+      "label": "Analyze Task + Identify Subtasks",
+      "mode": "request",
+      "phase": "task_initiation"
+    },
+    {
+      "from": "primary_agent",
+      "to": "agent_registry",
+      "action": "query_agents",
+      "label": "Query Available Agents",
+      "mode": "request",
+      "phase": "agent_discovery"
+    },
+    {
+      "from": "agent_registry",
+      "to": "primary_agent",
+      "action": "agent_list",
+      "label": "Agent Capabilities + Endpoints",
+      "mode": "response",
+      "phase": "agent_discovery"
+    },
+    {
+      "from": "primary_agent",
+      "to": "specialist_agent",
+      "action": "agent_card_request",
+      "label": "GET /.well-known/agent.json",
+      "mode": "request",
+      "phase": "agent_discovery"
+    },
+    {
+      "from": "specialist_agent",
+      "to": "primary_agent",
+      "action": "agent_card_response",
+      "label": "Agent Card (skills, auth requirements)",
+      "mode": "response",
+      "phase": "agent_discovery"
+    },
+    {
+      "from": "primary_agent",
+      "to": "specialist_agent",
+      "action": "delegate_task",
+      "label": "POST /tasks (subtask + context)",
+      "mode": "request",
+      "phase": "task_delegation",
+      "description": "Delegate subtask with necessary context and constraints"
+    },
+    {
+      "from": "specialist_agent",
+      "to": "primary_agent",
+      "action": "task_accepted",
+      "label": "Task Accepted (task_id)",
+      "mode": "response",
+      "phase": "task_delegation"
+    },
+    {
+      "from": "specialist_agent",
+      "to": "tool_server",
+      "action": "tool_call",
+      "label": "Tool Invocation",
+      "mode": "tool_call",
+      "phase": "task_execution"
+    },
+    {
+      "from": "tool_server",
+      "to": "specialist_agent",
+      "action": "tool_result",
+      "label": "Tool Result",
+      "mode": "tool_result",
+      "phase": "task_execution"
+    },
+    {
+      "from": "specialist_agent",
+      "to": "specialist_agent",
+      "action": "process_result",
+      "label": "Process Tool Result",
+      "mode": "request",
+      "phase": "task_execution"
+    },
+    {
+      "from": "specialist_agent",
+      "to": "primary_agent",
+      "action": "task_complete",
+      "label": "Task Result (artifact + status)",
+      "mode": "callback",
+      "phase": "task_execution",
+      "description": "Return completed subtask result to primary agent"
+    },
+    {
+      "from": "primary_agent",
+      "to": "primary_agent",
+      "action": "aggregate_results",
+      "label": "Aggregate Subtask Results",
+      "mode": "request",
+      "phase": "result_aggregation"
+    },
+    {
+      "from": "primary_agent",
+      "to": "user",
+      "action": "final_response",
+      "label": "Complete Task Response",
+      "mode": "response",
+      "phase": "result_aggregation"
+    }
+  ]
+}

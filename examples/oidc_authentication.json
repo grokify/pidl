@@ -1,0 +1,205 @@
+{
+  "$schema": "../schema/pidl.schema.json",
+  "protocol": {
+    "id": "oidc-authentication",
+    "name": "OpenID Connect Authentication Flow",
+    "version": "1.0",
+    "description": "OpenID Connect Core 1.0 Authorization Code Flow for authentication",
+    "category": "auth",
+    "references": [
+      {
+        "name": "OpenID Connect Core 1.0",
+        "url": "https://openid.net/specs/openid-connect-core-1_0.html"
+      },
+      {
+        "name": "RFC 6749 - OAuth 2.0",
+        "url": "https://datatracker.ietf.org/doc/html/rfc6749"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "user",
+      "name": "End User",
+      "type": "user",
+      "description": "User being authenticated"
+    },
+    {
+      "id": "browser",
+      "name": "User Agent",
+      "type": "browser",
+      "description": "User's web browser"
+    },
+    {
+      "id": "rp",
+      "name": "Relying Party",
+      "type": "client",
+      "description": "Application relying on the OpenID Provider for authentication"
+    },
+    {
+      "id": "op",
+      "name": "OpenID Provider",
+      "type": "authorization_server",
+      "description": "Identity provider that authenticates users and issues ID tokens"
+    },
+    {
+      "id": "userinfo",
+      "name": "UserInfo Endpoint",
+      "type": "resource_server",
+      "description": "Endpoint returning claims about the authenticated user"
+    }
+  ],
+  "phases": [
+    {
+      "id": "discovery",
+      "name": "Discovery",
+      "description": "Relying Party discovers OpenID Provider configuration"
+    },
+    {
+      "id": "authentication",
+      "name": "Authentication",
+      "description": "User authentication at the OpenID Provider"
+    },
+    {
+      "id": "token_exchange",
+      "name": "Token Exchange",
+      "description": "Exchange authorization code for tokens"
+    },
+    {
+      "id": "userinfo_request",
+      "name": "UserInfo",
+      "description": "Fetch additional user claims"
+    }
+  ],
+  "flows": [
+    {
+      "from": "rp",
+      "to": "op",
+      "action": "discovery",
+      "label": "GET /.well-known/openid-configuration",
+      "mode": "request",
+      "phase": "discovery"
+    },
+    {
+      "from": "op",
+      "to": "rp",
+      "action": "discovery_response",
+      "label": "OpenID Provider Metadata",
+      "mode": "response",
+      "phase": "discovery"
+    },
+    {
+      "from": "user",
+      "to": "rp",
+      "action": "initiate_login",
+      "label": "Click Login with Provider",
+      "mode": "interactive",
+      "phase": "authentication"
+    },
+    {
+      "from": "rp",
+      "to": "browser",
+      "action": "redirect_to_op",
+      "label": "Redirect to OpenID Provider",
+      "mode": "redirect",
+      "phase": "authentication"
+    },
+    {
+      "from": "browser",
+      "to": "op",
+      "action": "authentication_request",
+      "label": "GET /authorize?scope=openid profile email&response_type=code&nonce=...",
+      "mode": "request",
+      "phase": "authentication"
+    },
+    {
+      "from": "op",
+      "to": "user",
+      "action": "login_prompt",
+      "label": "Login Form",
+      "mode": "interactive",
+      "phase": "authentication"
+    },
+    {
+      "from": "user",
+      "to": "op",
+      "action": "authenticate",
+      "label": "Submit Credentials",
+      "mode": "interactive",
+      "phase": "authentication"
+    },
+    {
+      "from": "op",
+      "to": "user",
+      "action": "consent_prompt",
+      "label": "Consent Screen (share profile, email)",
+      "mode": "interactive",
+      "phase": "authentication"
+    },
+    {
+      "from": "user",
+      "to": "op",
+      "action": "grant_consent",
+      "label": "Grant Consent",
+      "mode": "interactive",
+      "phase": "authentication"
+    },
+    {
+      "from": "op",
+      "to": "browser",
+      "action": "authentication_response",
+      "label": "Redirect with code",
+      "mode": "redirect",
+      "phase": "authentication"
+    },
+    {
+      "from": "browser",
+      "to": "rp",
+      "action": "callback",
+      "label": "Callback with Authorization Code",
+      "mode": "callback",
+      "phase": "authentication"
+    },
+    {
+      "from": "rp",
+      "to": "op",
+      "action": "token_request",
+      "label": "POST /token (code + client_secret)",
+      "mode": "request",
+      "phase": "token_exchange"
+    },
+    {
+      "from": "op",
+      "to": "rp",
+      "action": "token_response",
+      "label": "ID Token + Access Token",
+      "mode": "response",
+      "phase": "token_exchange",
+      "description": "ID Token contains user identity claims (sub, name, email, etc.)"
+    },
+    {
+      "from": "rp",
+      "to": "rp",
+      "action": "validate_id_token",
+      "label": "Validate ID Token (signature, iss, aud, nonce, exp)",
+      "mode": "request",
+      "phase": "token_exchange"
+    },
+    {
+      "from": "rp",
+      "to": "userinfo",
+      "action": "userinfo_request",
+      "label": "GET /userinfo (Authorization: Bearer <access_token>)",
+      "mode": "request",
+      "phase": "userinfo_request"
+    },
+    {
+      "from": "userinfo",
+      "to": "rp",
+      "action": "userinfo_response",
+      "label": "User Claims (name, email, picture, etc.)",
+      "mode": "response",
+      "phase": "userinfo_request"
+    }
+  ]
+}
