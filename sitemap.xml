@@ -68,4 +68,16 @@
          <loc>https://grokify.github.io/pidl/reference/library/</loc>
          <lastmod>2026-04-19</lastmod>
     </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/releases/</loc>
+         <lastmod>2026-04-19</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/releases/v0.1.0/</loc>
+         <lastmod>2026-04-19</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/releases/v0.2.0/</loc>
+         <lastmod>2026-04-19</lastmod>
+    </url>
 </urlset>
