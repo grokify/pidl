@@ -219,6 +219,54 @@ func (p *Protocol) validatePhases() ValidationErrors {
 		}
 	}
 
+	// Validate parent references after collecting all IDs
+	for i, ph := range p.Phases {
+		if ph.Parent != "" {
+			field := fmt.Sprintf("phases[%d]", i)
+			if !seen[ph.Parent] {
+				errs = append(errs, ValidationError{
+					Field:   field + ".parent",
+					Message: fmt.Sprintf("unknown parent phase %q", ph.Parent),
+				})
+			}
+			if ph.Parent == ph.ID {
+				errs = append(errs, ValidationError{
+					Field:   field + ".parent",
+					Message: "phase cannot be its own parent",
+				})
+			}
+		}
+	}
+
+	// Check for circular references in phase hierarchy
+	errs = append(errs, p.validatePhaseHierarchy()...)
+
+	return errs
+}
+
+func (p *Protocol) validatePhaseHierarchy() ValidationErrors {
+	var errs ValidationErrors
+
+	for _, ph := range p.Phases {
+		if ph.Parent == "" {
+			continue
+		}
+		// Walk up the hierarchy to detect cycles
+		visited := make(map[string]bool)
+		current := &ph
+		for current != nil && current.Parent != "" {
+			if visited[current.ID] {
+				errs = append(errs, ValidationError{
+					Field:   "phases",
+					Message: fmt.Sprintf("circular reference in phase hierarchy involving %q", ph.ID),
+				})
+				break
+			}
+			visited[current.ID] = true
+			current = p.PhaseByID(current.Parent)
+		}
+	}
+
 	return errs
 }
 
@@ -296,6 +344,67 @@ func (p *Protocol) validateFlows() ValidationErrors {
 				Message: "must be non-negative",
 			})
 		}
+
+		// Validate annotations
+		for j, ann := range f.Annotations {
+			annField := fmt.Sprintf("%s.annotations[%d]", field, j)
+			if ann.Type == "" {
+				errs = append(errs, ValidationError{
+					Field:   annField + ".type",
+					Message: "required",
+				})
+			} else if !isValidAnnotationType(ann.Type) {
+				errs = append(errs, ValidationError{
+					Field:   annField + ".type",
+					Message: fmt.Sprintf("invalid annotation type %q", ann.Type),
+				})
+			}
+			if ann.Text == "" {
+				errs = append(errs, ValidationError{
+					Field:   annField + ".text",
+					Message: "required",
+				})
+			}
+		}
+
+		// Validate alternatives
+		for j, alt := range f.Alternatives {
+			altField := fmt.Sprintf("%s.alternatives[%d]", field, j)
+			if alt.Condition == "" {
+				errs = append(errs, ValidationError{
+					Field:   altField + ".condition",
+					Message: "required",
+				})
+			}
+			if len(alt.Flows) == 0 {
+				errs = append(errs, ValidationError{
+					Field:   altField + ".flows",
+					Message: "must have at least 1 flow",
+				})
+			}
+			// Validate entity references in alternative flows
+			for k, altFlow := range alt.Flows {
+				altFlowField := fmt.Sprintf("%s.flows[%d]", altField, k)
+				if altFlow.From != "" && !entityIDs[altFlow.From] {
+					errs = append(errs, ValidationError{
+						Field:   altFlowField + ".from",
+						Message: fmt.Sprintf("unknown entity %q", altFlow.From),
+					})
+				}
+				if altFlow.To != "" && !entityIDs[altFlow.To] {
+					errs = append(errs, ValidationError{
+						Field:   altFlowField + ".to",
+						Message: fmt.Sprintf("unknown entity %q", altFlow.To),
+					})
+				}
+				if altFlow.Phase != "" && !phaseIDs[altFlow.Phase] {
+					errs = append(errs, ValidationError{
+						Field:   altFlowField + ".phase",
+						Message: fmt.Sprintf("unknown phase %q", altFlow.Phase),
+					})
+				}
+			}
+		}
 	}
 
 	return errs
@@ -324,6 +433,15 @@ func isValidFlowMode(m FlowMode) bool {
 	switch m {
 	case FlowModeRequest, FlowModeResponse, FlowModeRedirect, FlowModeCallback,
 		FlowModeInteractive, FlowModeEvent, FlowModeToolCall, FlowModeToolResult:
+		return true
+	}
+	return false
+}
+
+func isValidAnnotationType(t AnnotationType) bool {
+	switch t {
+	case AnnotationTypeSecurity, AnnotationTypePerformance, AnnotationTypeDeprecated,
+		AnnotationTypeInfo, AnnotationTypeWarning, AnnotationTypeError:
 		return true
 	}
 	return false
