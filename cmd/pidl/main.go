@@ -179,7 +179,7 @@ Formats:
 	if *output == "" {
 		fmt.Print(diagram)
 	} else {
-		if err := os.WriteFile(*output, []byte(diagram), 0644); err != nil {
+		if err := os.WriteFile(*output, []byte(diagram), 0600); err != nil {
 			fmt.Fprintf(os.Stderr, "Error writing %s: %v\n", *output, err)
 			os.Exit(1)
 		}

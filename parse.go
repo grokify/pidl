@@ -70,7 +70,7 @@ func (p *Protocol) WriteFile(filename string) error {
 	if err != nil {
 		return fmt.Errorf("marshaling JSON: %w", err)
 	}
-	if err := os.WriteFile(filename, data, 0644); err != nil {
+	if err := os.WriteFile(filename, data, 0600); err != nil {
 		return fmt.Errorf("writing file: %w", err)
 	}
 	return nil

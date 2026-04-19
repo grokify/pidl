@@ -40,7 +40,7 @@ func TestValidateFileInvalidJSON(t *testing.T) {
 	dir := t.TempDir()
 	filename := filepath.Join(dir, "invalid.json")
 
-	if err := os.WriteFile(filename, []byte("not json"), 0644); err != nil {
+	if err := os.WriteFile(filename, []byte("not json"), 0600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -62,7 +62,7 @@ func TestValidateFiles(t *testing.T) {
 
 	// Create invalid file
 	invalid := filepath.Join(dir, "invalid.json")
-	if err := os.WriteFile(invalid, []byte("{}"), 0644); err != nil {
+	if err := os.WriteFile(invalid, []byte("{}"), 0600); err != nil {
 		t.Fatal(err)
 	}
 
