@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/grokify/pidl/schema/pidl.schema.json",
+  "title": "PIDL Protocol",
+  "description": "Protocol Interaction Description Language - describes protocol choreography for diagram generation",
+  "type": "object",
+  "required": ["protocol", "entities", "flows"],
+  "properties": {
+    "protocol": {
+      "$ref": "#/$defs/protocolMetadata"
+    },
+    "entities": {
+      "type": "array",
+      "description": "Participants in the protocol (systems, actors, services)",
+      "items": {
+        "$ref": "#/$defs/entity"
+      },
+      "minItems": 2
+    },
+    "phases": {
+      "type": "array",
+      "description": "Optional grouping of flows into logical phases",
+      "items": {
+        "$ref": "#/$defs/phase"
+      }
+    },
+    "flows": {
+      "type": "array",
+      "description": "Interactions between entities",
+      "items": {
+        "$ref": "#/$defs/flow"
+      },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "protocolMetadata": {
+      "type": "object",
+      "description": "Metadata about the protocol being described",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the protocol",
+          "pattern": "^[a-z][a-z0-9_-]*$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name of the protocol"
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of the protocol specification"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief description of the protocol"
+        },
+        "category": {
+          "type": "string",
+          "description": "Protocol category",
+          "enum": ["auth", "agent", "messaging", "provisioning", "other"]
+        },
+        "references": {
+          "type": "array",
+          "description": "Links to relevant specifications or documentation",
+          "items": {
+            "$ref": "#/$defs/reference"
+          }
+        }
+      }
+    },
+    "reference": {
+      "type": "object",
+      "required": ["name", "url"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the reference (e.g., RFC 6749)"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the reference"
+        }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "description": "A participant in the protocol (system, actor, or service)",
+      "required": ["id", "name", "type"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the entity, used in flow references",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable display name"
+        },
+        "type": {
+          "$ref": "#/$defs/entityType"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description of the entity's role"
+        }
+      }
+    },
+    "entityType": {
+      "type": "string",
+      "description": "Type classification of the entity",
+      "enum": [
+        "client",
+        "authorization_server",
+        "resource_server",
+        "user",
+        "browser",
+        "agent",
+        "tool_server",
+        "tool",
+        "delegated_agent",
+        "identity_provider",
+        "service_provider",
+        "server",
+        "other"
+      ]
+    },
+    "phase": {
+      "type": "object",
+      "description": "A logical grouping of flows",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the phase",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for the phase"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description of the phase"
+        }
+      }
+    },
+    "flow": {
+      "type": "object",
+      "description": "An interaction between two entities",
+      "required": ["from", "to", "action"],
+      "properties": {
+        "from": {
+          "type": "string",
+          "description": "Entity ID of the sender/initiator"
+        },
+        "to": {
+          "type": "string",
+          "description": "Entity ID of the receiver/target"
+        },
+        "action": {
+          "type": "string",
+          "description": "Identifier for the action being performed"
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable label for diagram display (defaults to action)"
+        },
+        "mode": {
+          "$ref": "#/$defs/flowMode"
+        },
+        "phase": {
+          "type": "string",
+          "description": "Phase ID this flow belongs to"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional detailed description of the flow"
+        },
+        "sequence": {
+          "type": "integer",
+          "description": "Optional explicit ordering (flows are ordered by array position by default)",
+          "minimum": 1
+        }
+      }
+    },
+    "flowMode": {
+      "type": "string",
+      "description": "The type/mode of the interaction",
+      "enum": [
+        "request",
+        "response",
+        "redirect",
+        "callback",
+        "interactive",
+        "event",
+        "tool_call",
+        "tool_result"
+      ],
+      "default": "request"
+    }
+  }
+}
