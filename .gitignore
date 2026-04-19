@@ -16,7 +16,7 @@ debug.test
 # Binaries
 main
 main.zip
-pidl
+/pidl
 
 # Ideation/scratch files
 IDEATION_CHAT*.md
