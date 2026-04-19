@@ -72,6 +72,10 @@ nav:
     - OAuth 2.0: examples/oauth2.md
     - MCP: examples/mcp.md
     - A2A: examples/a2a.md
+  - Releases:
+    - Overview: releases/index.md
+    - v0.2.0: releases/v0.2.0.md
+    - v0.1.0: releases/v0.1.0.md
   - Changelog: CHANGELOG.md
 
 extra:
