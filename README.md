@@ -32,7 +32,7 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 ## Features
 
 - 📋 **JSON-based DSL** for describing protocol flows
-- 🎨 **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT
+- 🎨 **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT, D2
 - 📚 **Built-in examples**: OAuth 2.0, PKCE, OIDC, MCP, A2A
 - ⌨️ **CLI tool** for validation and diagram generation
 - 📦 **Go library** for programmatic use
@@ -70,6 +70,15 @@ pidl generate -f mermaid oauth2_pkce
 
 # Graphviz DOT data flow diagram
 pidl generate -f dot mcp_tool_invocation
+
+# D2 sequence diagram
+pidl generate -f d2 oauth2_pkce
+
+# D2 data flow diagram
+pidl generate -f d2-flow oauth2_pkce
+
+# D2 architecture diagram
+pidl generate -f d2-arch oauth2_pkce
 ```
 
 ### Create a new protocol file
@@ -171,9 +180,15 @@ Options:
 pidl generate [options] <file>
 
 Options:
-  -f string   Output format: plantuml, mermaid, dot (default "plantuml")
+  -f string   Output format: plantuml, mermaid, dot, d2, d2-flow, d2-arch (default "plantuml")
   -o string   Output file (default: stdout)
 ```
+
+D2 formats:
+
+- `d2` - Sequence diagram
+- `d2-flow` - Data flow diagram with entity shapes
+- `d2-arch` - Architecture diagram with entities grouped by type
 
 ### examples
 

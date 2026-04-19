@@ -26,6 +26,14 @@ func TestParseFormat(t *testing.T) {
 		{"DOT", FormatDOT, false},
 		{"graphviz", FormatDOT, false},
 		{"gv", FormatDOT, false},
+		{"d2", FormatD2, false},
+		{"D2", FormatD2, false},
+		{"d2-sequence", FormatD2, false},
+		{"d2-seq", FormatD2, false},
+		{"d2-flow", FormatD2Flow, false},
+		{"d2-dataflow", FormatD2Flow, false},
+		{"d2-arch", FormatD2Arch, false},
+		{"d2-architecture", FormatD2Arch, false},
 		{"  plantuml  ", FormatPlantUML, false},
 		{"unknown", "", true},
 		{"", "", true},
@@ -80,6 +88,9 @@ func TestFormatFileExtension(t *testing.T) {
 		{FormatPlantUML, ".puml"},
 		{FormatMermaid, ".mmd"},
 		{FormatDOT, ".dot"},
+		{FormatD2, ".d2"},
+		{FormatD2Flow, ".d2"},
+		{FormatD2Arch, ".d2"},
 		{Format("unknown"), ".txt"},
 	}
 
@@ -120,6 +131,9 @@ func TestNew(t *testing.T) {
 		{FormatPlantUML, false},
 		{FormatMermaid, false},
 		{FormatDOT, false},
+		{FormatD2, false},
+		{FormatD2Flow, false},
+		{FormatD2Arch, false},
 		{"unknown", true},
 	}
 
@@ -163,8 +177,8 @@ func TestMustNewPanics(t *testing.T) {
 
 func TestSupportedFormats(t *testing.T) {
 	formats := SupportedFormats()
-	if len(formats) != 3 {
-		t.Errorf("SupportedFormats() = %d formats, want 3", len(formats))
+	if len(formats) != 6 {
+		t.Errorf("SupportedFormats() = %d formats, want 6", len(formats))
 	}
 }
 
@@ -349,5 +363,112 @@ func TestDOTRendererUnmergedEdges(t *testing.T) {
 	arrows := strings.Count(s, "a -> b")
 	if arrows != 2 {
 		t.Errorf("Unmerged edges should produce 2 arrows, got %d", arrows)
+	}
+}
+
+func TestD2SequenceRenderer(t *testing.T) {
+	p := testProtocol()
+	r := NewD2()
+
+	s, err := r.RenderString(p)
+	if err != nil {
+		t.Fatalf("RenderString() error = %v", err)
+	}
+
+	// Check structure
+	if !strings.Contains(s, "shape: sequence_diagram") {
+		t.Error("D2 sequence should contain shape: sequence_diagram")
+	}
+
+	// Check title
+	if !strings.Contains(s, "title: Test Protocol") {
+		t.Error("D2 should contain title")
+	}
+
+	// Check actors
+	if !strings.Contains(s, "client: Client") || !strings.Contains(s, "server: Server") {
+		t.Error("D2 should contain actor declarations")
+	}
+
+	// Check arrows
+	if !strings.Contains(s, "->") {
+		t.Error("D2 should contain arrows")
+	}
+}
+
+func TestD2FlowRenderer(t *testing.T) {
+	p := testProtocol()
+	r := NewD2Flow()
+
+	s, err := r.RenderString(p)
+	if err != nil {
+		t.Fatalf("RenderString() error = %v", err)
+	}
+
+	// Check direction
+	if !strings.Contains(s, "direction: right") {
+		t.Error("D2 flow should contain direction")
+	}
+
+	// Check nodes have shapes
+	if !strings.Contains(s, "shape:") {
+		t.Error("D2 flow should contain shape declarations")
+	}
+
+	// Check connections with numbers
+	if !strings.Contains(s, "1. Request") {
+		t.Error("D2 flow should contain numbered flows")
+	}
+}
+
+func TestD2ArchRenderer(t *testing.T) {
+	p := testProtocol()
+	r := NewD2Arch()
+
+	s, err := r.RenderString(p)
+	if err != nil {
+		t.Fatalf("RenderString() error = %v", err)
+	}
+
+	// Check that entities are grouped
+	if !strings.Contains(s, "Clients:") || !strings.Contains(s, "Servers:") {
+		t.Error("D2 arch should group entities by type")
+	}
+
+	// Check connections use qualified IDs
+	if !strings.Contains(s, "Clients.client") || !strings.Contains(s, "Servers.server") {
+		t.Error("D2 arch should use qualified IDs for connections")
+	}
+}
+
+func TestD2RendererWriter(t *testing.T) {
+	p := testProtocol()
+	r := NewD2()
+
+	var buf bytes.Buffer
+	err := r.Render(&buf, p)
+	if err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+
+	if buf.Len() == 0 {
+		t.Error("Render() wrote nothing")
+	}
+}
+
+func TestD2RendererFormat(t *testing.T) {
+	tests := []struct {
+		renderer *D2Renderer
+		want     Format
+	}{
+		{NewD2(), FormatD2},
+		{NewD2Flow(), FormatD2Flow},
+		{NewD2Arch(), FormatD2Arch},
+	}
+
+	for _, tt := range tests {
+		if got := tt.renderer.Format(); got != tt.want {
+			t.Errorf("Format() = %v, want %v", got, tt.want)
+		}
 	}
 }

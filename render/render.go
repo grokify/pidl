@@ -16,6 +16,9 @@ const (
 	FormatPlantUML Format = "plantuml"
 	FormatMermaid  Format = "mermaid"
 	FormatDOT      Format = "dot"
+	FormatD2       Format = "d2"
+	FormatD2Flow   Format = "d2-flow"
+	FormatD2Arch   Format = "d2-arch"
 )
 
 // String returns the format as a string.
@@ -32,6 +35,8 @@ func (f Format) FileExtension() string {
 		return ".mmd"
 	case FormatDOT:
 		return ".dot"
+	case FormatD2, FormatD2Flow, FormatD2Arch:
+		return ".d2"
 	default:
 		return ".txt"
 	}
@@ -46,8 +51,14 @@ func ParseFormat(s string) (Format, error) {
 		return FormatMermaid, nil
 	case "dot", "graphviz", "gv":
 		return FormatDOT, nil
+	case "d2", "d2-sequence", "d2-seq":
+		return FormatD2, nil
+	case "d2-flow", "d2-dataflow":
+		return FormatD2Flow, nil
+	case "d2-arch", "d2-architecture":
+		return FormatD2Arch, nil
 	default:
-		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, dot", s)
+		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, dot, d2, d2-flow, d2-arch", s)
 	}
 }
 
@@ -81,6 +92,12 @@ func New(format Format) (Renderer, error) {
 		return NewMermaid(), nil
 	case FormatDOT:
 		return NewDOT(), nil
+	case FormatD2:
+		return NewD2(), nil
+	case FormatD2Flow:
+		return NewD2Flow(), nil
+	case FormatD2Arch:
+		return NewD2Arch(), nil
 	default:
 		return nil, fmt.Errorf("unknown format: %s", format)
 	}
@@ -106,5 +123,5 @@ func RenderString(format Format, p *pidl.Protocol) (string, error) {
 
 // SupportedFormats returns all supported output formats.
 func SupportedFormats() []Format {
-	return []Format{FormatPlantUML, FormatMermaid, FormatDOT}
+	return []Format{FormatPlantUML, FormatMermaid, FormatDOT, FormatD2, FormatD2Flow, FormatD2Arch}
 }

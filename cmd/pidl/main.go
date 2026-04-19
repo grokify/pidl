@@ -113,7 +113,7 @@ Options:
 
 func cmdGenerate(args []string) {
 	fs := flag.NewFlagSet("generate", flag.ExitOnError)
-	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, dot")
+	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, dot, d2, d2-flow, d2-arch")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	fs.Usage = func() {
 		fmt.Print(`Usage: pidl generate [options] <file>
@@ -128,6 +128,9 @@ Formats:
   plantuml, puml   PlantUML sequence diagram
   mermaid, mmd     Mermaid sequence diagram
   dot, graphviz    Graphviz DOT data flow diagram
+  d2               D2 sequence diagram
+  d2-flow          D2 data flow diagram
+  d2-arch          D2 architecture diagram
 `)
 	}
 
