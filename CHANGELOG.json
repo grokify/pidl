@@ -12,9 +12,11 @@
       "highlights": [
         { "description": "Add annotations, alternatives, conditions, notes, and nested phases to PIDL" },
         { "description": "Enhanced renderers with support for alt/else blocks, opt conditionals, and nested phase visualization" },
+        { "description": "New D2 diagram format with sequence, flow, and architecture rendering styles" },
         { "description": "Comprehensive validation for phase hierarchies and new flow features" }
       ],
       "added": [
+        { "description": "D2 diagram renderer with sequence, flow, and architecture styles", "commit": "a5f8f35" },
         { "description": "AnnotationType enum: security, performance, deprecated, info, warning, error", "commit": "843c18d" },
         { "description": "Annotation type with Type, Text, and Details fields", "commit": "843c18d" },
         { "description": "Alternative type for alternative/error flow paths", "commit": "843c18d" },
