@@ -7,6 +7,48 @@
   "maintainers": ["grokify"],
   "releases": [
     {
+      "version": "v0.2.0",
+      "date": "2025-04-18",
+      "highlights": [
+        { "description": "Add annotations, alternatives, conditions, notes, and nested phases to PIDL" },
+        { "description": "Enhanced renderers with support for alt/else blocks, opt conditionals, and nested phase visualization" },
+        { "description": "Comprehensive validation for phase hierarchies and new flow features" }
+      ],
+      "added": [
+        { "description": "AnnotationType enum: security, performance, deprecated, info, warning, error", "commit": "843c18d" },
+        { "description": "Annotation type with Type, Text, and Details fields", "commit": "843c18d" },
+        { "description": "Alternative type for alternative/error flow paths", "commit": "843c18d" },
+        { "description": "Phase.Parent field for nested phase hierarchies", "commit": "843c18d" },
+        { "description": "Flow.Condition field for conditional flows (when clause)", "commit": "843c18d" },
+        { "description": "Flow.Note field for visible diagram notes", "commit": "843c18d" },
+        { "description": "Flow.Annotations field for typed annotations", "commit": "843c18d" },
+        { "description": "Flow.Alternatives field for alternative paths", "commit": "843c18d" },
+        { "description": "Protocol.RootPhases(), ChildPhases(), PhaseDepth() helper methods", "commit": "843c18d" },
+        { "description": "Flow.HasCondition(), HasNote(), HasAnnotations(), HasAlternatives() helper methods", "commit": "843c18d" },
+        { "description": "IsValidAnnotationType() validation function", "commit": "843c18d" },
+        { "description": "JSON Schema definitions for annotation and alternative types", "commit": "fffad47" },
+        { "description": "Phase parent reference validation with cycle detection", "commit": "37afe81" },
+        { "description": "Annotation type and text validation", "commit": "37afe81" },
+        { "description": "Alternative condition and flows validation", "commit": "37afe81" },
+        { "description": "Mermaid opt blocks for conditional flows", "commit": "ab82c3b" },
+        { "description": "Mermaid alt/else blocks for alternatives", "commit": "ab82c3b" },
+        { "description": "Mermaid note right of for flow notes and annotations", "commit": "ab82c3b" },
+        { "description": "Mermaid colored rect blocks for nested phases", "commit": "ab82c3b" },
+        { "description": "PlantUML opt/alt/else blocks for conditionals and alternatives", "commit": "ab82c3b" },
+        { "description": "PlantUML colored box containers for nested phases", "commit": "ab82c3b" },
+        { "description": "D2 condition label prefixes and grouped alternatives", "commit": "ab82c3b" },
+        { "description": "D2 nested phase groups with hierarchy support", "commit": "ab82c3b" },
+        { "description": "DOT condition edge labels and alternative edges", "commit": "ab82c3b" }
+      ],
+      "tests": [
+        { "description": "Tests for nested phases, phase parent validation, circular hierarchy detection", "commit": "d9dd392" },
+        { "description": "Tests for annotation types and text validation", "commit": "d9dd392" },
+        { "description": "Tests for alternative flows, conditions, and entity references", "commit": "d9dd392" },
+        { "description": "Tests for flow helper methods (HasCondition, HasNote, etc.)", "commit": "d9dd392" },
+        { "description": "Tests for phase hierarchy helpers (RootPhases, ChildPhases, PhaseDepth)", "commit": "d9dd392" }
+      ]
+    },
+    {
       "version": "v0.1.0",
       "date": "2025-04-18",
       "highlights": [
