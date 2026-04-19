@@ -121,7 +121,7 @@ Entities represent participants in the protocol: systems, services, actors, or t
 
 ## Phases
 
-Phases provide optional logical grouping of flows for readability and diagram organization.
+Phases provide optional logical grouping of flows for readability and diagram organization. Phases support hierarchical nesting via the `parent` field.
 
 ```json
 {
@@ -130,6 +130,12 @@ Phases provide optional logical grouping of flows for readability and diagram or
       "id": "authorization",
       "name": "Authorization",
       "description": "User authentication and consent"
+    },
+    {
+      "id": "mfa",
+      "name": "Multi-Factor Authentication",
+      "parent": "authorization",
+      "description": "Optional MFA challenge"
     },
     {
       "id": "token_exchange",
@@ -147,8 +153,22 @@ Phases provide optional logical grouping of flows for readability and diagram or
 | `id` | string | Yes | Unique identifier |
 | `name` | string | Yes | Human-readable name |
 | `description` | string | No | Phase description |
+| `parent` | string | No | Parent phase ID for nesting |
 
-Phases are rendered as grouping constructs in diagrams (e.g., PlantUML `== Phase ==` separators).
+### Phase Hierarchy
+
+Phases can be nested to create hierarchical groupings:
+
+- A phase with no `parent` is a root phase
+- A phase with a `parent` must reference a valid phase ID
+- Circular references are not allowed
+- A phase cannot be its own parent
+
+Phases are rendered as grouping constructs in diagrams:
+
+- **PlantUML**: Colored `box` containers
+- **Mermaid**: Colored `rect` blocks
+- **D2**: Nested groups
 
 ## Flows
 
@@ -164,7 +184,20 @@ Flows are the core semantic unit: directed interactions between entities.
       "label": "POST /token",
       "mode": "request",
       "phase": "token_exchange",
-      "description": "Exchange authorization code for access token"
+      "description": "Exchange authorization code for access token",
+      "condition": "code_valid",
+      "note": "Code must be exchanged within 10 minutes",
+      "annotations": [
+        {"type": "security", "text": "Validate code verifier (PKCE)"}
+      ],
+      "alternatives": [
+        {
+          "condition": "code_invalid",
+          "flows": [
+            {"from": "auth_server", "to": "client", "action": "error", "mode": "response"}
+          ]
+        }
+      ]
     }
   ]
 }
@@ -182,6 +215,10 @@ Flows are the core semantic unit: directed interactions between entities.
 | `phase` | string | No | Phase ID this flow belongs to |
 | `description` | string | No | Detailed description |
 | `sequence` | integer | No | Explicit ordering (default: array order) |
+| `condition` | string | No | Conditional execution clause |
+| `note` | string | No | Visible note displayed on diagram |
+| `annotations` | array | No | Typed annotations for tooling |
+| `alternatives` | array | No | Alternative flow paths |
 
 ### Flow Modes
 
@@ -195,6 +232,91 @@ Flows are the core semantic unit: directed interactions between entities.
 | `event` | Asynchronous event | Dashed arrow |
 | `tool_call` | Tool invocation (MCP) | Solid arrow with tool annotation |
 | `tool_result` | Tool result (MCP) | Dashed arrow with result annotation |
+
+### Conditional Flows
+
+The `condition` field specifies when a flow is executed. Conditions are rendered as `opt` blocks in sequence diagrams.
+
+```json
+{
+  "from": "client",
+  "to": "server",
+  "action": "refresh_token",
+  "condition": "token_expired"
+}
+```
+
+### Annotations
+
+Annotations provide typed metadata for flows. They are rendered as notes in diagrams.
+
+```json
+{
+  "annotations": [
+    {
+      "type": "security",
+      "text": "Validate PKCE code_verifier",
+      "details": "Compare SHA256(code_verifier) with stored code_challenge"
+    }
+  ]
+}
+```
+
+#### Annotation Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | enum | Yes | Annotation category |
+| `text` | string | Yes | Annotation message |
+| `details` | string | No | Additional context |
+
+#### Annotation Types
+
+| Type | Description |
+|------|-------------|
+| `security` | Security considerations |
+| `performance` | Performance implications |
+| `deprecated` | Deprecated functionality |
+| `info` | General information |
+| `warning` | Warning conditions |
+| `error` | Error conditions |
+
+### Alternative Paths
+
+The `alternatives` field defines branching paths from a flow. They are rendered as `alt/else` blocks in sequence diagrams.
+
+```json
+{
+  "from": "client",
+  "to": "server",
+  "action": "authenticate",
+  "alternatives": [
+    {
+      "condition": "invalid_credentials",
+      "description": "Authentication failed",
+      "flows": [
+        {"from": "server", "to": "client", "action": "auth_error", "mode": "response"}
+      ]
+    },
+    {
+      "condition": "mfa_required",
+      "description": "Multi-factor authentication needed",
+      "flows": [
+        {"from": "server", "to": "client", "action": "mfa_challenge", "mode": "response"},
+        {"from": "client", "to": "server", "action": "mfa_response", "mode": "request"}
+      ]
+    }
+  ]
+}
+```
+
+#### Alternative Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `condition` | string | Yes | Condition that triggers this path |
+| `flows` | array | Yes | Flows in this alternative path |
+| `description` | string | No | Description of this alternative |
 
 ## Ordering
 
@@ -245,10 +367,10 @@ PIDL files use the `.pidl.json` extension by convention.
 
 The following features are planned for future versions:
 
-- Conditional flows (`when` clauses)
-- Alternative/optional paths (`alt`, `opt` blocks)
 - State model and mutations
-- Security and trust annotations
 - Protocol composition and imports
+- Loop constructs (`loop` blocks)
+- Break/continue semantics
+- External tool integration (PlantUML server, Kroki)
 
 See TASKS.md for the complete roadmap.
