@@ -144,6 +144,53 @@
         "description": {
           "type": "string",
           "description": "Optional description of the phase"
+        },
+        "parent": {
+          "type": "string",
+          "description": "Parent phase ID for nested phases"
+        }
+      }
+    },
+    "annotation": {
+      "type": "object",
+      "description": "A typed annotation on a flow",
+      "required": ["type", "text"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Category of the annotation",
+          "enum": ["security", "performance", "deprecated", "info", "warning", "error"]
+        },
+        "text": {
+          "type": "string",
+          "description": "The annotation message"
+        },
+        "details": {
+          "type": "string",
+          "description": "Additional context or details"
+        }
+      }
+    },
+    "alternative": {
+      "type": "object",
+      "description": "An alternative path in the flow",
+      "required": ["condition", "flows"],
+      "properties": {
+        "condition": {
+          "type": "string",
+          "description": "Condition that triggers this alternative path"
+        },
+        "flows": {
+          "type": "array",
+          "description": "Flows in this alternative path",
+          "items": {
+            "$ref": "#/$defs/flow"
+          },
+          "minItems": 1
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description of this alternative"
         }
       }
     },
@@ -183,6 +230,28 @@
           "type": "integer",
           "description": "Optional explicit ordering (flows are ordered by array position by default)",
           "minimum": 1
+        },
+        "condition": {
+          "type": "string",
+          "description": "Condition for when this flow is executed (e.g., 'token_valid', 'error')"
+        },
+        "note": {
+          "type": "string",
+          "description": "A visible note/annotation displayed on the diagram"
+        },
+        "annotations": {
+          "type": "array",
+          "description": "Typed annotations for tooling and documentation",
+          "items": {
+            "$ref": "#/$defs/annotation"
+          }
+        },
+        "alternatives": {
+          "type": "array",
+          "description": "Alternative paths from this flow point",
+          "items": {
+            "$ref": "#/$defs/alternative"
+          }
         }
       }
     },
