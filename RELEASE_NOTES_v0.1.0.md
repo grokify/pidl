@@ -1,0 +1,93 @@
+# PIDL v0.1.0 Release Notes
+
+**Release Date:** 2025-04-18
+
+This is the initial release of PIDL (Protocol Interaction Description Language), a JSON-based DSL for describing protocol choreography that compiles to diagrams.
+
+## Highlights
+
+- Protocol Interaction Description Language - a JSON-based DSL for describing protocol choreography that compiles to diagrams
+- Support for OAuth 2.0, PKCE, OIDC, MCP, and A2A protocol examples
+- Three diagram output formats: PlantUML, Mermaid, and Graphviz DOT
+
+## What's New
+
+### Core Library
+
+- `Protocol`, `Entity`, `Flow`, and `Phase` types for modeling protocol interactions
+- JSON parser with `ParseFile`, `Parse`, and `ParseReader` functions
+- Comprehensive validation with detailed error reporting
+- High-level operations: `ValidateFile`, `ValidateFiles`, `NewMinimalProtocol`, `WriteProtocolFile`
+- JSON Schema (draft 2020-12) for external validation tools
+
+### Diagram Renderers
+
+- **PlantUML** - Sequence diagram generation with phase groupings
+- **Mermaid** - Sequence diagram generation for web embedding
+- **Graphviz DOT** - Data flow diagram generation
+
+### CLI Tool
+
+```bash
+go install github.com/grokify/pidl/cmd/pidl@latest
+```
+
+Commands:
+
+- `pidl validate` - Validate PIDL JSON files
+- `pidl generate` - Generate diagrams (PlantUML, Mermaid, DOT)
+- `pidl examples` - List or show built-in protocol examples
+- `pidl init` - Create new protocol files from templates
+
+### Built-in Examples
+
+| Example | Protocol |
+|---------|----------|
+| `oauth2_authorization_code` | OAuth 2.0 Authorization Code Flow |
+| `oauth2_pkce` | OAuth 2.0 with PKCE |
+| `oidc_authentication` | OpenID Connect Authentication |
+| `mcp_tool_invocation` | MCP Tool Invocation |
+| `a2a_agent_delegation` | A2A Agent Delegation |
+
+## Quick Start
+
+```bash
+# List available examples
+pidl examples
+
+# Generate a PlantUML diagram
+pidl generate oauth2_authorization_code
+
+# Generate a Mermaid diagram
+pidl generate -f mermaid oauth2_pkce
+
+# Create a new protocol file
+pidl init my-protocol.json
+
+# Validate protocol files
+pidl validate my-protocol.json
+```
+
+## Documentation
+
+- [README](README.md) - Installation and usage guide
+- [Specification](docs/SPECIFICATION.md) - Full language specification
+- [JSON Schema](schema/pidl.schema.json) - Schema for validation
+
+## Installation
+
+### CLI
+
+```bash
+go install github.com/grokify/pidl/cmd/pidl@latest
+```
+
+### Library
+
+```bash
+go get github.com/grokify/pidl
+```
+
+## License
+
+MIT License

@@ -1,0 +1,62 @@
+{
+  "irVersion": "1.0",
+  "project": "pidl",
+  "repository": "https://github.com/grokify/pidl",
+  "versioning": "semver",
+  "commitConvention": "conventional",
+  "maintainers": ["grokify"],
+  "releases": [
+    {
+      "version": "v0.1.0",
+      "date": "2025-04-18",
+      "highlights": [
+        { "description": "Protocol Interaction Description Language - a JSON-based DSL for describing protocol choreography that compiles to diagrams" },
+        { "description": "Support for OAuth 2.0, PKCE, OIDC, MCP, and A2A protocol examples" },
+        { "description": "Three diagram output formats: PlantUML, Mermaid, and Graphviz DOT" }
+      ],
+      "added": [
+        { "description": "Core PIDL library with Protocol, Entity, Flow, and Phase types", "commit": "6555cbb" },
+        { "description": "JSON parser with file and reader support", "commit": "6555cbb" },
+        { "description": "Validation logic with detailed error reporting", "commit": "6555cbb" },
+        { "description": "High-level operations: `ValidateFile`, `ValidateFiles`, `NewMinimalProtocol`, `WriteProtocolFile`", "commit": "6555cbb" },
+        { "description": "JSON Schema (draft 2020-12) for PIDL validation", "commit": "61f0a39" },
+        { "description": "Embedded JSON Schema for programmatic access", "commit": "61f0a39" },
+        { "description": "PlantUML sequence diagram renderer", "commit": "524e920" },
+        { "description": "Mermaid sequence diagram renderer", "commit": "524e920" },
+        { "description": "Graphviz DOT data flow diagram renderer", "commit": "524e920" },
+        { "description": "Renderer interface with format parsing and file extension helpers", "commit": "524e920" },
+        { "description": "Embedded protocol examples with API: `List`, `Get`, `GetProtocol`, `GetJSON`", "commit": "66f6aa6" },
+        { "description": "OAuth 2.0 Authorization Code flow example", "commit": "66f6aa6" },
+        { "description": "OAuth 2.0 + PKCE flow example", "commit": "66f6aa6" },
+        { "description": "OpenID Connect Authentication flow example", "commit": "66f6aa6" },
+        { "description": "MCP tool invocation flow example", "commit": "66f6aa6" },
+        { "description": "A2A agent delegation flow example", "commit": "66f6aa6" },
+        { "description": "`pidl validate` command for validating PIDL JSON files", "commit": "8bf725d" },
+        { "description": "`pidl generate` command for generating diagrams (PlantUML, Mermaid, DOT)", "commit": "8bf725d" },
+        { "description": "`pidl examples` command for listing and showing built-in examples", "commit": "8bf725d" },
+        { "description": "`pidl init` command for creating new protocol files from templates", "commit": "8bf725d" }
+      ],
+      "documentation": [
+        { "description": "README with installation, quick start, CLI reference, and library usage", "commit": "45e558b" },
+        { "description": "Full PIDL language specification document", "commit": "45e558b" },
+        { "description": "Project roadmap with phased implementation plan", "commit": "45e558b" },
+        { "description": "UTF-8 icons for README features list", "commit": "e6830b0" }
+      ],
+      "tests": [
+        { "description": "Unit tests for core library: types, parser, validation, operations", "commit": "d448ea7" },
+        { "description": "Tests for render package: format parsing, all renderers", "commit": "524e920" },
+        { "description": "Tests for examples package: embedding, listing, retrieval", "commit": "66f6aa6" },
+        { "description": "60 tests total with full linting compliance", "commit": "d448ea7" }
+      ],
+      "build": [
+        { "description": "Go module initialization", "commit": "284d99a" },
+        { "description": "GitHub Actions CI/CD workflows", "commit": "9e7c3af" },
+        { "description": "Linting fixes for golangci-lint compliance", "commit": "03e1460" }
+      ],
+      "infrastructure": [
+        { "description": "MIT License", "commit": "bc35c74" },
+        { "description": "Gitignore with binary and ideation file patterns", "commit": "284d99a" }
+      ]
+    }
+  ]
+}
