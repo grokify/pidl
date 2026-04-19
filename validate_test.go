@@ -306,3 +306,445 @@ func TestValidationErrorsEmpty(t *testing.T) {
 		t.Error("HasErrors() = true, want false")
 	}
 }
+
+func TestValidateNestedPhases(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "a", Name: "A", Type: EntityTypeClient},
+			{ID: "b", Name: "B", Type: EntityTypeServer},
+		},
+		Phases: []Phase{
+			{ID: "parent", Name: "Parent Phase"},
+			{ID: "child", Name: "Child Phase", Parent: "parent"},
+		},
+		Flows: []Flow{
+			{From: "a", To: "b", Action: "x", Phase: "child"},
+		},
+	}
+
+	errs := p.Validate()
+	if errs.HasErrors() {
+		t.Errorf("Validate() = %v, want no errors for valid nested phases", errs)
+	}
+}
+
+func TestValidateInvalidPhaseParent(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "a", Name: "A", Type: EntityTypeClient},
+			{ID: "b", Name: "B", Type: EntityTypeServer},
+		},
+		Phases: []Phase{
+			{ID: "child", Name: "Child Phase", Parent: "nonexistent"},
+		},
+		Flows: []Flow{
+			{From: "a", To: "b", Action: "x"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "unknown parent phase") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect unknown parent phase")
+	}
+}
+
+func TestValidateSelfParentPhase(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "a", Name: "A", Type: EntityTypeClient},
+			{ID: "b", Name: "B", Type: EntityTypeServer},
+		},
+		Phases: []Phase{
+			{ID: "self", Name: "Self Parent", Parent: "self"},
+		},
+		Flows: []Flow{
+			{From: "a", To: "b", Action: "x"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "cannot be its own parent") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect self-referential parent")
+	}
+}
+
+func TestValidateCircularPhaseHierarchy(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "a", Name: "A", Type: EntityTypeClient},
+			{ID: "b", Name: "B", Type: EntityTypeServer},
+		},
+		Phases: []Phase{
+			{ID: "phase1", Name: "Phase 1", Parent: "phase2"},
+			{ID: "phase2", Name: "Phase 2", Parent: "phase1"},
+		},
+		Flows: []Flow{
+			{From: "a", To: "b", Action: "x"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "circular reference") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect circular phase hierarchy")
+	}
+}
+
+func TestValidateInvalidAnnotationType(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "a", Name: "A", Type: EntityTypeClient},
+			{ID: "b", Name: "B", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{
+				From:   "a",
+				To:     "b",
+				Action: "x",
+				Annotations: []Annotation{
+					{Type: "invalid_type", Text: "test"},
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "invalid annotation type") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect invalid annotation type")
+	}
+}
+
+func TestValidateMissingAnnotationText(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "a", Name: "A", Type: EntityTypeClient},
+			{ID: "b", Name: "B", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{
+				From:   "a",
+				To:     "b",
+				Action: "x",
+				Annotations: []Annotation{
+					{Type: AnnotationTypeSecurity, Text: ""},
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Field, "annotations") && strings.Contains(e.Message, "required") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect missing annotation text")
+	}
+}
+
+func TestValidateAlternativeFlows(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "a", Name: "A", Type: EntityTypeClient},
+			{ID: "b", Name: "B", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{
+				From:   "a",
+				To:     "b",
+				Action: "x",
+				Alternatives: []Alternative{
+					{
+						Condition: "error",
+						Flows: []Flow{
+							{From: "b", To: "a", Action: "error_response"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	if errs.HasErrors() {
+		t.Errorf("Validate() = %v, want no errors for valid alternatives", errs)
+	}
+}
+
+func TestValidateAlternativeMissingCondition(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "a", Name: "A", Type: EntityTypeClient},
+			{ID: "b", Name: "B", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{
+				From:   "a",
+				To:     "b",
+				Action: "x",
+				Alternatives: []Alternative{
+					{
+						Condition: "", // missing condition
+						Flows: []Flow{
+							{From: "b", To: "a", Action: "y"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Field, "alternatives") && strings.Contains(e.Message, "required") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect missing alternative condition")
+	}
+}
+
+func TestValidateAlternativeEmptyFlows(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "a", Name: "A", Type: EntityTypeClient},
+			{ID: "b", Name: "B", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{
+				From:   "a",
+				To:     "b",
+				Action: "x",
+				Alternatives: []Alternative{
+					{
+						Condition: "error",
+						Flows:     []Flow{}, // empty flows
+					},
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Field, "flows") && strings.Contains(e.Message, "at least 1") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect empty alternative flows")
+	}
+}
+
+func TestValidateAlternativeUnknownEntity(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "a", Name: "A", Type: EntityTypeClient},
+			{ID: "b", Name: "B", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{
+				From:   "a",
+				To:     "b",
+				Action: "x",
+				Alternatives: []Alternative{
+					{
+						Condition: "error",
+						Flows: []Flow{
+							{From: "unknown", To: "a", Action: "y"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "unknown entity") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect unknown entity in alternative flows")
+	}
+}
+
+func TestFlowHelpers(t *testing.T) {
+	f := Flow{
+		From:      "a",
+		To:        "b",
+		Action:    "test",
+		Condition: "when_valid",
+		Note:      "This is a note",
+		Annotations: []Annotation{
+			{Type: AnnotationTypeSecurity, Text: "check auth"},
+		},
+		Alternatives: []Alternative{
+			{Condition: "error", Flows: []Flow{{From: "b", To: "a", Action: "err"}}},
+		},
+	}
+
+	if !f.HasCondition() {
+		t.Error("HasCondition() = false, want true")
+	}
+	if !f.HasNote() {
+		t.Error("HasNote() = false, want true")
+	}
+	if !f.HasAnnotations() {
+		t.Error("HasAnnotations() = false, want true")
+	}
+	if !f.HasAlternatives() {
+		t.Error("HasAlternatives() = false, want true")
+	}
+
+	// Test empty flow
+	empty := Flow{}
+	if empty.HasCondition() {
+		t.Error("HasCondition() = true for empty, want false")
+	}
+	if empty.HasNote() {
+		t.Error("HasNote() = true for empty, want false")
+	}
+	if empty.HasAnnotations() {
+		t.Error("HasAnnotations() = true for empty, want false")
+	}
+	if empty.HasAlternatives() {
+		t.Error("HasAlternatives() = true for empty, want false")
+	}
+}
+
+func TestIsValidAnnotationType(t *testing.T) {
+	validTypes := []AnnotationType{
+		AnnotationTypeSecurity,
+		AnnotationTypePerformance,
+		AnnotationTypeDeprecated,
+		AnnotationTypeInfo,
+		AnnotationTypeWarning,
+		AnnotationTypeError,
+	}
+
+	for _, at := range validTypes {
+		if !IsValidAnnotationType(at) {
+			t.Errorf("IsValidAnnotationType(%q) = false, want true", at)
+		}
+	}
+
+	if IsValidAnnotationType("invalid") {
+		t.Error("IsValidAnnotationType(invalid) = true, want false")
+	}
+}
+
+func TestPhaseHierarchyHelpers(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{ID: "test", Name: "Test"},
+		Entities: []Entity{
+			{ID: "a", Name: "A", Type: EntityTypeClient},
+			{ID: "b", Name: "B", Type: EntityTypeServer},
+		},
+		Phases: []Phase{
+			{ID: "root1", Name: "Root 1"},
+			{ID: "root2", Name: "Root 2"},
+			{ID: "child1", Name: "Child 1", Parent: "root1"},
+			{ID: "grandchild", Name: "Grandchild", Parent: "child1"},
+		},
+		Flows: []Flow{
+			{From: "a", To: "b", Action: "x"},
+		},
+	}
+
+	// Test RootPhases
+	roots := p.RootPhases()
+	if len(roots) != 2 {
+		t.Errorf("RootPhases() = %d phases, want 2", len(roots))
+	}
+
+	// Test ChildPhases
+	children := p.ChildPhases("root1")
+	if len(children) != 1 {
+		t.Errorf("ChildPhases(root1) = %d phases, want 1", len(children))
+	}
+	if children[0].ID != "child1" {
+		t.Errorf("ChildPhases(root1)[0].ID = %q, want %q", children[0].ID, "child1")
+	}
+
+	// Test PhaseDepth
+	if depth := p.PhaseDepth("root1"); depth != 0 {
+		t.Errorf("PhaseDepth(root1) = %d, want 0", depth)
+	}
+	if depth := p.PhaseDepth("child1"); depth != 1 {
+		t.Errorf("PhaseDepth(child1) = %d, want 1", depth)
+	}
+	if depth := p.PhaseDepth("grandchild"); depth != 2 {
+		t.Errorf("PhaseDepth(grandchild) = %d, want 2", depth)
+	}
+}

@@ -225,9 +225,9 @@ func TestPlantUMLRenderer(t *testing.T) {
 		t.Error("PlantUML should contain entity IDs")
 	}
 
-	// Check phase separator
-	if !strings.Contains(s, "== Authorization ==") {
-		t.Error("PlantUML should contain phase separator")
+	// Check phase box
+	if !strings.Contains(s, `box "Authorization"`) {
+		t.Error("PlantUML should contain phase box")
 	}
 
 	// Check arrows
