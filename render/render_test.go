@@ -177,8 +177,8 @@ func TestMustNewPanics(t *testing.T) {
 
 func TestSupportedFormats(t *testing.T) {
 	formats := SupportedFormats()
-	if len(formats) != 6 {
-		t.Errorf("SupportedFormats() = %d formats, want 6", len(formats))
+	if len(formats) != 8 {
+		t.Errorf("SupportedFormats() = %d formats, want 8", len(formats))
 	}
 }
 
