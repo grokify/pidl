@@ -13,12 +13,14 @@ import (
 type Format string
 
 const (
-	FormatPlantUML Format = "plantuml"
-	FormatMermaid  Format = "mermaid"
-	FormatDOT      Format = "dot"
-	FormatD2       Format = "d2"
-	FormatD2Flow   Format = "d2-flow"
-	FormatD2Arch   Format = "d2-arch"
+	FormatPlantUML    Format = "plantuml"
+	FormatMermaid     Format = "mermaid"
+	FormatDOT         Format = "dot"
+	FormatD2          Format = "d2"
+	FormatD2Flow      Format = "d2-flow"
+	FormatD2Arch      Format = "d2-arch"
+	FormatSVG         Format = "svg"
+	FormatSVGAnimated Format = "svg-animated"
 )
 
 // String returns the format as a string.
@@ -37,6 +39,8 @@ func (f Format) FileExtension() string {
 		return ".dot"
 	case FormatD2, FormatD2Flow, FormatD2Arch:
 		return ".d2"
+	case FormatSVG, FormatSVGAnimated:
+		return ".svg"
 	default:
 		return ".txt"
 	}
@@ -57,8 +61,12 @@ func ParseFormat(s string) (Format, error) {
 		return FormatD2Flow, nil
 	case "d2-arch", "d2-architecture":
 		return FormatD2Arch, nil
+	case "svg":
+		return FormatSVG, nil
+	case "svg-animated", "svg-anim":
+		return FormatSVGAnimated, nil
 	default:
-		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, dot, d2, d2-flow, d2-arch", s)
+		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, dot, d2, d2-flow, d2-arch, svg, svg-animated", s)
 	}
 }
 
@@ -98,6 +106,10 @@ func New(format Format) (Renderer, error) {
 		return NewD2Flow(), nil
 	case FormatD2Arch:
 		return NewD2Arch(), nil
+	case FormatSVG:
+		return NewSVG(), nil
+	case FormatSVGAnimated:
+		return NewSVGAnimated(), nil
 	default:
 		return nil, fmt.Errorf("unknown format: %s", format)
 	}
@@ -123,5 +135,5 @@ func RenderString(format Format, p *pidl.Protocol) (string, error) {
 
 // SupportedFormats returns all supported output formats.
 func SupportedFormats() []Format {
-	return []Format{FormatPlantUML, FormatMermaid, FormatDOT, FormatD2, FormatD2Flow, FormatD2Arch}
+	return []Format{FormatPlantUML, FormatMermaid, FormatDOT, FormatD2, FormatD2Flow, FormatD2Arch, FormatSVG, FormatSVGAnimated}
 }
