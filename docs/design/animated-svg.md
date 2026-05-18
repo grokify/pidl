@@ -831,7 +831,7 @@ pidl render --format=svg-animated \
 - [x] Entity placement within boundaries
 - [x] Connection routing between/across boundaries
 - [x] Boundary styles (`trusted`, `dmz`, `external`, `cloud`)
-- [ ] CLI `--boundary` override flags
+- [x] CLI `--boundary` override flags
 
 ### Phase 5: Advanced Features
 - [ ] Phase boxes/regions in sequence diagrams
