@@ -230,3 +230,111 @@ func TestNew_SVG(t *testing.T) {
 		t.Errorf("New(FormatSVGAnimated).Format() = %v, want %v", renderer.Format(), render.FormatSVGAnimated)
 	}
 }
+
+func TestSVGRenderer_PerMessageAnimation(t *testing.T) {
+	// Helper to create bool pointer
+	boolPtr := func(b bool) *bool { return &b }
+
+	protocol := &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{ID: "test", Name: "Test"},
+		Entities: []pidl.Entity{
+			{ID: "a", Name: "A"},
+			{ID: "b", Name: "B"},
+		},
+		Flows: []pidl.Flow{
+			{
+				From: "a", To: "b", Action: "request", Label: "Request",
+				Animation: &pidl.FlowAnimation{
+					Preset: pidl.AnimationPresetRequest,
+				},
+			},
+			{
+				From: "b", To: "a", Action: "success", Label: "Success",
+				Animation: &pidl.FlowAnimation{
+					Preset:   pidl.AnimationPresetSuccess,
+					DotColor: "#68d391",
+				},
+			},
+			{
+				From: "b", To: "a", Action: "error", Label: "Error",
+				Animation: &pidl.FlowAnimation{
+					Preset: pidl.AnimationPresetError,
+				},
+			},
+			{
+				From: "a", To: "b", Action: "static", Label: "Static",
+				Animation: &pidl.FlowAnimation{
+					Enabled: boolPtr(false),
+				},
+			},
+		},
+	}
+
+	renderer := render.NewSVGAnimated()
+	svg, err := renderer.RenderString(protocol)
+	if err != nil {
+		t.Fatalf("RenderString() error = %v", err)
+	}
+
+	// Verify enabled flows have animation
+	if !strings.Contains(svg, "flow-dot-0") {
+		t.Error("Flow 0 (request) should have animation dot")
+	}
+	if !strings.Contains(svg, "flow-dot-1") {
+		t.Error("Flow 1 (success) should have animation dot")
+	}
+	if !strings.Contains(svg, "flow-dot-2") {
+		t.Error("Flow 2 (error) should have animation dot")
+	}
+
+	// Verify disabled flow has no animation dot in SVG elements
+	// The CSS class still exists, but the circle element should not be rendered
+	circleCount := strings.Count(svg, `class="flow-dot flow-dot-`)
+	if circleCount != 3 {
+		t.Errorf("Expected 3 flow-dot circles, got %d", circleCount)
+	}
+
+	// Verify pulse keyframes exist (for error preset)
+	if !strings.Contains(svg, "@keyframes pulse") {
+		t.Error("Should contain pulse keyframes for error preset")
+	}
+
+	// Verify success color in CSS
+	if !strings.Contains(svg, "#68d391") {
+		t.Error("Should contain success color (#68d391)")
+	}
+
+	// Verify error color in CSS
+	if !strings.Contains(svg, "#fc8181") {
+		t.Error("Should contain error color (#fc8181)")
+	}
+}
+
+func TestSVGRenderer_AnimationPresetNone(t *testing.T) {
+	protocol := &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{ID: "test", Name: "Test"},
+		Entities: []pidl.Entity{
+			{ID: "a", Name: "A"},
+			{ID: "b", Name: "B"},
+		},
+		Flows: []pidl.Flow{
+			{
+				From: "a", To: "b", Action: "msg", Label: "Message",
+				Animation: &pidl.FlowAnimation{
+					Preset: pidl.AnimationPresetNone,
+				},
+			},
+		},
+	}
+
+	renderer := render.NewSVGAnimated()
+	svg, err := renderer.RenderString(protocol)
+	if err != nil {
+		t.Fatalf("RenderString() error = %v", err)
+	}
+
+	// Flow with "none" preset should not have animation circle
+	if strings.Contains(svg, `class="flow-dot flow-dot-0"`) {
+		t.Error("Flow with none preset should not have animation circle")
+	}
+}
