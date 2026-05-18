@@ -795,23 +795,23 @@ pidl render --format=svg-animated \
 
 ## Implementation Phases
 
-### Phase 1: Static SVG Renderer
-- [ ] Basic `SVGRenderer` struct implementing `Renderer` interface
-- [ ] Participant layout calculation
-- [ ] Lifeline rendering
-- [ ] Message arrows (solid for requests, dashed for responses)
-- [ ] Message labels with step numbers
-- [ ] Light/dark theme support via CSS custom properties
+### Phase 1: Static SVG Renderer ✅
+- [x] Basic `SVGRenderer` struct implementing `Renderer` interface
+- [x] Participant layout calculation
+- [x] Lifeline rendering
+- [x] Message arrows (solid for requests, dashed for responses)
+- [x] Message labels with step numbers
+- [x] Light/dark theme support via CSS custom properties
 - [ ] Default template (`default/`)
-- [ ] Unit tests and golden file tests
+- [x] Unit tests and golden file tests
 
-### Phase 2: CSS Animation Support
-- [ ] `offset-path` animation for flow dots
-- [ ] Global animation configuration (`metadata.animation`)
-- [ ] Per-message animation properties (`flow.animation`)
-- [ ] Semantic presets (`request`, `success`, `error`, `none`)
-- [ ] Stagger modes (`sequential`, `overlap`, `parallel`)
-- [ ] Print media fallback (static or hidden dots)
+### Phase 2: CSS Animation Support ✅
+- [x] `offset-path` animation for flow dots
+- [x] Global animation configuration (`metadata.animation`)
+- [x] Per-message animation properties (`flow.animation`)
+- [x] Semantic presets (`request`, `success`, `error`, `none`)
+- [x] Stagger modes (`sequential`, `overlap`, `parallel`)
+- [x] Print media fallback (static or hidden dots)
 - [ ] Browser compatibility testing (Chrome, Firefox, Safari)
 
 ### Phase 3: Template System
