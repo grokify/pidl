@@ -21,6 +21,7 @@ const (
 	FormatD2Arch      Format = "d2-arch"
 	FormatSVG         Format = "svg"
 	FormatSVGAnimated Format = "svg-animated"
+	FormatSVGNetwork  Format = "svg-network"
 )
 
 // String returns the format as a string.
@@ -65,8 +66,10 @@ func ParseFormat(s string) (Format, error) {
 		return FormatSVG, nil
 	case "svg-animated", "svg-anim":
 		return FormatSVGAnimated, nil
+	case "svg-network", "svg-net":
+		return FormatSVGNetwork, nil
 	default:
-		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, dot, d2, d2-flow, d2-arch, svg, svg-animated", s)
+		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network", s)
 	}
 }
 
@@ -110,6 +113,8 @@ func New(format Format) (Renderer, error) {
 		return NewSVG(), nil
 	case FormatSVGAnimated:
 		return NewSVGAnimated(), nil
+	case FormatSVGNetwork:
+		return NewSVGNetwork(), nil
 	default:
 		return nil, fmt.Errorf("unknown format: %s", format)
 	}
@@ -135,5 +140,5 @@ func RenderString(format Format, p *pidl.Protocol) (string, error) {
 
 // SupportedFormats returns all supported output formats.
 func SupportedFormats() []Format {
-	return []Format{FormatPlantUML, FormatMermaid, FormatDOT, FormatD2, FormatD2Flow, FormatD2Arch, FormatSVG, FormatSVGAnimated}
+	return []Format{FormatPlantUML, FormatMermaid, FormatDOT, FormatD2, FormatD2Flow, FormatD2Arch, FormatSVG, FormatSVGAnimated, FormatSVGNetwork}
 }

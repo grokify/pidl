@@ -15,6 +15,39 @@ type Protocol struct {
 
 	// Flows are the interactions between entities.
 	Flows []Flow `json:"flows"`
+
+	// Metadata contains additional protocol-level configuration.
+	Metadata *ProtocolMetadata `json:"metadata,omitempty"`
+}
+
+// ProtocolMetadata contains additional protocol-level configuration.
+type ProtocolMetadata struct {
+	// Networks defines network boundary configurations.
+	Networks map[string]*NetworkConfig `json:"networks,omitempty"`
+	// NetworkLayout configures network diagram layout.
+	NetworkLayout *NetworkLayoutConfig `json:"network_layout,omitempty"`
+}
+
+// NetworkConfig defines a network boundary.
+type NetworkConfig struct {
+	// Name is the display name for the boundary.
+	Name string `json:"name,omitempty"`
+	// Style is the visual style: trusted, dmz, external, cloud.
+	Style string `json:"style,omitempty"`
+	// Entities explicitly lists entity IDs in this boundary.
+	Entities []string `json:"entities,omitempty"`
+	// Description provides tooltip/hover text.
+	Description string `json:"description,omitempty"`
+	// Color overrides the default boundary color.
+	Color string `json:"color,omitempty"`
+}
+
+// NetworkLayoutConfig configures network diagram layout.
+type NetworkLayoutConfig struct {
+	// Direction is the layout direction: horizontal or vertical.
+	Direction string `json:"direction,omitempty"`
+	// Order specifies the boundary ordering.
+	Order []string `json:"order,omitempty"`
 }
 
 // ProtocolMeta contains metadata about a protocol.
@@ -71,6 +104,17 @@ type Entity struct {
 
 	// Description of the entity's role.
 	Description string `json:"description,omitempty"`
+
+	// Metadata contains additional entity properties for rendering.
+	Metadata *EntityMetadata `json:"metadata,omitempty"`
+}
+
+// EntityMetadata contains additional entity properties.
+type EntityMetadata struct {
+	// Network is the network boundary this entity belongs to.
+	Network string `json:"network,omitempty"`
+	// ServiceType classifies the service (e.g., "api", "database", "gateway").
+	ServiceType string `json:"type,omitempty"`
 }
 
 // EntityType represents the type of an entity.
