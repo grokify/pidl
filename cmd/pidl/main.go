@@ -113,8 +113,11 @@ Options:
 
 func cmdGenerate(args []string) {
 	fs := flag.NewFlagSet("generate", flag.ExitOnError)
-	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, dot, d2, d2-flow, d2-arch")
+	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, dot, d2, d2-flow, d2-arch, svg, svg-animated")
 	output := fs.String("o", "", "Output file (default: stdout)")
+	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
+	templateDir := fs.String("template-dir", "", "Path to custom SVG template directory")
+	theme := fs.String("theme", "", "SVG theme (light, dark, auto)")
 	fs.Usage = func() {
 		fmt.Print(`Usage: pidl generate [options] <file>
 
@@ -131,6 +134,15 @@ Formats:
   d2               D2 sequence diagram
   d2-flow          D2 data flow diagram
   d2-arch          D2 architecture diagram
+  svg              SVG sequence diagram
+  svg-animated     Animated SVG with flow dots
+
+SVG Templates:
+  default          Clean, professional styling
+  minimal          Ultra-clean, reduced chrome
+  sketch           Hand-drawn, informal look
+  blueprint        Technical with monospace fonts
+  dark             Dark background optimized
 `)
 	}
 
@@ -173,7 +185,38 @@ Formats:
 		os.Exit(1)
 	}
 
-	diagram, err := render.RenderString(format, p)
+	// Handle SVG-specific rendering with templates
+	var diagram string
+	if format == render.FormatSVG || format == render.FormatSVGAnimated {
+		var renderer *render.SVGRenderer
+		if *templateDir != "" {
+			renderer, err = render.NewSVGWithTemplateDir(*templateDir)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error loading template: %v\n", err)
+				os.Exit(1)
+			}
+		} else if *template != "" {
+			renderer, err = render.NewSVGWithTemplate(*template)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error loading template: %v\n", err)
+				os.Exit(1)
+			}
+		} else {
+			renderer = render.NewSVG()
+		}
+
+		if format == render.FormatSVGAnimated {
+			renderer.Animated = true
+		}
+		if *theme != "" {
+			renderer.Theme = *theme
+		}
+
+		diagram, err = renderer.RenderString(p)
+	} else {
+		diagram, err = render.RenderString(format, p)
+	}
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error rendering: %v\n", err)
 		os.Exit(1)
