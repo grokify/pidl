@@ -823,14 +823,14 @@ pidl render --format=svg-animated \
 - [x] CLI `--template` and `--template-dir` flags
 - [ ] Template validation
 
-### Phase 4: Network Boundary Diagrams
-- [ ] `SVGNetworkRenderer` implementation
-- [ ] Boundary inference from `entity.metadata.network`
-- [ ] Explicit boundary configuration (`metadata.networks`)
-- [ ] Boundary region layout algorithm
-- [ ] Entity placement within boundaries
-- [ ] Connection routing between/across boundaries
-- [ ] Boundary styles (`trusted`, `dmz`, `external`, `cloud`)
+### Phase 4: Network Boundary Diagrams ✅
+- [x] `SVGNetworkRenderer` implementation
+- [x] Boundary inference from `entity.metadata.network`
+- [x] Explicit boundary configuration (`metadata.networks`)
+- [x] Boundary region layout algorithm
+- [x] Entity placement within boundaries
+- [x] Connection routing between/across boundaries
+- [x] Boundary styles (`trusted`, `dmz`, `external`, `cloud`)
 - [ ] CLI `--boundary` override flags
 
 ### Phase 5: Advanced Features
