@@ -13,6 +13,18 @@ import (
 	"github.com/grokify/pidl/render"
 )
 
+// boundaryFlags is a custom flag type that collects multiple --boundary values.
+type boundaryFlags []string
+
+func (b *boundaryFlags) String() string {
+	return strings.Join(*b, ", ")
+}
+
+func (b *boundaryFlags) Set(value string) error {
+	*b = append(*b, value)
+	return nil
+}
+
 const version = "0.1.0"
 
 func main() {
@@ -113,11 +125,13 @@ Options:
 
 func cmdGenerate(args []string) {
 	fs := flag.NewFlagSet("generate", flag.ExitOnError)
-	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, dot, d2, d2-flow, d2-arch, svg, svg-animated")
+	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
 	templateDir := fs.String("template-dir", "", "Path to custom SVG template directory")
 	theme := fs.String("theme", "", "SVG theme (light, dark, auto)")
+	var boundaries boundaryFlags
+	fs.Var(&boundaries, "boundary", "Network boundary assignment (format: boundary_id:entity1,entity2). Can be repeated.")
 	fs.Usage = func() {
 		fmt.Print(`Usage: pidl generate [options] <file>
 
@@ -136,6 +150,7 @@ Formats:
   d2-arch          D2 architecture diagram
   svg              SVG sequence diagram
   svg-animated     Animated SVG with flow dots
+  svg-network      Network boundary diagram
 
 SVG Templates:
   default          Clean, professional styling
@@ -143,6 +158,10 @@ SVG Templates:
   sketch           Hand-drawn, informal look
   blueprint        Technical with monospace fonts
   dark             Dark background optimized
+
+Network Boundary Examples:
+  --boundary="dmz:auth,gateway"      Assign entities to DMZ boundary
+  --boundary="internal:api,db"       Assign entities to internal boundary
 `)
 	}
 
@@ -185,7 +204,7 @@ SVG Templates:
 		os.Exit(1)
 	}
 
-	// Handle SVG-specific rendering with templates
+	// Handle SVG-specific rendering with templates and options
 	var diagram string
 	if format == render.FormatSVG || format == render.FormatSVGAnimated {
 		var renderer *render.SVGRenderer
@@ -210,6 +229,23 @@ SVG Templates:
 		}
 		if *theme != "" {
 			renderer.Theme = *theme
+		}
+
+		diagram, err = renderer.RenderString(p)
+	} else if format == render.FormatSVGNetwork {
+		renderer := render.NewSVGNetwork()
+		if *theme != "" {
+			renderer.Theme = *theme
+		}
+
+		// Parse and apply boundary overrides
+		for _, b := range boundaries {
+			boundaryID, entityIDs, parseErr := parseBoundaryFlag(b)
+			if parseErr != nil {
+				fmt.Fprintf(os.Stderr, "Error parsing boundary flag %q: %v\n", b, parseErr)
+				os.Exit(1)
+			}
+			renderer.AddBoundaryOverride(boundaryID, entityIDs)
 		}
 
 		diagram, err = renderer.RenderString(p)
@@ -395,4 +431,35 @@ Examples:
 	fmt.Printf("Created %s\n", filename)
 	fmt.Printf("Protocol: %s\n", p.ProtocolMeta.Name)
 	fmt.Printf("ID: %s\n", p.ProtocolMeta.ID)
+}
+
+// parseBoundaryFlag parses a boundary flag in the format "boundary_id:entity1,entity2".
+func parseBoundaryFlag(s string) (boundaryID string, entityIDs []string, err error) {
+	parts := strings.SplitN(s, ":", 2)
+	if len(parts) != 2 {
+		return "", nil, fmt.Errorf("invalid format, expected 'boundary_id:entity1,entity2'")
+	}
+
+	boundaryID = strings.TrimSpace(parts[0])
+	if boundaryID == "" {
+		return "", nil, fmt.Errorf("boundary ID cannot be empty")
+	}
+
+	entityList := strings.TrimSpace(parts[1])
+	if entityList == "" {
+		return "", nil, fmt.Errorf("entity list cannot be empty")
+	}
+
+	for _, e := range strings.Split(entityList, ",") {
+		e = strings.TrimSpace(e)
+		if e != "" {
+			entityIDs = append(entityIDs, e)
+		}
+	}
+
+	if len(entityIDs) == 0 {
+		return "", nil, fmt.Errorf("at least one entity ID is required")
+	}
+
+	return boundaryID, entityIDs, nil
 }
