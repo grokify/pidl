@@ -1,0 +1,24 @@
+/* Blueprint template - technical style */
+.participant-box {
+  stroke: var(--color-line);
+  stroke-width: 1;
+}
+
+.participant-text {
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+
+.message-text {
+  font-size: 10px;
+}
+
+.step-circle {
+  stroke: var(--color-line);
+  stroke-width: 1;
+}
+
+.lifeline {
+  stroke-dasharray: 2,4;
+}

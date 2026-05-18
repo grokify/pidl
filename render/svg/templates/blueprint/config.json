@@ -1,0 +1,36 @@
+{
+  "name": "blueprint",
+  "description": "Technical blueprint style for engineering specifications",
+  "layout": {
+    "padding": 20,
+    "participant_spacing": 140,
+    "message_spacing": 45,
+    "participant_box": {
+      "width": 100,
+      "height": 36,
+      "corner_radius": 0
+    }
+  },
+  "fonts": {
+    "primary": "'Courier New', Consolas, monospace",
+    "mono": "'Courier New', Consolas, monospace"
+  },
+  "line_style": {
+    "stroke_width": 1.5
+  },
+  "colors": {
+    "primary": "#1e3a5f",
+    "secondary": "#2d5a87",
+    "accent": "#4a90d9",
+    "background": "#0a1929",
+    "text": "#c5d6e8",
+    "line": "#4a90d9",
+    "lifeline": "#1e3a5f",
+    "participant_bg": "#1e3a5f",
+    "participant_text": "#ffffff"
+  },
+  "animation": {
+    "dot_shape": "circle",
+    "dot_size": 4
+  }
+}

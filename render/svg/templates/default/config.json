@@ -1,0 +1,24 @@
+{
+  "name": "default",
+  "description": "Clean, professional styling for documentation and datasheets",
+  "layout": {
+    "padding": 20,
+    "participant_spacing": 140,
+    "message_spacing": 45,
+    "participant_box": {
+      "width": 100,
+      "height": 36,
+      "corner_radius": 4
+    }
+  },
+  "fonts": {
+    "primary": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+  },
+  "line_style": {
+    "stroke_width": 1.5
+  },
+  "animation": {
+    "dot_shape": "circle",
+    "dot_size": 4
+  }
+}

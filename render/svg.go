@@ -34,11 +34,20 @@ type SVGRenderer struct {
 	// MessageSpacing sets vertical spacing between messages.
 	MessageSpacing int
 
+	// Template is the name of a built-in template to use.
+	Template string
+
+	// TemplateDir is a path to a custom template directory.
+	TemplateDir string
+
 	// AnimationConfig contains global animation settings.
 	AnimationConfig svg.AnimationConfig
 
 	// layout configuration
 	layoutConfig svg.LayoutConfig
+
+	// template is the loaded template (cached)
+	template *svg.Template
 }
 
 // NewSVG creates a new SVG renderer with default options.
@@ -63,6 +72,56 @@ func NewSVGAnimated() *SVGRenderer {
 	return r
 }
 
+// NewSVGWithTemplate creates an SVG renderer using the specified template.
+func NewSVGWithTemplate(templateName string) (*SVGRenderer, error) {
+	r := NewSVG()
+	r.Template = templateName
+	if err := r.loadTemplate(); err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+// NewSVGWithTemplateDir creates an SVG renderer using a template from a directory.
+func NewSVGWithTemplateDir(dir string) (*SVGRenderer, error) {
+	r := NewSVG()
+	r.TemplateDir = dir
+	if err := r.loadTemplate(); err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+// loadTemplate loads and caches the template.
+func (r *SVGRenderer) loadTemplate() error {
+	if r.TemplateDir != "" {
+		tmpl, err := svg.LoadTemplateFromDir(r.TemplateDir)
+		if err != nil {
+			return err
+		}
+		r.template = tmpl
+	} else if r.Template != "" {
+		tmpl, err := svg.LoadTemplate(r.Template)
+		if err != nil {
+			return err
+		}
+		r.template = tmpl
+	}
+	return nil
+}
+
+// getTemplate returns the loaded template, loading it if needed.
+func (r *SVGRenderer) getTemplate() *svg.Template {
+	if r.template != nil {
+		return r.template
+	}
+	// Try to load template if name is set
+	if r.Template != "" || r.TemplateDir != "" {
+		_ = r.loadTemplate() // ignore errors, fall back to nil
+	}
+	return r.template
+}
+
 // Format returns the output format.
 func (r *SVGRenderer) Format() Format {
 	if r.Animated {
@@ -83,8 +142,18 @@ func (r *SVGRenderer) RenderString(p *pidl.Protocol) (string, error) {
 }
 
 func (r *SVGRenderer) render(p *pidl.Protocol) string {
+	// Get template if configured
+	tmpl := r.getTemplate()
+
 	// Apply custom spacing if set
 	config := r.layoutConfig
+
+	// Apply template layout settings first
+	if tmpl != nil {
+		tmpl.ApplyToLayoutConfig(&config)
+	}
+
+	// Then apply explicit overrides
 	if r.ParticipantSpacing > 0 {
 		config.ParticipantSpacing = r.ParticipantSpacing
 	}
@@ -142,7 +211,11 @@ func (r *SVGRenderer) render(p *pidl.Protocol) string {
 
 	// Embedded CSS
 	sb.WriteString("  <style>\n")
-	sb.WriteString(svg.GenerateCSS(svg.Theme(r.Theme)))
+	if tmpl != nil {
+		sb.WriteString(tmpl.GenerateCSS(svg.Theme(r.Theme)))
+	} else {
+		sb.WriteString(svg.GenerateCSS(svg.Theme(r.Theme)))
+	}
 	if r.Animated {
 		sb.WriteString(r.generateAnimationCSS(flowStyles))
 	}
@@ -167,11 +240,15 @@ func (r *SVGRenderer) render(p *pidl.Protocol) string {
 	sb.WriteString("  </g>\n\n")
 
 	// Participant boxes
+	cornerRadius := 4
+	if tmpl != nil {
+		cornerRadius = tmpl.GetCornerRadius()
+	}
 	sb.WriteString("  <!-- Participants -->\n")
 	sb.WriteString("  <g class=\"participants\">\n")
 	for _, part := range layout.Participants {
-		sb.WriteString(fmt.Sprintf(`    <rect class="participant-box" x="%d" y="%d" width="%d" height="%d" rx="4"/>`+"\n",
-			part.BoxX, part.BoxY, part.BoxWidth, part.BoxHeight))
+		sb.WriteString(fmt.Sprintf(`    <rect class="participant-box" x="%d" y="%d" width="%d" height="%d" rx="%d"/>`+"\n",
+			part.BoxX, part.BoxY, part.BoxWidth, part.BoxHeight, cornerRadius))
 		sb.WriteString(fmt.Sprintf(`    <text class="participant-text" x="%d" y="%d">%s</text>`+"\n",
 			part.CenterX, part.BoxY+part.BoxHeight/2, html.EscapeString(part.Name)))
 	}

@@ -1,0 +1,34 @@
+{
+  "name": "sketch",
+  "description": "Hand-drawn informal style for whiteboards and brainstorming",
+  "layout": {
+    "padding": 25,
+    "participant_spacing": 150,
+    "message_spacing": 55,
+    "participant_box": {
+      "width": 110,
+      "height": 40,
+      "corner_radius": 8
+    }
+  },
+  "fonts": {
+    "primary": "'Comic Sans MS', 'Chalkboard SE', cursive"
+  },
+  "line_style": {
+    "stroke_width": 2,
+    "hand_drawn": true,
+    "wobble_factor": 0.3
+  },
+  "colors": {
+    "primary": "#2563eb",
+    "line": "#3b82f6",
+    "lifeline": "#bfdbfe",
+    "participant_bg": "#dbeafe",
+    "participant_text": "#1e40af"
+  },
+  "animation": {
+    "dot_shape": "circle",
+    "dot_size": 6,
+    "trail_enabled": true
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "minimal",
+  "description": "Ultra-clean design with reduced chrome for presentations",
+  "layout": {
+    "padding": 30,
+    "participant_spacing": 160,
+    "message_spacing": 50,
+    "participant_box": {
+      "width": 90,
+      "height": 32,
+      "corner_radius": 2
+    }
+  },
+  "fonts": {
+    "primary": "Inter, -apple-system, sans-serif"
+  },
+  "line_style": {
+    "stroke_width": 1
+  },
+  "colors": {
+    "primary": "#374151",
+    "line": "#6b7280",
+    "lifeline": "#e5e7eb",
+    "participant_bg": "#f3f4f6",
+    "participant_text": "#111827"
+  },
+  "animation": {
+    "dot_shape": "circle",
+    "dot_size": 3
+  }
+}
