@@ -6,15 +6,16 @@ Release notes for each PIDL version.
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| [v0.3.0](v0.3.0.md) | 2025-05-18 | SVG rendering, animated flows, templates, network boundary diagrams |
 | [v0.2.0](v0.2.0.md) | 2025-04-18 | Annotations, alternatives, conditions, nested phases, D2 renderer |
 | [v0.1.0](v0.1.0.md) | 2025-04-18 | Initial release with PlantUML, Mermaid, DOT renderers |
 
 ## Latest Release
 
-The current stable release is **v0.2.0**.
+The current stable release is **v0.3.0**.
 
 ```bash
-go install github.com/grokify/pidl/cmd/pidl@v0.2.0
+go install github.com/grokify/pidl/cmd/pidl@v0.3.0
 ```
 
 ## Changelog

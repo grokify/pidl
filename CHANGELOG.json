@@ -7,6 +7,52 @@
   "maintainers": ["grokify"],
   "releases": [
     {
+      "version": "v0.3.0",
+      "date": "2025-05-18",
+      "highlights": [
+        { "description": "Native SVG rendering with static sequence diagrams, animated flow visualizations, and network boundary diagrams" },
+        { "description": "CSS animation support with per-message control and semantic presets (request, success, error, warning, highlight)" },
+        { "description": "Template system with 5 built-in styles: default, minimal, sketch, blueprint, dark" },
+        { "description": "Network boundary diagrams for visualizing trust zones and security boundaries" }
+      ],
+      "added": [
+        { "description": "SVG sequence diagram renderer with light/dark theme support", "commit": "1b0ef7f" },
+        { "description": "SVG animated renderer with CSS offset-path flow dots", "commit": "1b0ef7f" },
+        { "description": "Per-message animation control via `flow.animation` field", "commit": "2ee5da6" },
+        { "description": "Semantic animation presets: request, success, error, warning, highlight, none", "commit": "2ee5da6" },
+        { "description": "Global animation configuration via `metadata.animation`", "commit": "2ee5da6" },
+        { "description": "Stagger modes for animation sequencing: sequential, overlap, parallel, phase", "commit": "2ee5da6" },
+        { "description": "SVG template system with embedded template resources", "commit": "18b9ad8" },
+        { "description": "Built-in templates: default, minimal, sketch, blueprint, dark", "commit": "18b9ad8" },
+        { "description": "Custom template loading from directory via `--template-dir`", "commit": "1742ea1" },
+        { "description": "Template configuration with layout, fonts, colors, and animation settings", "commit": "18b9ad8" },
+        { "description": "Network boundary diagram renderer (`svg-network` format)", "commit": "a145005" },
+        { "description": "Boundary inference from `entity.metadata.network` field", "commit": "a145005" },
+        { "description": "Explicit boundary configuration via `metadata.networks`", "commit": "a145005" },
+        { "description": "Boundary styles: trusted, dmz, external, cloud", "commit": "a145005" },
+        { "description": "Horizontal and vertical layout directions for network diagrams", "commit": "a145005" },
+        { "description": "Cross-boundary connection visualization", "commit": "a145005" },
+        { "description": "CLI `--template` flag for selecting SVG templates", "commit": "1742ea1" },
+        { "description": "CLI `--template-dir` flag for custom template directories", "commit": "1742ea1" },
+        { "description": "CLI `--theme` flag for SVG theme selection (light, dark, auto)", "commit": "1742ea1" },
+        { "description": "CLI `--boundary` flag for network boundary overrides", "commit": "a59ebac" },
+        { "description": "EntityMetadata type with Network and ServiceType fields", "commit": "a145005" },
+        { "description": "ProtocolMetadata type with Networks and NetworkLayout configuration", "commit": "a145005" },
+        { "description": "FlowAnimation type for per-flow animation control", "commit": "2ee5da6" },
+        { "description": "AnimationPreset type for semantic animation presets", "commit": "2ee5da6" }
+      ],
+      "tests": [
+        { "description": "SVG renderer tests for static and animated output", "commit": "4b06b55" },
+        { "description": "Per-message animation tests with preset validation", "commit": "4e03ce3" },
+        { "description": "Template system tests for loading and CSS generation", "commit": "b0aebe6" },
+        { "description": "Network boundary diagram tests with layout verification", "commit": "abd8e39" }
+      ],
+      "documentation": [
+        { "description": "SVG renderer design document with animation and template specifications", "commit": "e83e59d" },
+        { "description": "Release notes reorganization into docs/releases/", "commit": "b30a961" }
+      ]
+    },
+    {
       "version": "v0.2.0",
       "date": "2025-04-18",
       "highlights": [
