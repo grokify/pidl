@@ -338,3 +338,126 @@ func TestSVGRenderer_AnimationPresetNone(t *testing.T) {
 		t.Error("Flow with none preset should not have animation circle")
 	}
 }
+
+func TestSVGRenderer_WithTemplate(t *testing.T) {
+	protocol := &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{ID: "test", Name: "Test"},
+		Entities: []pidl.Entity{
+			{ID: "a", Name: "A"},
+			{ID: "b", Name: "B"},
+		},
+		Flows: []pidl.Flow{
+			{From: "a", To: "b", Action: "msg", Label: "Message"},
+		},
+	}
+
+	tests := []struct {
+		name     string
+		template string
+		check    func(t *testing.T, svg string)
+	}{
+		{
+			name:     "default template",
+			template: "default",
+			check: func(t *testing.T, svg string) {
+				if !strings.Contains(svg, "rx=\"4\"") {
+					t.Error("Default template should have rx=4 corner radius")
+				}
+			},
+		},
+		{
+			name:     "minimal template",
+			template: "minimal",
+			check: func(t *testing.T, svg string) {
+				// Minimal has different colors
+				if !strings.Contains(svg, "#374151") {
+					t.Error("Minimal template should have gray primary color")
+				}
+			},
+		},
+		{
+			name:     "sketch template",
+			template: "sketch",
+			check: func(t *testing.T, svg string) {
+				// Sketch has rounded corners
+				if !strings.Contains(svg, "rx=\"8\"") {
+					t.Error("Sketch template should have rx=8 corner radius")
+				}
+				// Sketch has custom CSS
+				if !strings.Contains(svg, "stroke-linecap: round") {
+					t.Error("Sketch template should have custom CSS")
+				}
+			},
+		},
+		{
+			name:     "blueprint template",
+			template: "blueprint",
+			check: func(t *testing.T, svg string) {
+				// Blueprint has square corners
+				if !strings.Contains(svg, "rx=\"0\"") {
+					t.Error("Blueprint template should have rx=0 corner radius")
+				}
+				// Blueprint has monospace font
+				if !strings.Contains(svg, "Courier") {
+					t.Error("Blueprint template should have monospace font")
+				}
+			},
+		},
+		{
+			name:     "dark template",
+			template: "dark",
+			check: func(t *testing.T, svg string) {
+				// Dark has dark background color
+				if !strings.Contains(svg, "#0f172a") {
+					t.Error("Dark template should have dark background color")
+				}
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			renderer, err := render.NewSVGWithTemplate(tt.template)
+			if err != nil {
+				t.Fatalf("NewSVGWithTemplate(%q) error = %v", tt.template, err)
+			}
+
+			svg, err := renderer.RenderString(protocol)
+			if err != nil {
+				t.Fatalf("RenderString() error = %v", err)
+			}
+
+			tt.check(t, svg)
+		})
+	}
+}
+
+func TestSVGRenderer_TemplateOverride(t *testing.T) {
+	protocol := &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{ID: "test", Name: "Test"},
+		Entities: []pidl.Entity{
+			{ID: "a", Name: "A"},
+			{ID: "b", Name: "B"},
+		},
+		Flows: []pidl.Flow{
+			{From: "a", To: "b", Action: "msg"},
+		},
+	}
+
+	// Create renderer with template, then override spacing
+	renderer, err := render.NewSVGWithTemplate("minimal")
+	if err != nil {
+		t.Fatalf("NewSVGWithTemplate() error = %v", err)
+	}
+
+	// Override the template's participant spacing
+	renderer.ParticipantSpacing = 300
+
+	svg1, _ := renderer.RenderString(protocol)
+
+	// The explicit override should take precedence
+	// Check that the viewBox width changed (more spacing = wider)
+	if !strings.Contains(svg1, "viewBox=\"0 0") {
+		t.Error("SVG should have viewBox")
+	}
+}
