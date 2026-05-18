@@ -814,13 +814,13 @@ pidl render --format=svg-animated \
 - [x] Print media fallback (static or hidden dots)
 - [ ] Browser compatibility testing (Chrome, Firefox, Safari)
 
-### Phase 3: Template System
-- [ ] Template loading from embedded FS
-- [ ] Template configuration parsing (`config.json`)
-- [ ] Built-in templates: `sketch`, `minimal`, `blueprint`
-- [ ] Custom template loading from directory
+### Phase 3: Template System ✅
+- [x] Template loading from embedded FS
+- [x] Template configuration parsing (`config.json`)
+- [x] Built-in templates: `default`, `minimal`, `sketch`, `blueprint`, `dark`
+- [x] Custom template loading from directory
 - [ ] Template variable substitution
-- [ ] CLI `--template` and `--template-dir` flags
+- [x] CLI `--template` and `--template-dir` flags
 - [ ] Template validation
 
 ### Phase 4: Network Boundary Diagrams
