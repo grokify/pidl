@@ -180,6 +180,115 @@ type Flow struct {
 
 	// Alternatives are alternative paths from this flow point.
 	Alternatives []Alternative `json:"alternatives,omitempty"`
+
+	// Animation configures animation for this flow in animated SVG output.
+	// Can be a string (preset name) or FlowAnimation object.
+	Animation *FlowAnimation `json:"animation,omitempty"`
+}
+
+// FlowAnimation configures animation for a flow in animated SVG output.
+type FlowAnimation struct {
+	// Enabled controls whether this flow is animated. Defaults to true.
+	Enabled *bool `json:"enabled,omitempty"`
+
+	// Preset is a semantic preset name (request, success, error, warning, highlight, none).
+	Preset AnimationPreset `json:"preset,omitempty"`
+
+	// Duration is the animation cycle duration (e.g., "2s", "1.5s").
+	Duration string `json:"duration,omitempty"`
+
+	// Delay is the animation start delay (e.g., "0.5s").
+	Delay string `json:"delay,omitempty"`
+
+	// DotColor is the animated dot fill color.
+	DotColor string `json:"dot_color,omitempty"`
+
+	// DotSize is the animated dot radius in pixels.
+	DotSize int `json:"dot_size,omitempty"`
+
+	// Pulse adds a pulsing effect (useful for errors/warnings).
+	Pulse bool `json:"pulse,omitempty"`
+
+	// Easing is the CSS easing function (linear, ease-in-out, etc.).
+	Easing string `json:"easing,omitempty"`
+}
+
+// AnimationPreset represents a semantic animation preset.
+type AnimationPreset string
+
+const (
+	// AnimationPresetRequest is the default for outgoing requests.
+	AnimationPresetRequest AnimationPreset = "request"
+	// AnimationPresetResponse is for return values (gray, dashed).
+	AnimationPresetResponse AnimationPreset = "response"
+	// AnimationPresetSuccess indicates successful operations (green).
+	AnimationPresetSuccess AnimationPreset = "success"
+	// AnimationPresetError indicates errors/failures (red, pulsing).
+	AnimationPresetError AnimationPreset = "error"
+	// AnimationPresetWarning indicates warnings (orange, pulsing).
+	AnimationPresetWarning AnimationPreset = "warning"
+	// AnimationPresetHighlight emphasizes critical paths (yellow, larger dot).
+	AnimationPresetHighlight AnimationPreset = "highlight"
+	// AnimationPresetNone disables animation (static arrow).
+	AnimationPresetNone AnimationPreset = "none"
+)
+
+// IsAnimationEnabled returns whether animation is enabled for this flow.
+func (f *FlowAnimation) IsAnimationEnabled() bool {
+	if f == nil {
+		return true // default enabled
+	}
+	if f.Preset == AnimationPresetNone {
+		return false
+	}
+	if f.Enabled != nil {
+		return *f.Enabled
+	}
+	return true
+}
+
+// EffectiveDotColor returns the dot color, applying preset defaults.
+func (f *FlowAnimation) EffectiveDotColor(defaultColor string) string {
+	if f == nil || f.DotColor == "" {
+		if f != nil {
+			switch f.Preset {
+			case AnimationPresetSuccess:
+				return "#68d391"
+			case AnimationPresetError:
+				return "#fc8181"
+			case AnimationPresetWarning:
+				return "#f6ad55"
+			case AnimationPresetHighlight:
+				return "#faf089"
+			case AnimationPresetResponse:
+				return "#a0aec0"
+			}
+		}
+		return defaultColor
+	}
+	return f.DotColor
+}
+
+// EffectiveDotSize returns the dot size, applying preset defaults.
+func (f *FlowAnimation) EffectiveDotSize(defaultSize int) int {
+	if f == nil || f.DotSize == 0 {
+		if f != nil && f.Preset == AnimationPresetHighlight {
+			return 6
+		}
+		return defaultSize
+	}
+	return f.DotSize
+}
+
+// ShouldPulse returns whether the dot should pulse.
+func (f *FlowAnimation) ShouldPulse() bool {
+	if f == nil {
+		return false
+	}
+	if f.Pulse {
+		return true
+	}
+	return f.Preset == AnimationPresetError || f.Preset == AnimationPresetWarning
 }
 
 // FlowMode represents the type of interaction.

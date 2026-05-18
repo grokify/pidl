@@ -34,6 +34,9 @@ type SVGRenderer struct {
 	// MessageSpacing sets vertical spacing between messages.
 	MessageSpacing int
 
+	// AnimationConfig contains global animation settings.
+	AnimationConfig svg.AnimationConfig
+
 	// layout configuration
 	layoutConfig svg.LayoutConfig
 }
@@ -48,6 +51,7 @@ func NewSVG() *SVGRenderer {
 		ShowStepNumbers:    true,
 		ParticipantSpacing: 0, // 0 means use default
 		MessageSpacing:     0, // 0 means use default
+		AnimationConfig:    svg.DefaultAnimationConfig(),
 		layoutConfig:       svg.DefaultLayoutConfig(),
 	}
 }
@@ -127,11 +131,20 @@ func (r *SVGRenderer) render(p *pidl.Protocol) string {
 	}
 	sb.WriteString(">\n")
 
+	// Resolve animation styles for each flow
+	var flowStyles []svg.FlowAnimationStyle
+	if r.Animated {
+		flowStyles = make([]svg.FlowAnimationStyle, len(p.Flows))
+		for i, f := range p.Flows {
+			flowStyles[i] = svg.ResolveFlowAnimation(f.Animation, i, r.AnimationConfig)
+		}
+	}
+
 	// Embedded CSS
 	sb.WriteString("  <style>\n")
 	sb.WriteString(svg.GenerateCSS(svg.Theme(r.Theme)))
 	if r.Animated {
-		sb.WriteString(r.generateAnimationCSS(len(p.Flows)))
+		sb.WriteString(r.generateAnimationCSS(flowStyles))
 	}
 	sb.WriteString("  </style>\n\n")
 
@@ -168,7 +181,11 @@ func (r *SVGRenderer) render(p *pidl.Protocol) string {
 	sb.WriteString("  <!-- Messages -->\n")
 	sb.WriteString("  <g class=\"messages\">\n")
 	for i, msg := range layout.Messages {
-		r.renderMessage(&sb, msg, i, r.Animated)
+		var style *svg.FlowAnimationStyle
+		if r.Animated && i < len(flowStyles) {
+			style = &flowStyles[i]
+		}
+		r.renderMessage(&sb, msg, i, style)
 	}
 	sb.WriteString("  </g>\n")
 
@@ -177,7 +194,7 @@ func (r *SVGRenderer) render(p *pidl.Protocol) string {
 	return sb.String()
 }
 
-func (r *SVGRenderer) renderMessage(sb *strings.Builder, msg svg.MessageLayout, index int, animated bool) {
+func (r *SVGRenderer) renderMessage(sb *strings.Builder, msg svg.MessageLayout, index int, style *svg.FlowAnimationStyle) {
 	lineClass := "message-line"
 	arrowClass := "message-arrow"
 	if msg.IsDashed {
@@ -219,10 +236,10 @@ func (r *SVGRenderer) renderMessage(sb *strings.Builder, msg svg.MessageLayout, 
 	sb.WriteString(fmt.Sprintf(`    <text class="message-text" x="%d" y="%d" text-anchor="middle">%s</text>`+"\n",
 		labelX, labelY, html.EscapeString(msg.Label)))
 
-	// Animated dot (if enabled)
-	if animated {
-		sb.WriteString(fmt.Sprintf(`    <circle class="flow-dot flow-dot-%d" r="4" style="offset-path: path('%s');"/>`+"\n",
-			index, msg.PathD))
+	// Animated dot (if style is provided and enabled)
+	if style != nil && style.Enabled {
+		sb.WriteString(fmt.Sprintf(`    <circle class="flow-dot flow-dot-%d" r="%d" style="offset-path: path('%s');"/>`+"\n",
+			index, style.DotSize, msg.PathD))
 	}
 }
 
@@ -246,30 +263,8 @@ func (r *SVGRenderer) generateDefs() string {
 `
 }
 
-func (r *SVGRenderer) generateAnimationCSS(messageCount int) string {
-	var sb strings.Builder
-
-	sb.WriteString(`
-    /* Animation keyframes */
-    @keyframes flow {
-      0% { offset-distance: 0%; }
-      100% { offset-distance: 100%; }
-    }
-
-    .flow-dot {
-      fill: var(--color-dot);
-      offset-rotate: 0deg;
-      animation: flow 2s linear infinite;
-    }
-`)
-
-	// Staggered delays for each message
-	for i := 0; i < messageCount; i++ {
-		delay := float64(i) * 0.3
-		sb.WriteString(fmt.Sprintf("    .flow-dot-%d { animation-delay: %.1fs; }\n", i, delay))
-	}
-
-	return sb.String()
+func (r *SVGRenderer) generateAnimationCSS(styles []svg.FlowAnimationStyle) string {
+	return svg.GenerateAnimationCSS(styles, nil)
 }
 
 func (r *SVGRenderer) isResponseMode(mode pidl.FlowMode) bool {
