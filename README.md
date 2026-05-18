@@ -32,7 +32,10 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 ## Features
 
 - 📋 **JSON-based DSL** for describing protocol flows
-- 🎨 **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT, D2
+- 🎨 **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT, D2, SVG
+- 🎬 **Animated SVG** with CSS flow visualizations and moving dots
+- 🌐 **Network boundary diagrams** for trust zone visualization
+- 🎭 **SVG templates**: default, minimal, sketch, blueprint, dark
 - 📚 **Built-in examples**: OAuth 2.0, PKCE, OIDC, MCP, A2A
 - ⌨️ **CLI tool** for validation and diagram generation
 - 📦 **Go library** for programmatic use
@@ -83,6 +86,18 @@ pidl generate -f d2-flow oauth2_pkce
 
 # D2 architecture diagram
 pidl generate -f d2-arch oauth2_pkce
+
+# SVG sequence diagram
+pidl generate -f svg oauth2_pkce
+
+# Animated SVG with flow dots
+pidl generate -f svg-animated --theme=dark oauth2_pkce
+
+# SVG with template
+pidl generate -f svg --template=sketch oauth2_pkce
+
+# Network boundary diagram
+pidl generate -f svg-network oauth2_pkce
 ```
 
 ### Create a new protocol file
@@ -239,15 +254,27 @@ Options:
 pidl generate [options] <file>
 
 Options:
-  -f string   Output format: plantuml, mermaid, dot, d2, d2-flow, d2-arch (default "plantuml")
-  -o string   Output file (default: stdout)
+  -f string         Output format (default "plantuml")
+  -o string         Output file (default: stdout)
+  --template        SVG template: default, minimal, sketch, blueprint, dark
+  --template-dir    Path to custom SVG template directory
+  --theme           SVG theme: light, dark, auto
+  --boundary        Network boundary override (repeatable)
 ```
 
-D2 formats:
+Formats:
 
-- `d2` - Sequence diagram
-- `d2-flow` - Data flow diagram with entity shapes
-- `d2-arch` - Architecture diagram with entities grouped by type
+| Format | Description |
+|--------|-------------|
+| `plantuml` | PlantUML sequence diagram |
+| `mermaid` | Mermaid sequence diagram |
+| `dot` | Graphviz DOT data flow diagram |
+| `d2` | D2 sequence diagram |
+| `d2-flow` | D2 data flow diagram |
+| `d2-arch` | D2 architecture diagram |
+| `svg` | SVG sequence diagram |
+| `svg-animated` | Animated SVG with flow dots |
+| `svg-network` | Network boundary diagram |
 
 ### examples
 
