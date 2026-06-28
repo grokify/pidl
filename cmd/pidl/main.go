@@ -2,6 +2,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -42,6 +43,12 @@ func main() {
 		cmdExamples(os.Args[2:])
 	case "init":
 		cmdInit(os.Args[2:])
+	case "roles":
+		cmdRoles(os.Args[2:])
+	case "components":
+		cmdComponents(os.Args[2:])
+	case "trust":
+		cmdTrust(os.Args[2:])
 	case "version", "--version", "-v":
 		fmt.Printf("pidl version %s\n", version)
 	case "help", "--help", "-h":
@@ -60,12 +67,15 @@ Usage:
   pidl <command> [options] [arguments]
 
 Commands:
-  validate   Validate PIDL JSON files
-  generate   Generate diagrams from PIDL files
-  examples   List or show built-in examples
-  init       Create a new PIDL file from template
-  version    Print version information
-  help       Show this help message
+  validate     Validate PIDL JSON files
+  generate     Generate diagrams from PIDL files
+  roles        List protocol roles from PIDL files
+  components   List deployment components from PIDL files
+  trust        List trust relationships from PIDL files
+  examples     List or show built-in examples
+  init         Create a new PIDL file from template
+  version      Print version information
+  help         Show this help message
 
 Run 'pidl <command> -h' for more information on a command.
 `)
@@ -125,7 +135,7 @@ Options:
 
 func cmdGenerate(args []string) {
 	fs := flag.NewFlagSet("generate", flag.ExitOnError)
-	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network")
+	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
 	templateDir := fs.String("template-dir", "", "Path to custom SVG template directory")
@@ -150,6 +160,7 @@ Formats:
   mermaid-state      Mermaid state diagram (requires entity states)
   mermaid-component  Mermaid deployment component diagram
   mermaid-trust      Mermaid trust relationship diagram
+  markdown-matrix    Markdown protocol role matrix
   dot, graphviz      Graphviz DOT data flow diagram
   d2                 D2 sequence diagram
   d2-flow            D2 data flow diagram
@@ -157,6 +168,8 @@ Formats:
   svg                SVG sequence diagram
   svg-animated       Animated SVG with flow dots
   svg-network        Network boundary diagram
+  svg-component      SVG deployment component diagram
+  svg-trust          SVG trust relationship diagram
 
 SVG Templates:
   default          Clean, professional styling
@@ -458,6 +471,256 @@ Examples:
 	fmt.Printf("Created %s\n", filename)
 	fmt.Printf("Protocol: %s\n", p.ProtocolMeta.Name)
 	fmt.Printf("ID: %s\n", p.ProtocolMeta.ID)
+}
+
+func cmdRoles(args []string) {
+	fs := flag.NewFlagSet("roles", flag.ExitOnError)
+	formatStr := fs.String("f", "table", "Output format: table, json")
+	protocol := fs.String("protocol", "", "Filter by protocol (e.g., oauth, scim, mcp)")
+	fs.Usage = func() {
+		fmt.Print(`Usage: pidl roles [options] <file>
+
+List protocol roles defined in a PIDL file.
+
+Options:
+`)
+		fs.PrintDefaults()
+		fmt.Print(`
+Examples:
+  pidl roles example.json
+  pidl roles -protocol=oauth example.json
+  pidl roles -f json example.json
+`)
+	}
+
+	if err := fs.Parse(args); err != nil {
+		os.Exit(1)
+	}
+
+	if fs.NArg() == 0 {
+		fs.Usage()
+		os.Exit(1)
+	}
+
+	p, err := loadProtocol(fs.Arg(0))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	entities := p.EntitiesWithProtocolRoles()
+	if *protocol != "" {
+		entities = p.EntitiesByProtocol(*protocol)
+	}
+
+	if *formatStr == "json" {
+		type roleEntry struct {
+			EntityID   string `json:"entity_id"`
+			EntityName string `json:"entity_name"`
+			Protocol   string `json:"protocol"`
+			Role       string `json:"role"`
+			Variant    string `json:"variant,omitempty"`
+		}
+		var entries []roleEntry
+		for _, e := range entities {
+			for _, r := range e.ProtocolRoles {
+				if *protocol == "" || r.Protocol == *protocol {
+					entries = append(entries, roleEntry{
+						EntityID:   e.ID,
+						EntityName: e.Name,
+						Protocol:   r.Protocol,
+						Role:       r.Role,
+						Variant:    r.Variant,
+					})
+				}
+			}
+		}
+		data, _ := jsonMarshalIndent(entries)
+		fmt.Println(string(data))
+		return
+	}
+
+	// Table format
+	fmt.Printf("Protocol Roles in %s\n\n", p.ProtocolMeta.Name)
+	fmt.Printf("%-20s %-25s %-12s %-20s %s\n", "ENTITY ID", "ENTITY NAME", "PROTOCOL", "ROLE", "VARIANT")
+	fmt.Println(strings.Repeat("-", 90))
+	for _, e := range entities {
+		for _, r := range e.ProtocolRoles {
+			if *protocol == "" || r.Protocol == *protocol {
+				fmt.Printf("%-20s %-25s %-12s %-20s %s\n", e.ID, truncate(e.Name, 25), r.Protocol, r.Role, r.Variant)
+			}
+		}
+	}
+}
+
+func cmdComponents(args []string) {
+	fs := flag.NewFlagSet("components", flag.ExitOnError)
+	formatStr := fs.String("f", "table", "Output format: table, json")
+	typeFilter := fs.String("type", "", "Filter by component type (e.g., idp, gateway, pdp)")
+	fs.Usage = func() {
+		fmt.Print(`Usage: pidl components [options] <file>
+
+List deployment components defined in a PIDL file.
+
+Options:
+`)
+		fs.PrintDefaults()
+		fmt.Print(`
+Examples:
+  pidl components example.json
+  pidl components -type=idp example.json
+  pidl components -f json example.json
+`)
+	}
+
+	if err := fs.Parse(args); err != nil {
+		os.Exit(1)
+	}
+
+	if fs.NArg() == 0 {
+		fs.Usage()
+		os.Exit(1)
+	}
+
+	p, err := loadProtocol(fs.Arg(0))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	components := p.Metadata.Components
+	if *typeFilter != "" {
+		components = p.ComponentsByType(*typeFilter)
+	}
+
+	if *formatStr == "json" {
+		data, _ := jsonMarshalIndent(components)
+		fmt.Println(string(data))
+		return
+	}
+
+	// Table format
+	fmt.Printf("Deployment Components in %s\n\n", p.ProtocolMeta.Name)
+	fmt.Printf("%-20s %-30s %-15s %-30s\n", "ID", "NAME", "TYPE", "ENTITIES")
+	fmt.Println(strings.Repeat("-", 100))
+	for _, c := range components {
+		entities := strings.Join(c.Entities, ", ")
+		fmt.Printf("%-20s %-30s %-15s %-30s\n", c.ID, truncate(c.Name, 30), c.Type, truncate(entities, 30))
+	}
+
+	if len(components) > 0 {
+		fmt.Printf("\nTotal: %d components\n", len(components))
+	} else {
+		fmt.Println("No components defined.")
+	}
+}
+
+func cmdTrust(args []string) {
+	fs := flag.NewFlagSet("trust", flag.ExitOnError)
+	formatStr := fs.String("f", "table", "Output format: table, json")
+	typeFilter := fs.String("type", "", "Filter by relationship type (e.g., authenticates, delegates, issues)")
+	fs.Usage = func() {
+		fmt.Print(`Usage: pidl trust [options] <file>
+
+List trust relationships defined in a PIDL file.
+
+Options:
+`)
+		fs.PrintDefaults()
+		fmt.Print(`
+Examples:
+  pidl trust example.json
+  pidl trust -type=authenticates example.json
+  pidl trust -f json example.json
+`)
+	}
+
+	if err := fs.Parse(args); err != nil {
+		os.Exit(1)
+	}
+
+	if fs.NArg() == 0 {
+		fs.Usage()
+		os.Exit(1)
+	}
+
+	p, err := loadProtocol(fs.Arg(0))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	relations := p.Metadata.TrustRelations
+	if *typeFilter != "" {
+		relations = p.TrustRelationsByType(*typeFilter)
+	}
+
+	if *formatStr == "json" {
+		data, _ := jsonMarshalIndent(relations)
+		fmt.Println(string(data))
+		return
+	}
+
+	// Table format
+	fmt.Printf("Trust Relationships in %s\n\n", p.ProtocolMeta.Name)
+	fmt.Printf("%-15s %-20s %-15s %-20s %-25s\n", "ID", "FROM", "TYPE", "TO", "CREDENTIALS")
+	fmt.Println(strings.Repeat("-", 100))
+	for _, t := range relations {
+		creds := strings.Join(t.Credentials, ", ")
+		mutual := ""
+		if t.Mutual {
+			mutual = " (mutual)"
+		}
+		fmt.Printf("%-15s %-20s %-15s %-20s %-25s%s\n",
+			truncate(t.ID, 15), truncate(t.From, 20), t.Type, truncate(t.To, 20), truncate(creds, 25), mutual)
+	}
+
+	if len(relations) > 0 {
+		fmt.Printf("\nTotal: %d trust relationships\n", len(relations))
+	} else {
+		fmt.Println("No trust relationships defined.")
+	}
+}
+
+// loadProtocol loads a protocol from a file or example name.
+func loadProtocol(filename string) (*pidl.Protocol, error) {
+	var p *pidl.Protocol
+	var err error
+
+	if !strings.Contains(filename, "/") && !strings.Contains(filename, "\\") && !strings.HasSuffix(filename, ".json") {
+		p, err = examples.GetProtocol(filename)
+		if err != nil {
+			p, err = pidl.ParseFile(filename)
+		}
+	} else {
+		p, err = pidl.ParseFile(filename)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("parsing %s: %w", filename, err)
+	}
+
+	if errs := p.Validate(); errs.HasErrors() {
+		return nil, fmt.Errorf("validation errors in %s:\n%s", filename, errs)
+	}
+
+	return p, nil
+}
+
+// truncate truncates a string to maxLen, adding "..." if truncated.
+func truncate(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	if maxLen <= 3 {
+		return s[:maxLen]
+	}
+	return s[:maxLen-3] + "..."
+}
+
+// jsonMarshalIndent marshals v to indented JSON.
+func jsonMarshalIndent(v interface{}) ([]byte, error) {
+	return json.MarshalIndent(v, "", "  ")
 }
 
 // parseBoundaryFlag parses a boundary flag in the format "boundary_id:entity1,entity2".
