@@ -704,6 +704,327 @@ func TestIsValidAnnotationType(t *testing.T) {
 	}
 }
 
+func TestValidateEntityStates(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{
+				ID:   "client",
+				Name: "Client",
+				Type: EntityTypeClient,
+				States: []EntityState{
+					{ID: "idle", Name: "Idle", Initial: true},
+					{ID: "active", Name: "Active"},
+					{ID: "error", Final: true},
+				},
+			},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{From: "client", To: "server", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	if errs.HasErrors() {
+		t.Errorf("Validate() = %v, want no errors for valid entity states", errs)
+	}
+}
+
+func TestValidateEntityStatesDuplicateID(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{
+				ID:   "client",
+				Name: "Client",
+				Type: EntityTypeClient,
+				States: []EntityState{
+					{ID: "idle"},
+					{ID: "idle"}, // duplicate
+				},
+			},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{From: "client", To: "server", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "duplicate state ID") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect duplicate state IDs")
+	}
+}
+
+func TestValidateEntityStatesInvalidID(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{
+				ID:   "client",
+				Name: "Client",
+				Type: EntityTypeClient,
+				States: []EntityState{
+					{ID: "Invalid-State"}, // invalid pattern
+				},
+			},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{From: "client", To: "server", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "must match pattern") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect invalid state ID pattern")
+	}
+}
+
+func TestValidateEntityStatesMultipleInitial(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{
+				ID:   "client",
+				Name: "Client",
+				Type: EntityTypeClient,
+				States: []EntityState{
+					{ID: "idle", Initial: true},
+					{ID: "ready", Initial: true}, // second initial
+				},
+			},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{From: "client", To: "server", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "initial states") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect multiple initial states")
+	}
+}
+
+func TestValidateStateMutationsValid(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{
+				ID:   "client",
+				Name: "Client",
+				Type: EntityTypeClient,
+				States: []EntityState{
+					{ID: "idle", Initial: true},
+					{ID: "active"},
+				},
+			},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{
+				From:   "client",
+				To:     "server",
+				Action: "login",
+				Sets: []StateMutation{
+					{Entity: "client", From: "idle", To: "active"},
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	if errs.HasErrors() {
+		t.Errorf("Validate() = %v, want no errors for valid state mutations", errs)
+	}
+}
+
+func TestValidateStateMutationsUnknownEntity(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "client", Name: "Client", Type: EntityTypeClient},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{
+				From:   "client",
+				To:     "server",
+				Action: "request",
+				Sets: []StateMutation{
+					{Entity: "unknown", To: "active"},
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "unknown entity") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect unknown entity in state mutation")
+	}
+}
+
+func TestValidateStateMutationsEntityNoStates(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "client", Name: "Client", Type: EntityTypeClient}, // no states
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{
+				From:   "client",
+				To:     "server",
+				Action: "request",
+				Sets: []StateMutation{
+					{Entity: "client", To: "active"},
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "has no states defined") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect entity with no states in mutation")
+	}
+}
+
+func TestValidateStateMutationsUnknownToState(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{
+				ID:   "client",
+				Name: "Client",
+				Type: EntityTypeClient,
+				States: []EntityState{
+					{ID: "idle"},
+				},
+			},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{
+				From:   "client",
+				To:     "server",
+				Action: "request",
+				Sets: []StateMutation{
+					{Entity: "client", To: "unknown_state"},
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Field, ".to") && strings.Contains(e.Message, "unknown state") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect unknown 'to' state")
+	}
+}
+
+func TestValidateStateMutationsUnknownFromState(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{
+				ID:   "client",
+				Name: "Client",
+				Type: EntityTypeClient,
+				States: []EntityState{
+					{ID: "idle"},
+					{ID: "active"},
+				},
+			},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{
+				From:   "client",
+				To:     "server",
+				Action: "request",
+				Sets: []StateMutation{
+					{Entity: "client", From: "unknown_state", To: "active"},
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Field, ".from") && strings.Contains(e.Message, "unknown state") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect unknown 'from' state")
+	}
+}
+
 func TestPhaseHierarchyHelpers(t *testing.T) {
 	p := &Protocol{
 		ProtocolMeta: ProtocolMeta{ID: "test", Name: "Test"},
@@ -746,5 +1067,682 @@ func TestPhaseHierarchyHelpers(t *testing.T) {
 	}
 	if depth := p.PhaseDepth("grandchild"); depth != 2 {
 		t.Errorf("PhaseDepth(grandchild) = %d, want 2", depth)
+	}
+}
+
+func TestValidateTrustLevel(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "client", Name: "Client", Type: EntityTypeClient, TrustLevel: TrustLevelUntrusted},
+			{ID: "server", Name: "Server", Type: EntityTypeServer, TrustLevel: TrustLevelTrusted},
+		},
+		Flows: []Flow{
+			{From: "client", To: "server", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	if errs.HasErrors() {
+		t.Errorf("Validate() = %v, want no errors for valid trust levels", errs)
+	}
+}
+
+func TestValidateInvalidTrustLevel(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "client", Name: "Client", Type: EntityTypeClient, TrustLevel: "invalid_level"},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{From: "client", To: "server", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "invalid trust level") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect invalid trust level")
+	}
+}
+
+func TestValidateTokenDefinitions(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "auth_server", Name: "Auth Server", Type: EntityTypeAuthorizationServer},
+			{ID: "resource_server", Name: "Resource Server", Type: EntityTypeResourceServer},
+		},
+		Metadata: &ProtocolMetadata{
+			Tokens: []TokenDefinition{
+				{
+					ID:       "access_token",
+					Name:     "Access Token",
+					Type:     "jwt",
+					Issuer:   "auth_server",
+					Audience: "resource_server",
+				},
+			},
+		},
+		Flows: []Flow{
+			{From: "auth_server", To: "resource_server", Action: "issue_token"},
+		},
+	}
+
+	errs := p.Validate()
+	if errs.HasErrors() {
+		t.Errorf("Validate() = %v, want no errors for valid token definitions", errs)
+	}
+}
+
+func TestValidateTokenDefinitionsDuplicateID(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "auth_server", Name: "Auth Server", Type: EntityTypeAuthorizationServer},
+			{ID: "resource_server", Name: "Resource Server", Type: EntityTypeResourceServer},
+		},
+		Metadata: &ProtocolMetadata{
+			Tokens: []TokenDefinition{
+				{ID: "access_token", Name: "Access Token 1"},
+				{ID: "access_token", Name: "Access Token 2"}, // duplicate
+			},
+		},
+		Flows: []Flow{
+			{From: "auth_server", To: "resource_server", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "duplicate token ID") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect duplicate token ID")
+	}
+}
+
+func TestValidateTokenDefinitionsInvalidIssuer(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "auth_server", Name: "Auth Server", Type: EntityTypeAuthorizationServer},
+			{ID: "resource_server", Name: "Resource Server", Type: EntityTypeResourceServer},
+		},
+		Metadata: &ProtocolMetadata{
+			Tokens: []TokenDefinition{
+				{ID: "access_token", Issuer: "unknown_entity"},
+			},
+		},
+		Flows: []Flow{
+			{From: "auth_server", To: "resource_server", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Field, ".issuer") && strings.Contains(e.Message, "unknown entity") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect unknown issuer entity")
+	}
+}
+
+func TestValidateFlowSecurity(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "client", Name: "Client", Type: EntityTypeClient},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Metadata: &ProtocolMetadata{
+			Tokens: []TokenDefinition{
+				{ID: "access_token"},
+			},
+		},
+		Flows: []Flow{
+			{
+				From:   "client",
+				To:     "server",
+				Action: "request",
+				Security: &FlowSecurity{
+					Requires:     []SecurityRequirement{SecurityRequirementToken, SecurityRequirementEncryption},
+					Token:        "access_token",
+					Confidential: true,
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	if errs.HasErrors() {
+		t.Errorf("Validate() = %v, want no errors for valid flow security", errs)
+	}
+}
+
+func TestValidateFlowSecurityInvalidRequirement(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "client", Name: "Client", Type: EntityTypeClient},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{
+				From:   "client",
+				To:     "server",
+				Action: "request",
+				Security: &FlowSecurity{
+					Requires: []SecurityRequirement{"invalid_requirement"},
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "invalid security requirement") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect invalid security requirement")
+	}
+}
+
+func TestValidateFlowSecurityUnknownToken(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "client", Name: "Client", Type: EntityTypeClient},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Flows: []Flow{
+			{
+				From:   "client",
+				To:     "server",
+				Action: "request",
+				Security: &FlowSecurity{
+					Token: "unknown_token",
+				},
+			},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "unknown token definition") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect unknown token reference")
+	}
+}
+
+func TestValidateProtocolRoles(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{
+				ID:   "idp",
+				Name: "Identity Provider",
+				Type: EntityTypeAuthorizationServer,
+				ProtocolRoles: []ProtocolRole{
+					{Protocol: ProtocolOAuth, Role: "authorization_server"},
+					{Protocol: ProtocolSCIM, Role: "service_provider"},
+				},
+			},
+			{ID: "client", Name: "Client", Type: EntityTypeClient},
+		},
+		Flows: []Flow{
+			{From: "client", To: "idp", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	if errs.HasErrors() {
+		t.Errorf("Validate() = %v, want no errors for valid protocol roles", errs)
+	}
+}
+
+func TestValidateProtocolRolesInvalidProtocol(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{
+				ID:   "entity",
+				Name: "Entity",
+				Type: EntityTypeServer,
+				ProtocolRoles: []ProtocolRole{
+					{Protocol: "invalid_protocol", Role: "some_role"},
+				},
+			},
+			{ID: "client", Name: "Client", Type: EntityTypeClient},
+		},
+		Flows: []Flow{
+			{From: "client", To: "entity", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "unknown protocol") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect unknown protocol")
+	}
+}
+
+func TestValidateProtocolRolesMissingRole(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{
+				ID:   "entity",
+				Name: "Entity",
+				Type: EntityTypeServer,
+				ProtocolRoles: []ProtocolRole{
+					{Protocol: ProtocolOAuth, Role: ""}, // missing role
+				},
+			},
+			{ID: "client", Name: "Client", Type: EntityTypeClient},
+		},
+		Flows: []Flow{
+			{From: "client", To: "entity", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Field, ".role") && strings.Contains(e.Message, "required") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect missing role")
+	}
+}
+
+func TestValidateComponents(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "auth_server", Name: "Auth Server", Type: EntityTypeAuthorizationServer},
+			{ID: "token_endpoint", Name: "Token Endpoint", Type: EntityTypeServer},
+		},
+		Metadata: &ProtocolMetadata{
+			Components: []DeploymentComponent{
+				{
+					ID:       "idp",
+					Name:     "Identity Provider",
+					Type:     ComponentTypeIdP,
+					Entities: []string{"auth_server", "token_endpoint"},
+					Implements: []ProtocolRole{
+						{Protocol: ProtocolOAuth, Role: "authorization_server"},
+					},
+					Examples: []string{"Okta", "Auth0"},
+				},
+			},
+		},
+		Flows: []Flow{
+			{From: "auth_server", To: "token_endpoint", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	if errs.HasErrors() {
+		t.Errorf("Validate() = %v, want no errors for valid components", errs)
+	}
+}
+
+func TestValidateComponentsDuplicateID(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "server1", Name: "Server 1", Type: EntityTypeServer},
+			{ID: "server2", Name: "Server 2", Type: EntityTypeServer},
+		},
+		Metadata: &ProtocolMetadata{
+			Components: []DeploymentComponent{
+				{ID: "comp", Name: "Component 1", Type: ComponentTypeIdP},
+				{ID: "comp", Name: "Component 2", Type: ComponentTypeGateway}, // duplicate
+			},
+		},
+		Flows: []Flow{
+			{From: "server1", To: "server2", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "duplicate component ID") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect duplicate component ID")
+	}
+}
+
+func TestValidateComponentsInvalidType(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "server1", Name: "Server 1", Type: EntityTypeServer},
+			{ID: "server2", Name: "Server 2", Type: EntityTypeServer},
+		},
+		Metadata: &ProtocolMetadata{
+			Components: []DeploymentComponent{
+				{ID: "comp", Name: "Component", Type: "invalid_type"},
+			},
+		},
+		Flows: []Flow{
+			{From: "server1", To: "server2", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "unknown component type") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect unknown component type")
+	}
+}
+
+func TestValidateComponentsUnknownEntity(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "server1", Name: "Server 1", Type: EntityTypeServer},
+			{ID: "server2", Name: "Server 2", Type: EntityTypeServer},
+		},
+		Metadata: &ProtocolMetadata{
+			Components: []DeploymentComponent{
+				{
+					ID:       "comp",
+					Name:     "Component",
+					Type:     ComponentTypeIdP,
+					Entities: []string{"unknown_entity"},
+				},
+			},
+		},
+		Flows: []Flow{
+			{From: "server1", To: "server2", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "unknown entity") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect unknown entity in component")
+	}
+}
+
+func TestValidateTrustRelations(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "client", Name: "Client", Type: EntityTypeClient},
+			{ID: "idp", Name: "IdP", Type: EntityTypeIdentityProvider},
+		},
+		Metadata: &ProtocolMetadata{
+			TrustRelations: []TrustRelationship{
+				{
+					ID:          "tr1",
+					From:        "client",
+					To:          "idp",
+					Type:        TrustTypeTrusts,
+					Credentials: []string{CredentialAccessToken},
+				},
+			},
+		},
+		Flows: []Flow{
+			{From: "client", To: "idp", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	if errs.HasErrors() {
+		t.Errorf("Validate() = %v, want no errors for valid trust relations", errs)
+	}
+}
+
+func TestValidateTrustRelationsDuplicateID(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "client", Name: "Client", Type: EntityTypeClient},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Metadata: &ProtocolMetadata{
+			TrustRelations: []TrustRelationship{
+				{ID: "tr1", From: "client", To: "server", Type: TrustTypeTrusts},
+				{ID: "tr1", From: "server", To: "client", Type: TrustTypeAuthenticates}, // duplicate
+			},
+		},
+		Flows: []Flow{
+			{From: "client", To: "server", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "duplicate trust relation ID") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect duplicate trust relation ID")
+	}
+}
+
+func TestValidateTrustRelationsUnknownEntity(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "client", Name: "Client", Type: EntityTypeClient},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Metadata: &ProtocolMetadata{
+			TrustRelations: []TrustRelationship{
+				{From: "client", To: "unknown", Type: TrustTypeTrusts},
+			},
+		},
+		Flows: []Flow{
+			{From: "client", To: "server", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "unknown entity or component") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect unknown entity in trust relation")
+	}
+}
+
+func TestValidateTrustRelationsInvalidType(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "client", Name: "Client", Type: EntityTypeClient},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Metadata: &ProtocolMetadata{
+			TrustRelations: []TrustRelationship{
+				{From: "client", To: "server", Type: "invalid_type"},
+			},
+		},
+		Flows: []Flow{
+			{From: "client", To: "server", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "unknown trust relation type") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect unknown trust relation type")
+	}
+}
+
+func TestValidateTrustRelationsInvalidCredential(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "client", Name: "Client", Type: EntityTypeClient},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Metadata: &ProtocolMetadata{
+			TrustRelations: []TrustRelationship{
+				{
+					From:        "client",
+					To:          "server",
+					Type:        TrustTypeTrusts,
+					Credentials: []string{"invalid_credential"},
+				},
+			},
+		},
+		Flows: []Flow{
+			{From: "client", To: "server", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e.Message, "unknown credential type") {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("Validate() should detect unknown credential type")
+	}
+}
+
+func TestValidateTrustRelationsToComponent(t *testing.T) {
+	p := &Protocol{
+		ProtocolMeta: ProtocolMeta{
+			ID:   "test",
+			Name: "Test",
+		},
+		Entities: []Entity{
+			{ID: "client", Name: "Client", Type: EntityTypeClient},
+			{ID: "server", Name: "Server", Type: EntityTypeServer},
+		},
+		Metadata: &ProtocolMetadata{
+			Components: []DeploymentComponent{
+				{ID: "idp", Name: "IdP", Type: ComponentTypeIdP},
+			},
+			TrustRelations: []TrustRelationship{
+				{From: "client", To: "idp", Type: TrustTypeTrusts}, // 'to' is a component
+			},
+		},
+		Flows: []Flow{
+			{From: "client", To: "server", Action: "request"},
+		},
+	}
+
+	errs := p.Validate()
+	if errs.HasErrors() {
+		t.Errorf("Validate() = %v, want no errors for trust relation to component", errs)
 	}
 }

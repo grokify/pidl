@@ -31,6 +31,9 @@
         "$ref": "#/$defs/flow"
       },
       "minItems": 1
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
     }
   },
   "$defs": {
@@ -105,6 +108,77 @@
         "description": {
           "type": "string",
           "description": "Optional description of the entity's role"
+        },
+        "trust_level": {
+          "$ref": "#/$defs/trustLevel"
+        },
+        "states": {
+          "type": "array",
+          "description": "Possible states for this entity",
+          "items": {
+            "$ref": "#/$defs/entityState"
+          }
+        },
+        "protocol_roles": {
+          "type": "array",
+          "description": "Protocol-specific roles this entity implements",
+          "items": {
+            "$ref": "#/$defs/protocolRole"
+          }
+        }
+      }
+    },
+    "protocolRole": {
+      "type": "object",
+      "description": "A protocol-specific role that an entity implements",
+      "required": ["protocol", "role"],
+      "properties": {
+        "protocol": {
+          "type": "string",
+          "description": "Protocol identifier",
+          "enum": ["oauth", "scim", "spiffe", "aauth", "idjag", "authzen", "mcp", "a2a"]
+        },
+        "role": {
+          "type": "string",
+          "description": "Role within that protocol (e.g., authorization_server, client, pep, pdp)"
+        },
+        "variant": {
+          "type": "string",
+          "description": "Optional sub-role or variant (e.g., person_server vs access_server)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Additional context about this role"
+        }
+      }
+    },
+    "entityState": {
+      "type": "object",
+      "description": "A possible state for an entity",
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for this state within the entity",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable display name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description of the state"
+        },
+        "initial": {
+          "type": "boolean",
+          "description": "Marks this as the initial state",
+          "default": false
+        },
+        "final": {
+          "type": "boolean",
+          "description": "Marks this as a terminal/final state",
+          "default": false
         }
       }
     },
@@ -252,6 +326,35 @@
           "items": {
             "$ref": "#/$defs/alternative"
           }
+        },
+        "sets": {
+          "type": "array",
+          "description": "State mutations that occur when this flow executes",
+          "items": {
+            "$ref": "#/$defs/stateMutation"
+          }
+        },
+        "security": {
+          "$ref": "#/$defs/flowSecurity"
+        }
+      }
+    },
+    "stateMutation": {
+      "type": "object",
+      "description": "A state change for an entity triggered by a flow",
+      "required": ["entity", "to"],
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "Entity ID whose state changes"
+        },
+        "to": {
+          "type": "string",
+          "description": "Target state ID"
+        },
+        "from": {
+          "type": "string",
+          "description": "Optional required prior state (for validation)"
         }
       }
     },
@@ -269,6 +372,259 @@
         "tool_result"
       ],
       "default": "request"
+    },
+    "trustLevel": {
+      "type": "string",
+      "description": "Trust classification of an entity",
+      "enum": [
+        "trusted",
+        "semi_trusted",
+        "untrusted",
+        "authoritative"
+      ]
+    },
+    "securityRequirement": {
+      "type": "string",
+      "description": "Security mechanism required for a flow",
+      "enum": [
+        "token",
+        "signature",
+        "encryption",
+        "mtls",
+        "mac"
+      ]
+    },
+    "tokenDefinition": {
+      "type": "object",
+      "description": "Definition of a token type used in the protocol",
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for this token definition",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable display name"
+        },
+        "type": {
+          "type": "string",
+          "description": "Token type: jwt, opaque, saml, api_key"
+        },
+        "issuer": {
+          "type": "string",
+          "description": "Entity ID that issues this token"
+        },
+        "audience": {
+          "type": "string",
+          "description": "Entity ID that consumes this token"
+        },
+        "binding": {
+          "type": "string",
+          "description": "Token binding method: bearer, mtls, dpop"
+        },
+        "description": {
+          "type": "string",
+          "description": "Additional context about the token"
+        }
+      }
+    },
+    "flowSecurity": {
+      "type": "object",
+      "description": "Security requirements for a flow",
+      "properties": {
+        "requires": {
+          "type": "array",
+          "description": "Security mechanisms required for this flow",
+          "items": {
+            "$ref": "#/$defs/securityRequirement"
+          }
+        },
+        "token": {
+          "type": "string",
+          "description": "Token definition ID used for this flow"
+        },
+        "confidential": {
+          "type": "boolean",
+          "description": "Whether the flow carries sensitive data",
+          "default": false
+        },
+        "description": {
+          "type": "string",
+          "description": "Additional security context"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional protocol-level configuration",
+      "properties": {
+        "networks": {
+          "type": "object",
+          "description": "Network boundary configurations",
+          "additionalProperties": {
+            "$ref": "#/$defs/networkConfig"
+          }
+        },
+        "network_layout": {
+          "$ref": "#/$defs/networkLayout"
+        },
+        "tokens": {
+          "type": "array",
+          "description": "Token definitions used in the protocol",
+          "items": {
+            "$ref": "#/$defs/tokenDefinition"
+          }
+        },
+        "components": {
+          "type": "array",
+          "description": "Logical deployment components",
+          "items": {
+            "$ref": "#/$defs/deploymentComponent"
+          }
+        },
+        "trust_relations": {
+          "type": "array",
+          "description": "Trust relationships between entities or components",
+          "items": {
+            "$ref": "#/$defs/trustRelationship"
+          }
+        }
+      }
+    },
+    "deploymentComponent": {
+      "type": "object",
+      "description": "A logical deployment component that groups entities",
+      "required": ["id", "name", "type"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for this component",
+          "pattern": "^[a-z][a-z0-9_-]*$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable display name"
+        },
+        "type": {
+          "type": "string",
+          "description": "Component type classification",
+          "enum": ["idp", "iga", "agent_provider", "person_server", "access_server", "pdp", "gateway", "mcp_client", "mcp_server", "resource_api", "spire"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Additional context about the component"
+        },
+        "entities": {
+          "type": "array",
+          "description": "Entity IDs contained in this component",
+          "items": {
+            "type": "string"
+          }
+        },
+        "implements": {
+          "type": "array",
+          "description": "Protocol roles this component implements",
+          "items": {
+            "$ref": "#/$defs/protocolRole"
+          }
+        },
+        "examples": {
+          "type": "array",
+          "description": "Real-world products that represent this component type",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "trustRelationship": {
+      "type": "object",
+      "description": "A trust relationship between entities or components",
+      "required": ["from", "to", "type"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Optional unique identifier for this relationship"
+        },
+        "from": {
+          "type": "string",
+          "description": "Source entity or component ID"
+        },
+        "to": {
+          "type": "string",
+          "description": "Target entity or component ID"
+        },
+        "type": {
+          "type": "string",
+          "description": "Relationship type",
+          "enum": ["authenticates", "validates", "delegates", "authorizes", "issues", "trusts", "provisions", "attests"]
+        },
+        "credentials": {
+          "type": "array",
+          "description": "Credentials exchanged in this relationship",
+          "items": {
+            "type": "string",
+            "enum": ["x509_svid", "jwt_svid", "jwt_assertion", "access_token", "id_token", "aa_agent_jwt", "aa_auth_jwt", "mtls", "api_key"]
+          }
+        },
+        "mutual": {
+          "type": "boolean",
+          "description": "Whether this is a bidirectional trust (e.g., mTLS)",
+          "default": false
+        },
+        "description": {
+          "type": "string",
+          "description": "Additional context about the relationship"
+        }
+      }
+    },
+    "networkConfig": {
+      "type": "object",
+      "description": "Configuration for a network boundary",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Display name for the boundary"
+        },
+        "style": {
+          "type": "string",
+          "description": "Visual style: trusted, dmz, external, cloud"
+        },
+        "entities": {
+          "type": "array",
+          "description": "Entity IDs in this boundary",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "Tooltip/hover text"
+        },
+        "color": {
+          "type": "string",
+          "description": "Override default boundary color"
+        }
+      }
+    },
+    "networkLayout": {
+      "type": "object",
+      "description": "Network diagram layout configuration",
+      "properties": {
+        "direction": {
+          "type": "string",
+          "description": "Layout direction: horizontal or vertical"
+        },
+        "order": {
+          "type": "array",
+          "description": "Boundary ordering",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }
