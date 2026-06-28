@@ -83,40 +83,68 @@ Protocol Interaction Description Language - a JSON-based DSL for describing prot
 
 ## Future Phases
 
-### Phase 8: Protocol Roles & Deployment Architecture (v0.7.0)
+### Phase 8: Protocol Roles & Deployment Architecture (v0.7.0) 🚧
 
 **Target:** Enable PIDL to describe protocol roles, logical deployment components, and trust relationships for architecture documentation.
 
 **Use Case:** OAIAF needs to document how protocols map to real-world deployments (IdP, IGA, Gateway, MCP Client, etc.) with explicit trust relationships.
 
-#### 8.1 Protocol Roles
+#### 8.1 Data Model - Types & Validators
 
-Add protocol-specific role annotations to entities:
+| Task | Status |
+|------|--------|
+| Add `ProtocolRole` type with Protocol, Role, Variant fields | Planned |
+| Add `protocol_roles` field to Entity | Planned |
+| Add `DeploymentComponent` type | Planned |
+| Add `components` field to ProtocolMetadata | Planned |
+| Add `TrustRelationship` type | Planned |
+| Add `trust_relations` field to ProtocolMetadata | Planned |
+| Add `IsValidProtocol()` validator | Planned |
+| Add `IsValidComponentType()` validator | Planned |
+| Add `IsValidTrustRelationType()` validator | Planned |
+| Add `IsValidCredential()` validator | Planned |
+
+**ProtocolRole Type:**
 
 ```go
-// New type
 type ProtocolRole struct {
     Protocol string `json:"protocol"`          // "oauth", "scim", "aauth", "authzen", "mcp", "a2a", "spiffe"
     Role     string `json:"role"`              // "authorization_server", "client", "pep", "pdp", etc.
     Variant  string `json:"variant,omitempty"` // Sub-role: "person_server" vs "access_server"
 }
+```
 
-// Add to Entity
-type Entity struct {
-    // ... existing fields
-    ProtocolRoles []ProtocolRole `json:"protocol_roles,omitempty"`
+**DeploymentComponent Type:**
+
+```go
+type DeploymentComponent struct {
+    ID          string         `json:"id"`
+    Name        string         `json:"name"`
+    Type        string         `json:"type"`
+    Description string         `json:"description,omitempty"`
+    Entities    []string       `json:"entities"`
+    Implements  []ProtocolRole `json:"implements"`
+    Examples    []string       `json:"examples,omitempty"`
 }
 ```
 
-| Task | Status |
-|------|--------|
-| Add `ProtocolRole` type | Planned |
-| Add `protocol_roles` field to Entity | Planned |
-| Define standard role vocabulary per protocol | Planned |
-| Validate protocol/role combinations | Planned |
-| Update JSON Schema | Planned |
+**TrustRelationship Type:**
 
-**Standard Role Vocabulary:**
+```go
+type TrustRelationship struct {
+    ID          string   `json:"id,omitempty"`
+    From        string   `json:"from"`
+    To          string   `json:"to"`
+    Type        string   `json:"type"`
+    Credentials []string `json:"credentials,omitempty"`
+    Mutual      bool     `json:"mutual,omitempty"`
+    Description string   `json:"description,omitempty"`
+}
+```
+
+#### 8.2 Standard Vocabularies
+
+**Protocols:**
 
 | Protocol | Valid Roles |
 |----------|-------------|
@@ -129,98 +157,36 @@ type Entity struct {
 | `mcp` | `host`, `client`, `server` |
 | `a2a` | `agent`, `registry` |
 
-#### 8.2 Deployment Components
+**Component Types:**
 
-Add logical deployment component grouping:
+| Type | Description |
+|------|-------------|
+| `idp` | Identity Provider (OAuth AS, OIDC, SCIM SP) |
+| `iga` | Identity Governance (SCIM Client, Audit) |
+| `agent_provider` | Agent registration/tokens |
+| `person_server` | Human consent |
+| `access_server` | Token issuance |
+| `pdp` | Policy Decision Point |
+| `gateway` | Access Gateway (PEP, OAuth RS) |
+| `mcp_client` | MCP Host/Client |
+| `mcp_server` | MCP Tool Server |
+| `resource_api` | Protected Resource |
+| `spire` | SPIFFE Infrastructure |
 
-```go
-// New type
-type DeploymentComponent struct {
-    ID          string         `json:"id"`
-    Name        string         `json:"name"`
-    Type        string         `json:"type"`        // "idp", "iga", "gateway", "mcp_client", "resource_api", etc.
-    Description string         `json:"description,omitempty"`
-    Entities    []string       `json:"entities"`    // Entity IDs contained in this component
-    Implements  []ProtocolRole `json:"implements"`  // Aggregate roles this component implements
-    Examples    []string       `json:"examples,omitempty"` // Real-world products: "Okta", "Entra ID"
-}
+**Trust Relationship Types:**
 
-// Add to ProtocolMetadata
-type ProtocolMetadata struct {
-    // ... existing fields
-    Components []DeploymentComponent `json:"components,omitempty"`
-}
-```
+| Type | Description |
+|------|-------------|
+| `authenticates` | Verifies identity |
+| `validates` | Verifies claims/tokens |
+| `delegates` | Grants delegated authority |
+| `authorizes` | Grants access permission |
+| `issues` | Creates token/credential |
+| `trusts` | Accepts tokens from |
+| `provisions` | Creates/manages lifecycle |
+| `attests` | Cryptographically vouches |
 
-| Task | Status |
-|------|--------|
-| Add `DeploymentComponent` type | Planned |
-| Add `components` field to ProtocolMetadata | Planned |
-| Define standard component type vocabulary | Planned |
-| Validate entity references in components | Planned |
-| Update JSON Schema | Planned |
-
-**Standard Component Types:**
-
-| Type | Description | Typical Roles |
-|------|-------------|---------------|
-| `idp` | Identity Provider | OAuth AS, OIDC, SCIM SP |
-| `iga` | Identity Governance | SCIM Client, Audit |
-| `agent_provider` | Agent registration/tokens | AAuth Agent Provider |
-| `person_server` | Human consent | AAuth Person Server |
-| `access_server` | Token issuance | AAuth Access Server, OAuth AS |
-| `pdp` | Policy Decision Point | AuthZEN PDP, PAP |
-| `gateway` | Access Gateway | AuthZEN PEP, OAuth RS |
-| `mcp_client` | MCP Host/Client | MCP Client, AAuth Agent |
-| `mcp_server` | MCP Tool Server | MCP Server |
-| `resource_api` | Protected Resource | OAuth RS, SPIFFE Workload |
-| `spire` | SPIFFE Infrastructure | SPIRE Server, Agent |
-
-#### 8.3 Trust Relationships
-
-Add explicit trust relationship modeling:
-
-```go
-// New type
-type TrustRelationship struct {
-    ID          string   `json:"id,omitempty"`
-    From        string   `json:"from"`              // Entity or component ID
-    To          string   `json:"to"`                // Entity or component ID
-    Type        string   `json:"type"`              // Relationship type
-    Credentials []string `json:"credentials,omitempty"` // What is exchanged
-    Mutual      bool     `json:"mutual,omitempty"`  // Bidirectional (e.g., mTLS)
-    Description string   `json:"description,omitempty"`
-}
-
-// Add to ProtocolMetadata
-type ProtocolMetadata struct {
-    // ... existing fields
-    TrustRelations []TrustRelationship `json:"trust_relations,omitempty"`
-}
-```
-
-| Task | Status |
-|------|--------|
-| Add `TrustRelationship` type | Planned |
-| Add `trust_relations` field to ProtocolMetadata | Planned |
-| Define standard relationship type vocabulary | Planned |
-| Validate entity/component references | Planned |
-| Update JSON Schema | Planned |
-
-**Standard Relationship Types:**
-
-| Type | Description | Example |
-|------|-------------|---------|
-| `authenticates` | Verifies identity | IdP authenticates User |
-| `validates` | Verifies claims/tokens | PDP validates Agent token |
-| `delegates` | Grants delegated authority | User delegates to Agent |
-| `authorizes` | Grants access permission | PDP authorizes action |
-| `issues` | Creates token/credential | Agent Provider issues JWT |
-| `trusts` | Accepts tokens from | RS trusts IdP via JWKS |
-| `provisions` | Creates/manages lifecycle | IGA provisions Agent in SCIM |
-| `attests` | Cryptographically vouches | SPIRE attests Workload |
-
-**Standard Credentials:**
+**Credentials:**
 
 | Credential | Description |
 |------------|-------------|
@@ -234,15 +200,33 @@ type ProtocolMetadata struct {
 | `mtls` | Mutual TLS |
 | `api_key` | API key |
 
-#### 8.4 New Diagram Types
+#### 8.3 Validation
 
-Add renderers for new diagram types:
+| Task | Status |
+|------|--------|
+| Validate protocol/role combinations | Planned |
+| Validate entity references in components | Planned |
+| Validate entity/component references in trust relations | Planned |
+| Update JSON Schema | Planned |
 
-| Diagram Type | Output | Description |
-|--------------|--------|-------------|
-| Component Diagram | SVG, Mermaid | Shows deployment components and their roles |
-| Trust Diagram | SVG, Mermaid | Shows trust relationships between components |
-| Role Matrix | Markdown, HTML | Protocol × Component role matrix |
+#### 8.4 Protocol Query Methods
+
+| Task | Status |
+|------|--------|
+| `Protocol.ComponentsByType(type)` | Done |
+| `Protocol.EntitiesInComponent(id)` | Done |
+| `Protocol.TrustRelationsFrom(id)` | Done |
+| `Protocol.TrustRelationsTo(id)` | Done |
+| `Protocol.EntityRoles(entityID)` - get roles for entity | Planned |
+| `Protocol.EntitiesByRole(protocol, role)` - find entities by role | Planned |
+
+#### 8.5 New Diagram Types
+
+| Diagram Type | Output | Status |
+|--------------|--------|--------|
+| Component Diagram | SVG, Mermaid | Planned |
+| Trust Diagram | SVG, Mermaid | Planned |
+| Role Matrix | Markdown | Planned |
 
 | Task | Status |
 |------|--------|
@@ -251,101 +235,45 @@ Add renderers for new diagram types:
 | Mermaid component diagram (flowchart) | Planned |
 | Mermaid trust diagram (flowchart) | Planned |
 | Markdown role matrix generator | Planned |
-| CLI `--format=component`, `--format=trust`, `--format=matrix` | Planned |
 
-#### 8.5 CLI Enhancements
+#### 8.6 CLI Enhancements
 
 | Task | Status |
 |------|--------|
 | `pidl generate --format=component` | Planned |
 | `pidl generate --format=trust` | Planned |
 | `pidl generate --format=matrix` | Planned |
-| `pidl roles list` - list all roles in a file | Planned |
-| `pidl components list` - list all components | Planned |
-| `pidl trust list` - list trust relationships | Planned |
+| `pidl roles list` | Planned |
+| `pidl components list` | Planned |
+| `pidl trust list` | Planned |
 
-#### 8.6 Examples
+#### 8.7 Examples & Documentation
 
 | Task | Status |
 |------|--------|
-| `examples/oaiaf-roles.json` - OAIAF protocol roles | Planned |
-| `examples/oaiaf-components.json` - Deployment topology | Planned |
-| `examples/oaiaf-trust.json` - Trust relationships | Planned |
-| Documentation for new features | Planned |
+| `examples/oaiaf-roles.json` | Planned |
+| `examples/oaiaf-components.json` | Planned |
+| `examples/oaiaf-trust.json` | Planned |
+| Update docs/index.md with new features | Planned |
 
 ---
 
-### Phase 9: Code Quality & Refactoring (v0.7.x) ✅
+### Phase 9: Code Quality & Refactoring ✅ (v0.7.x)
 
 **Target:** Improve code organization, eliminate duplication, and standardize patterns for maintainability.
 
-#### 9.1 Split Large Files ✅
+- [x] Split `pidl.go` (1,119 lines) into 5 modules: types.go, protocol_methods.go, entity_methods.go, flow_methods.go, validators.go
+- [x] Consolidate duplicate validators into `validators.go`
+- [x] Standardize slice-returning methods to return empty slices instead of nil
+- [x] Extract `SequenceRenderOptions` struct for renderer config sharing
+- [x] Consolidate write methods into `Protocol.WriteFile()`
+- [x] Remove unused `NewProtocol()` function
 
-| Task | File | Lines | Status |
-|------|------|-------|--------|
-| Split `pidl.go` into modules | pidl.go | 1,119 | Done |
-| Create `types.go` | types.go | ~400 | Done |
-| Create `protocol_methods.go` | protocol_methods.go | ~200 | Done |
-| Create `entity_methods.go` | entity_methods.go | ~100 | Done |
-| Create `flow_methods.go` | flow_methods.go | ~200 | Done |
-| Create `validators.go` | validators.go | ~150 | Done |
-| Split `validate.go` into modules | validate.go | 917 | Deferred |
+**Deferred to future:**
 
-#### 9.2 Consolidate Duplicate Validators ✅
-
-Eliminate duplicate validation functions between `validate.go` (private) and `pidl.go` (public):
-
-| Task | Status |
-|------|--------|
-| Move all `IsValid*` functions to `validators.go` | Done |
-| Remove duplicate private validators from `validate.go` | Done |
-| Add missing public validators: `IsValidCategory`, `IsValidEntityType`, `IsValidFlowMode` | Done |
-
-#### 9.3 Standardize Return Types ✅
-
-| Task | Status |
-|------|--------|
-| Return empty slices instead of nil in `ComponentsByType()` | Done |
-| Return empty slices instead of nil in `EntitiesInComponent()` | Done |
-| Return empty slices instead of nil in `TrustRelationsFrom()` | Done |
-| Return empty slices instead of nil in `TrustRelationsTo()` | Done |
-| Audit all slice-returning methods for consistency | Done |
-
-#### 9.4 Extract Common Renderer Config ✅
-
-| Task | Status |
-|------|--------|
-| Create `SequenceRenderOptions` struct with shared Show* fields | Done |
-| Refactor `PlantUMLRenderer` to embed `SequenceRenderOptions` | Done |
-| Refactor `MermaidRenderer` to embed `SequenceRenderOptions` | Done |
-| Refactor `D2Renderer` to embed `SequenceRenderOptions` | Done |
-| Refactor `SVGRenderer` to embed `SequenceRenderOptions` | Done |
-
-#### 9.5 Consolidate Write Methods ✅
-
-| Task | Status |
-|------|--------|
-| Remove `WriteProtocolFile()` from operations.go | Done |
-| Enhance `Protocol.WriteFile()` with directory creation | Done |
-| Update CLI to use `Protocol.WriteFile()` | Done |
-
-#### 9.6 Remove/Refactor Unused Code ✅
-
-| Task | Status |
-|------|--------|
-| Remove unused `NewProtocol()` from operations.go | Done |
-| Move `SanitizeID()` to cmd/pidl or unexport | Deferred |
-| Move `TitleCase()` to cmd/pidl or unexport | Deferred |
-
-#### 9.7 Add Missing Tests
-
-| Task | Status |
-|------|--------|
-| Add tests for `SanitizeID()` | Planned |
-| Add tests for `TitleCase()` | Planned |
-| Add tests for `SupportedFormats()` | Planned |
-| Add negative tests for parse error cases | Planned |
-| Add circular phase reference validation test | Planned |
+- [ ] Split `validate.go` (917 lines) into modules
+- [ ] Move `SanitizeID()` and `TitleCase()` to cmd/pidl or unexport
+- [ ] Add missing tests for utility functions
 
 ---
 
