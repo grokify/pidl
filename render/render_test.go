@@ -28,6 +28,9 @@ func TestParseFormat(t *testing.T) {
 		{"mermaid-trust", FormatMermaidTrust, false},
 		{"mmd-trust", FormatMermaidTrust, false},
 		{"trust", FormatMermaidTrust, false},
+		{"markdown-matrix", FormatMarkdownMatrix, false},
+		{"md-matrix", FormatMarkdownMatrix, false},
+		{"matrix", FormatMarkdownMatrix, false},
 		{"dot", FormatDOT, false},
 		{"DOT", FormatDOT, false},
 		{"graphviz", FormatDOT, false},
@@ -40,6 +43,9 @@ func TestParseFormat(t *testing.T) {
 		{"d2-dataflow", FormatD2Flow, false},
 		{"d2-arch", FormatD2Arch, false},
 		{"d2-architecture", FormatD2Arch, false},
+		{"svg-component", FormatSVGComponent, false},
+		{"svg-comp", FormatSVGComponent, false},
+		{"svg-trust", FormatSVGTrust, false},
 		{"  plantuml  ", FormatPlantUML, false},
 		{"unknown", "", true},
 		{"", "", true},
@@ -138,10 +144,13 @@ func TestNew(t *testing.T) {
 		{FormatMermaid, false},
 		{FormatMermaidComponent, false},
 		{FormatMermaidTrust, false},
+		{FormatMarkdownMatrix, false},
 		{FormatDOT, false},
 		{FormatD2, false},
 		{FormatD2Flow, false},
 		{FormatD2Arch, false},
+		{FormatSVGComponent, false},
+		{FormatSVGTrust, false},
 		{"unknown", true},
 	}
 
@@ -185,8 +194,8 @@ func TestMustNewPanics(t *testing.T) {
 
 func TestSupportedFormats(t *testing.T) {
 	formats := SupportedFormats()
-	if len(formats) != 12 {
-		t.Errorf("SupportedFormats() = %d formats, want 12", len(formats))
+	if len(formats) != 15 {
+		t.Errorf("SupportedFormats() = %d formats, want 15", len(formats))
 	}
 }
 
