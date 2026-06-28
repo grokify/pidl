@@ -275,14 +275,91 @@ Add renderers for new diagram types:
 
 ---
 
-### Phase 9: Protocol Composition (v0.8.0)
+### Phase 9: Code Quality & Refactoring (v0.7.x)
+
+**Target:** Improve code organization, eliminate duplication, and standardize patterns for maintainability.
+
+#### 9.1 Split Large Files
+
+| Task | File | Lines | Status |
+|------|------|-------|--------|
+| Split `pidl.go` into modules | pidl.go | 1,119 | Planned |
+| Create `types.go` | - | - | Planned |
+| Create `protocol_methods.go` | - | - | Planned |
+| Create `entity_methods.go` | - | - | Planned |
+| Create `validators.go` | - | - | Planned |
+| Split `validate.go` into modules | validate.go | 917 | Planned |
+| Create `validate_protocol.go` | - | - | Planned |
+| Create `validate_entities.go` | - | - | Planned |
+| Create `validate_flows.go` | - | - | Planned |
+| Create `validate_metadata.go` | - | - | Planned |
+
+#### 9.2 Consolidate Duplicate Validators
+
+Eliminate duplicate validation functions between `validate.go` (private) and `pidl.go` (public):
+
+| Task | Status |
+|------|--------|
+| Move all `IsValid*` functions to `validators.go` | Planned |
+| Remove duplicate private validators from `validate.go` | Planned |
+| Add missing public validators: `IsValidCategory`, `IsValidEntityType`, `IsValidFlowMode` | Planned |
+
+#### 9.3 Standardize Return Types
+
+| Task | Status |
+|------|--------|
+| Return empty slices instead of nil in `ComponentsByType()` | Planned |
+| Return empty slices instead of nil in `EntitiesInComponent()` | Planned |
+| Return empty slices instead of nil in `TrustRelationsFrom()` | Planned |
+| Return empty slices instead of nil in `TrustRelationsTo()` | Planned |
+| Audit all slice-returning methods for consistency | Planned |
+
+#### 9.4 Extract Common Renderer Config
+
+| Task | Status |
+|------|--------|
+| Create `RenderOptions` struct with shared Show* fields | Planned |
+| Refactor `PlantUMLRenderer` to use `RenderOptions` | Planned |
+| Refactor `MermaidRenderer` to use `RenderOptions` | Planned |
+| Refactor `D2Renderer` to use `RenderOptions` | Planned |
+| Refactor `SVGRenderer` to use `RenderOptions` | Planned |
+
+#### 9.5 Consolidate Write Methods
+
+| Task | Status |
+|------|--------|
+| Remove `WriteProtocolFile()` from operations.go | Planned |
+| Keep only `Protocol.WriteFile()` in parse.go | Planned |
+| Update CLI to use `Protocol.WriteFile()` | Planned |
+
+#### 9.6 Remove/Refactor Unused Code
+
+| Task | Status |
+|------|--------|
+| Remove or document `NewProtocol()` in operations.go | Planned |
+| Move `SanitizeID()` to cmd/pidl or unexport | Planned |
+| Move `TitleCase()` to cmd/pidl or unexport | Planned |
+
+#### 9.7 Add Missing Tests
+
+| Task | Status |
+|------|--------|
+| Add tests for `SanitizeID()` | Planned |
+| Add tests for `TitleCase()` | Planned |
+| Add tests for `SupportedFormats()` | Planned |
+| Add negative tests for parse error cases | Planned |
+| Add circular phase reference validation test | Planned |
+
+---
+
+### Phase 10: Protocol Composition (v0.8.0)
 
 - [ ] Import mechanism for protocol modules
 - [ ] Protocol inheritance/extension
 - [ ] Reusable entity definitions
 - [ ] Standard library of common protocols
 
-### Phase 10: Runtime Execution Engine
+### Phase 11: Runtime Execution Engine
 
 - [ ] Protocol Execution Engine (PEX)
 - [ ] Event queue and execution loop
@@ -290,14 +367,14 @@ Add renderers for new diagram types:
 - [ ] Execution trace recording
 - [ ] Step-by-step protocol simulation
 
-### Phase 11: Analysis & Tooling
+### Phase 12: Analysis & Tooling
 
 - [ ] Protocol comparison (diff two protocols)
 - [ ] Execution trace visualization
 - [ ] Interactive protocol debugger
 - [ ] Attack surface analysis
 
-### Phase 12: Integrations
+### Phase 13: Integrations
 
 - [ ] VS Code extension (syntax highlighting, preview)
 - [ ] MkDocs plugin for embedding diagrams
