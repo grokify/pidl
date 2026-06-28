@@ -331,13 +331,52 @@ type ProtocolImport struct {
 | `pidl resolve <file>` | Resolve imports/extends and output merged protocol |
 | `pidl generate --resolve` | Explicitly request resolution before generating |
 
-### Phase 11: Runtime Execution Engine
+### Phase 11: Runtime Execution Engine ✅ (v0.9.0)
 
-- [ ] Protocol Execution Engine (PEX)
-- [ ] Event queue and execution loop
-- [ ] State store per entity
-- [ ] Execution trace recording
-- [ ] Step-by-step protocol simulation
+**Target:** Enable protocol simulation with state tracking and execution traces.
+
+- [x] Protocol Execution Engine (Executor)
+- [x] Event queue for future event-driven execution
+- [x] State store per entity with initial state initialization
+- [x] Execution trace recording with timestamps
+- [x] Step-by-step protocol simulation
+- [x] Conditional flow support with evaluator callbacks
+- [x] State mutation validation (from state checks)
+- [x] CLI `simulate` command with verbose and JSON output
+
+**New Types:**
+
+```go
+type Executor struct {
+    Protocol           *Protocol
+    ConditionEvaluator func(ctx *ExecutionContext, flow *Flow) bool
+}
+
+type ExecutionContext struct {
+    Protocol     *Protocol
+    EntityStates map[string]string
+    FlowIndex    int
+    Trace        *ExecutionTrace
+    Completed    bool
+}
+
+type ExecutionTrace struct {
+    ProtocolID    string
+    Steps         []ExecutionStep
+    InitialStates map[string]string
+    FinalStates   map[string]string
+    Duration()    time.Duration
+}
+```
+
+**CLI Commands:**
+
+| Command | Description |
+|---------|-------------|
+| `pidl simulate <file>` | Run full protocol simulation |
+| `pidl simulate -steps=N <file>` | Run N steps only |
+| `pidl simulate -v <file>` | Verbose output with each step |
+| `pidl simulate -json <file>` | Output trace as JSON |
 
 ### Phase 12: Analysis & Tooling
 
