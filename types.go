@@ -7,6 +7,12 @@ type Protocol struct {
 	// ProtocolMeta contains metadata about the protocol.
 	ProtocolMeta ProtocolMeta `json:"protocol"`
 
+	// Extends specifies a base protocol to extend.
+	Extends *ProtocolExtends `json:"extends,omitempty"`
+
+	// Imports specifies other protocol files to import from.
+	Imports []ProtocolImport `json:"imports,omitempty"`
+
 	// Entities are the participants in the protocol (systems, actors, services).
 	Entities []Entity `json:"entities"`
 
@@ -18,6 +24,42 @@ type Protocol struct {
 
 	// Metadata contains additional protocol-level configuration.
 	Metadata *ProtocolMetadata `json:"metadata,omitempty"`
+
+	// resolved indicates whether imports/extends have been resolved.
+	resolved bool
+}
+
+// ProtocolExtends specifies a base protocol to extend.
+type ProtocolExtends struct {
+	// Path is the file path to the base protocol (relative to current file).
+	Path string `json:"path"`
+
+	// ExcludeEntities lists entity IDs from the base to exclude.
+	ExcludeEntities []string `json:"exclude_entities,omitempty"`
+
+	// ExcludePhases lists phase IDs from the base to exclude.
+	ExcludePhases []string `json:"exclude_phases,omitempty"`
+
+	// ExcludeFlows lists flow indices from the base to exclude.
+	ExcludeFlows []int `json:"exclude_flows,omitempty"`
+}
+
+// ProtocolImport specifies another protocol file to import from.
+type ProtocolImport struct {
+	// Path is the file path to import (relative to current file).
+	Path string `json:"path"`
+
+	// Alias prefixes imported IDs to avoid collisions (e.g., "oauth_").
+	Alias string `json:"alias,omitempty"`
+
+	// Entities lists specific entity IDs to import (empty = all).
+	Entities []string `json:"entities,omitempty"`
+
+	// Phases lists specific phase IDs to import (empty = none unless entities need them).
+	Phases []string `json:"phases,omitempty"`
+
+	// IncludeFlows imports flows between the specified entities.
+	IncludeFlows bool `json:"include_flows,omitempty"`
 }
 
 // ProtocolMetadata contains additional protocol-level configuration.
