@@ -448,7 +448,7 @@ Examples:
 		p.ProtocolMeta.Name = *name
 	}
 
-	if err := pidl.WriteProtocolFile(filename, p); err != nil {
+	if err := p.WriteFile(filename); err != nil {
 		fmt.Fprintf(os.Stderr, "Error writing file: %v\n", err)
 		os.Exit(1)
 	}

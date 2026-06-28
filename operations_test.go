@@ -12,8 +12,8 @@ func TestValidateFile(t *testing.T) {
 	filename := filepath.Join(dir, "test.json")
 
 	p := NewMinimalProtocol("test", "Test Protocol")
-	if err := WriteProtocolFile(filename, p); err != nil {
-		t.Fatalf("WriteProtocolFile() error = %v", err)
+	if err := p.WriteFile(filename); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
 	}
 
 	// Validate it
@@ -56,7 +56,7 @@ func TestValidateFiles(t *testing.T) {
 	// Create valid file
 	valid := filepath.Join(dir, "valid.json")
 	p := NewMinimalProtocol("valid", "Valid")
-	if err := WriteProtocolFile(valid, p); err != nil {
+	if err := p.WriteFile(valid); err != nil {
 		t.Fatal(err)
 	}
 
@@ -117,17 +117,6 @@ func TestFileValidationResultIsValid(t *testing.T) {
 	}
 }
 
-func TestNewProtocol(t *testing.T) {
-	p := NewProtocol("test-id", "Test Name")
-
-	if p.ProtocolMeta.ID != "test-id" {
-		t.Errorf("ID = %q, want %q", p.ProtocolMeta.ID, "test-id")
-	}
-	if p.ProtocolMeta.Name != "Test Name" {
-		t.Errorf("Name = %q, want %q", p.ProtocolMeta.Name, "Test Name")
-	}
-}
-
 func TestNewMinimalProtocol(t *testing.T) {
 	p := NewMinimalProtocol("test", "Test")
 
@@ -144,13 +133,13 @@ func TestNewMinimalProtocol(t *testing.T) {
 	}
 }
 
-func TestWriteProtocolFile(t *testing.T) {
+func TestProtocolWriteFile(t *testing.T) {
 	dir := t.TempDir()
 	filename := filepath.Join(dir, "subdir", "test.json")
 
 	p := NewMinimalProtocol("test", "Test")
-	if err := WriteProtocolFile(filename, p); err != nil {
-		t.Fatalf("WriteProtocolFile() error = %v", err)
+	if err := p.WriteFile(filename); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
 	}
 
 	// Verify file exists

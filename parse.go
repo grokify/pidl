@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 )
 
 // ParseFile reads and parses a PIDL JSON file.
@@ -65,11 +66,24 @@ func (p *Protocol) ToJSONCompact() ([]byte, error) {
 }
 
 // WriteFile writes the Protocol to a file as JSON.
+// It creates any necessary parent directories.
 func (p *Protocol) WriteFile(filename string) error {
+	// Ensure directory exists
+	dir := filepath.Dir(filename)
+	if dir != "" && dir != "." {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return fmt.Errorf("creating directory: %w", err)
+		}
+	}
+
 	data, err := p.ToJSON()
 	if err != nil {
 		return fmt.Errorf("marshaling JSON: %w", err)
 	}
+
+	// Add trailing newline
+	data = append(data, '\n')
+
 	if err := os.WriteFile(filename, data, 0600); err != nil {
 		return fmt.Errorf("writing file: %w", err)
 	}

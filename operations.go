@@ -2,8 +2,6 @@ package pidl
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -46,19 +44,6 @@ func (r FileValidationResult) IsValid() bool {
 	return r.ParseErr == nil && !r.Errors.HasErrors()
 }
 
-// NewProtocol creates a new Protocol with the given ID and name.
-func NewProtocol(id, name string) *Protocol {
-	return &Protocol{
-		ProtocolMeta: ProtocolMeta{
-			ID:   id,
-			Name: name,
-		},
-		Entities: []Entity{},
-		Phases:   []Phase{},
-		Flows:    []Flow{},
-	}
-}
-
 // NewMinimalProtocol creates a minimal valid protocol scaffold.
 func NewMinimalProtocol(id, name string) *Protocol {
 	return &Protocol{
@@ -81,31 +66,6 @@ func NewMinimalProtocol(id, name string) *Protocol {
 			{From: "server", To: "client", Action: "response", Label: "Response", Mode: FlowModeResponse, Phase: "main"},
 		},
 	}
-}
-
-// WriteProtocolFile writes a protocol to a file as formatted JSON.
-func WriteProtocolFile(filename string, p *Protocol) error {
-	// Ensure directory exists
-	dir := filepath.Dir(filename)
-	if dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			return fmt.Errorf("creating directory: %w", err)
-		}
-	}
-
-	data, err := p.ToJSON()
-	if err != nil {
-		return fmt.Errorf("marshaling JSON: %w", err)
-	}
-
-	// Add trailing newline
-	data = append(data, '\n')
-
-	if err := os.WriteFile(filename, data, 0600); err != nil {
-		return fmt.Errorf("writing file: %w", err)
-	}
-
-	return nil
 }
 
 // SanitizeID converts a string to a valid PIDL ID (lowercase, alphanumeric, underscores/hyphens).
