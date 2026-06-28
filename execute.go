@@ -1,6 +1,7 @@
 package pidl
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -361,6 +362,11 @@ func (t *ExecutionTrace) StateChangeCount() int {
 		count += len(step.StateChanges)
 	}
 	return count
+}
+
+// ToJSON returns the trace as JSON bytes.
+func (t *ExecutionTrace) ToJSON() ([]byte, error) {
+	return json.MarshalIndent(t, "", "  ")
 }
 
 // copyStates creates a copy of the state map.
