@@ -275,70 +275,67 @@ Add renderers for new diagram types:
 
 ---
 
-### Phase 9: Code Quality & Refactoring (v0.7.x)
+### Phase 9: Code Quality & Refactoring (v0.7.x) ✅
 
 **Target:** Improve code organization, eliminate duplication, and standardize patterns for maintainability.
 
-#### 9.1 Split Large Files
+#### 9.1 Split Large Files ✅
 
 | Task | File | Lines | Status |
 |------|------|-------|--------|
-| Split `pidl.go` into modules | pidl.go | 1,119 | Planned |
-| Create `types.go` | - | - | Planned |
-| Create `protocol_methods.go` | - | - | Planned |
-| Create `entity_methods.go` | - | - | Planned |
-| Create `validators.go` | - | - | Planned |
-| Split `validate.go` into modules | validate.go | 917 | Planned |
-| Create `validate_protocol.go` | - | - | Planned |
-| Create `validate_entities.go` | - | - | Planned |
-| Create `validate_flows.go` | - | - | Planned |
-| Create `validate_metadata.go` | - | - | Planned |
+| Split `pidl.go` into modules | pidl.go | 1,119 | Done |
+| Create `types.go` | types.go | ~400 | Done |
+| Create `protocol_methods.go` | protocol_methods.go | ~200 | Done |
+| Create `entity_methods.go` | entity_methods.go | ~100 | Done |
+| Create `flow_methods.go` | flow_methods.go | ~200 | Done |
+| Create `validators.go` | validators.go | ~150 | Done |
+| Split `validate.go` into modules | validate.go | 917 | Deferred |
 
-#### 9.2 Consolidate Duplicate Validators
+#### 9.2 Consolidate Duplicate Validators ✅
 
 Eliminate duplicate validation functions between `validate.go` (private) and `pidl.go` (public):
 
 | Task | Status |
 |------|--------|
-| Move all `IsValid*` functions to `validators.go` | Planned |
-| Remove duplicate private validators from `validate.go` | Planned |
-| Add missing public validators: `IsValidCategory`, `IsValidEntityType`, `IsValidFlowMode` | Planned |
+| Move all `IsValid*` functions to `validators.go` | Done |
+| Remove duplicate private validators from `validate.go` | Done |
+| Add missing public validators: `IsValidCategory`, `IsValidEntityType`, `IsValidFlowMode` | Done |
 
-#### 9.3 Standardize Return Types
-
-| Task | Status |
-|------|--------|
-| Return empty slices instead of nil in `ComponentsByType()` | Planned |
-| Return empty slices instead of nil in `EntitiesInComponent()` | Planned |
-| Return empty slices instead of nil in `TrustRelationsFrom()` | Planned |
-| Return empty slices instead of nil in `TrustRelationsTo()` | Planned |
-| Audit all slice-returning methods for consistency | Planned |
-
-#### 9.4 Extract Common Renderer Config
+#### 9.3 Standardize Return Types ✅
 
 | Task | Status |
 |------|--------|
-| Create `RenderOptions` struct with shared Show* fields | Planned |
-| Refactor `PlantUMLRenderer` to use `RenderOptions` | Planned |
-| Refactor `MermaidRenderer` to use `RenderOptions` | Planned |
-| Refactor `D2Renderer` to use `RenderOptions` | Planned |
-| Refactor `SVGRenderer` to use `RenderOptions` | Planned |
+| Return empty slices instead of nil in `ComponentsByType()` | Done |
+| Return empty slices instead of nil in `EntitiesInComponent()` | Done |
+| Return empty slices instead of nil in `TrustRelationsFrom()` | Done |
+| Return empty slices instead of nil in `TrustRelationsTo()` | Done |
+| Audit all slice-returning methods for consistency | Done |
 
-#### 9.5 Consolidate Write Methods
-
-| Task | Status |
-|------|--------|
-| Remove `WriteProtocolFile()` from operations.go | Planned |
-| Keep only `Protocol.WriteFile()` in parse.go | Planned |
-| Update CLI to use `Protocol.WriteFile()` | Planned |
-
-#### 9.6 Remove/Refactor Unused Code
+#### 9.4 Extract Common Renderer Config ✅
 
 | Task | Status |
 |------|--------|
-| Remove or document `NewProtocol()` in operations.go | Planned |
-| Move `SanitizeID()` to cmd/pidl or unexport | Planned |
-| Move `TitleCase()` to cmd/pidl or unexport | Planned |
+| Create `SequenceRenderOptions` struct with shared Show* fields | Done |
+| Refactor `PlantUMLRenderer` to embed `SequenceRenderOptions` | Done |
+| Refactor `MermaidRenderer` to embed `SequenceRenderOptions` | Done |
+| Refactor `D2Renderer` to embed `SequenceRenderOptions` | Done |
+| Refactor `SVGRenderer` to embed `SequenceRenderOptions` | Done |
+
+#### 9.5 Consolidate Write Methods ✅
+
+| Task | Status |
+|------|--------|
+| Remove `WriteProtocolFile()` from operations.go | Done |
+| Enhance `Protocol.WriteFile()` with directory creation | Done |
+| Update CLI to use `Protocol.WriteFile()` | Done |
+
+#### 9.6 Remove/Refactor Unused Code ✅
+
+| Task | Status |
+|------|--------|
+| Remove unused `NewProtocol()` from operations.go | Done |
+| Move `SanitizeID()` to cmd/pidl or unexport | Deferred |
+| Move `TitleCase()` to cmd/pidl or unexport | Deferred |
 
 #### 9.7 Add Missing Tests
 
