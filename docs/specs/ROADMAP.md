@@ -83,7 +83,7 @@ Protocol Interaction Description Language - a JSON-based DSL for describing prot
 
 ## Future Phases
 
-### Phase 8: Protocol Roles & Deployment Architecture (v0.7.0) 🚧
+### Phase 8: Protocol Roles & Deployment Architecture ✅ (v0.7.0)
 
 **Target:** Enable PIDL to describe protocol roles, logical deployment components, and trust relationships for architecture documentation.
 
@@ -229,40 +229,40 @@ type TrustRelationship struct {
 | `Protocol.AllComponentTypes()` | Done |
 | `Protocol.AllTrustRelationTypes()` | Done |
 
-#### 8.5 New Diagram Types
+#### 8.5 New Diagram Types ✅
 
 | Diagram Type | Output | Status |
 |--------------|--------|--------|
-| Component Diagram | Mermaid | Done |
-| Trust Diagram | Mermaid | Done |
-| Component Diagram | SVG | Planned |
-| Trust Diagram | SVG | Planned |
-| Role Matrix | Markdown | Planned |
+| Component Diagram | Mermaid | ✅ Done |
+| Trust Diagram | Mermaid | ✅ Done |
+| Component Diagram | SVG | ✅ Done |
+| Trust Diagram | SVG | ✅ Done |
+| Role Matrix | Markdown | ✅ Done |
 
 | Task | Status |
 |------|--------|
-| Mermaid component diagram (flowchart) | Done |
-| Mermaid trust diagram (flowchart) | Done |
-| SVG component diagram renderer | Planned |
-| SVG trust relationship diagram renderer | Planned |
-| Markdown role matrix generator | Planned |
+| Mermaid component diagram (flowchart) | ✅ Done |
+| Mermaid trust diagram (flowchart) | ✅ Done |
+| SVG component diagram renderer | ✅ Done |
+| SVG trust relationship diagram renderer | ✅ Done |
+| Markdown role matrix generator | ✅ Done |
 
-#### 8.6 CLI Enhancements
-
-| Task | Status |
-|------|--------|
-| `pidl generate --format=component` | Done |
-| `pidl generate --format=trust` | Done |
-| `pidl generate --format=matrix` | Planned |
-| `pidl roles list` | Planned |
-| `pidl components list` | Planned |
-| `pidl trust list` | Planned |
-
-#### 8.7 Examples & Documentation
+#### 8.6 CLI Enhancements ✅
 
 | Task | Status |
 |------|--------|
-| `examples/oaiaf_architecture.json` (combined roles, components, trust) | Done |
+| `pidl generate --format=component` | ✅ Done |
+| `pidl generate --format=trust` | ✅ Done |
+| `pidl generate --format=matrix` | ✅ Done |
+| `pidl roles <file>` | ✅ Done |
+| `pidl components <file>` | ✅ Done |
+| `pidl trust <file>` | ✅ Done |
+
+#### 8.7 Examples & Documentation ✅
+
+| Task | Status |
+|------|--------|
+| `examples/oaiaf_architecture.json` (combined roles, components, trust) | ✅ Done |
 | Update docs/index.md with new features | Planned |
 
 ---
@@ -278,11 +278,11 @@ type TrustRelationship struct {
 - [x] Consolidate write methods into `Protocol.WriteFile()`
 - [x] Remove unused `NewProtocol()` function
 
-**Deferred to future:**
+**Completed (deferred items):**
 
-- [ ] Split `validate.go` (917 lines) into modules
-- [ ] Move `SanitizeID()` and `TitleCase()` to cmd/pidl or unexport
-- [ ] Add missing tests for utility functions
+- [x] Split `validate.go` into 4 modules: validate.go (core), validate_entity.go, validate_flow.go, validate_metadata.go
+- [x] Review `SanitizeID()` and `TitleCase()` - kept exported as useful public API (has comprehensive tests)
+- [x] Verify utility function tests - TitleCase and SanitizeID already have tests in operations_test.go
 
 ---
 
