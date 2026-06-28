@@ -120,7 +120,7 @@ func (p *Protocol) validateProtocolMeta() ValidationErrors {
 	}
 
 	if p.ProtocolMeta.Category != "" {
-		if !isValidCategory(p.ProtocolMeta.Category) {
+		if !IsValidCategory(p.ProtocolMeta.Category) {
 			errs = append(errs, ValidationError{
 				Field:   "protocol.category",
 				Message: fmt.Sprintf("invalid category %q", p.ProtocolMeta.Category),
@@ -193,14 +193,14 @@ func (p *Protocol) validateEntities() ValidationErrors {
 				Field:   field + ".type",
 				Message: "required",
 			})
-		} else if !isValidEntityType(e.Type) {
+		} else if !IsValidEntityType(e.Type) {
 			errs = append(errs, ValidationError{
 				Field:   field + ".type",
 				Message: fmt.Sprintf("invalid entity type %q", e.Type),
 			})
 		}
 
-		if e.TrustLevel != "" && !isValidTrustLevel(e.TrustLevel) {
+		if e.TrustLevel != "" && !IsValidTrustLevel(e.TrustLevel) {
 			errs = append(errs, ValidationError{
 				Field:   field + ".trust_level",
 				Message: fmt.Sprintf("invalid trust level %q", e.TrustLevel),
@@ -352,7 +352,7 @@ func (p *Protocol) validateFlows() ValidationErrors {
 			})
 		}
 
-		if f.Mode != "" && !isValidFlowMode(f.Mode) {
+		if f.Mode != "" && !IsValidFlowMode(f.Mode) {
 			errs = append(errs, ValidationError{
 				Field:   field + ".mode",
 				Message: fmt.Sprintf("invalid flow mode %q", f.Mode),
@@ -381,7 +381,7 @@ func (p *Protocol) validateFlows() ValidationErrors {
 					Field:   annField + ".type",
 					Message: "required",
 				})
-			} else if !isValidAnnotationType(ann.Type) {
+			} else if !IsValidAnnotationType(ann.Type) {
 				errs = append(errs, ValidationError{
 					Field:   annField + ".type",
 					Message: fmt.Sprintf("invalid annotation type %q", ann.Type),
@@ -555,60 +555,6 @@ func (p *Protocol) validateStateMutations() ValidationErrors {
 	return errs
 }
 
-func isValidCategory(c Category) bool {
-	switch c {
-	case CategoryAuth, CategoryAgent, CategoryMessaging, CategoryProvisioning, CategoryOther:
-		return true
-	}
-	return false
-}
-
-func isValidEntityType(t EntityType) bool {
-	switch t {
-	case EntityTypeClient, EntityTypeAuthorizationServer, EntityTypeResourceServer,
-		EntityTypeUser, EntityTypeBrowser, EntityTypeAgent, EntityTypeToolServer,
-		EntityTypeTool, EntityTypeDelegatedAgent, EntityTypeIdentityProvider,
-		EntityTypeServiceProvider, EntityTypeServer, EntityTypeOther:
-		return true
-	}
-	return false
-}
-
-func isValidFlowMode(m FlowMode) bool {
-	switch m {
-	case FlowModeRequest, FlowModeResponse, FlowModeRedirect, FlowModeCallback,
-		FlowModeInteractive, FlowModeEvent, FlowModeToolCall, FlowModeToolResult:
-		return true
-	}
-	return false
-}
-
-func isValidAnnotationType(t AnnotationType) bool {
-	switch t {
-	case AnnotationTypeSecurity, AnnotationTypePerformance, AnnotationTypeDeprecated,
-		AnnotationTypeInfo, AnnotationTypeWarning, AnnotationTypeError:
-		return true
-	}
-	return false
-}
-
-func isValidTrustLevel(t TrustLevel) bool {
-	switch t {
-	case TrustLevelTrusted, TrustLevelSemiTrusted, TrustLevelUntrusted, TrustLevelAuthoritative:
-		return true
-	}
-	return false
-}
-
-func isValidSecurityRequirement(r SecurityRequirement) bool {
-	switch r {
-	case SecurityRequirementToken, SecurityRequirementSignature, SecurityRequirementEncryption,
-		SecurityRequirementMTLS, SecurityRequirementMAC:
-		return true
-	}
-	return false
-}
-
 func (p *Protocol) validateTokenDefinitions() ValidationErrors {
 	var errs ValidationErrors
 
@@ -687,7 +633,7 @@ func (p *Protocol) validateFlowSecurity() ValidationErrors {
 
 		// Validate security requirements
 		for j, req := range f.Security.Requires {
-			if !isValidSecurityRequirement(req) {
+			if !IsValidSecurityRequirement(req) {
 				errs = append(errs, ValidationError{
 					Field:   fmt.Sprintf("%s.requires[%d]", field, j),
 					Message: fmt.Sprintf("invalid security requirement %q", req),

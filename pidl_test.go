@@ -640,8 +640,8 @@ func TestProtocolEntitiesInComponent(t *testing.T) {
 	}
 
 	entities = p.EntitiesInComponent("unknown")
-	if entities != nil {
-		t.Error("EntitiesInComponent should return nil for unknown component")
+	if len(entities) != 0 {
+		t.Error("EntitiesInComponent should return empty slice for unknown component")
 	}
 }
 
