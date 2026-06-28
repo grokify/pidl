@@ -27,6 +27,9 @@ type PlantUMLRenderer struct {
 
 	// ShowAlternatives renders alternative paths as alt/else blocks.
 	ShowAlternatives bool
+
+	// ShowSecurity renders security requirement notes.
+	ShowSecurity bool
 }
 
 // NewPlantUML creates a new PlantUML renderer with default options.
@@ -38,6 +41,7 @@ func NewPlantUML() *PlantUMLRenderer {
 		ShowAnnotations:  true,
 		ShowConditions:   true,
 		ShowAlternatives: true,
+		ShowSecurity:     true,
 	}
 }
 
@@ -194,6 +198,41 @@ func (r *PlantUMLRenderer) renderFlow(sb *strings.Builder, _ *pidl.Protocol, f p
 			fmt.Fprintf(sb, "note right: %s%s\n", prefix, ann.Text)
 		}
 	}
+
+	// Render security requirements
+	if r.ShowSecurity && f.HasSecurity() {
+		secNote := r.formatSecurityNote(f.Security)
+		fmt.Fprintf(sb, "note right: %s\n", secNote)
+	}
+}
+
+// formatSecurityNote formats security requirements for display.
+func (r *PlantUMLRenderer) formatSecurityNote(sec *pidl.FlowSecurity) string {
+	var parts []string
+
+	if sec.Confidential {
+		parts = append(parts, "CONFIDENTIAL")
+	}
+
+	for _, req := range sec.Requires {
+		switch req {
+		case pidl.SecurityRequirementToken:
+			parts = append(parts, "TOKEN")
+		case pidl.SecurityRequirementSignature:
+			parts = append(parts, "SIGNED")
+		case pidl.SecurityRequirementEncryption:
+			parts = append(parts, "ENCRYPTED")
+		case pidl.SecurityRequirementMTLS:
+			parts = append(parts, "mTLS")
+		case pidl.SecurityRequirementMAC:
+			parts = append(parts, "MAC")
+		}
+	}
+
+	if len(parts) == 0 {
+		return "<&lock> SECURE"
+	}
+	return "<&lock> " + strings.Join(parts, ", ")
 }
 
 // renderAlternatives renders alternative paths using alt/else blocks.

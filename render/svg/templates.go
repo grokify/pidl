@@ -114,7 +114,7 @@ type Template struct {
 }
 
 // BuiltinTemplates lists available built-in template names.
-var BuiltinTemplates = []string{"default", "minimal", "sketch", "blueprint", "dark"}
+var BuiltinTemplates = []string{"default", "minimal", "sketch", "blueprint", "dark", "high-contrast"}
 
 // LoadTemplate loads a template by name from embedded templates.
 func LoadTemplate(name string) (*Template, error) {

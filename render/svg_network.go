@@ -24,6 +24,12 @@ type SVGNetworkRenderer struct {
 	// Direction is the layout direction ("horizontal" or "vertical").
 	Direction string
 
+	// ShowTrust enables trust level display on entities.
+	ShowTrust bool
+
+	// InferBoundariesFromTrust infers network boundaries from entity trust levels.
+	InferBoundariesFromTrust bool
+
 	// BoundaryOverrides allows CLI-specified boundary assignments.
 	// Map of boundary ID to entity IDs.
 	BoundaryOverrides map[string][]string
@@ -35,12 +41,14 @@ type SVGNetworkRenderer struct {
 // NewSVGNetwork creates a new SVG network renderer with default options.
 func NewSVGNetwork() *SVGNetworkRenderer {
 	return &SVGNetworkRenderer{
-		Animated:          false,
-		Theme:             "light",
-		Title:             true,
-		Direction:         "horizontal",
-		BoundaryOverrides: make(map[string][]string),
-		layoutConfig:      svg.DefaultNetworkLayoutConfig(),
+		Animated:                 false,
+		Theme:                    "light",
+		Title:                    true,
+		Direction:                "horizontal",
+		ShowTrust:                true,
+		InferBoundariesFromTrust: true,
+		BoundaryOverrides:        make(map[string][]string),
+		layoutConfig:             svg.DefaultNetworkLayoutConfig(),
 	}
 }
 
@@ -73,8 +81,14 @@ func (r *SVGNetworkRenderer) render(p *pidl.Protocol) string {
 	}
 	r.layoutConfig.Direction = direction
 
+	// Infer boundary overrides from trust levels if enabled
+	overrides := r.BoundaryOverrides
+	if r.InferBoundariesFromTrust {
+		overrides = r.mergeWithTrustInference(p, overrides)
+	}
+
 	// Resolve boundaries
-	boundaries := svg.ResolveBoundaries(p, r.BoundaryOverrides)
+	boundaries := svg.ResolveBoundaries(p, overrides)
 
 	// Build entity name map
 	entityNames := make(map[string]string)
@@ -226,4 +240,69 @@ func (r *SVGNetworkRenderer) generateDefs() string {
   </defs>
 
 `
+}
+
+// mergeWithTrustInference adds boundary assignments inferred from entity trust levels.
+// Only applies to entities not already assigned to a boundary.
+func (r *SVGNetworkRenderer) mergeWithTrustInference(p *pidl.Protocol, existing map[string][]string) map[string][]string {
+	// Copy existing overrides
+	result := make(map[string][]string)
+	for k, v := range existing {
+		result[k] = append([]string{}, v...)
+	}
+
+	// Build set of already-assigned entities
+	assigned := make(map[string]bool)
+	for _, entities := range result {
+		for _, e := range entities {
+			assigned[e] = true
+		}
+	}
+
+	// Also check metadata.networks assignments
+	if p.Metadata != nil && p.Metadata.Networks != nil {
+		for _, config := range p.Metadata.Networks {
+			for _, e := range config.Entities {
+				assigned[e] = true
+			}
+		}
+	}
+
+	// Also check entity.metadata.network assignments
+	for _, e := range p.Entities {
+		if e.Metadata != nil && e.Metadata.Network != "" {
+			assigned[e.ID] = true
+		}
+	}
+
+	// Infer boundaries from trust levels for unassigned entities
+	for _, e := range p.Entities {
+		if assigned[e.ID] {
+			continue
+		}
+		if e.TrustLevel == "" {
+			continue
+		}
+
+		boundaryID := trustLevelToBoundary(e.TrustLevel)
+		result[boundaryID] = append(result[boundaryID], e.ID)
+	}
+
+	return result
+}
+
+// trustLevelToBoundary maps trust levels to boundary IDs.
+func trustLevelToBoundary(level pidl.TrustLevel) string {
+	switch level {
+	case pidl.TrustLevelTrusted:
+		return "trusted"
+	case pidl.TrustLevelSemiTrusted:
+		return "dmz"
+	case pidl.TrustLevelUntrusted:
+		return "external"
+	case pidl.TrustLevelAuthoritative:
+		return "trusted"
+	default:
+		return "default"
+	}
 }

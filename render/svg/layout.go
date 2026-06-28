@@ -57,6 +57,16 @@ type MessageLayout struct {
 	IsReverse bool
 	// PathD is the SVG path data for the message line.
 	PathD string
+	// HasAlternatives indicates this flow has alternative paths.
+	HasAlternatives bool
+	// AlternativeCount is the number of alternatives.
+	AlternativeCount int
+	// AlternativeConditions lists the conditions for each alternative.
+	AlternativeConditions []string
+	// HasNote indicates this flow has a note.
+	HasNote bool
+	// Note is the note text for this flow.
+	Note string
 }
 
 // LayoutConfig contains configuration for layout calculations.

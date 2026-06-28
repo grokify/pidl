@@ -27,6 +27,9 @@ type MermaidRenderer struct {
 
 	// ShowAlternatives renders alternative paths as alt/else blocks.
 	ShowAlternatives bool
+
+	// ShowSecurity renders security requirement notes.
+	ShowSecurity bool
 }
 
 // NewMermaid creates a new Mermaid renderer with default options.
@@ -38,6 +41,7 @@ func NewMermaid() *MermaidRenderer {
 		ShowAnnotations:  true,
 		ShowConditions:   true,
 		ShowAlternatives: true,
+		ShowSecurity:     true,
 	}
 }
 
@@ -203,6 +207,41 @@ func (r *MermaidRenderer) renderFlow(sb *strings.Builder, _ *pidl.Protocol, f pi
 			fmt.Fprintf(sb, "%snote right of %s: %s%s\n", indent, f.To, prefix, r.escapeLabel(ann.Text))
 		}
 	}
+
+	// Render security requirements
+	if r.ShowSecurity && f.HasSecurity() {
+		secNote := r.formatSecurityNote(f.Security)
+		fmt.Fprintf(sb, "%snote right of %s: %s\n", indent, f.To, r.escapeLabel(secNote))
+	}
+}
+
+// formatSecurityNote formats security requirements for display.
+func (r *MermaidRenderer) formatSecurityNote(sec *pidl.FlowSecurity) string {
+	var parts []string
+
+	if sec.Confidential {
+		parts = append(parts, "CONFIDENTIAL")
+	}
+
+	for _, req := range sec.Requires {
+		switch req {
+		case pidl.SecurityRequirementToken:
+			parts = append(parts, "TOKEN")
+		case pidl.SecurityRequirementSignature:
+			parts = append(parts, "SIGNED")
+		case pidl.SecurityRequirementEncryption:
+			parts = append(parts, "ENCRYPTED")
+		case pidl.SecurityRequirementMTLS:
+			parts = append(parts, "mTLS")
+		case pidl.SecurityRequirementMAC:
+			parts = append(parts, "MAC")
+		}
+	}
+
+	if len(parts) == 0 {
+		return "[SECURE]"
+	}
+	return "[SECURE] " + strings.Join(parts, ", ")
 }
 
 // renderAlternatives renders alternative paths using alt/else blocks.

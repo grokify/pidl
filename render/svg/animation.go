@@ -61,6 +61,8 @@ type FlowAnimationStyle struct {
 	DotSize int
 	// Pulse adds a pulsing effect.
 	Pulse bool
+	// Glow adds a glow effect for highlights.
+	Glow bool
 	// Easing is the CSS easing function.
 	Easing string
 }
@@ -98,6 +100,7 @@ func ResolveFlowAnimation(flow *pidl.FlowAnimation, index int, config AnimationC
 	style.DotColor = flow.EffectiveDotColor(config.DefaultDotColor)
 	style.DotSize = flow.EffectiveDotSize(config.DefaultDotSize)
 	style.Pulse = flow.ShouldPulse()
+	style.Glow = flow.ShouldGlow()
 	if flow.Easing != "" {
 		style.Easing = flow.Easing
 	}
@@ -135,6 +138,11 @@ func GenerateAnimationCSS(flows []FlowAnimationStyle, pathData []string) string 
       50% { opacity: 0.7; transform: scale(1.3); }
     }
 
+    @keyframes glow {
+      0%, 100% { filter: drop-shadow(0 0 2px currentColor); }
+      50% { filter: drop-shadow(0 0 8px currentColor) drop-shadow(0 0 12px currentColor); }
+    }
+
     .flow-dot {
       offset-rotate: 0deg;
     }
@@ -150,15 +158,23 @@ func GenerateAnimationCSS(flows []FlowAnimationStyle, pathData []string) string 
 		if style.Pulse {
 			animations += ", pulse 0.5s ease-in-out infinite"
 		}
+		if style.Glow {
+			animations += ", glow 1s ease-in-out infinite"
+		}
+
+		extraStyles := ""
+		if style.Glow {
+			extraStyles = "\n      filter: drop-shadow(0 0 4px currentColor);"
+		}
 
 		sb.WriteString(fmt.Sprintf(`
     .flow-dot-%d {
       fill: %s;
       r: %d;
       animation: %s;
-      animation-delay: %s;
+      animation-delay: %s;%s
     }
-`, i, style.DotColor, style.DotSize, animations, style.Delay))
+`, i, style.DotColor, style.DotSize, animations, style.Delay, extraStyles))
 	}
 
 	return sb.String()

@@ -136,6 +136,104 @@ func GenerateCSS(theme Theme) string {
       text-anchor: middle;
       dominant-baseline: central;
     }
+
+    /* Phase box styles */
+    .phase-box {
+      stroke: var(--color-lifeline);
+      stroke-width: 1;
+      stroke-dasharray: 4, 2;
+    }
+
+    .phase-label {
+      fill: var(--color-text-muted);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Alternative badge styles */
+    .alt-badge-bg {
+      fill: var(--color-accent);
+      opacity: 0.9;
+    }
+
+    .alt-badge-text {
+      fill: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 8px;
+      font-weight: 600;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .alt-badge {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .alt-badge:hover {
+      transform: scale(1.1);
+    }
+
+    /* Note styles */
+    .message-note {
+      fill: var(--color-text-muted);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 9px;
+      font-style: italic;
+    }
+`)
+
+	// Interactive hover states
+	sb.WriteString(`
+    /* Interactive hover states */
+    .participant-box {
+      transition: filter 0.2s ease, transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    .participant-box:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .message-line, .message-line-response {
+      transition: stroke-width 0.2s ease, filter 0.2s ease;
+      cursor: pointer;
+    }
+
+    .message-line:hover, .message-line-response:hover {
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 2px var(--color-line));
+    }
+
+    .message-text {
+      transition: font-weight 0.2s ease;
+      cursor: pointer;
+    }
+
+    .message-text:hover {
+      font-weight: 600;
+    }
+
+    .flow-dot {
+      transition: r 0.15s ease;
+    }
+
+    .flow-dot:hover {
+      r: 6;
+    }
+
+    .step-circle {
+      transition: transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    .step-circle:hover {
+      transform: scale(1.2);
+    }
 `)
 
 	// Print styles
@@ -144,6 +242,13 @@ func GenerateCSS(theme Theme) string {
     @media print {
       .flow-dot {
         display: none;
+      }
+      /* Disable hover effects in print */
+      .participant-box:hover,
+      .message-line:hover,
+      .message-line-response:hover {
+        filter: none;
+        transform: none;
       }
     }
 `)
