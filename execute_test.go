@@ -451,8 +451,11 @@ func TestExecutionTrace_Statistics(t *testing.T) {
 		t.Errorf("StateChangeCount = %d, want 2", trace.StateChangeCount())
 	}
 
-	if trace.Duration() <= 0 {
-		t.Error("Duration should be positive")
+	// Check for non-negative duration (>= 0) instead of positive (> 0).
+	// On Windows, fast operations may have Duration() == 0 due to
+	// the system clock's coarse resolution (~15.6ms vs nanoseconds on Unix).
+	if trace.Duration() < 0 {
+		t.Error("Duration should be non-negative")
 	}
 
 	if trace.FinalStates["client"] != "s3" {
