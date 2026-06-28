@@ -286,12 +286,50 @@ type TrustRelationship struct {
 
 ---
 
-### Phase 10: Protocol Composition (v0.8.0)
+### Phase 10: Protocol Composition ✅ (v0.8.0)
 
-- [ ] Import mechanism for protocol modules
-- [ ] Protocol inheritance/extension
-- [ ] Reusable entity definitions
-- [ ] Standard library of common protocols
+**Target:** Enable modular protocol design with imports and inheritance.
+
+- [x] Import mechanism for protocol modules (`imports` field)
+- [x] Protocol inheritance/extension (`extends` field)
+- [x] Reusable entity definitions via imports with optional aliasing
+- [x] Standard library of common protocols (`examples/stdlib/`)
+- [x] Circular import/extends detection
+- [x] CLI `resolve` command for debugging composition
+- [x] Automatic resolution in `generate` command
+
+**New Types:**
+
+```go
+type ProtocolExtends struct {
+    Path            string   `json:"path"`
+    ExcludeEntities []string `json:"exclude_entities,omitempty"`
+    ExcludePhases   []string `json:"exclude_phases,omitempty"`
+    ExcludeFlows    []int    `json:"exclude_flows,omitempty"`
+}
+
+type ProtocolImport struct {
+    Path         string   `json:"path"`
+    Alias        string   `json:"alias,omitempty"`
+    Entities     []string `json:"entities,omitempty"`
+    Phases       []string `json:"phases,omitempty"`
+    IncludeFlows bool     `json:"include_flows,omitempty"`
+}
+```
+
+**Standard Library:**
+
+| File | Description |
+|------|-------------|
+| `stdlib/oauth_entities.json` | OAuth 2.0 base entities and flows |
+| `stdlib/mcp_entities.json` | MCP base entities and flows |
+
+**CLI Commands:**
+
+| Command | Description |
+|---------|-------------|
+| `pidl resolve <file>` | Resolve imports/extends and output merged protocol |
+| `pidl generate --resolve` | Explicitly request resolution before generating |
 
 ### Phase 11: Runtime Execution Engine
 
