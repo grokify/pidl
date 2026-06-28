@@ -26,7 +26,7 @@ func (b *boundaryFlags) Set(value string) error {
 	return nil
 }
 
-const version = "0.3.0"
+const version = "0.8.0"
 
 func main() {
 	if len(os.Args) < 2 {
@@ -39,6 +39,8 @@ func main() {
 		cmdValidate(os.Args[2:])
 	case "generate", "gen":
 		cmdGenerate(os.Args[2:])
+	case "resolve":
+		cmdResolve(os.Args[2:])
 	case "examples", "list-examples":
 		cmdExamples(os.Args[2:])
 	case "init":
@@ -69,6 +71,7 @@ Usage:
 Commands:
   validate     Validate PIDL JSON files
   generate     Generate diagrams from PIDL files
+  resolve      Resolve imports and extends, output merged protocol
   roles        List protocol roles from PIDL files
   components   List deployment components from PIDL files
   trust        List trust relationships from PIDL files
@@ -143,6 +146,7 @@ func cmdGenerate(args []string) {
 	entity := fs.String("entity", "", "Entity ID to filter (for mermaid-state format)")
 	showSecurity := fs.Bool("show-security", true, "Show security annotations on flows")
 	showTrust := fs.Bool("show-trust", true, "Show trust levels and infer boundaries from trust")
+	resolveImports := fs.Bool("resolve", false, "Resolve imports and extends before generating")
 	var boundaries boundaryFlags
 	fs.Var(&boundaries, "boundary", "Network boundary assignment (format: boundary_id:entity1,entity2). Can be repeated.")
 	fs.Usage = func() {
@@ -220,6 +224,17 @@ State Diagram Examples:
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing %s: %v\n", filename, err)
 		os.Exit(1)
+	}
+
+	// Resolve imports/extends if requested or needed
+	if *resolveImports || p.NeedsResolution() {
+		opts := pidl.DefaultResolveOptions()
+		opts.BasePath = filepath.Dir(filename)
+		p, err = p.Resolve(opts)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error resolving %s: %v\n", filename, err)
+			os.Exit(1)
+		}
 	}
 
 	if errs := p.Validate(); errs.HasErrors() {
@@ -306,6 +321,82 @@ State Diagram Examples:
 			os.Exit(1)
 		}
 		fmt.Printf("Wrote %s\n", *output)
+	}
+}
+
+func cmdResolve(args []string) {
+	fs := flag.NewFlagSet("resolve", flag.ExitOnError)
+	output := fs.String("o", "", "Output file (default: stdout)")
+	validate := fs.Bool("validate", true, "Validate resolved protocol")
+	fs.Usage = func() {
+		fmt.Print(`Usage: pidl resolve [options] <file>
+
+Resolve imports and extends in a PIDL file, outputting the merged protocol.
+
+This command recursively resolves:
+- extends: Merges base protocol entities, phases, and flows
+- imports: Selectively imports entities, phases, and flows from other files
+
+Options:
+`)
+		fs.PrintDefaults()
+		fmt.Print(`
+Examples:
+  pidl resolve composed.json              Resolve and print to stdout
+  pidl resolve composed.json -o out.json  Resolve and write to file
+  pidl resolve composed.json --validate=false  Skip validation
+`)
+	}
+
+	if err := fs.Parse(args); err != nil {
+		os.Exit(1)
+	}
+
+	if fs.NArg() == 0 {
+		fs.Usage()
+		os.Exit(1)
+	}
+
+	filename := fs.Arg(0)
+	p, err := pidl.ParseFile(filename)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error parsing %s: %v\n", filename, err)
+		os.Exit(1)
+	}
+
+	if !p.NeedsResolution() {
+		fmt.Fprintf(os.Stderr, "Note: %s has no imports or extends to resolve\n", filename)
+	}
+
+	opts := pidl.DefaultResolveOptions()
+	opts.BasePath = filepath.Dir(filename)
+	resolved, err := p.Resolve(opts)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error resolving %s: %v\n", filename, err)
+		os.Exit(1)
+	}
+
+	if *validate {
+		if errs := resolved.Validate(); errs.HasErrors() {
+			fmt.Fprintf(os.Stderr, "Validation errors in resolved protocol:\n%s", errs)
+			os.Exit(1)
+		}
+	}
+
+	jsonBytes, err := json.MarshalIndent(resolved, "", "  ")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error marshaling JSON: %v\n", err)
+		os.Exit(1)
+	}
+
+	if *output == "" || *output == "-" {
+		fmt.Println(string(jsonBytes))
+	} else {
+		if err := os.WriteFile(*output, jsonBytes, 0600); err != nil {
+			fmt.Fprintf(os.Stderr, "Error writing %s: %v\n", *output, err)
+			os.Exit(1)
+		}
+		fmt.Printf("Wrote resolved protocol to %s\n", *output)
 	}
 }
 
