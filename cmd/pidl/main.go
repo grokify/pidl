@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/grokify/pidl"
 	"github.com/grokify/pidl/examples"
@@ -26,7 +27,7 @@ func (b *boundaryFlags) Set(value string) error {
 	return nil
 }
 
-const version = "0.8.0"
+const version = "0.9.0"
 
 func main() {
 	if len(os.Args) < 2 {
@@ -41,6 +42,8 @@ func main() {
 		cmdGenerate(os.Args[2:])
 	case "resolve":
 		cmdResolve(os.Args[2:])
+	case "simulate", "sim", "run":
+		cmdSimulate(os.Args[2:])
 	case "examples", "list-examples":
 		cmdExamples(os.Args[2:])
 	case "init":
@@ -72,6 +75,7 @@ Commands:
   validate     Validate PIDL JSON files
   generate     Generate diagrams from PIDL files
   resolve      Resolve imports and extends, output merged protocol
+  simulate     Simulate protocol execution and show trace
   roles        List protocol roles from PIDL files
   components   List deployment components from PIDL files
   trust        List trust relationships from PIDL files
@@ -397,6 +401,185 @@ Examples:
 			os.Exit(1)
 		}
 		fmt.Printf("Wrote resolved protocol to %s\n", *output)
+	}
+}
+
+func cmdSimulate(args []string) {
+	fs := flag.NewFlagSet("simulate", flag.ExitOnError)
+	steps := fs.Int("steps", 0, "Number of steps to execute (0 = all)")
+	outputJSON := fs.Bool("json", false, "Output trace as JSON")
+	verbose := fs.Bool("v", false, "Verbose output (show each step)")
+	fs.Usage = func() {
+		fmt.Print(`Usage: pidl simulate [options] <file>
+
+Simulate protocol execution and display the execution trace.
+
+The simulator executes flows in order, tracking entity state changes
+defined by the 'sets' field on each flow. This helps visualize the
+protocol's state machine behavior.
+
+Options:
+`)
+		fs.PrintDefaults()
+		fmt.Print(`
+Examples:
+  pidl simulate oauth2_with_states.json         Run full simulation
+  pidl simulate -steps=5 protocol.json          Run first 5 steps
+  pidl simulate -v protocol.json                Show each step
+  pidl simulate -json protocol.json             Output trace as JSON
+`)
+	}
+
+	if err := fs.Parse(args); err != nil {
+		os.Exit(1)
+	}
+
+	if fs.NArg() == 0 {
+		fs.Usage()
+		os.Exit(1)
+	}
+
+	filename := fs.Arg(0)
+	p, err := loadProtocol(filename)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Resolve if needed
+	if p.NeedsResolution() {
+		opts := pidl.DefaultResolveOptions()
+		opts.BasePath = filepath.Dir(filename)
+		p, err = p.Resolve(opts)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error resolving: %v\n", err)
+			os.Exit(1)
+		}
+	}
+
+	exec := pidl.NewExecutor(p)
+	ctx := exec.NewContext()
+
+	var trace *pidl.ExecutionTrace
+	if *steps > 0 {
+		if *verbose {
+			for i := 0; i < *steps && !ctx.Completed; i++ {
+				step, err := exec.Step(ctx)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error at step %d: %v\n", i+1, err)
+					os.Exit(1)
+				}
+				if step != nil {
+					printStep(step)
+				}
+			}
+			trace = ctx.Trace
+		} else {
+			trace, err = exec.RunN(ctx, *steps)
+		}
+	} else {
+		if *verbose {
+			for !ctx.Completed {
+				step, err := exec.Step(ctx)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+					os.Exit(1)
+				}
+				if step != nil {
+					printStep(step)
+				}
+			}
+			trace = ctx.Trace
+		} else {
+			trace, err = exec.Run(ctx)
+		}
+	}
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Execution error: %v\n", err)
+		os.Exit(1)
+	}
+
+	if *outputJSON {
+		jsonBytes, err := json.MarshalIndent(trace, "", "  ")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error marshaling trace: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Println(string(jsonBytes))
+	} else if !*verbose {
+		printTraceSummary(trace)
+	} else {
+		// Verbose already printed steps, just print summary
+		fmt.Println()
+		printTraceSummary(trace)
+	}
+}
+
+func printStep(step *pidl.ExecutionStep) {
+	status := "✓"
+	if step.Skipped {
+		status = "○"
+	}
+
+	label := step.Action
+	if step.Label != "" {
+		label = step.Label
+	}
+
+	fmt.Printf("%s Step %d: %s -> %s: %s", status, step.StepNumber, step.From, step.To, label)
+
+	if step.Skipped {
+		fmt.Printf(" (skipped: %s)", step.SkipReason)
+	}
+
+	if len(step.StateChanges) > 0 {
+		fmt.Print(" [")
+		for i, sc := range step.StateChanges {
+			if i > 0 {
+				fmt.Print(", ")
+			}
+			if sc.FromState != "" {
+				fmt.Printf("%s: %s→%s", sc.Entity, sc.FromState, sc.ToState)
+			} else {
+				fmt.Printf("%s: →%s", sc.Entity, sc.ToState)
+			}
+		}
+		fmt.Print("]")
+	}
+
+	fmt.Println()
+}
+
+func printTraceSummary(trace *pidl.ExecutionTrace) {
+	fmt.Printf("Protocol: %s\n", trace.ProtocolName)
+	fmt.Printf("Steps executed: %d\n", trace.StepCount())
+
+	if trace.SkippedCount() > 0 {
+		fmt.Printf("Steps skipped: %d\n", trace.SkippedCount())
+	}
+
+	if trace.StateChangeCount() > 0 {
+		fmt.Printf("State changes: %d\n", trace.StateChangeCount())
+	}
+
+	fmt.Printf("Duration: %v\n", trace.Duration().Round(100*time.Microsecond))
+
+	if trace.Completed {
+		fmt.Println("Status: completed")
+	} else {
+		fmt.Println("Status: partial")
+	}
+
+	if len(trace.FinalStates) > 0 {
+		fmt.Println("Final states:")
+		for entity, state := range trace.FinalStates {
+			fmt.Printf("  %s: %s\n", entity, state)
+		}
+	}
+
+	if trace.Error != "" {
+		fmt.Printf("Error: %s\n", trace.Error)
 	}
 }
 
