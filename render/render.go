@@ -13,16 +13,18 @@ import (
 type Format string
 
 const (
-	FormatPlantUML     Format = "plantuml"
-	FormatMermaid      Format = "mermaid"
-	FormatMermaidState Format = "mermaid-state"
-	FormatDOT          Format = "dot"
-	FormatD2           Format = "d2"
-	FormatD2Flow       Format = "d2-flow"
-	FormatD2Arch       Format = "d2-arch"
-	FormatSVG          Format = "svg"
-	FormatSVGAnimated  Format = "svg-animated"
-	FormatSVGNetwork   Format = "svg-network"
+	FormatPlantUML         Format = "plantuml"
+	FormatMermaid          Format = "mermaid"
+	FormatMermaidState     Format = "mermaid-state"
+	FormatMermaidComponent Format = "mermaid-component"
+	FormatMermaidTrust     Format = "mermaid-trust"
+	FormatDOT              Format = "dot"
+	FormatD2               Format = "d2"
+	FormatD2Flow           Format = "d2-flow"
+	FormatD2Arch           Format = "d2-arch"
+	FormatSVG              Format = "svg"
+	FormatSVGAnimated      Format = "svg-animated"
+	FormatSVGNetwork       Format = "svg-network"
 )
 
 // String returns the format as a string.
@@ -35,13 +37,13 @@ func (f Format) FileExtension() string {
 	switch f {
 	case FormatPlantUML:
 		return ".puml"
-	case FormatMermaid, FormatMermaidState:
+	case FormatMermaid, FormatMermaidState, FormatMermaidComponent, FormatMermaidTrust:
 		return ".mmd"
 	case FormatDOT:
 		return ".dot"
 	case FormatD2, FormatD2Flow, FormatD2Arch:
 		return ".d2"
-	case FormatSVG, FormatSVGAnimated:
+	case FormatSVG, FormatSVGAnimated, FormatSVGNetwork:
 		return ".svg"
 	default:
 		return ".txt"
@@ -57,6 +59,10 @@ func ParseFormat(s string) (Format, error) {
 		return FormatMermaid, nil
 	case "mermaid-state", "mmd-state":
 		return FormatMermaidState, nil
+	case "mermaid-component", "mmd-component", "component":
+		return FormatMermaidComponent, nil
+	case "mermaid-trust", "mmd-trust", "trust":
+		return FormatMermaidTrust, nil
 	case "dot", "graphviz", "gv":
 		return FormatDOT, nil
 	case "d2", "d2-sequence", "d2-seq":
@@ -72,7 +78,7 @@ func ParseFormat(s string) (Format, error) {
 	case "svg-network", "svg-net":
 		return FormatSVGNetwork, nil
 	default:
-		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network", s)
+		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network", s)
 	}
 }
 
@@ -140,6 +146,10 @@ func New(format Format) (Renderer, error) {
 		return NewMermaid(), nil
 	case FormatMermaidState:
 		return NewMermaidState(), nil
+	case FormatMermaidComponent:
+		return NewMermaidComponent(), nil
+	case FormatMermaidTrust:
+		return NewMermaidTrust(), nil
 	case FormatDOT:
 		return NewDOT(), nil
 	case FormatD2:
@@ -179,5 +189,18 @@ func RenderString(format Format, p *pidl.Protocol) (string, error) {
 
 // SupportedFormats returns all supported output formats.
 func SupportedFormats() []Format {
-	return []Format{FormatPlantUML, FormatMermaid, FormatMermaidState, FormatDOT, FormatD2, FormatD2Flow, FormatD2Arch, FormatSVG, FormatSVGAnimated, FormatSVGNetwork}
+	return []Format{
+		FormatPlantUML,
+		FormatMermaid,
+		FormatMermaidState,
+		FormatMermaidComponent,
+		FormatMermaidTrust,
+		FormatDOT,
+		FormatD2,
+		FormatD2Flow,
+		FormatD2Arch,
+		FormatSVG,
+		FormatSVGAnimated,
+		FormatSVGNetwork,
+	}
 }
