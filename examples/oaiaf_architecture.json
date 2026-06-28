@@ -1,0 +1,337 @@
+{
+  "protocol": {
+    "id": "oaiaf_architecture",
+    "name": "OAIAF Architecture",
+    "version": "1.0.0",
+    "description": "Open AI Agent Framework architecture showing deployment components, protocol roles, and trust relationships",
+    "category": "agent"
+  },
+  "entities": [
+    {
+      "id": "user",
+      "name": "User",
+      "type": "user",
+      "description": "End user interacting with the AI agent",
+      "trust_level": "semi_trusted"
+    },
+    {
+      "id": "mcp_client",
+      "name": "MCP Client",
+      "type": "client",
+      "description": "AI assistant hosting the agent",
+      "trust_level": "trusted",
+      "protocol_roles": [
+        { "protocol": "mcp", "role": "client" },
+        { "protocol": "aauth", "role": "agent" }
+      ]
+    },
+    {
+      "id": "mcp_server",
+      "name": "MCP Tool Server",
+      "type": "tool_server",
+      "description": "Server providing tools via MCP",
+      "trust_level": "semi_trusted",
+      "protocol_roles": [
+        { "protocol": "mcp", "role": "server" }
+      ]
+    },
+    {
+      "id": "idp",
+      "name": "Identity Provider",
+      "type": "identity_provider",
+      "description": "Authenticates users and issues tokens",
+      "trust_level": "authoritative",
+      "protocol_roles": [
+        { "protocol": "oauth", "role": "authorization_server" },
+        { "protocol": "scim", "role": "service_provider" }
+      ]
+    },
+    {
+      "id": "agent_provider",
+      "name": "Agent Provider",
+      "type": "authorization_server",
+      "description": "Issues agent tokens for AAuth",
+      "trust_level": "authoritative",
+      "protocol_roles": [
+        { "protocol": "aauth", "role": "agent_provider" }
+      ]
+    },
+    {
+      "id": "pdp",
+      "name": "Policy Decision Point",
+      "type": "server",
+      "description": "Evaluates authorization policies",
+      "trust_level": "authoritative",
+      "protocol_roles": [
+        { "protocol": "authzen", "role": "pdp" }
+      ]
+    },
+    {
+      "id": "gateway",
+      "name": "API Gateway",
+      "type": "server",
+      "description": "Enforces access control on API requests",
+      "trust_level": "trusted",
+      "protocol_roles": [
+        { "protocol": "authzen", "role": "pep" },
+        { "protocol": "oauth", "role": "resource_server" }
+      ]
+    },
+    {
+      "id": "resource_api",
+      "name": "Resource API",
+      "type": "resource_server",
+      "description": "Protected API resources",
+      "trust_level": "trusted",
+      "protocol_roles": [
+        { "protocol": "oauth", "role": "resource_server" }
+      ]
+    }
+  ],
+  "phases": [
+    { "id": "auth", "name": "Authentication" },
+    { "id": "agent_setup", "name": "Agent Setup" },
+    { "id": "tool_invocation", "name": "Tool Invocation" }
+  ],
+  "flows": [
+    {
+      "from": "user",
+      "to": "idp",
+      "action": "authenticate",
+      "label": "Login",
+      "phase": "auth",
+      "mode": "redirect"
+    },
+    {
+      "from": "idp",
+      "to": "user",
+      "action": "issue_tokens",
+      "label": "ID Token + Access Token",
+      "phase": "auth",
+      "mode": "response"
+    },
+    {
+      "from": "mcp_client",
+      "to": "agent_provider",
+      "action": "register_agent",
+      "label": "Register Agent",
+      "phase": "agent_setup",
+      "mode": "request"
+    },
+    {
+      "from": "agent_provider",
+      "to": "mcp_client",
+      "action": "issue_agent_token",
+      "label": "Agent JWT",
+      "phase": "agent_setup",
+      "mode": "response"
+    },
+    {
+      "from": "mcp_client",
+      "to": "mcp_server",
+      "action": "list_tools",
+      "label": "List Available Tools",
+      "phase": "tool_invocation",
+      "mode": "request"
+    },
+    {
+      "from": "mcp_server",
+      "to": "mcp_client",
+      "action": "return_tools",
+      "label": "Tool Definitions",
+      "phase": "tool_invocation",
+      "mode": "response"
+    },
+    {
+      "from": "mcp_client",
+      "to": "gateway",
+      "action": "api_request",
+      "label": "API Request + Agent Token",
+      "phase": "tool_invocation",
+      "mode": "request",
+      "security": {
+        "requires": ["token"],
+        "confidential": true
+      }
+    },
+    {
+      "from": "gateway",
+      "to": "pdp",
+      "action": "authz_check",
+      "label": "Authorization Check",
+      "phase": "tool_invocation",
+      "mode": "request"
+    },
+    {
+      "from": "pdp",
+      "to": "gateway",
+      "action": "authz_decision",
+      "label": "Permit/Deny",
+      "phase": "tool_invocation",
+      "mode": "response"
+    },
+    {
+      "from": "gateway",
+      "to": "resource_api",
+      "action": "forward_request",
+      "label": "Forward Request",
+      "phase": "tool_invocation",
+      "mode": "request",
+      "condition": "authorized"
+    },
+    {
+      "from": "resource_api",
+      "to": "gateway",
+      "action": "api_response",
+      "label": "API Response",
+      "phase": "tool_invocation",
+      "mode": "response"
+    },
+    {
+      "from": "gateway",
+      "to": "mcp_client",
+      "action": "return_response",
+      "label": "Response",
+      "phase": "tool_invocation",
+      "mode": "response"
+    }
+  ],
+  "metadata": {
+    "components": [
+      {
+        "id": "idp_component",
+        "name": "Identity Provider",
+        "type": "idp",
+        "description": "Central identity and access management system",
+        "entities": ["idp"],
+        "implements": [
+          { "protocol": "oauth", "role": "authorization_server" },
+          { "protocol": "scim", "role": "service_provider" }
+        ],
+        "examples": ["Okta", "Entra ID", "Auth0"]
+      },
+      {
+        "id": "agent_provider_component",
+        "name": "Agent Provider",
+        "type": "agent_provider",
+        "description": "Issues and manages agent credentials",
+        "entities": ["agent_provider"],
+        "implements": [
+          { "protocol": "aauth", "role": "agent_provider" }
+        ]
+      },
+      {
+        "id": "mcp_client_component",
+        "name": "AI Assistant",
+        "type": "mcp_client",
+        "description": "AI assistant hosting the agent",
+        "entities": ["mcp_client"],
+        "implements": [
+          { "protocol": "mcp", "role": "client" },
+          { "protocol": "aauth", "role": "agent" }
+        ],
+        "examples": ["Claude Desktop", "ChatGPT", "Custom Agent"]
+      },
+      {
+        "id": "mcp_server_component",
+        "name": "Tool Server",
+        "type": "mcp_server",
+        "description": "Provides tools and capabilities via MCP",
+        "entities": ["mcp_server"],
+        "implements": [
+          { "protocol": "mcp", "role": "server" }
+        ]
+      },
+      {
+        "id": "pdp_component",
+        "name": "Policy Engine",
+        "type": "pdp",
+        "description": "Centralized policy decision point",
+        "entities": ["pdp"],
+        "implements": [
+          { "protocol": "authzen", "role": "pdp" }
+        ],
+        "examples": ["Topaz", "OPA", "Cedar"]
+      },
+      {
+        "id": "gateway_component",
+        "name": "API Gateway",
+        "type": "gateway",
+        "description": "Enforces access control at the API boundary",
+        "entities": ["gateway"],
+        "implements": [
+          { "protocol": "authzen", "role": "pep" },
+          { "protocol": "oauth", "role": "resource_server" }
+        ],
+        "examples": ["Kong", "Envoy", "AWS API Gateway"]
+      },
+      {
+        "id": "resource_component",
+        "name": "Resource APIs",
+        "type": "resource_api",
+        "description": "Protected backend services",
+        "entities": ["resource_api"],
+        "implements": [
+          { "protocol": "oauth", "role": "resource_server" }
+        ]
+      }
+    ],
+    "trust_relations": [
+      {
+        "id": "user_idp",
+        "from": "user",
+        "to": "idp_component",
+        "type": "authenticates",
+        "credentials": ["id_token"],
+        "description": "User authenticates to IdP"
+      },
+      {
+        "id": "idp_tokens",
+        "from": "idp_component",
+        "to": "mcp_client_component",
+        "type": "issues",
+        "credentials": ["access_token", "id_token"],
+        "description": "IdP issues tokens to client"
+      },
+      {
+        "id": "agent_provider_tokens",
+        "from": "agent_provider_component",
+        "to": "mcp_client_component",
+        "type": "issues",
+        "credentials": ["aa_agent_jwt"],
+        "description": "Agent Provider issues agent tokens"
+      },
+      {
+        "id": "gateway_pdp",
+        "from": "gateway_component",
+        "to": "pdp_component",
+        "type": "validates",
+        "credentials": ["aa_agent_jwt"],
+        "description": "Gateway validates requests via PDP"
+      },
+      {
+        "id": "pdp_authorizes",
+        "from": "pdp_component",
+        "to": "gateway_component",
+        "type": "authorizes",
+        "description": "PDP provides authorization decisions"
+      },
+      {
+        "id": "gateway_resource",
+        "from": "gateway_component",
+        "to": "resource_component",
+        "type": "trusts",
+        "credentials": ["mtls"],
+        "mutual": true,
+        "description": "Gateway and resource use mutual TLS"
+      },
+      {
+        "id": "user_delegates",
+        "from": "user",
+        "to": "mcp_client_component",
+        "type": "delegates",
+        "description": "User delegates authority to agent"
+      }
+    ]
+  }
+}
