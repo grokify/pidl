@@ -35,7 +35,12 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 - 🎨 **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT, D2, SVG
 - 🎬 **Animated SVG** with CSS flow visualizations and moving dots
 - 🌐 **Network boundary diagrams** for trust zone visualization
-- 🎭 **SVG templates**: default, minimal, sketch, blueprint, dark
+- 🎭 **SVG templates**: default, minimal, sketch, blueprint, dark, high-contrast
+- ♿ **Accessibility**: WCAG AA compliant high-contrast template
+- 📦 **Phase boxes**: Visual grouping of flows by phase with color-coded depth
+- 🔀 **Alternative badges**: ALT indicators on flows with alternative paths
+- ✨ **Interactive SVG**: Hover effects on participants, messages, and flow dots
+- 💫 **Animation effects**: Pulse and glow for error/warning/highlight presets
 - 📚 **Built-in examples**: OAuth 2.0, PKCE, OIDC, MCP, A2A
 - ⌨️ **CLI tool** for validation and diagram generation
 - 📦 **Go library** for programmatic use
@@ -43,6 +48,11 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 - 🔄 **Alternative paths** with `alternatives` for error handling and branching
 - 📝 **Annotations** with typed notes (security, performance, deprecated, etc.)
 - 📊 **Nested phases** with parent hierarchy support
+- 🔄 **State model** with entity states and state transitions
+- 📈 **State diagrams** via Mermaid `stateDiagram-v2` output
+- 🔐 **Security annotations** with requirements (token, encryption, mTLS, signature)
+- 🛡️ **Trust levels** for entity classification (trusted, semi_trusted, untrusted, authoritative)
+- 🎫 **Token definitions** with issuer, audience, and binding
 
 ## Installation
 
@@ -98,6 +108,12 @@ pidl generate -f svg --template=sketch oauth2_pkce
 
 # Network boundary diagram
 pidl generate -f svg-network oauth2_pkce
+
+# Mermaid state diagram (for entities with states)
+pidl generate -f mermaid-state oauth2_with_states
+
+# State diagram for specific entity
+pidl generate -f mermaid-state --entity=client oauth2_with_states
 ```
 
 ### Create a new protocol file
@@ -225,6 +241,146 @@ Phases support hierarchical nesting via the `parent` field:
 }
 ```
 
+### Entity States
+
+Entities can define states to track their lifecycle:
+
+```json
+{
+  "entities": [
+    {
+      "id": "client",
+      "name": "Client",
+      "type": "client",
+      "states": [
+        {"id": "idle", "name": "Idle", "initial": true},
+        {"id": "authenticated", "name": "Authenticated"},
+        {"id": "error", "name": "Error", "final": true}
+      ]
+    }
+  ]
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `id` | Unique state identifier within the entity |
+| `name` | Human-readable display name |
+| `description` | Optional state description |
+| `initial` | Marks this as the initial state (at most one per entity) |
+| `final` | Marks this as a terminal/final state |
+
+### State Mutations
+
+Flows can trigger state changes via the `sets` field:
+
+```json
+{
+  "flows": [
+    {
+      "from": "client",
+      "to": "server",
+      "action": "login",
+      "sets": [
+        {"entity": "client", "from": "idle", "to": "authenticated"}
+      ]
+    }
+  ]
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `entity` | Entity ID whose state changes |
+| `to` | Target state ID (required) |
+| `from` | Optional required prior state (for validation) |
+
+### Trust Levels
+
+Entities can be assigned trust levels to indicate their security posture:
+
+```json
+{
+  "entities": [
+    {
+      "id": "client",
+      "name": "Client",
+      "type": "client",
+      "trust_level": "semi_trusted"
+    }
+  ]
+}
+```
+
+| Trust Level | Description |
+|-------------|-------------|
+| `trusted` | Fully trusted internal systems |
+| `semi_trusted` | Partially trusted (DMZ, partners) |
+| `untrusted` | External/public systems |
+| `authoritative` | Source of truth (IdPs, CAs) |
+
+Trust levels are used by `svg-network` format to automatically infer network boundaries.
+
+### Security Requirements
+
+Flows can specify security requirements:
+
+```json
+{
+  "flows": [
+    {
+      "from": "client",
+      "to": "server",
+      "action": "api_request",
+      "security": {
+        "requires": ["token", "encryption"],
+        "token": "access_token",
+        "confidential": true,
+        "description": "Bearer token required"
+      }
+    }
+  ]
+}
+```
+
+| Requirement | Description |
+|-------------|-------------|
+| `token` | Requires a bearer or bound token |
+| `signature` | Requires message signing |
+| `encryption` | Requires message encryption |
+| `mtls` | Requires mutual TLS authentication |
+| `mac` | Requires message authentication code |
+
+### Token Definitions
+
+Protocols can define token types used in flows:
+
+```json
+{
+  "metadata": {
+    "tokens": [
+      {
+        "id": "access_token",
+        "name": "Access Token",
+        "type": "jwt",
+        "issuer": "auth_server",
+        "audience": "resource_server",
+        "binding": "bearer"
+      }
+    ]
+  }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `id` | Unique token identifier |
+| `name` | Human-readable display name |
+| `type` | Token format: `jwt`, `opaque`, `saml`, `api_key` |
+| `issuer` | Entity ID that issues this token |
+| `audience` | Entity ID that consumes this token |
+| `binding` | Token binding: `bearer`, `mtls`, `dpop` |
+
 ## CLI Reference
 
 ```
@@ -256,10 +412,13 @@ pidl generate [options] <file>
 Options:
   -f string         Output format (default "plantuml")
   -o string         Output file (default: stdout)
-  --template        SVG template: default, minimal, sketch, blueprint, dark
+  --template        SVG template: default, minimal, sketch, blueprint, dark, high-contrast
   --template-dir    Path to custom SVG template directory
   --theme           SVG theme: light, dark, auto
   --boundary        Network boundary override (repeatable)
+  --entity          Entity ID to filter (for mermaid-state format)
+  --show-security   Show security annotations on flows (default true)
+  --show-trust      Show trust levels and infer boundaries from trust (default true)
 ```
 
 Formats:
@@ -268,6 +427,7 @@ Formats:
 |--------|-------------|
 | `plantuml` | PlantUML sequence diagram |
 | `mermaid` | Mermaid sequence diagram |
+| `mermaid-state` | Mermaid state diagram (requires entity states) |
 | `dot` | Graphviz DOT data flow diagram |
 | `d2` | D2 sequence diagram |
 | `d2-flow` | D2 data flow diagram |
@@ -330,6 +490,8 @@ pidl.WriteProtocolFile("output.json", p)
 |---------|----------|
 | `oauth2_authorization_code` | OAuth 2.0 Authorization Code Flow |
 | `oauth2_pkce` | OAuth 2.0 with PKCE |
+| `oauth2_with_states` | OAuth 2.0 with State Tracking |
+| `oauth2_with_security` | OAuth 2.0 with Security Annotations |
 | `oidc_authentication` | OpenID Connect Authentication |
 | `mcp_tool_invocation` | MCP Tool Invocation |
 | `a2a_agent_delegation` | A2A Agent Delegation |

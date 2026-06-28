@@ -7,7 +7,14 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 ## Features
 
 - **JSON-based DSL** for describing protocol flows
-- **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT, D2
+- **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT, D2, SVG
+- **Animated SVG** with CSS flow visualizations and moving dots
+- **Network boundary diagrams** for trust zone visualization
+- **SVG templates**: default, minimal, sketch, blueprint, dark, high-contrast
+- **Accessibility**: WCAG AA compliant high-contrast template
+- **Phase boxes**: Visual grouping of flows by phase with color-coded depth
+- **Interactive SVG**: Hover effects on participants, messages, and flow dots
+- **Animation effects**: Pulse and glow for error/warning/highlight presets
 - **Built-in examples**: OAuth 2.0, PKCE, OIDC, MCP, A2A
 - **CLI tool** for validation and diagram generation
 - **Go library** for programmatic use
@@ -15,6 +22,8 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 - **Alternative paths** with `alternatives` for error handling and branching
 - **Annotations** with typed notes (security, performance, deprecated, etc.)
 - **Nested phases** with parent hierarchy support
+- **State model** with entity states and state transitions
+- **State diagrams** via Mermaid `stateDiagram-v2` output
 
 ## Quick Example
 
@@ -52,6 +61,24 @@ pidl generate -f mermaid protocol.json
 
 # D2
 pidl generate -f d2 protocol.json
+
+# SVG sequence diagram
+pidl generate -f svg protocol.json
+
+# Animated SVG with flow dots
+pidl generate -f svg-animated --theme=dark protocol.json
+
+# SVG with template
+pidl generate -f svg --template=high-contrast protocol.json
+
+# Network boundary diagram
+pidl generate -f svg-network protocol.json
+
+# Mermaid state diagram
+pidl generate -f mermaid-state protocol.json
+
+# State diagram for specific entity
+pidl generate -f mermaid-state --entity=client protocol.json
 ```
 
 ## Target Protocols

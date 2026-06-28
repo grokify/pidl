@@ -125,11 +125,14 @@ Options:
 
 func cmdGenerate(args []string) {
 	fs := flag.NewFlagSet("generate", flag.ExitOnError)
-	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network")
+	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
 	templateDir := fs.String("template-dir", "", "Path to custom SVG template directory")
 	theme := fs.String("theme", "", "SVG theme (light, dark, auto)")
+	entity := fs.String("entity", "", "Entity ID to filter (for mermaid-state format)")
+	showSecurity := fs.Bool("show-security", true, "Show security annotations on flows")
+	showTrust := fs.Bool("show-trust", true, "Show trust levels and infer boundaries from trust")
 	var boundaries boundaryFlags
 	fs.Var(&boundaries, "boundary", "Network boundary assignment (format: boundary_id:entity1,entity2). Can be repeated.")
 	fs.Usage = func() {
@@ -144,6 +147,7 @@ Options:
 Formats:
   plantuml, puml   PlantUML sequence diagram
   mermaid, mmd     Mermaid sequence diagram
+  mermaid-state    Mermaid state diagram (requires entity states)
   dot, graphviz    Graphviz DOT data flow diagram
   d2               D2 sequence diagram
   d2-flow          D2 data flow diagram
@@ -162,6 +166,10 @@ SVG Templates:
 Network Boundary Examples:
   --boundary="dmz:auth,gateway"      Assign entities to DMZ boundary
   --boundary="internal:api,db"       Assign entities to internal boundary
+
+State Diagram Examples:
+  pidl generate -f mermaid-state example.json              All entities with states
+  pidl generate -f mermaid-state --entity=client example.json   Single entity
 `)
 	}
 
@@ -204,9 +212,15 @@ Network Boundary Examples:
 		os.Exit(1)
 	}
 
-	// Handle SVG-specific rendering with templates and options
+	// Handle format-specific rendering
 	var diagram string
-	if format == render.FormatSVG || format == render.FormatSVGAnimated {
+	if format == render.FormatMermaidState {
+		renderer := render.NewMermaidState()
+		if *entity != "" {
+			renderer.EntityFilter = *entity
+		}
+		diagram, err = renderer.RenderString(p)
+	} else if format == render.FormatSVG || format == render.FormatSVGAnimated {
 		var renderer *render.SVGRenderer
 		if *templateDir != "" {
 			renderer, err = render.NewSVGWithTemplateDir(*templateDir)
@@ -230,6 +244,7 @@ Network Boundary Examples:
 		if *theme != "" {
 			renderer.Theme = *theme
 		}
+		renderer.ShowSecurity = *showSecurity
 
 		diagram, err = renderer.RenderString(p)
 	} else if format == render.FormatSVGNetwork {
@@ -237,6 +252,8 @@ Network Boundary Examples:
 		if *theme != "" {
 			renderer.Theme = *theme
 		}
+		renderer.ShowTrust = *showTrust
+		renderer.InferBoundariesFromTrust = *showTrust
 
 		// Parse and apply boundary overrides
 		for _, b := range boundaries {
@@ -248,6 +265,14 @@ Network Boundary Examples:
 			renderer.AddBoundaryOverride(boundaryID, entityIDs)
 		}
 
+		diagram, err = renderer.RenderString(p)
+	} else if format == render.FormatPlantUML {
+		renderer := render.NewPlantUML()
+		renderer.ShowSecurity = *showSecurity
+		diagram, err = renderer.RenderString(p)
+	} else if format == render.FormatMermaid {
+		renderer := render.NewMermaid()
+		renderer.ShowSecurity = *showSecurity
 		diagram, err = renderer.RenderString(p)
 	} else {
 		diagram, err = render.RenderString(format, p)
