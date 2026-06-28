@@ -1107,6 +1107,201 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#simulate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        simulate
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="simulate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#options_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        diff
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="diff">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#options_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debug" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        debug
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="debug">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#interactive-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactive Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analyze" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        analyze
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="analyze">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#options_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#built-in-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="resolve">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#examples_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#version" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1594,6 +1789,26 @@
 <td>Create a new PIDL file from template</td>
 </tr>
 <tr>
+<td><code>simulate</code></td>
+<td>Run protocol simulation with state tracking</td>
+</tr>
+<tr>
+<td><code>diff</code></td>
+<td>Compare two protocols and show differences</td>
+</tr>
+<tr>
+<td><code>debug</code></td>
+<td>Interactive step-through protocol debugger</td>
+</tr>
+<tr>
+<td><code>analyze</code></td>
+<td>Security analysis with attack surface detection</td>
+</tr>
+<tr>
+<td><code>resolve</code></td>
+<td>Resolve protocol imports and inheritance</td>
+</tr>
+<tr>
 <td><code>version</code></td>
 <td>Print version information</td>
 </tr>
@@ -1768,14 +1983,310 @@
 </span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="c1"># Copy from example</span>
 </span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>pidl<span class="w"> </span>init<span class="w"> </span>-from<span class="w"> </span>oauth2_authorization_code<span class="w"> </span>my-oauth.json
 </span></code></pre></div>
+<h2 id="simulate">simulate<a class="headerlink" href="#simulate" title="Permanent link">&para;</a></h2>
+<p>Run protocol simulation with state tracking.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pidl<span class="w"> </span>simulate<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>&lt;file&gt;
+</span></code></pre></div>
+<h3 id="options_4">Options<a class="headerlink" href="#options_4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-steps</code></td>
+<td>Maximum steps to execute (0 = all)</td>
+</tr>
+<tr>
+<td><code>-v</code></td>
+<td>Verbose output with each step</td>
+</tr>
+<tr>
+<td><code>-json</code></td>
+<td>Output trace as JSON</td>
+</tr>
+<tr>
+<td><code>--trace-format</code></td>
+<td>Output format: text, json, svg, mermaid</td>
+</tr>
+<tr>
+<td><code>--trace-output</code></td>
+<td>Write trace to file</td>
+</tr>
+<tr>
+<td><code>--show-states</code></td>
+<td>Show entity states in trace</td>
+</tr>
+<tr>
+<td><code>--show-timings</code></td>
+<td>Show timing information</td>
+</tr>
+</tbody>
+</table>
+<h3 id="examples_5">Examples<a class="headerlink" href="#examples_5" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Run full simulation</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>pidl<span class="w"> </span>simulate<span class="w"> </span>protocol.json
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Verbose with step-by-step output</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>pidl<span class="w"> </span>simulate<span class="w"> </span>-v<span class="w"> </span>protocol.json
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Output trace as SVG</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>pidl<span class="w"> </span>simulate<span class="w"> </span>--trace-format<span class="o">=</span>svg<span class="w"> </span>--trace-output<span class="o">=</span>trace.svg<span class="w"> </span>protocol.json
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="c1"># Run only 5 steps</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>pidl<span class="w"> </span>simulate<span class="w"> </span>-steps<span class="o">=</span><span class="m">5</span><span class="w"> </span>protocol.json
+</span></code></pre></div>
+<h2 id="diff">diff<a class="headerlink" href="#diff" title="Permanent link">&para;</a></h2>
+<p>Compare two protocols and show differences.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>pidl<span class="w"> </span>diff<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>&lt;base-file&gt;<span class="w"> </span>&lt;new-file&gt;
+</span></code></pre></div>
+<h3 id="options_5">Options<a class="headerlink" href="#options_5" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f, --format</code></td>
+<td>Output format: text, json, markdown (default: text)</td>
+</tr>
+<tr>
+<td><code>-o, --output</code></td>
+<td>Output file (default: stdout)</td>
+</tr>
+<tr>
+<td><code>--ignore-metadata</code></td>
+<td>Ignore metadata differences</td>
+</tr>
+<tr>
+<td><code>-q, --quiet</code></td>
+<td>Summary only</td>
+</tr>
+</tbody>
+</table>
+<h3 id="examples_6">Examples<a class="headerlink" href="#examples_6" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Compare two protocols</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>pidl<span class="w"> </span>diff<span class="w"> </span>base.json<span class="w"> </span>updated.json
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Output as markdown</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>pidl<span class="w"> </span>diff<span class="w"> </span>-f<span class="w"> </span>markdown<span class="w"> </span>base.json<span class="w"> </span>updated.json
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1"># Summary only</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>pidl<span class="w"> </span>diff<span class="w"> </span>-q<span class="w"> </span>base.json<span class="w"> </span>updated.json
+</span></code></pre></div>
+<h2 id="debug">debug<a class="headerlink" href="#debug" title="Permanent link">&para;</a></h2>
+<p>Interactive step-through protocol debugger.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>pidl<span class="w"> </span>debug<span class="w"> </span>&lt;file&gt;
+</span></code></pre></div>
+<h3 id="interactive-commands">Interactive Commands<a class="headerlink" href="#interactive-commands" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>step</code>, <code>s</code></td>
+<td>Execute next flow</td>
+</tr>
+<tr>
+<td><code>continue</code>, <code>c</code></td>
+<td>Run until breakpoint or completion</td>
+</tr>
+<tr>
+<td><code>break &lt;idx&gt; [cond]</code></td>
+<td>Set breakpoint at flow index</td>
+</tr>
+<tr>
+<td><code>delete &lt;idx&gt;</code></td>
+<td>Remove breakpoint</td>
+</tr>
+<tr>
+<td><code>breakpoints</code></td>
+<td>List all breakpoints</td>
+</tr>
+<tr>
+<td><code>inspect</code></td>
+<td>Show current state</td>
+</tr>
+<tr>
+<td><code>inspect entity &lt;id&gt;</code></td>
+<td>Show entity details and state</td>
+</tr>
+<tr>
+<td><code>inspect flow &lt;idx&gt;</code></td>
+<td>Show flow details</td>
+</tr>
+<tr>
+<td><code>list</code></td>
+<td>List flows with position marker</td>
+</tr>
+<tr>
+<td><code>set &lt;entity&gt; &lt;state&gt;</code></td>
+<td>Set entity state</td>
+</tr>
+<tr>
+<td><code>reset</code></td>
+<td>Restart execution</td>
+</tr>
+<tr>
+<td><code>quit</code>, <code>q</code></td>
+<td>Exit debugger</td>
+</tr>
+</tbody>
+</table>
+<h3 id="examples_7">Examples<a class="headerlink" href="#examples_7" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Start debugger</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>pidl<span class="w"> </span>debug<span class="w"> </span>protocol.json
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># In debugger:</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>&gt;<span class="w"> </span><span class="k">break</span><span class="w"> </span><span class="m">3</span><span class="w">              </span><span class="c1"># Set breakpoint at flow 3</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>&gt;<span class="w"> </span><span class="k">continue</span><span class="w">             </span><span class="c1"># Run until breakpoint</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>&gt;<span class="w"> </span>inspect<span class="w">              </span><span class="c1"># Show current state</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>&gt;<span class="w"> </span>step<span class="w">                 </span><span class="c1"># Execute next flow</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>&gt;<span class="w"> </span>quit<span class="w">                 </span><span class="c1"># Exit</span>
+</span></code></pre></div>
+<h2 id="analyze">analyze<a class="headerlink" href="#analyze" title="Permanent link">&para;</a></h2>
+<p>Security analysis with attack surface detection.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>pidl<span class="w"> </span>analyze<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>&lt;file&gt;
+</span></code></pre></div>
+<h3 id="options_6">Options<a class="headerlink" href="#options_6" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f, --format</code></td>
+<td>Output format: text, json, markdown (default: text)</td>
+</tr>
+<tr>
+<td><code>-o, --output</code></td>
+<td>Output file (default: stdout)</td>
+</tr>
+<tr>
+<td><code>--min-severity</code></td>
+<td>Minimum severity: critical, high, medium, low, info</td>
+</tr>
+<tr>
+<td><code>--category</code></td>
+<td>Filter by category (repeatable)</td>
+</tr>
+<tr>
+<td><code>--fail-on</code></td>
+<td>Exit code 1 if risks at this severity</td>
+</tr>
+<tr>
+<td><code>-q, --quiet</code></td>
+<td>Summary only</td>
+</tr>
+</tbody>
+</table>
+<h3 id="built-in-rules">Built-in Rules<a class="headerlink" href="#built-in-rules" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Severity</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SEC001</td>
+<td>High</td>
+<td>Trust boundary violation</td>
+</tr>
+<tr>
+<td>SEC002</td>
+<td>High</td>
+<td>Missing encryption on confidential flow</td>
+</tr>
+<tr>
+<td>SEC003</td>
+<td>Medium</td>
+<td>Unbound bearer token</td>
+</tr>
+<tr>
+<td>SEC004</td>
+<td>High</td>
+<td>Missing authentication on external flow</td>
+</tr>
+<tr>
+<td>SEC005</td>
+<td>Medium</td>
+<td>JWT without defined audience</td>
+</tr>
+<tr>
+<td>SEC006</td>
+<td>Medium</td>
+<td>Token transmitted in redirect</td>
+</tr>
+<tr>
+<td>SEC007</td>
+<td>Medium</td>
+<td>Missing mTLS on sensitive flow</td>
+</tr>
+<tr>
+<td>SEC008</td>
+<td>Low</td>
+<td>Entity without defined trust level</td>
+</tr>
+<tr>
+<td>SEC009</td>
+<td>Medium</td>
+<td>Sensitive data in redirect parameters</td>
+</tr>
+<tr>
+<td>SEC010</td>
+<td>Medium</td>
+<td>Weak authentication method</td>
+</tr>
+</tbody>
+</table>
+<h3 id="examples_8">Examples<a class="headerlink" href="#examples_8" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Run security analysis</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>pidl<span class="w"> </span>analyze<span class="w"> </span>protocol.json
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># Output as markdown</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>pidl<span class="w"> </span>analyze<span class="w"> </span>-f<span class="w"> </span>markdown<span class="w"> </span>-o<span class="w"> </span>security-report.md<span class="w"> </span>protocol.json
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># Fail if high-severity risks found (for CI)</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>pidl<span class="w"> </span>analyze<span class="w"> </span>--fail-on<span class="o">=</span>high<span class="w"> </span>protocol.json
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="c1"># Only show critical and high</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>pidl<span class="w"> </span>analyze<span class="w"> </span>--min-severity<span class="o">=</span>high<span class="w"> </span>protocol.json
+</span></code></pre></div>
+<h2 id="resolve">resolve<a class="headerlink" href="#resolve" title="Permanent link">&para;</a></h2>
+<p>Resolve protocol imports and inheritance.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>pidl<span class="w"> </span>resolve<span class="w"> </span>&lt;file&gt;
+</span></code></pre></div>
+<h3 id="examples_9">Examples<a class="headerlink" href="#examples_9" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Resolve and output merged protocol</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>pidl<span class="w"> </span>resolve<span class="w"> </span>protocol-with-imports.json
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># Save resolved protocol</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>pidl<span class="w"> </span>resolve<span class="w"> </span>protocol.json<span class="w"> </span>&gt;<span class="w"> </span>resolved.json
+</span></code></pre></div>
 <h2 id="version">version<a class="headerlink" href="#version" title="Permanent link">&para;</a></h2>
 <p>Print version information.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pidl<span class="w"> </span>version
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>pidl<span class="w"> </span>version
 </span></code></pre></div>
 <h2 id="help">help<a class="headerlink" href="#help" title="Permanent link">&para;</a></h2>
 <p>Show help message.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>pidl<span class="w"> </span><span class="nb">help</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>pidl<span class="w"> </span><span class="nb">help</span><span class="w"> </span>&lt;command&gt;
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>pidl<span class="w"> </span><span class="nb">help</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>pidl<span class="w"> </span><span class="nb">help</span><span class="w"> </span>&lt;command&gt;
 </span></code></pre></div>
 
 
