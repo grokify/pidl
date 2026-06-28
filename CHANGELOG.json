@@ -7,6 +7,64 @@
   "maintainers": ["grokify"],
   "releases": [
     {
+      "version": "v0.4.0",
+      "date": "2026-06-28",
+      "highlights": [
+        { "description": "Protocol composition with imports and inheritance for modular protocol design" },
+        { "description": "Runtime execution engine with state tracking and execution traces" },
+        { "description": "Protocol comparison (diff) for detecting changes between protocols" },
+        { "description": "Interactive step-through debugger with breakpoints and state inspection" },
+        { "description": "Security analysis with 10 built-in attack surface detection rules" }
+      ],
+      "added": [
+        { "description": "Protocol roles, deployment components, and trust relationship types", "commit": "f75f00b" },
+        { "description": "Schema and validation for protocol roles, components, trust relations", "commit": "d96b81f" },
+        { "description": "SVG component diagram renderer", "commit": "046206b" },
+        { "description": "SVG trust relationship diagram renderer", "commit": "087d0f3" },
+        { "description": "Markdown protocol role matrix renderer", "commit": "4e87b4e" },
+        { "description": "Mermaid component and trust diagram renderers", "commit": "3ac8b80" },
+        { "description": "CLI `roles`, `components`, and `trust` list commands", "commit": "c2aacc2" },
+        { "description": "CLI support for component and trust diagram formats", "commit": "14d3ff8" },
+        { "description": "ProtocolImport and ProtocolExtends types for composition", "commit": "69aa941" },
+        { "description": "Protocol resolver with circular import/extends detection", "commit": "7339d66" },
+        { "description": "Standard library protocols: oauth_entities.json, mcp_entities.json", "commit": "669a273" },
+        { "description": "CLI `resolve` command for debugging composition", "commit": "87d33d1" },
+        { "description": "Protocol execution engine (Executor) with state tracking", "commit": "e80e979" },
+        { "description": "ExecutionContext, ExecutionTrace, and ExecutionStep types", "commit": "e80e979" },
+        { "description": "CLI `simulate` command with verbose and JSON output", "commit": "f6c8d38" },
+        { "description": "Protocol comparison with DiffItem, ProtocolDiff types", "commit": "53ab027" },
+        { "description": "CLI `diff` command with text, JSON, markdown output", "commit": "47c2fd4" },
+        { "description": "Execution trace visualization renderer (text, SVG, Mermaid)", "commit": "f6acc27" },
+        { "description": "Interactive protocol debugger (DebugSession) with breakpoints", "commit": "5745fdf" },
+        { "description": "CLI `debug` command for step-through execution", "commit": "47c2fd4" },
+        { "description": "Security analysis package with 10 built-in rules (SEC001-SEC010)", "commit": "0341d5b" },
+        { "description": "CLI `analyze` command with severity filtering and CI fail-on", "commit": "47c2fd4" },
+        { "description": "High-contrast SVG theme for accessibility (WCAG AA)", "commit": "dd316a3" },
+        { "description": "Mermaid state diagram rendering", "commit": "643e971" },
+        { "description": "OAuth2 examples with security and state features", "commit": "898c711" },
+        { "description": "OAIAF architecture example with roles, components, trust", "commit": "d3abf6e" }
+      ],
+      "refactored": [
+        { "description": "Split pidl.go into logical modules (types, protocol_methods, entity_methods, flow_methods, validators)", "commit": "8f46d4f" },
+        { "description": "Split validate.go into focused modules (validate, validate_entity, validate_flow, validate_metadata)", "commit": "af4657c" },
+        { "description": "Consolidate write methods and remove unused code", "commit": "444f898" },
+        { "description": "Extract common SequenceRenderOptions struct for renderer config sharing", "commit": "b445c5a" }
+      ],
+      "tests": [
+        { "description": "Execution engine tests for state tracking and trace recording", "commit": "6a78105" },
+        { "description": "Protocol comparison tests for entities, flows, phases", "commit": "53ab027" },
+        { "description": "Interactive debugger tests for breakpoints and stepping", "commit": "5745fdf" },
+        { "description": "Security analysis tests for all 10 rules", "commit": "0341d5b" }
+      ],
+      "documentation": [
+        { "description": "Phase 12 features documentation in README and MkDocs", "commit": "394ca1e" },
+        { "description": "CLI reference for new commands (simulate, diff, debug, analyze)", "commit": "394ca1e" },
+        { "description": "Go library examples for comparison, simulation, debugging, analysis", "commit": "394ca1e" },
+        { "description": "Protocol architecture tables for nodes and edges", "commit": "619ef59" },
+        { "description": "Roadmap updates for Phases 8-12 completion", "commit": "11222f2" }
+      ]
+    },
+    {
       "version": "v0.3.0",
       "date": "2025-05-18",
       "highlights": [

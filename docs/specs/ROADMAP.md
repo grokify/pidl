@@ -6,7 +6,7 @@ Protocol Interaction Description Language - a JSON-based DSL for describing prot
 
 | Version | Date | Highlights |
 |---------|------|------------|
-| v0.10.0 | 2026-06-28 | Protocol diff, trace visualization, debugger, security analysis |
+| v0.4.0 | 2026-06-28 | Protocol composition, execution engine, diff, debugger, security analysis |
 | v0.3.0 | 2025-05-18 | SVG rendering, animations, templates, network boundaries |
 | v0.2.0 | 2025-04-18 | Annotations, alternatives, conditions, nested phases, D2 |
 | v0.1.0 | 2025-04-18 | Core DSL, PlantUML, Mermaid, DOT renderers |
@@ -379,7 +379,7 @@ type ExecutionTrace struct {
 | `pidl simulate -v <file>` | Verbose output with each step |
 | `pidl simulate -json <file>` | Output trace as JSON |
 
-### Phase 12: Analysis & Tooling ✅ (v0.10.0)
+### Phase 12: Analysis & Tooling ✅ (v0.4.0)
 
 - [x] Protocol comparison (diff two protocols)
 - [x] Execution trace visualization

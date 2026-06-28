@@ -28,7 +28,7 @@ func (b *boundaryFlags) Set(value string) error {
 	return nil
 }
 
-const version = "0.10.0"
+const version = "0.4.0"
 
 func main() {
 	if len(os.Args) < 2 {
