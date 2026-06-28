@@ -1407,24 +1407,10 @@
 </ul>
 <hr />
 <h2 id="future-phases">Future Phases<a class="headerlink" href="#future-phases" title="Permanent link">&para;</a></h2>
-<h3 id="phase-8-protocol-roles-deployment-architecture-v070">Phase 8: Protocol Roles &amp; Deployment Architecture (v0.7.0)<a class="headerlink" href="#phase-8-protocol-roles-deployment-architecture-v070" title="Permanent link">&para;</a></h3>
+<h3 id="phase-8-protocol-roles-deployment-architecture-v070">Phase 8: Protocol Roles &amp; Deployment Architecture (v0.7.0) 🚧<a class="headerlink" href="#phase-8-protocol-roles-deployment-architecture-v070" title="Permanent link">&para;</a></h3>
 <p><strong>Target:</strong> Enable PIDL to describe protocol roles, logical deployment components, and trust relationships for architecture documentation.</p>
 <p><strong>Use Case:</strong> OAIAF needs to document how protocols map to real-world deployments (IdP, IGA, Gateway, MCP Client, etc.) with explicit trust relationships.</p>
-<h4 id="81-protocol-roles">8.1 Protocol Roles<a class="headerlink" href="#81-protocol-roles" title="Permanent link">&para;</a></h4>
-<p>Add protocol-specific role annotations to entities:</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// New type</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ProtocolRole</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nx">Protocol</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;protocol&quot;`</span><span class="w">          </span><span class="c1">// &quot;oauth&quot;, &quot;scim&quot;, &quot;aauth&quot;, &quot;authzen&quot;, &quot;mcp&quot;, &quot;a2a&quot;, &quot;spiffe&quot;</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nx">Role</span><span class="w">     </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;role&quot;`</span><span class="w">              </span><span class="c1">// &quot;authorization_server&quot;, &quot;client&quot;, &quot;pep&quot;, &quot;pdp&quot;, etc.</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nx">Variant</span><span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;variant,omitempty&quot;`</span><span class="w"> </span><span class="c1">// Sub-role: &quot;person_server&quot; vs &quot;access_server&quot;</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">}</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1">// Add to Entity</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Entity</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="c1">// ... existing fields</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nx">ProtocolRoles</span><span class="w"> </span><span class="p">[]</span><span class="nx">ProtocolRole</span><span class="w"> </span><span class="s">`json:&quot;protocol_roles,omitempty&quot;`</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">}</span>
-</span></code></pre></div>
+<h4 id="81-data-model-types-validators">8.1 Data Model - Types &amp; Validators ✅<a class="headerlink" href="#81-data-model-types-validators" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
 <tr>
@@ -1434,28 +1420,78 @@
 </thead>
 <tbody>
 <tr>
-<td>Add <code>ProtocolRole</code> type</td>
-<td>Planned</td>
+<td>Add <code>ProtocolRole</code> type with Protocol, Role, Variant fields</td>
+<td>Done</td>
 </tr>
 <tr>
 <td>Add <code>protocol_roles</code> field to Entity</td>
-<td>Planned</td>
+<td>Done</td>
 </tr>
 <tr>
-<td>Define standard role vocabulary per protocol</td>
-<td>Planned</td>
+<td>Add <code>DeploymentComponent</code> type</td>
+<td>Done</td>
 </tr>
 <tr>
-<td>Validate protocol/role combinations</td>
-<td>Planned</td>
+<td>Add <code>components</code> field to ProtocolMetadata</td>
+<td>Done</td>
 </tr>
 <tr>
-<td>Update JSON Schema</td>
-<td>Planned</td>
+<td>Add <code>TrustRelationship</code> type</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>Add <code>trust_relations</code> field to ProtocolMetadata</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>Add <code>IsValidProtocol()</code> validator</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>Add <code>IsValidComponentType()</code> validator</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>Add <code>IsValidTrustRelationType()</code> validator</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>Add <code>IsValidCredential()</code> validator</td>
+<td>Done</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Standard Role Vocabulary:</strong></p>
+<p><strong>ProtocolRole Type:</strong></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ProtocolRole</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nx">Protocol</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;protocol&quot;`</span><span class="w">          </span><span class="c1">// &quot;oauth&quot;, &quot;scim&quot;, &quot;aauth&quot;, &quot;authzen&quot;, &quot;mcp&quot;, &quot;a2a&quot;, &quot;spiffe&quot;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nx">Role</span><span class="w">     </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;role&quot;`</span><span class="w">              </span><span class="c1">// &quot;authorization_server&quot;, &quot;client&quot;, &quot;pep&quot;, &quot;pdp&quot;, etc.</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nx">Variant</span><span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;variant,omitempty&quot;`</span><span class="w"> </span><span class="c1">// Sub-role: &quot;person_server&quot; vs &quot;access_server&quot;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>DeploymentComponent Type:</strong></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">DeploymentComponent</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nx">ID</span><span class="w">          </span><span class="kt">string</span><span class="w">         </span><span class="s">`json:&quot;id&quot;`</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nx">Name</span><span class="w">        </span><span class="kt">string</span><span class="w">         </span><span class="s">`json:&quot;name&quot;`</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nx">Type</span><span class="w">        </span><span class="kt">string</span><span class="w">         </span><span class="s">`json:&quot;type&quot;`</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nx">Description</span><span class="w"> </span><span class="kt">string</span><span class="w">         </span><span class="s">`json:&quot;description,omitempty&quot;`</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nx">Entities</span><span class="w">    </span><span class="p">[]</span><span class="kt">string</span><span class="w">       </span><span class="s">`json:&quot;entities&quot;`</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nx">Implements</span><span class="w">  </span><span class="p">[]</span><span class="nx">ProtocolRole</span><span class="w"> </span><span class="s">`json:&quot;implements&quot;`</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nx">Examples</span><span class="w">    </span><span class="p">[]</span><span class="kt">string</span><span class="w">       </span><span class="s">`json:&quot;examples,omitempty&quot;`</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>TrustRelationship Type:</strong></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">TrustRelationship</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nx">ID</span><span class="w">          </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;id,omitempty&quot;`</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nx">From</span><span class="w">        </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;from&quot;`</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nx">To</span><span class="w">          </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;to&quot;`</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nx">Type</span><span class="w">        </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;type&quot;`</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nx">Credentials</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;credentials,omitempty&quot;`</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nx">Mutual</span><span class="w">      </span><span class="kt">bool</span><span class="w">     </span><span class="s">`json:&quot;mutual,omitempty&quot;`</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nx">Description</span><span class="w"> </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;description,omitempty&quot;`</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="82-standard-vocabularies">8.2 Standard Vocabularies<a class="headerlink" href="#82-standard-vocabularies" title="Permanent link">&para;</a></h4>
+<p><strong>Protocols:</strong></p>
 <table>
 <thead>
 <tr>
@@ -1498,224 +1534,105 @@
 </tr>
 </tbody>
 </table>
-<h4 id="82-deployment-components">8.2 Deployment Components<a class="headerlink" href="#82-deployment-components" title="Permanent link">&para;</a></h4>
-<p>Add logical deployment component grouping:</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// New type</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kd">type</span><span class="w"> </span><span class="nx">DeploymentComponent</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nx">ID</span><span class="w">          </span><span class="kt">string</span><span class="w">         </span><span class="s">`json:&quot;id&quot;`</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nx">Name</span><span class="w">        </span><span class="kt">string</span><span class="w">         </span><span class="s">`json:&quot;name&quot;`</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nx">Type</span><span class="w">        </span><span class="kt">string</span><span class="w">         </span><span class="s">`json:&quot;type&quot;`</span><span class="w">        </span><span class="c1">// &quot;idp&quot;, &quot;iga&quot;, &quot;gateway&quot;, &quot;mcp_client&quot;, &quot;resource_api&quot;, etc.</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nx">Description</span><span class="w"> </span><span class="kt">string</span><span class="w">         </span><span class="s">`json:&quot;description,omitempty&quot;`</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nx">Entities</span><span class="w">    </span><span class="p">[]</span><span class="kt">string</span><span class="w">       </span><span class="s">`json:&quot;entities&quot;`</span><span class="w">    </span><span class="c1">// Entity IDs contained in this component</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nx">Implements</span><span class="w">  </span><span class="p">[]</span><span class="nx">ProtocolRole</span><span class="w"> </span><span class="s">`json:&quot;implements&quot;`</span><span class="w">  </span><span class="c1">// Aggregate roles this component implements</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="nx">Examples</span><span class="w">    </span><span class="p">[]</span><span class="kt">string</span><span class="w">       </span><span class="s">`json:&quot;examples,omitempty&quot;`</span><span class="w"> </span><span class="c1">// Real-world products: &quot;Okta&quot;, &quot;Entra ID&quot;</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">}</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="c1">// Add to ProtocolMetadata</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ProtocolMetadata</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="c1">// ... existing fields</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="nx">Components</span><span class="w"> </span><span class="p">[]</span><span class="nx">DeploymentComponent</span><span class="w"> </span><span class="s">`json:&quot;components,omitempty&quot;`</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="p">}</span>
-</span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Add <code>DeploymentComponent</code> type</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Add <code>components</code> field to ProtocolMetadata</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Define standard component type vocabulary</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Validate entity references in components</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Update JSON Schema</td>
-<td>Planned</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Standard Component Types:</strong></p>
+<p><strong>Component Types:</strong></p>
 <table>
 <thead>
 <tr>
 <th>Type</th>
 <th>Description</th>
-<th>Typical Roles</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>idp</code></td>
-<td>Identity Provider</td>
-<td>OAuth AS, OIDC, SCIM SP</td>
+<td>Identity Provider (OAuth AS, OIDC, SCIM SP)</td>
 </tr>
 <tr>
 <td><code>iga</code></td>
-<td>Identity Governance</td>
-<td>SCIM Client, Audit</td>
+<td>Identity Governance (SCIM Client, Audit)</td>
 </tr>
 <tr>
 <td><code>agent_provider</code></td>
 <td>Agent registration/tokens</td>
-<td>AAuth Agent Provider</td>
 </tr>
 <tr>
 <td><code>person_server</code></td>
 <td>Human consent</td>
-<td>AAuth Person Server</td>
 </tr>
 <tr>
 <td><code>access_server</code></td>
 <td>Token issuance</td>
-<td>AAuth Access Server, OAuth AS</td>
 </tr>
 <tr>
 <td><code>pdp</code></td>
 <td>Policy Decision Point</td>
-<td>AuthZEN PDP, PAP</td>
 </tr>
 <tr>
 <td><code>gateway</code></td>
-<td>Access Gateway</td>
-<td>AuthZEN PEP, OAuth RS</td>
+<td>Access Gateway (PEP, OAuth RS)</td>
 </tr>
 <tr>
 <td><code>mcp_client</code></td>
 <td>MCP Host/Client</td>
-<td>MCP Client, AAuth Agent</td>
 </tr>
 <tr>
 <td><code>mcp_server</code></td>
 <td>MCP Tool Server</td>
-<td>MCP Server</td>
 </tr>
 <tr>
 <td><code>resource_api</code></td>
 <td>Protected Resource</td>
-<td>OAuth RS, SPIFFE Workload</td>
 </tr>
 <tr>
 <td><code>spire</code></td>
 <td>SPIFFE Infrastructure</td>
-<td>SPIRE Server, Agent</td>
 </tr>
 </tbody>
 </table>
-<h4 id="83-trust-relationships">8.3 Trust Relationships<a class="headerlink" href="#83-trust-relationships" title="Permanent link">&para;</a></h4>
-<p>Add explicit trust relationship modeling:</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// New type</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kd">type</span><span class="w"> </span><span class="nx">TrustRelationship</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nx">ID</span><span class="w">          </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;id,omitempty&quot;`</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nx">From</span><span class="w">        </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;from&quot;`</span><span class="w">              </span><span class="c1">// Entity or component ID</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nx">To</span><span class="w">          </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;to&quot;`</span><span class="w">                </span><span class="c1">// Entity or component ID</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nx">Type</span><span class="w">        </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;type&quot;`</span><span class="w">              </span><span class="c1">// Relationship type</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nx">Credentials</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;credentials,omitempty&quot;`</span><span class="w"> </span><span class="c1">// What is exchanged</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nx">Mutual</span><span class="w">      </span><span class="kt">bool</span><span class="w">     </span><span class="s">`json:&quot;mutual,omitempty&quot;`</span><span class="w">  </span><span class="c1">// Bidirectional (e.g., mTLS)</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="nx">Description</span><span class="w"> </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;description,omitempty&quot;`</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">}</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="c1">// Add to ProtocolMetadata</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ProtocolMetadata</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="c1">// ... existing fields</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nx">TrustRelations</span><span class="w"> </span><span class="p">[]</span><span class="nx">TrustRelationship</span><span class="w"> </span><span class="s">`json:&quot;trust_relations,omitempty&quot;`</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="p">}</span>
-</span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Add <code>TrustRelationship</code> type</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Add <code>trust_relations</code> field to ProtocolMetadata</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Define standard relationship type vocabulary</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Validate entity/component references</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Update JSON Schema</td>
-<td>Planned</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Standard Relationship Types:</strong></p>
+<p><strong>Trust Relationship Types:</strong></p>
 <table>
 <thead>
 <tr>
 <th>Type</th>
 <th>Description</th>
-<th>Example</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>authenticates</code></td>
 <td>Verifies identity</td>
-<td>IdP authenticates User</td>
 </tr>
 <tr>
 <td><code>validates</code></td>
 <td>Verifies claims/tokens</td>
-<td>PDP validates Agent token</td>
 </tr>
 <tr>
 <td><code>delegates</code></td>
 <td>Grants delegated authority</td>
-<td>User delegates to Agent</td>
 </tr>
 <tr>
 <td><code>authorizes</code></td>
 <td>Grants access permission</td>
-<td>PDP authorizes action</td>
 </tr>
 <tr>
 <td><code>issues</code></td>
 <td>Creates token/credential</td>
-<td>Agent Provider issues JWT</td>
 </tr>
 <tr>
 <td><code>trusts</code></td>
 <td>Accepts tokens from</td>
-<td>RS trusts IdP via JWKS</td>
 </tr>
 <tr>
 <td><code>provisions</code></td>
 <td>Creates/manages lifecycle</td>
-<td>IGA provisions Agent in SCIM</td>
 </tr>
 <tr>
 <td><code>attests</code></td>
 <td>Cryptographically vouches</td>
-<td>SPIRE attests Workload</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Standard Credentials:</strong></p>
+<p><strong>Credentials:</strong></p>
 <table>
 <thead>
 <tr>
@@ -1762,31 +1679,138 @@
 </tr>
 </tbody>
 </table>
-<h4 id="84-new-diagram-types">8.4 New Diagram Types<a class="headerlink" href="#84-new-diagram-types" title="Permanent link">&para;</a></h4>
-<p>Add renderers for new diagram types:</p>
+<h4 id="83-validation">8.3 Validation ✅<a class="headerlink" href="#83-validation" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Validate protocol/role combinations</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>Validate entity references in components</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>Validate entity/component references in trust relations</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>Validate credential types in trust relations</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>Update JSON Schema</td>
+<td>Done</td>
+</tr>
+</tbody>
+</table>
+<h4 id="84-protocol-query-methods">8.4 Protocol Query Methods ✅<a class="headerlink" href="#84-protocol-query-methods" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Protocol.ComponentsByType(type)</code></td>
+<td>Done</td>
+</tr>
+<tr>
+<td><code>Protocol.EntitiesInComponent(id)</code></td>
+<td>Done</td>
+</tr>
+<tr>
+<td><code>Protocol.TrustRelationsFrom(id)</code></td>
+<td>Done</td>
+</tr>
+<tr>
+<td><code>Protocol.TrustRelationsTo(id)</code></td>
+<td>Done</td>
+</tr>
+<tr>
+<td><code>Protocol.EntitiesByRole(protocol, role)</code></td>
+<td>Done</td>
+</tr>
+<tr>
+<td><code>Protocol.EntitiesByProtocol(protocol)</code></td>
+<td>Done</td>
+</tr>
+<tr>
+<td><code>Protocol.EntitiesWithProtocolRoles()</code></td>
+<td>Done</td>
+</tr>
+<tr>
+<td><code>Protocol.ComponentByID(id)</code></td>
+<td>Done</td>
+</tr>
+<tr>
+<td><code>Protocol.ComponentForEntity(entityID)</code></td>
+<td>Done</td>
+</tr>
+<tr>
+<td><code>Protocol.TrustRelationByID(id)</code></td>
+<td>Done</td>
+</tr>
+<tr>
+<td><code>Protocol.TrustRelationsByType(type)</code></td>
+<td>Done</td>
+</tr>
+<tr>
+<td><code>Protocol.AllProtocols()</code></td>
+<td>Done</td>
+</tr>
+<tr>
+<td><code>Protocol.AllComponentTypes()</code></td>
+<td>Done</td>
+</tr>
+<tr>
+<td><code>Protocol.AllTrustRelationTypes()</code></td>
+<td>Done</td>
+</tr>
+</tbody>
+</table>
+<h4 id="85-new-diagram-types">8.5 New Diagram Types<a class="headerlink" href="#85-new-diagram-types" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
 <tr>
 <th>Diagram Type</th>
 <th>Output</th>
-<th>Description</th>
+<th>Status</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Component Diagram</td>
-<td>SVG, Mermaid</td>
-<td>Shows deployment components and their roles</td>
+<td>Mermaid</td>
+<td>Done</td>
 </tr>
 <tr>
 <td>Trust Diagram</td>
-<td>SVG, Mermaid</td>
-<td>Shows trust relationships between components</td>
+<td>Mermaid</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>Component Diagram</td>
+<td>SVG</td>
+<td>Planned</td>
+</tr>
+<tr>
+<td>Trust Diagram</td>
+<td>SVG</td>
+<td>Planned</td>
 </tr>
 <tr>
 <td>Role Matrix</td>
-<td>Markdown, HTML</td>
-<td>Protocol × Component role matrix</td>
+<td>Markdown</td>
+<td>Planned</td>
 </tr>
 </tbody>
 </table>
@@ -1799,6 +1823,14 @@
 </thead>
 <tbody>
 <tr>
+<td>Mermaid component diagram (flowchart)</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>Mermaid trust diagram (flowchart)</td>
+<td>Done</td>
+</tr>
+<tr>
 <td>SVG component diagram renderer</td>
 <td>Planned</td>
 </tr>
@@ -1807,24 +1839,12 @@
 <td>Planned</td>
 </tr>
 <tr>
-<td>Mermaid component diagram (flowchart)</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Mermaid trust diagram (flowchart)</td>
-<td>Planned</td>
-</tr>
-<tr>
 <td>Markdown role matrix generator</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>CLI <code>--format=component</code>, <code>--format=trust</code>, <code>--format=matrix</code></td>
 <td>Planned</td>
 </tr>
 </tbody>
 </table>
-<h4 id="85-cli-enhancements">8.5 CLI Enhancements<a class="headerlink" href="#85-cli-enhancements" title="Permanent link">&para;</a></h4>
+<h4 id="86-cli-enhancements">8.6 CLI Enhancements<a class="headerlink" href="#86-cli-enhancements" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
 <tr>
@@ -1835,31 +1855,31 @@
 <tbody>
 <tr>
 <td><code>pidl generate --format=component</code></td>
-<td>Planned</td>
+<td>Done</td>
 </tr>
 <tr>
 <td><code>pidl generate --format=trust</code></td>
-<td>Planned</td>
+<td>Done</td>
 </tr>
 <tr>
 <td><code>pidl generate --format=matrix</code></td>
 <td>Planned</td>
 </tr>
 <tr>
-<td><code>pidl roles list</code> - list all roles in a file</td>
+<td><code>pidl roles list</code></td>
 <td>Planned</td>
 </tr>
 <tr>
-<td><code>pidl components list</code> - list all components</td>
+<td><code>pidl components list</code></td>
 <td>Planned</td>
 </tr>
 <tr>
-<td><code>pidl trust list</code> - list trust relationships</td>
+<td><code>pidl trust list</code></td>
 <td>Planned</td>
 </tr>
 </tbody>
 </table>
-<h4 id="86-examples">8.6 Examples<a class="headerlink" href="#86-examples" title="Permanent link">&para;</a></h4>
+<h4 id="87-examples-documentation">8.7 Examples &amp; Documentation<a class="headerlink" href="#87-examples-documentation" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
 <tr>
@@ -1869,262 +1889,32 @@
 </thead>
 <tbody>
 <tr>
-<td><code>examples/oaiaf-roles.json</code> - OAIAF protocol roles</td>
-<td>Planned</td>
+<td><code>examples/oaiaf_architecture.json</code> (combined roles, components, trust)</td>
+<td>Done</td>
 </tr>
 <tr>
-<td><code>examples/oaiaf-components.json</code> - Deployment topology</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td><code>examples/oaiaf-trust.json</code> - Trust relationships</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Documentation for new features</td>
+<td>Update docs/index.md with new features</td>
 <td>Planned</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h3 id="phase-9-code-quality-refactoring-v07x">Phase 9: Code Quality &amp; Refactoring (v0.7.x)<a class="headerlink" href="#phase-9-code-quality-refactoring-v07x" title="Permanent link">&para;</a></h3>
+<h3 id="phase-9-code-quality-refactoring-v07x">Phase 9: Code Quality &amp; Refactoring ✅ (v0.7.x)<a class="headerlink" href="#phase-9-code-quality-refactoring-v07x" title="Permanent link">&para;</a></h3>
 <p><strong>Target:</strong> Improve code organization, eliminate duplication, and standardize patterns for maintainability.</p>
-<h4 id="91-split-large-files">9.1 Split Large Files<a class="headerlink" href="#91-split-large-files" title="Permanent link">&para;</a></h4>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>File</th>
-<th>Lines</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Split <code>pidl.go</code> into modules</td>
-<td>pidl.go</td>
-<td>1,119</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Create <code>types.go</code></td>
-<td>-</td>
-<td>-</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Create <code>protocol_methods.go</code></td>
-<td>-</td>
-<td>-</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Create <code>entity_methods.go</code></td>
-<td>-</td>
-<td>-</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Create <code>validators.go</code></td>
-<td>-</td>
-<td>-</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Split <code>validate.go</code> into modules</td>
-<td>validate.go</td>
-<td>917</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Create <code>validate_protocol.go</code></td>
-<td>-</td>
-<td>-</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Create <code>validate_entities.go</code></td>
-<td>-</td>
-<td>-</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Create <code>validate_flows.go</code></td>
-<td>-</td>
-<td>-</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Create <code>validate_metadata.go</code></td>
-<td>-</td>
-<td>-</td>
-<td>Planned</td>
-</tr>
-</tbody>
-</table>
-<h4 id="92-consolidate-duplicate-validators">9.2 Consolidate Duplicate Validators<a class="headerlink" href="#92-consolidate-duplicate-validators" title="Permanent link">&para;</a></h4>
-<p>Eliminate duplicate validation functions between <code>validate.go</code> (private) and <code>pidl.go</code> (public):</p>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Move all <code>IsValid*</code> functions to <code>validators.go</code></td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Remove duplicate private validators from <code>validate.go</code></td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Add missing public validators: <code>IsValidCategory</code>, <code>IsValidEntityType</code>, <code>IsValidFlowMode</code></td>
-<td>Planned</td>
-</tr>
-</tbody>
-</table>
-<h4 id="93-standardize-return-types">9.3 Standardize Return Types<a class="headerlink" href="#93-standardize-return-types" title="Permanent link">&para;</a></h4>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Return empty slices instead of nil in <code>ComponentsByType()</code></td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Return empty slices instead of nil in <code>EntitiesInComponent()</code></td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Return empty slices instead of nil in <code>TrustRelationsFrom()</code></td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Return empty slices instead of nil in <code>TrustRelationsTo()</code></td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Audit all slice-returning methods for consistency</td>
-<td>Planned</td>
-</tr>
-</tbody>
-</table>
-<h4 id="94-extract-common-renderer-config">9.4 Extract Common Renderer Config<a class="headerlink" href="#94-extract-common-renderer-config" title="Permanent link">&para;</a></h4>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Create <code>RenderOptions</code> struct with shared Show* fields</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Refactor <code>PlantUMLRenderer</code> to use <code>RenderOptions</code></td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Refactor <code>MermaidRenderer</code> to use <code>RenderOptions</code></td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Refactor <code>D2Renderer</code> to use <code>RenderOptions</code></td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Refactor <code>SVGRenderer</code> to use <code>RenderOptions</code></td>
-<td>Planned</td>
-</tr>
-</tbody>
-</table>
-<h4 id="95-consolidate-write-methods">9.5 Consolidate Write Methods<a class="headerlink" href="#95-consolidate-write-methods" title="Permanent link">&para;</a></h4>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Remove <code>WriteProtocolFile()</code> from operations.go</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Keep only <code>Protocol.WriteFile()</code> in parse.go</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Update CLI to use <code>Protocol.WriteFile()</code></td>
-<td>Planned</td>
-</tr>
-</tbody>
-</table>
-<h4 id="96-removerefactor-unused-code">9.6 Remove/Refactor Unused Code<a class="headerlink" href="#96-removerefactor-unused-code" title="Permanent link">&para;</a></h4>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Remove or document <code>NewProtocol()</code> in operations.go</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Move <code>SanitizeID()</code> to cmd/pidl or unexport</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Move <code>TitleCase()</code> to cmd/pidl or unexport</td>
-<td>Planned</td>
-</tr>
-</tbody>
-</table>
-<h4 id="97-add-missing-tests">9.7 Add Missing Tests<a class="headerlink" href="#97-add-missing-tests" title="Permanent link">&para;</a></h4>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Add tests for <code>SanitizeID()</code></td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Add tests for <code>TitleCase()</code></td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Add tests for <code>SupportedFormats()</code></td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Add negative tests for parse error cases</td>
-<td>Planned</td>
-</tr>
-<tr>
-<td>Add circular phase reference validation test</td>
-<td>Planned</td>
-</tr>
-</tbody>
-</table>
+<ul>
+<li>[x] Split <code>pidl.go</code> (1,119 lines) into 5 modules: types.go, protocol_methods.go, entity_methods.go, flow_methods.go, validators.go</li>
+<li>[x] Consolidate duplicate validators into <code>validators.go</code></li>
+<li>[x] Standardize slice-returning methods to return empty slices instead of nil</li>
+<li>[x] Extract <code>SequenceRenderOptions</code> struct for renderer config sharing</li>
+<li>[x] Consolidate write methods into <code>Protocol.WriteFile()</code></li>
+<li>[x] Remove unused <code>NewProtocol()</code> function</li>
+</ul>
+<p><strong>Deferred to future:</strong></p>
+<ul>
+<li>[ ] Split <code>validate.go</code> (917 lines) into modules</li>
+<li>[ ] Move <code>SanitizeID()</code> and <code>TitleCase()</code> to cmd/pidl or unexport</li>
+<li>[ ] Add missing tests for utility functions</li>
+</ul>
 <hr />
 <h3 id="phase-10-protocol-composition-v080">Phase 10: Protocol Composition (v0.8.0)<a class="headerlink" href="#phase-10-protocol-composition-v080" title="Permanent link">&para;</a></h3>
 <ul>
