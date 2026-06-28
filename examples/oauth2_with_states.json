@@ -1,0 +1,186 @@
+{
+  "$schema": "../schema/pidl.schema.json",
+  "protocol": {
+    "id": "oauth2-with-states",
+    "name": "OAuth 2.0 Authorization Code Flow with State Tracking",
+    "version": "1.0",
+    "description": "OAuth 2.0 Authorization Code Grant with entity state tracking",
+    "category": "auth",
+    "references": [
+      {
+        "name": "RFC 6749 Section 4.1",
+        "url": "https://datatracker.ietf.org/doc/html/rfc6749#section-4.1"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "client",
+      "name": "Client Application",
+      "type": "client",
+      "description": "Application requesting access to protected resources",
+      "states": [
+        {"id": "idle", "name": "Idle", "description": "Not authenticated", "initial": true},
+        {"id": "authorizing", "name": "Authorizing", "description": "Waiting for authorization code"},
+        {"id": "authenticated", "name": "Authenticated", "description": "Has valid access token"},
+        {"id": "error", "name": "Error", "description": "Authentication failed", "final": true}
+      ]
+    },
+    {
+      "id": "user",
+      "name": "Resource Owner",
+      "type": "user",
+      "description": "End user who owns the protected resources",
+      "states": [
+        {"id": "unauthenticated", "name": "Unauthenticated", "initial": true},
+        {"id": "consenting", "name": "Reviewing Consent", "description": "User reviewing permissions"},
+        {"id": "granted", "name": "Access Granted", "description": "User approved access"},
+        {"id": "denied", "name": "Access Denied", "description": "User rejected access", "final": true}
+      ]
+    },
+    {
+      "id": "auth_server",
+      "name": "Authorization Server",
+      "type": "authorization_server",
+      "description": "Server that authenticates the user and issues tokens",
+      "states": [
+        {"id": "ready", "name": "Ready", "description": "Waiting for requests", "initial": true},
+        {"id": "validating", "name": "Validating", "description": "Validating credentials"},
+        {"id": "issuing", "name": "Issuing Tokens", "description": "Generating tokens"}
+      ]
+    },
+    {
+      "id": "resource_server",
+      "name": "Resource Server",
+      "type": "resource_server",
+      "description": "Server hosting the protected resources"
+    }
+  ],
+  "phases": [
+    {
+      "id": "authorization",
+      "name": "Authorization",
+      "description": "User authentication and consent"
+    },
+    {
+      "id": "token_exchange",
+      "name": "Token Exchange",
+      "description": "Exchange authorization code for access token"
+    },
+    {
+      "id": "resource_access",
+      "name": "Resource Access",
+      "description": "Access protected resources using access token"
+    }
+  ],
+  "flows": [
+    {
+      "from": "user",
+      "to": "client",
+      "action": "initiate_login",
+      "label": "Click Login",
+      "mode": "interactive",
+      "phase": "authorization",
+      "sets": [
+        {"entity": "client", "from": "idle", "to": "authorizing"}
+      ]
+    },
+    {
+      "from": "client",
+      "to": "auth_server",
+      "action": "authorization_request",
+      "label": "GET /authorize?response_type=code",
+      "mode": "redirect",
+      "phase": "authorization",
+      "sets": [
+        {"entity": "auth_server", "from": "ready", "to": "validating"}
+      ]
+    },
+    {
+      "from": "auth_server",
+      "to": "user",
+      "action": "login_prompt",
+      "label": "Login + Consent Form",
+      "mode": "interactive",
+      "phase": "authorization",
+      "sets": [
+        {"entity": "user", "from": "unauthenticated", "to": "consenting"}
+      ]
+    },
+    {
+      "from": "user",
+      "to": "auth_server",
+      "action": "authenticate",
+      "label": "Submit Credentials + Grant Consent",
+      "mode": "interactive",
+      "phase": "authorization",
+      "sets": [
+        {"entity": "user", "from": "consenting", "to": "granted"}
+      ],
+      "alternatives": [
+        {
+          "condition": "user_denies",
+          "flows": [
+            {
+              "from": "auth_server",
+              "to": "client",
+              "action": "access_denied",
+              "label": "Error: access_denied",
+              "mode": "redirect"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "from": "auth_server",
+      "to": "client",
+      "action": "authorization_response",
+      "label": "Redirect with code=...",
+      "mode": "redirect",
+      "phase": "authorization",
+      "sets": [
+        {"entity": "auth_server", "from": "validating", "to": "ready"}
+      ]
+    },
+    {
+      "from": "client",
+      "to": "auth_server",
+      "action": "token_request",
+      "label": "POST /token (grant_type=authorization_code)",
+      "mode": "request",
+      "phase": "token_exchange",
+      "sets": [
+        {"entity": "auth_server", "from": "ready", "to": "issuing"}
+      ]
+    },
+    {
+      "from": "auth_server",
+      "to": "client",
+      "action": "token_response",
+      "label": "Access Token + Refresh Token",
+      "mode": "response",
+      "phase": "token_exchange",
+      "sets": [
+        {"entity": "client", "from": "authorizing", "to": "authenticated"},
+        {"entity": "auth_server", "from": "issuing", "to": "ready"}
+      ]
+    },
+    {
+      "from": "client",
+      "to": "resource_server",
+      "action": "api_request",
+      "label": "API Request (Bearer token)",
+      "mode": "request",
+      "phase": "resource_access"
+    },
+    {
+      "from": "resource_server",
+      "to": "client",
+      "action": "api_response",
+      "label": "Protected Resource",
+      "mode": "response",
+      "phase": "resource_access"
+    }
+  ]
+}

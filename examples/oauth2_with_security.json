@@ -1,0 +1,231 @@
+{
+  "$schema": "../schema/pidl.schema.json",
+  "protocol": {
+    "id": "oauth2-with-security",
+    "name": "OAuth 2.0 Authorization Code Flow with Security Annotations",
+    "version": "1.0",
+    "description": "OAuth 2.0 Authorization Code Grant with trust levels and security requirements",
+    "category": "auth",
+    "references": [
+      {
+        "name": "RFC 6749 Section 4.1",
+        "url": "https://datatracker.ietf.org/doc/html/rfc6749#section-4.1"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "user",
+      "name": "Resource Owner",
+      "type": "user",
+      "description": "End user who owns the protected resources",
+      "trust_level": "untrusted"
+    },
+    {
+      "id": "browser",
+      "name": "User Agent",
+      "type": "browser",
+      "description": "User's web browser",
+      "trust_level": "untrusted"
+    },
+    {
+      "id": "client",
+      "name": "Client Application",
+      "type": "client",
+      "description": "Application requesting access to protected resources",
+      "trust_level": "semi_trusted"
+    },
+    {
+      "id": "auth_server",
+      "name": "Authorization Server",
+      "type": "authorization_server",
+      "description": "Server that authenticates the user and issues tokens",
+      "trust_level": "authoritative"
+    },
+    {
+      "id": "resource_server",
+      "name": "Resource Server",
+      "type": "resource_server",
+      "description": "Server hosting the protected resources",
+      "trust_level": "trusted"
+    }
+  ],
+  "phases": [
+    {
+      "id": "authorization",
+      "name": "Authorization",
+      "description": "User authentication and consent"
+    },
+    {
+      "id": "token_exchange",
+      "name": "Token Exchange",
+      "description": "Exchange authorization code for access token"
+    },
+    {
+      "id": "resource_access",
+      "name": "Resource Access",
+      "description": "Access protected resources using access token"
+    }
+  ],
+  "metadata": {
+    "tokens": [
+      {
+        "id": "authorization_code",
+        "name": "Authorization Code",
+        "type": "opaque",
+        "issuer": "auth_server",
+        "audience": "auth_server",
+        "binding": "bearer",
+        "description": "Short-lived code exchanged for tokens"
+      },
+      {
+        "id": "access_token",
+        "name": "Access Token",
+        "type": "jwt",
+        "issuer": "auth_server",
+        "audience": "resource_server",
+        "binding": "bearer",
+        "description": "Token for accessing protected resources"
+      },
+      {
+        "id": "refresh_token",
+        "name": "Refresh Token",
+        "type": "opaque",
+        "issuer": "auth_server",
+        "audience": "auth_server",
+        "binding": "bearer",
+        "description": "Long-lived token for obtaining new access tokens"
+      }
+    ]
+  },
+  "flows": [
+    {
+      "from": "user",
+      "to": "client",
+      "action": "initiate_login",
+      "label": "Click Login",
+      "mode": "interactive",
+      "phase": "authorization"
+    },
+    {
+      "from": "client",
+      "to": "browser",
+      "action": "redirect_to_auth",
+      "label": "Redirect to Authorization Server",
+      "mode": "redirect",
+      "phase": "authorization",
+      "security": {
+        "requires": ["encryption"],
+        "description": "HTTPS redirect with state parameter"
+      }
+    },
+    {
+      "from": "browser",
+      "to": "auth_server",
+      "action": "authorization_request",
+      "label": "GET /authorize?response_type=code&client_id=...&redirect_uri=...&scope=...",
+      "mode": "request",
+      "phase": "authorization",
+      "security": {
+        "requires": ["encryption"],
+        "description": "TLS-protected authorization request"
+      }
+    },
+    {
+      "from": "auth_server",
+      "to": "user",
+      "action": "login_prompt",
+      "label": "Login + Consent Form",
+      "mode": "interactive",
+      "phase": "authorization"
+    },
+    {
+      "from": "user",
+      "to": "auth_server",
+      "action": "authenticate",
+      "label": "Submit Credentials + Grant Consent",
+      "mode": "interactive",
+      "phase": "authorization",
+      "security": {
+        "requires": ["encryption"],
+        "confidential": true,
+        "description": "User credentials transmitted securely"
+      }
+    },
+    {
+      "from": "auth_server",
+      "to": "browser",
+      "action": "authorization_response",
+      "label": "Redirect to redirect_uri?code=...&state=...",
+      "mode": "redirect",
+      "phase": "authorization",
+      "security": {
+        "token": "authorization_code",
+        "description": "Authorization code in redirect"
+      }
+    },
+    {
+      "from": "browser",
+      "to": "client",
+      "action": "callback",
+      "label": "Callback with Authorization Code",
+      "mode": "callback",
+      "phase": "authorization",
+      "security": {
+        "token": "authorization_code",
+        "requires": ["encryption"]
+      }
+    },
+    {
+      "from": "client",
+      "to": "auth_server",
+      "action": "token_request",
+      "label": "POST /token (grant_type=authorization_code&code=...)",
+      "mode": "request",
+      "phase": "token_exchange",
+      "security": {
+        "token": "authorization_code",
+        "requires": ["encryption", "signature"],
+        "confidential": true,
+        "description": "Token endpoint requires client authentication"
+      }
+    },
+    {
+      "from": "auth_server",
+      "to": "client",
+      "action": "token_response",
+      "label": "Access Token + Refresh Token",
+      "mode": "response",
+      "phase": "token_exchange",
+      "security": {
+        "requires": ["encryption"],
+        "confidential": true,
+        "description": "Tokens transmitted securely"
+      }
+    },
+    {
+      "from": "client",
+      "to": "resource_server",
+      "action": "api_request",
+      "label": "API Request (Authorization: Bearer <token>)",
+      "mode": "request",
+      "phase": "resource_access",
+      "security": {
+        "token": "access_token",
+        "requires": ["token", "encryption"],
+        "description": "Bearer token in Authorization header"
+      }
+    },
+    {
+      "from": "resource_server",
+      "to": "client",
+      "action": "api_response",
+      "label": "Protected Resource",
+      "mode": "response",
+      "phase": "resource_access",
+      "security": {
+        "requires": ["encryption"]
+      }
+    }
+  ]
+}
