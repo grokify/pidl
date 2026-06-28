@@ -1322,6 +1322,11 @@
 </thead>
 <tbody>
 <tr>
+<td>v0.10.0</td>
+<td>2026-06-28</td>
+<td>Protocol diff, trace visualization, debugger, security analysis</td>
+</tr>
+<tr>
 <td>v0.3.0</td>
 <td>2025-05-18</td>
 <td>SVG rendering, animations, templates, network boundaries</td>
@@ -1407,7 +1412,7 @@
 </ul>
 <hr />
 <h2 id="future-phases">Future Phases<a class="headerlink" href="#future-phases" title="Permanent link">&para;</a></h2>
-<h3 id="phase-8-protocol-roles-deployment-architecture-v070">Phase 8: Protocol Roles &amp; Deployment Architecture (v0.7.0) 🚧<a class="headerlink" href="#phase-8-protocol-roles-deployment-architecture-v070" title="Permanent link">&para;</a></h3>
+<h3 id="phase-8-protocol-roles-deployment-architecture-v070">Phase 8: Protocol Roles &amp; Deployment Architecture ✅ (v0.7.0)<a class="headerlink" href="#phase-8-protocol-roles-deployment-architecture-v070" title="Permanent link">&para;</a></h3>
 <p><strong>Target:</strong> Enable PIDL to describe protocol roles, logical deployment components, and trust relationships for architecture documentation.</p>
 <p><strong>Use Case:</strong> OAIAF needs to document how protocols map to real-world deployments (IdP, IGA, Gateway, MCP Client, etc.) with explicit trust relationships.</p>
 <h4 id="81-data-model-types-validators">8.1 Data Model - Types &amp; Validators ✅<a class="headerlink" href="#81-data-model-types-validators" title="Permanent link">&para;</a></h4>
@@ -1777,7 +1782,7 @@
 </tr>
 </tbody>
 </table>
-<h4 id="85-new-diagram-types">8.5 New Diagram Types<a class="headerlink" href="#85-new-diagram-types" title="Permanent link">&para;</a></h4>
+<h4 id="85-new-diagram-types">8.5 New Diagram Types ✅<a class="headerlink" href="#85-new-diagram-types" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
 <tr>
@@ -1790,27 +1795,27 @@
 <tr>
 <td>Component Diagram</td>
 <td>Mermaid</td>
-<td>Done</td>
+<td>✅ Done</td>
 </tr>
 <tr>
 <td>Trust Diagram</td>
 <td>Mermaid</td>
-<td>Done</td>
+<td>✅ Done</td>
 </tr>
 <tr>
 <td>Component Diagram</td>
 <td>SVG</td>
-<td>Planned</td>
+<td>✅ Done</td>
 </tr>
 <tr>
 <td>Trust Diagram</td>
 <td>SVG</td>
-<td>Planned</td>
+<td>✅ Done</td>
 </tr>
 <tr>
 <td>Role Matrix</td>
 <td>Markdown</td>
-<td>Planned</td>
+<td>✅ Done</td>
 </tr>
 </tbody>
 </table>
@@ -1824,27 +1829,27 @@
 <tbody>
 <tr>
 <td>Mermaid component diagram (flowchart)</td>
-<td>Done</td>
+<td>✅ Done</td>
 </tr>
 <tr>
 <td>Mermaid trust diagram (flowchart)</td>
-<td>Done</td>
+<td>✅ Done</td>
 </tr>
 <tr>
 <td>SVG component diagram renderer</td>
-<td>Planned</td>
+<td>✅ Done</td>
 </tr>
 <tr>
 <td>SVG trust relationship diagram renderer</td>
-<td>Planned</td>
+<td>✅ Done</td>
 </tr>
 <tr>
 <td>Markdown role matrix generator</td>
-<td>Planned</td>
+<td>✅ Done</td>
 </tr>
 </tbody>
 </table>
-<h4 id="86-cli-enhancements">8.6 CLI Enhancements<a class="headerlink" href="#86-cli-enhancements" title="Permanent link">&para;</a></h4>
+<h4 id="86-cli-enhancements">8.6 CLI Enhancements ✅<a class="headerlink" href="#86-cli-enhancements" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
 <tr>
@@ -1855,31 +1860,31 @@
 <tbody>
 <tr>
 <td><code>pidl generate --format=component</code></td>
-<td>Done</td>
+<td>✅ Done</td>
 </tr>
 <tr>
 <td><code>pidl generate --format=trust</code></td>
-<td>Done</td>
+<td>✅ Done</td>
 </tr>
 <tr>
 <td><code>pidl generate --format=matrix</code></td>
-<td>Planned</td>
+<td>✅ Done</td>
 </tr>
 <tr>
-<td><code>pidl roles list</code></td>
-<td>Planned</td>
+<td><code>pidl roles &lt;file&gt;</code></td>
+<td>✅ Done</td>
 </tr>
 <tr>
-<td><code>pidl components list</code></td>
-<td>Planned</td>
+<td><code>pidl components &lt;file&gt;</code></td>
+<td>✅ Done</td>
 </tr>
 <tr>
-<td><code>pidl trust list</code></td>
-<td>Planned</td>
+<td><code>pidl trust &lt;file&gt;</code></td>
+<td>✅ Done</td>
 </tr>
 </tbody>
 </table>
-<h4 id="87-examples-documentation">8.7 Examples &amp; Documentation<a class="headerlink" href="#87-examples-documentation" title="Permanent link">&para;</a></h4>
+<h4 id="87-examples-documentation">8.7 Examples &amp; Documentation ✅<a class="headerlink" href="#87-examples-documentation" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
 <tr>
@@ -1890,7 +1895,7 @@
 <tbody>
 <tr>
 <td><code>examples/oaiaf_architecture.json</code> (combined roles, components, trust)</td>
-<td>Done</td>
+<td>✅ Done</td>
 </tr>
 <tr>
 <td>Update docs/index.md with new features</td>
@@ -1909,35 +1914,197 @@
 <li>[x] Consolidate write methods into <code>Protocol.WriteFile()</code></li>
 <li>[x] Remove unused <code>NewProtocol()</code> function</li>
 </ul>
-<p><strong>Deferred to future:</strong></p>
+<p><strong>Completed (deferred items):</strong></p>
 <ul>
-<li>[ ] Split <code>validate.go</code> (917 lines) into modules</li>
-<li>[ ] Move <code>SanitizeID()</code> and <code>TitleCase()</code> to cmd/pidl or unexport</li>
-<li>[ ] Add missing tests for utility functions</li>
+<li>[x] Split <code>validate.go</code> into 4 modules: validate.go (core), validate_entity.go, validate_flow.go, validate_metadata.go</li>
+<li>[x] Review <code>SanitizeID()</code> and <code>TitleCase()</code> - kept exported as useful public API (has comprehensive tests)</li>
+<li>[x] Verify utility function tests - TitleCase and SanitizeID already have tests in operations_test.go</li>
 </ul>
 <hr />
-<h3 id="phase-10-protocol-composition-v080">Phase 10: Protocol Composition (v0.8.0)<a class="headerlink" href="#phase-10-protocol-composition-v080" title="Permanent link">&para;</a></h3>
+<h3 id="phase-10-protocol-composition-v080">Phase 10: Protocol Composition ✅ (v0.8.0)<a class="headerlink" href="#phase-10-protocol-composition-v080" title="Permanent link">&para;</a></h3>
+<p><strong>Target:</strong> Enable modular protocol design with imports and inheritance.</p>
 <ul>
-<li>[ ] Import mechanism for protocol modules</li>
-<li>[ ] Protocol inheritance/extension</li>
-<li>[ ] Reusable entity definitions</li>
-<li>[ ] Standard library of common protocols</li>
+<li>[x] Import mechanism for protocol modules (<code>imports</code> field)</li>
+<li>[x] Protocol inheritance/extension (<code>extends</code> field)</li>
+<li>[x] Reusable entity definitions via imports with optional aliasing</li>
+<li>[x] Standard library of common protocols (<code>examples/stdlib/</code>)</li>
+<li>[x] Circular import/extends detection</li>
+<li>[x] CLI <code>resolve</code> command for debugging composition</li>
+<li>[x] Automatic resolution in <code>generate</code> command</li>
 </ul>
-<h3 id="phase-11-runtime-execution-engine">Phase 11: Runtime Execution Engine<a class="headerlink" href="#phase-11-runtime-execution-engine" title="Permanent link">&para;</a></h3>
+<p><strong>New Types:</strong></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ProtocolExtends</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nx">Path</span><span class="w">            </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;path&quot;`</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nx">ExcludeEntities</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;exclude_entities,omitempty&quot;`</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nx">ExcludePhases</span><span class="w">   </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;exclude_phases,omitempty&quot;`</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nx">ExcludeFlows</span><span class="w">    </span><span class="p">[]</span><span class="kt">int</span><span class="w">    </span><span class="s">`json:&quot;exclude_flows,omitempty&quot;`</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ProtocolImport</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="nx">Path</span><span class="w">         </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;path&quot;`</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="nx">Alias</span><span class="w">        </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;alias,omitempty&quot;`</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="nx">Entities</span><span class="w">     </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;entities,omitempty&quot;`</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span><span class="nx">Phases</span><span class="w">       </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;phases,omitempty&quot;`</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">    </span><span class="nx">IncludeFlows</span><span class="w"> </span><span class="kt">bool</span><span class="w">     </span><span class="s">`json:&quot;include_flows,omitempty&quot;`</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>Standard Library:</strong></p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stdlib/oauth_entities.json</code></td>
+<td>OAuth 2.0 base entities and flows</td>
+</tr>
+<tr>
+<td><code>stdlib/mcp_entities.json</code></td>
+<td>MCP base entities and flows</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CLI Commands:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pidl resolve &lt;file&gt;</code></td>
+<td>Resolve imports/extends and output merged protocol</td>
+</tr>
+<tr>
+<td><code>pidl generate --resolve</code></td>
+<td>Explicitly request resolution before generating</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-11-runtime-execution-engine-v090">Phase 11: Runtime Execution Engine ✅ (v0.9.0)<a class="headerlink" href="#phase-11-runtime-execution-engine-v090" title="Permanent link">&para;</a></h3>
+<p><strong>Target:</strong> Enable protocol simulation with state tracking and execution traces.</p>
 <ul>
-<li>[ ] Protocol Execution Engine (PEX)</li>
-<li>[ ] Event queue and execution loop</li>
-<li>[ ] State store per entity</li>
-<li>[ ] Execution trace recording</li>
-<li>[ ] Step-by-step protocol simulation</li>
+<li>[x] Protocol Execution Engine (Executor)</li>
+<li>[x] Event queue for future event-driven execution</li>
+<li>[x] State store per entity with initial state initialization</li>
+<li>[x] Execution trace recording with timestamps</li>
+<li>[x] Step-by-step protocol simulation</li>
+<li>[x] Conditional flow support with evaluator callbacks</li>
+<li>[x] State mutation validation (from state checks)</li>
+<li>[x] CLI <code>simulate</code> command with verbose and JSON output</li>
 </ul>
-<h3 id="phase-12-analysis-tooling">Phase 12: Analysis &amp; Tooling<a class="headerlink" href="#phase-12-analysis-tooling" title="Permanent link">&para;</a></h3>
+<p><strong>New Types:</strong></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Executor</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nx">Protocol</span><span class="w">           </span><span class="o">*</span><span class="nx">Protocol</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nx">ConditionEvaluator</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="o">*</span><span class="nx">ExecutionContext</span><span class="p">,</span><span class="w"> </span><span class="nx">flow</span><span class="w"> </span><span class="o">*</span><span class="nx">Flow</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">}</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ExecutionContext</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="nx">Protocol</span><span class="w">     </span><span class="o">*</span><span class="nx">Protocol</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="nx">EntityStates</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="nx">FlowIndex</span><span class="w">    </span><span class="kt">int</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="nx">Trace</span><span class="w">        </span><span class="o">*</span><span class="nx">ExecutionTrace</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="nx">Completed</span><span class="w">    </span><span class="kt">bool</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">}</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ExecutionTrace</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="nx">ProtocolID</span><span class="w">    </span><span class="kt">string</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="nx">Steps</span><span class="w">         </span><span class="p">[]</span><span class="nx">ExecutionStep</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="nx">InitialStates</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="nx">FinalStates</span><span class="w">   </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">    </span><span class="nx">Duration</span><span class="p">()</span><span class="w">    </span><span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>CLI Commands:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pidl simulate &lt;file&gt;</code></td>
+<td>Run full protocol simulation</td>
+</tr>
+<tr>
+<td><code>pidl simulate -steps=N &lt;file&gt;</code></td>
+<td>Run N steps only</td>
+</tr>
+<tr>
+<td><code>pidl simulate -v &lt;file&gt;</code></td>
+<td>Verbose output with each step</td>
+</tr>
+<tr>
+<td><code>pidl simulate -json &lt;file&gt;</code></td>
+<td>Output trace as JSON</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-12-analysis-tooling-v0100">Phase 12: Analysis &amp; Tooling ✅ (v0.10.0)<a class="headerlink" href="#phase-12-analysis-tooling-v0100" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] Protocol comparison (diff two protocols)</li>
-<li>[ ] Execution trace visualization</li>
-<li>[ ] Interactive protocol debugger</li>
-<li>[ ] Attack surface analysis</li>
+<li>[x] Protocol comparison (diff two protocols)</li>
+<li>[x] Execution trace visualization</li>
+<li>[x] Interactive protocol debugger</li>
+<li>[x] Attack surface analysis</li>
 </ul>
+<p><strong>New Types &amp; Commands:</strong></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// Protocol Comparison</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ProtocolDiff</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nx">Items</span><span class="w">   </span><span class="p">[]</span><span class="nx">DiffItem</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nx">Summary</span><span class="w"> </span><span class="nx">DiffSummary</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">}</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1">// Trace Visualization</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="kd">type</span><span class="w"> </span><span class="nx">TraceRenderer</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="nx">ShowStates</span><span class="p">,</span><span class="w"> </span><span class="nx">ShowTimings</span><span class="p">,</span><span class="w"> </span><span class="nx">HighlightSkipped</span><span class="w"> </span><span class="kt">bool</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">}</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="c1">// Interactive Debugger</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="kd">type</span><span class="w"> </span><span class="nx">DebugSession</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">    </span><span class="nx">Executor</span><span class="w">    </span><span class="o">*</span><span class="nx">Executor</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="nx">Breakpoints</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">int</span><span class="p">]</span><span class="o">*</span><span class="nx">Breakpoint</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="p">}</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="c1">// Security Analysis</span>
+</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="kd">type</span><span class="w"> </span><span class="nx">SecurityAnalysis</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">    </span><span class="nx">Risks</span><span class="w">   </span><span class="p">[]</span><span class="nx">SecurityRisk</span>
+</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="w">    </span><span class="nx">Summary</span><span class="w"> </span><span class="nx">SecuritySummary</span>
+</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>CLI Commands:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pidl diff &lt;base&gt; &lt;new&gt;</code></td>
+<td>Compare two protocols</td>
+</tr>
+<tr>
+<td><code>pidl simulate --trace-format=svg</code></td>
+<td>Render execution trace as SVG</td>
+</tr>
+<tr>
+<td><code>pidl debug &lt;file&gt;</code></td>
+<td>Interactive step-through debugger</td>
+</tr>
+<tr>
+<td><code>pidl analyze &lt;file&gt;</code></td>
+<td>Security analysis with risk identification</td>
+</tr>
+</tbody>
+</table>
 <h3 id="phase-13-integrations">Phase 13: Integrations<a class="headerlink" href="#phase-13-integrations" title="Permanent link">&para;</a></h3>
 <ul>
 <li>[ ] VS Code extension (syntax highlighting, preview)</li>
