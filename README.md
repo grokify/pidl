@@ -242,6 +242,22 @@ Components group entities into logical deployment units:
 
 ### Edges
 
+PIDL supports two types of edges: **protocol flows** (sequential actions) and **trust relationships** (static trust).
+
+#### Protocol Flows (Sequential Actions)
+
+Flows are ordered interactions between entities that define protocol choreography. They are the primary edge type and generate sequence diagrams.
+
+| Field | Description |
+|-------|-------------|
+| `from` | Source entity ID |
+| `to` | Target entity ID |
+| `action` | Action identifier |
+| `mode` | Flow type: `request`, `response`, `redirect`, `callback`, `event`, `tool_call`, `tool_result` |
+| `phase` | Optional phase grouping |
+| `condition` | Optional conditional execution |
+| `alternatives` | Optional alternative paths |
+
 #### Protocols
 
 Protocols define the interaction patterns between entities:
@@ -287,6 +303,44 @@ Credentials exchanged in trust relationships:
 | `aa_auth_jwt` | AAuth Authorization JWT | AAuth |
 | `mtls` | Mutual TLS certificate | mTLS |
 | `api_key` | API key | Various |
+
+### Diagram Outputs
+
+PIDL generates multiple diagram types from the same protocol definition:
+
+| Diagram Type | Format | Source Data | Description |
+|--------------|--------|-------------|-------------|
+| **Sequence Diagram** | `plantuml`, `mermaid`, `d2`, `svg`, `svg-animated` | Flows | Shows ordered interactions between entities |
+| **Data Flow Diagram** | `dot`, `d2-flow` | Flows | Shows data movement between entities |
+| **Architecture Diagram** | `d2-arch` | Entities, Flows | Shows system architecture |
+| **Network Diagram** | `svg-network` | Entities, Trust Levels | Shows network boundaries and trust zones |
+| **State Diagram** | `mermaid-state` | Entity States, Flows | Shows entity state machines |
+| **Component Diagram** | (planned) | Components | Shows logical deployment units |
+| **Trust Diagram** | (planned) | Trust Relations | Shows trust relationships between entities |
+
+#### Diagram Generation
+
+```bash
+# Sequence diagrams (from flows)
+pidl generate -f plantuml protocol.json    # PlantUML
+pidl generate -f mermaid protocol.json     # Mermaid
+pidl generate -f svg protocol.json         # SVG
+pidl generate -f svg-animated protocol.json # Animated SVG
+
+# Data flow diagrams (from flows)
+pidl generate -f dot protocol.json         # Graphviz DOT
+pidl generate -f d2-flow protocol.json     # D2 flow
+
+# Architecture diagrams (from entities + flows)
+pidl generate -f d2-arch protocol.json     # D2 architecture
+
+# Network diagrams (from entities + trust levels)
+pidl generate -f svg-network protocol.json # Network boundaries
+
+# State diagrams (from entity states + flow mutations)
+pidl generate -f mermaid-state protocol.json           # All entities
+pidl generate -f mermaid-state --entity=client protocol.json  # Single entity
+```
 
 ### Flow Modes
 
