@@ -89,20 +89,20 @@ Protocol Interaction Description Language - a JSON-based DSL for describing prot
 
 **Use Case:** OAIAF needs to document how protocols map to real-world deployments (IdP, IGA, Gateway, MCP Client, etc.) with explicit trust relationships.
 
-#### 8.1 Data Model - Types & Validators
+#### 8.1 Data Model - Types & Validators ✅
 
 | Task | Status |
 |------|--------|
-| Add `ProtocolRole` type with Protocol, Role, Variant fields | Planned |
-| Add `protocol_roles` field to Entity | Planned |
-| Add `DeploymentComponent` type | Planned |
-| Add `components` field to ProtocolMetadata | Planned |
-| Add `TrustRelationship` type | Planned |
-| Add `trust_relations` field to ProtocolMetadata | Planned |
-| Add `IsValidProtocol()` validator | Planned |
-| Add `IsValidComponentType()` validator | Planned |
-| Add `IsValidTrustRelationType()` validator | Planned |
-| Add `IsValidCredential()` validator | Planned |
+| Add `ProtocolRole` type with Protocol, Role, Variant fields | Done |
+| Add `protocol_roles` field to Entity | Done |
+| Add `DeploymentComponent` type | Done |
+| Add `components` field to ProtocolMetadata | Done |
+| Add `TrustRelationship` type | Done |
+| Add `trust_relations` field to ProtocolMetadata | Done |
+| Add `IsValidProtocol()` validator | Done |
+| Add `IsValidComponentType()` validator | Done |
+| Add `IsValidTrustRelationType()` validator | Done |
+| Add `IsValidCredential()` validator | Done |
 
 **ProtocolRole Type:**
 
@@ -200,16 +200,17 @@ type TrustRelationship struct {
 | `mtls` | Mutual TLS |
 | `api_key` | API key |
 
-#### 8.3 Validation
+#### 8.3 Validation ✅
 
 | Task | Status |
 |------|--------|
-| Validate protocol/role combinations | Planned |
-| Validate entity references in components | Planned |
-| Validate entity/component references in trust relations | Planned |
-| Update JSON Schema | Planned |
+| Validate protocol/role combinations | Done |
+| Validate entity references in components | Done |
+| Validate entity/component references in trust relations | Done |
+| Validate credential types in trust relations | Done |
+| Update JSON Schema | Done |
 
-#### 8.4 Protocol Query Methods
+#### 8.4 Protocol Query Methods ✅
 
 | Task | Status |
 |------|--------|
@@ -217,31 +218,41 @@ type TrustRelationship struct {
 | `Protocol.EntitiesInComponent(id)` | Done |
 | `Protocol.TrustRelationsFrom(id)` | Done |
 | `Protocol.TrustRelationsTo(id)` | Done |
-| `Protocol.EntityRoles(entityID)` - get roles for entity | Planned |
-| `Protocol.EntitiesByRole(protocol, role)` - find entities by role | Planned |
+| `Protocol.EntitiesByRole(protocol, role)` | Done |
+| `Protocol.EntitiesByProtocol(protocol)` | Done |
+| `Protocol.EntitiesWithProtocolRoles()` | Done |
+| `Protocol.ComponentByID(id)` | Done |
+| `Protocol.ComponentForEntity(entityID)` | Done |
+| `Protocol.TrustRelationByID(id)` | Done |
+| `Protocol.TrustRelationsByType(type)` | Done |
+| `Protocol.AllProtocols()` | Done |
+| `Protocol.AllComponentTypes()` | Done |
+| `Protocol.AllTrustRelationTypes()` | Done |
 
 #### 8.5 New Diagram Types
 
 | Diagram Type | Output | Status |
 |--------------|--------|--------|
-| Component Diagram | SVG, Mermaid | Planned |
-| Trust Diagram | SVG, Mermaid | Planned |
+| Component Diagram | Mermaid | Done |
+| Trust Diagram | Mermaid | Done |
+| Component Diagram | SVG | Planned |
+| Trust Diagram | SVG | Planned |
 | Role Matrix | Markdown | Planned |
 
 | Task | Status |
 |------|--------|
+| Mermaid component diagram (flowchart) | Done |
+| Mermaid trust diagram (flowchart) | Done |
 | SVG component diagram renderer | Planned |
 | SVG trust relationship diagram renderer | Planned |
-| Mermaid component diagram (flowchart) | Planned |
-| Mermaid trust diagram (flowchart) | Planned |
 | Markdown role matrix generator | Planned |
 
 #### 8.6 CLI Enhancements
 
 | Task | Status |
 |------|--------|
-| `pidl generate --format=component` | Planned |
-| `pidl generate --format=trust` | Planned |
+| `pidl generate --format=component` | Done |
+| `pidl generate --format=trust` | Done |
 | `pidl generate --format=matrix` | Planned |
 | `pidl roles list` | Planned |
 | `pidl components list` | Planned |
@@ -251,9 +262,7 @@ type TrustRelationship struct {
 
 | Task | Status |
 |------|--------|
-| `examples/oaiaf-roles.json` | Planned |
-| `examples/oaiaf-components.json` | Planned |
-| `examples/oaiaf-trust.json` | Planned |
+| `examples/oaiaf_architecture.json` (combined roles, components, trust) | Done |
 | Update docs/index.md with new features | Planned |
 
 ---
