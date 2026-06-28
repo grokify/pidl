@@ -125,7 +125,7 @@ Options:
 
 func cmdGenerate(args []string) {
 	fs := flag.NewFlagSet("generate", flag.ExitOnError)
-	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network")
+	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
 	templateDir := fs.String("template-dir", "", "Path to custom SVG template directory")
@@ -145,16 +145,18 @@ Options:
 		fs.PrintDefaults()
 		fmt.Print(`
 Formats:
-  plantuml, puml   PlantUML sequence diagram
-  mermaid, mmd     Mermaid sequence diagram
-  mermaid-state    Mermaid state diagram (requires entity states)
-  dot, graphviz    Graphviz DOT data flow diagram
-  d2               D2 sequence diagram
-  d2-flow          D2 data flow diagram
-  d2-arch          D2 architecture diagram
-  svg              SVG sequence diagram
-  svg-animated     Animated SVG with flow dots
-  svg-network      Network boundary diagram
+  plantuml, puml     PlantUML sequence diagram
+  mermaid, mmd       Mermaid sequence diagram
+  mermaid-state      Mermaid state diagram (requires entity states)
+  mermaid-component  Mermaid deployment component diagram
+  mermaid-trust      Mermaid trust relationship diagram
+  dot, graphviz      Graphviz DOT data flow diagram
+  d2                 D2 sequence diagram
+  d2-flow            D2 data flow diagram
+  d2-arch            D2 architecture diagram
+  svg                SVG sequence diagram
+  svg-animated       Animated SVG with flow dots
+  svg-network        Network boundary diagram
 
 SVG Templates:
   default          Clean, professional styling
