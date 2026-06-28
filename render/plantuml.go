@@ -10,38 +10,18 @@ import (
 
 // PlantUMLRenderer renders PIDL protocols as PlantUML sequence diagrams.
 type PlantUMLRenderer struct {
-	// Title includes the protocol name as diagram title.
-	Title bool
+	// SequenceRenderOptions contains common sequence diagram options.
+	SequenceRenderOptions
 
 	// ShowDescriptions includes flow descriptions as notes.
 	ShowDescriptions bool
-
-	// ShowNotes renders flow notes as PlantUML notes.
-	ShowNotes bool
-
-	// ShowAnnotations renders flow annotations as notes with type prefixes.
-	ShowAnnotations bool
-
-	// ShowConditions wraps conditional flows in opt blocks.
-	ShowConditions bool
-
-	// ShowAlternatives renders alternative paths as alt/else blocks.
-	ShowAlternatives bool
-
-	// ShowSecurity renders security requirement notes.
-	ShowSecurity bool
 }
 
 // NewPlantUML creates a new PlantUML renderer with default options.
 func NewPlantUML() *PlantUMLRenderer {
 	return &PlantUMLRenderer{
-		Title:            true,
-		ShowDescriptions: false,
-		ShowNotes:        true,
-		ShowAnnotations:  true,
-		ShowConditions:   true,
-		ShowAlternatives: true,
-		ShowSecurity:     true,
+		SequenceRenderOptions: DefaultSequenceRenderOptions(),
+		ShowDescriptions:      false,
 	}
 }
 

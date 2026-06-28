@@ -12,6 +12,9 @@ import (
 
 // SVGRenderer renders PIDL protocols as SVG sequence diagrams.
 type SVGRenderer struct {
+	// SequenceRenderOptions contains common sequence diagram options.
+	SequenceRenderOptions
+
 	// Animated enables CSS animations (moving dots along message lines).
 	// This is used by FormatSVGAnimated.
 	Animated bool
@@ -19,23 +22,11 @@ type SVGRenderer struct {
 	// Theme selects the color scheme ("light", "dark", "auto").
 	Theme string
 
-	// Title includes the protocol name in the diagram.
-	Title bool
-
-	// ShowNotes renders flow notes.
-	ShowNotes bool
-
 	// ShowStepNumbers shows step numbers on messages.
 	ShowStepNumbers bool
 
 	// ShowPhases renders phase boxes around grouped flows.
 	ShowPhases bool
-
-	// ShowAlternatives renders alternative flow indicators.
-	ShowAlternatives bool
-
-	// ShowSecurity renders security requirement badges on flows.
-	ShowSecurity bool
 
 	// ParticipantSpacing sets horizontal spacing between participants.
 	ParticipantSpacing int
@@ -62,18 +53,15 @@ type SVGRenderer struct {
 // NewSVG creates a new SVG renderer with default options.
 func NewSVG() *SVGRenderer {
 	return &SVGRenderer{
-		Animated:           false,
-		Theme:              "light",
-		Title:              true,
-		ShowNotes:          true,
-		ShowStepNumbers:    true,
-		ShowPhases:         true,
-		ShowAlternatives:   true,
-		ShowSecurity:       true,
-		ParticipantSpacing: 0, // 0 means use default
-		MessageSpacing:     0, // 0 means use default
-		AnimationConfig:    svg.DefaultAnimationConfig(),
-		layoutConfig:       svg.DefaultLayoutConfig(),
+		SequenceRenderOptions: DefaultSequenceRenderOptions(),
+		Animated:              false,
+		Theme:                 "light",
+		ShowStepNumbers:       true,
+		ShowPhases:            true,
+		ParticipantSpacing:    0, // 0 means use default
+		MessageSpacing:        0, // 0 means use default
+		AnimationConfig:       svg.DefaultAnimationConfig(),
+		layoutConfig:          svg.DefaultLayoutConfig(),
 	}
 }
 

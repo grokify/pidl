@@ -22,70 +22,46 @@ const (
 
 // D2Renderer renders PIDL protocols as D2 diagrams.
 type D2Renderer struct {
+	// SequenceRenderOptions contains common sequence diagram options.
+	SequenceRenderOptions
+
 	// Style determines the diagram style (sequence, flow, or arch).
 	Style D2Style
-
-	// Title includes the protocol name as diagram title.
-	Title bool
 
 	// ShowDescriptions includes flow descriptions as tooltips.
 	ShowDescriptions bool
 
 	// Direction sets the diagram direction (down, right, left, up).
 	Direction string
-
-	// ShowNotes renders flow notes as D2 notes/labels.
-	ShowNotes bool
-
-	// ShowAnnotations renders flow annotations.
-	ShowAnnotations bool
-
-	// ShowConditions indicates conditional flows.
-	ShowConditions bool
-
-	// ShowAlternatives renders alternative paths.
-	ShowAlternatives bool
 }
 
 // NewD2 creates a new D2 renderer with default options (sequence diagram).
 func NewD2() *D2Renderer {
 	return &D2Renderer{
-		Style:            D2StyleSequence,
-		Title:            true,
-		ShowDescriptions: false,
-		Direction:        "right",
-		ShowNotes:        true,
-		ShowAnnotations:  true,
-		ShowConditions:   true,
-		ShowAlternatives: true,
+		SequenceRenderOptions: DefaultSequenceRenderOptions(),
+		Style:                 D2StyleSequence,
+		ShowDescriptions:      false,
+		Direction:             "right",
 	}
 }
 
 // NewD2Flow creates a new D2 renderer for data flow diagrams.
 func NewD2Flow() *D2Renderer {
 	return &D2Renderer{
-		Style:            D2StyleFlow,
-		Title:            true,
-		ShowDescriptions: false,
-		Direction:        "right",
-		ShowNotes:        true,
-		ShowAnnotations:  true,
-		ShowConditions:   true,
-		ShowAlternatives: true,
+		SequenceRenderOptions: DefaultSequenceRenderOptions(),
+		Style:                 D2StyleFlow,
+		ShowDescriptions:      false,
+		Direction:             "right",
 	}
 }
 
 // NewD2Arch creates a new D2 renderer for architecture diagrams.
 func NewD2Arch() *D2Renderer {
 	return &D2Renderer{
-		Style:            D2StyleArch,
-		Title:            true,
-		ShowDescriptions: false,
-		Direction:        "right",
-		ShowNotes:        true,
-		ShowAnnotations:  true,
-		ShowConditions:   true,
-		ShowAlternatives: true,
+		SequenceRenderOptions: DefaultSequenceRenderOptions(),
+		Style:                 D2StyleArch,
+		ShowDescriptions:      false,
+		Direction:             "right",
 	}
 }
 

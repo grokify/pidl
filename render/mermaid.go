@@ -10,38 +10,18 @@ import (
 
 // MermaidRenderer renders PIDL protocols as Mermaid sequence diagrams.
 type MermaidRenderer struct {
-	// Title includes the protocol name as diagram title.
-	Title bool
+	// SequenceRenderOptions contains common sequence diagram options.
+	SequenceRenderOptions
 
 	// Autonumber adds sequence numbers to messages.
 	Autonumber bool
-
-	// ShowNotes renders flow notes as Mermaid notes.
-	ShowNotes bool
-
-	// ShowAnnotations renders flow annotations as notes with type prefixes.
-	ShowAnnotations bool
-
-	// ShowConditions wraps conditional flows in opt blocks.
-	ShowConditions bool
-
-	// ShowAlternatives renders alternative paths as alt/else blocks.
-	ShowAlternatives bool
-
-	// ShowSecurity renders security requirement notes.
-	ShowSecurity bool
 }
 
 // NewMermaid creates a new Mermaid renderer with default options.
 func NewMermaid() *MermaidRenderer {
 	return &MermaidRenderer{
-		Title:            true,
-		Autonumber:       true,
-		ShowNotes:        true,
-		ShowAnnotations:  true,
-		ShowConditions:   true,
-		ShowAlternatives: true,
-		ShowSecurity:     true,
+		SequenceRenderOptions: DefaultSequenceRenderOptions(),
+		Autonumber:            true,
 	}
 }
 

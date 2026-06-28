@@ -97,6 +97,40 @@ type Renderer interface {
 	Format() Format
 }
 
+// SequenceRenderOptions contains common options for sequence diagram renderers.
+// Renderers can embed this struct to get standard options.
+type SequenceRenderOptions struct {
+	// Title includes the protocol name as diagram title.
+	Title bool
+
+	// ShowNotes renders flow notes.
+	ShowNotes bool
+
+	// ShowAnnotations renders flow annotations.
+	ShowAnnotations bool
+
+	// ShowConditions wraps conditional flows in opt blocks.
+	ShowConditions bool
+
+	// ShowAlternatives renders alternative paths.
+	ShowAlternatives bool
+
+	// ShowSecurity renders security requirement notes/badges.
+	ShowSecurity bool
+}
+
+// DefaultSequenceRenderOptions returns the default sequence render options.
+func DefaultSequenceRenderOptions() SequenceRenderOptions {
+	return SequenceRenderOptions{
+		Title:            true,
+		ShowNotes:        true,
+		ShowAnnotations:  true,
+		ShowConditions:   true,
+		ShowAlternatives: true,
+		ShowSecurity:     true,
+	}
+}
+
 // New creates a Renderer for the specified format.
 func New(format Format) (Renderer, error) {
 	switch format {
