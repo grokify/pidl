@@ -26,6 +26,30 @@ type ProtocolMetadata struct {
 	Networks map[string]*NetworkConfig `json:"networks,omitempty"`
 	// NetworkLayout configures network diagram layout.
 	NetworkLayout *NetworkLayoutConfig `json:"network_layout,omitempty"`
+	// Tokens defines token types used in the protocol.
+	Tokens []TokenDefinition `json:"tokens,omitempty"`
+	// Components defines logical deployment components.
+	Components []DeploymentComponent `json:"components,omitempty"`
+	// TrustRelations defines trust relationships between entities or components.
+	TrustRelations []TrustRelationship `json:"trust_relations,omitempty"`
+}
+
+// TokenDefinition describes a token type used in the protocol.
+type TokenDefinition struct {
+	// ID is the unique identifier for this token definition.
+	ID string `json:"id"`
+	// Name is the human-readable display name.
+	Name string `json:"name,omitempty"`
+	// Type is the token type: jwt, opaque, saml, api_key.
+	Type string `json:"type,omitempty"`
+	// Issuer is the entity ID that issues this token.
+	Issuer string `json:"issuer,omitempty"`
+	// Audience is the entity ID that consumes this token.
+	Audience string `json:"audience,omitempty"`
+	// Binding is the token binding method: bearer, mtls, dpop.
+	Binding string `json:"binding,omitempty"`
+	// Description provides additional context.
+	Description string `json:"description,omitempty"`
 }
 
 // NetworkConfig defines a network boundary.
@@ -91,6 +115,122 @@ const (
 	CategoryOther        Category = "other"
 )
 
+// TrustLevel represents the trust classification of an entity.
+type TrustLevel string
+
+const (
+	// TrustLevelTrusted is for fully trusted internal systems.
+	TrustLevelTrusted TrustLevel = "trusted"
+	// TrustLevelSemiTrusted is for partially trusted systems (DMZ, partners).
+	TrustLevelSemiTrusted TrustLevel = "semi_trusted"
+	// TrustLevelUntrusted is for external/public systems.
+	TrustLevelUntrusted TrustLevel = "untrusted"
+	// TrustLevelAuthoritative is for sources of truth (IdPs, CAs).
+	TrustLevelAuthoritative TrustLevel = "authoritative"
+)
+
+// ProtocolRole defines a protocol-specific role that an entity implements.
+type ProtocolRole struct {
+	// Protocol is the protocol identifier (e.g., "oauth", "scim", "aauth", "authzen", "mcp", "a2a", "spiffe").
+	Protocol string `json:"protocol"`
+	// Role is the role within that protocol (e.g., "authorization_server", "client", "pep", "pdp").
+	Role string `json:"role"`
+	// Variant is an optional sub-role or variant (e.g., "person_server" vs "access_server" for AAuth).
+	Variant string `json:"variant,omitempty"`
+	// Description provides additional context.
+	Description string `json:"description,omitempty"`
+}
+
+// Protocol identifier constants.
+const (
+	ProtocolOAuth   = "oauth"
+	ProtocolSCIM    = "scim"
+	ProtocolSPIFFE  = "spiffe"
+	ProtocolAAuth   = "aauth"
+	ProtocolIDJAG   = "idjag"
+	ProtocolAuthZEN = "authzen"
+	ProtocolMCP     = "mcp"
+	ProtocolA2A     = "a2a"
+)
+
+// DeploymentComponent defines a logical deployment component that groups entities.
+type DeploymentComponent struct {
+	// ID is the unique identifier for this component.
+	ID string `json:"id"`
+	// Name is the human-readable display name.
+	Name string `json:"name"`
+	// Type classifies the component (e.g., "idp", "iga", "gateway", "mcp_client").
+	Type string `json:"type"`
+	// Description provides additional context.
+	Description string `json:"description,omitempty"`
+	// Entities lists the entity IDs contained in this component.
+	Entities []string `json:"entities,omitempty"`
+	// Implements lists the protocol roles this component implements.
+	Implements []ProtocolRole `json:"implements,omitempty"`
+	// Examples lists real-world products that represent this component type.
+	Examples []string `json:"examples,omitempty"`
+}
+
+// Component type constants.
+const (
+	ComponentTypeIdP           = "idp"
+	ComponentTypeIGA           = "iga"
+	ComponentTypeAgentProvider = "agent_provider"
+	ComponentTypePersonServer  = "person_server"
+	ComponentTypeAccessServer  = "access_server"
+	ComponentTypePDP           = "pdp"
+	ComponentTypeGateway       = "gateway"
+	ComponentTypeMCPClient     = "mcp_client"
+	ComponentTypeMCPServer     = "mcp_server"
+	ComponentTypeResourceAPI   = "resource_api"
+	ComponentTypeSPIRE         = "spire"
+)
+
+// TrustRelationship defines a trust relationship between entities or components.
+type TrustRelationship struct {
+	// ID is an optional unique identifier for this relationship.
+	ID string `json:"id,omitempty"`
+	// From is the source entity or component ID.
+	From string `json:"from"`
+	// To is the target entity or component ID.
+	To string `json:"to"`
+	// Type is the relationship type (e.g., "authenticates", "validates", "delegates").
+	Type string `json:"type"`
+	// Credentials lists what credentials are exchanged in this relationship.
+	Credentials []string `json:"credentials,omitempty"`
+	// Mutual indicates if this is a bidirectional trust (e.g., mTLS).
+	Mutual bool `json:"mutual,omitempty"`
+	// Description provides additional context.
+	Description string `json:"description,omitempty"`
+}
+
+// Trust relationship type constants.
+const (
+	TrustTypeAuthenticates = "authenticates"
+	TrustTypeValidates     = "validates"
+	TrustTypeDelegates     = "delegates"
+	TrustTypeAuthorizes    = "authorizes"
+	TrustTypeIssues        = "issues"
+	TrustTypeTrusts        = "trusts"
+	TrustTypeProvisions    = "provisions"
+	TrustTypeAttests       = "attests"
+)
+
+// Credential type constants.
+//
+//nolint:gosec // G101 false positive - these are credential type identifiers, not actual credentials
+const (
+	CredentialX509SVID     = "x509_svid"
+	CredentialJWTSVID      = "jwt_svid"
+	CredentialJWTAssertion = "jwt_assertion"
+	CredentialAccessToken  = "access_token"
+	CredentialIDToken      = "id_token"
+	CredentialAAAgentJWT   = "aa_agent_jwt"
+	CredentialAAAuthJWT    = "aa_auth_jwt"
+	CredentialMTLS         = "mtls"
+	CredentialAPIKey       = "api_key"
+)
+
 // Entity represents a participant in the protocol.
 type Entity struct {
 	// ID is the unique identifier used in flow references.
@@ -105,8 +245,35 @@ type Entity struct {
 	// Description of the entity's role.
 	Description string `json:"description,omitempty"`
 
+	// TrustLevel classifies the trust level of this entity.
+	TrustLevel TrustLevel `json:"trust_level,omitempty"`
+
 	// Metadata contains additional entity properties for rendering.
 	Metadata *EntityMetadata `json:"metadata,omitempty"`
+
+	// States defines the possible states for this entity.
+	States []EntityState `json:"states,omitempty"`
+
+	// ProtocolRoles defines the protocol-specific roles this entity implements.
+	ProtocolRoles []ProtocolRole `json:"protocol_roles,omitempty"`
+}
+
+// EntityState represents a possible state for an entity.
+type EntityState struct {
+	// ID is the unique identifier for this state within the entity.
+	ID string `json:"id"`
+
+	// Name is the human-readable display name.
+	Name string `json:"name,omitempty"`
+
+	// Description provides additional context.
+	Description string `json:"description,omitempty"`
+
+	// Initial marks this as the initial state.
+	Initial bool `json:"initial,omitempty"`
+
+	// Final marks this as a terminal/final state.
+	Final bool `json:"final,omitempty"`
 }
 
 // EntityMetadata contains additional entity properties.
@@ -187,6 +354,34 @@ type Alternative struct {
 	Description string `json:"description,omitempty"`
 }
 
+// SecurityRequirement represents a security mechanism required for a flow.
+type SecurityRequirement string
+
+const (
+	// SecurityRequirementToken requires a bearer or bound token.
+	SecurityRequirementToken SecurityRequirement = "token"
+	// SecurityRequirementSignature requires message signing.
+	SecurityRequirementSignature SecurityRequirement = "signature"
+	// SecurityRequirementEncryption requires message encryption.
+	SecurityRequirementEncryption SecurityRequirement = "encryption"
+	// SecurityRequirementMTLS requires mutual TLS authentication.
+	SecurityRequirementMTLS SecurityRequirement = "mtls"
+	// SecurityRequirementMAC requires message authentication code.
+	SecurityRequirementMAC SecurityRequirement = "mac"
+)
+
+// FlowSecurity describes security requirements for a flow.
+type FlowSecurity struct {
+	// Requires lists security mechanisms required for this flow.
+	Requires []SecurityRequirement `json:"requires,omitempty"`
+	// Token is the token definition ID used for this flow.
+	Token string `json:"token,omitempty"`
+	// Confidential indicates if the flow carries sensitive data.
+	Confidential bool `json:"confidential,omitempty"`
+	// Description provides additional security context.
+	Description string `json:"description,omitempty"`
+}
+
 // Flow represents an interaction between two entities.
 type Flow struct {
 	// From is the source entity ID.
@@ -228,6 +423,24 @@ type Flow struct {
 	// Animation configures animation for this flow in animated SVG output.
 	// Can be a string (preset name) or FlowAnimation object.
 	Animation *FlowAnimation `json:"animation,omitempty"`
+
+	// Sets defines state mutations that occur when this flow executes.
+	Sets []StateMutation `json:"sets,omitempty"`
+
+	// Security specifies security requirements for this flow.
+	Security *FlowSecurity `json:"security,omitempty"`
+}
+
+// StateMutation represents a state change for an entity triggered by a flow.
+type StateMutation struct {
+	// Entity is the ID of the entity whose state changes.
+	Entity string `json:"entity"`
+
+	// To is the target state ID.
+	To string `json:"to"`
+
+	// From is the optional required prior state (for validation).
+	From string `json:"from,omitempty"`
 }
 
 // FlowAnimation configures animation for a flow in animated SVG output.
@@ -333,6 +546,14 @@ func (f *FlowAnimation) ShouldPulse() bool {
 		return true
 	}
 	return f.Preset == AnimationPresetError || f.Preset == AnimationPresetWarning
+}
+
+// ShouldGlow returns whether the dot should have a glow effect.
+func (f *FlowAnimation) ShouldGlow() bool {
+	if f == nil {
+		return false
+	}
+	return f.Preset == AnimationPresetHighlight
 }
 
 // FlowMode represents the type of interaction.
@@ -472,6 +693,426 @@ func IsValidAnnotationType(t AnnotationType) bool {
 	switch t {
 	case AnnotationTypeSecurity, AnnotationTypePerformance, AnnotationTypeDeprecated,
 		AnnotationTypeInfo, AnnotationTypeWarning, AnnotationTypeError:
+		return true
+	}
+	return false
+}
+
+// HasStates returns true if the entity has any states defined.
+func (e Entity) HasStates() bool {
+	return len(e.States) > 0
+}
+
+// StateByID returns the state with the given ID, or nil if not found.
+func (e Entity) StateByID(id string) *EntityState {
+	for i := range e.States {
+		if e.States[i].ID == id {
+			return &e.States[i]
+		}
+	}
+	return nil
+}
+
+// InitialState returns the initial state, or nil if none is marked as initial.
+func (e Entity) InitialState() *EntityState {
+	for i := range e.States {
+		if e.States[i].Initial {
+			return &e.States[i]
+		}
+	}
+	return nil
+}
+
+// StateIDs returns a slice of all state IDs for this entity.
+func (e Entity) StateIDs() []string {
+	ids := make([]string, len(e.States))
+	for i, s := range e.States {
+		ids[i] = s.ID
+	}
+	return ids
+}
+
+// HasStateMutations returns true if the flow has any state mutations.
+func (f Flow) HasStateMutations() bool {
+	return len(f.Sets) > 0
+}
+
+// EntitiesWithStates returns all entities that have states defined.
+func (p *Protocol) EntitiesWithStates() []Entity {
+	var entities []Entity
+	for _, e := range p.Entities {
+		if e.HasStates() {
+			entities = append(entities, e)
+		}
+	}
+	return entities
+}
+
+// StateTransition represents a state transition extracted from flows.
+type StateTransition struct {
+	// EntityID is the entity undergoing the state change.
+	EntityID string
+	// FromState is the prior state (empty if not specified).
+	FromState string
+	// ToState is the target state.
+	ToState string
+	// FlowAction is the action that triggers this transition.
+	FlowAction string
+	// FlowLabel is the display label for the triggering flow.
+	FlowLabel string
+}
+
+// StateTransitions extracts all state transitions from the protocol's flows.
+func (p *Protocol) StateTransitions() []StateTransition {
+	var transitions []StateTransition
+	for _, f := range p.Flows {
+		for _, m := range f.Sets {
+			transitions = append(transitions, StateTransition{
+				EntityID:   m.Entity,
+				FromState:  m.From,
+				ToState:    m.To,
+				FlowAction: f.Action,
+				FlowLabel:  f.DisplayLabel(),
+			})
+		}
+	}
+	return transitions
+}
+
+// StateTransitionsForEntity returns state transitions for a specific entity.
+func (p *Protocol) StateTransitionsForEntity(entityID string) []StateTransition {
+	var transitions []StateTransition
+	for _, t := range p.StateTransitions() {
+		if t.EntityID == entityID {
+			transitions = append(transitions, t)
+		}
+	}
+	return transitions
+}
+
+// TokenByID returns the token definition with the given ID, or nil if not found.
+func (p *Protocol) TokenByID(id string) *TokenDefinition {
+	if p.Metadata == nil {
+		return nil
+	}
+	for i := range p.Metadata.Tokens {
+		if p.Metadata.Tokens[i].ID == id {
+			return &p.Metadata.Tokens[i]
+		}
+	}
+	return nil
+}
+
+// HasSecurity returns true if the flow has security requirements.
+func (f Flow) HasSecurity() bool {
+	return f.Security != nil && (len(f.Security.Requires) > 0 || f.Security.Token != "" || f.Security.Confidential)
+}
+
+// RequiresEncryption returns true if the flow requires encryption.
+func (f Flow) RequiresEncryption() bool {
+	if f.Security == nil {
+		return false
+	}
+	for _, req := range f.Security.Requires {
+		if req == SecurityRequirementEncryption {
+			return true
+		}
+	}
+	return false
+}
+
+// RequiresToken returns true if the flow requires a token.
+func (f Flow) RequiresToken() bool {
+	if f.Security == nil {
+		return false
+	}
+	if f.Security.Token != "" {
+		return true
+	}
+	for _, req := range f.Security.Requires {
+		if req == SecurityRequirementToken {
+			return true
+		}
+	}
+	return false
+}
+
+// IsValidTrustLevel checks if the trust level is valid.
+func IsValidTrustLevel(t TrustLevel) bool {
+	switch t {
+	case TrustLevelTrusted, TrustLevelSemiTrusted, TrustLevelUntrusted, TrustLevelAuthoritative:
+		return true
+	}
+	return false
+}
+
+// IsValidSecurityRequirement checks if the security requirement is valid.
+func IsValidSecurityRequirement(r SecurityRequirement) bool {
+	switch r {
+	case SecurityRequirementToken, SecurityRequirementSignature, SecurityRequirementEncryption,
+		SecurityRequirementMTLS, SecurityRequirementMAC:
+		return true
+	}
+	return false
+}
+
+// HasProtocolRoles returns true if the entity has protocol roles defined.
+func (e Entity) HasProtocolRoles() bool {
+	return len(e.ProtocolRoles) > 0
+}
+
+// RolesByProtocol returns all roles for a specific protocol.
+func (e Entity) RolesByProtocol(protocol string) []ProtocolRole {
+	var roles []ProtocolRole
+	for _, r := range e.ProtocolRoles {
+		if r.Protocol == protocol {
+			roles = append(roles, r)
+		}
+	}
+	return roles
+}
+
+// HasRole checks if the entity has a specific protocol role.
+func (e Entity) HasRole(protocol, role string) bool {
+	for _, r := range e.ProtocolRoles {
+		if r.Protocol == protocol && r.Role == role {
+			return true
+		}
+	}
+	return false
+}
+
+// EntitiesWithProtocolRoles returns all entities that have protocol roles defined.
+func (p *Protocol) EntitiesWithProtocolRoles() []Entity {
+	var entities []Entity
+	for _, e := range p.Entities {
+		if e.HasProtocolRoles() {
+			entities = append(entities, e)
+		}
+	}
+	return entities
+}
+
+// EntitiesByProtocol returns all entities that implement a role for a specific protocol.
+func (p *Protocol) EntitiesByProtocol(protocol string) []Entity {
+	var entities []Entity
+	for _, e := range p.Entities {
+		if len(e.RolesByProtocol(protocol)) > 0 {
+			entities = append(entities, e)
+		}
+	}
+	return entities
+}
+
+// EntitiesByRole returns all entities that implement a specific protocol role.
+func (p *Protocol) EntitiesByRole(protocol, role string) []Entity {
+	var entities []Entity
+	for _, e := range p.Entities {
+		if e.HasRole(protocol, role) {
+			entities = append(entities, e)
+		}
+	}
+	return entities
+}
+
+// ComponentByID returns the component with the given ID, or nil if not found.
+func (p *Protocol) ComponentByID(id string) *DeploymentComponent {
+	if p.Metadata == nil {
+		return nil
+	}
+	for i := range p.Metadata.Components {
+		if p.Metadata.Components[i].ID == id {
+			return &p.Metadata.Components[i]
+		}
+	}
+	return nil
+}
+
+// ComponentsByType returns all components of a given type.
+func (p *Protocol) ComponentsByType(componentType string) []DeploymentComponent {
+	if p.Metadata == nil {
+		return nil
+	}
+	var components []DeploymentComponent
+	for _, c := range p.Metadata.Components {
+		if c.Type == componentType {
+			components = append(components, c)
+		}
+	}
+	return components
+}
+
+// EntitiesInComponent returns all entities that belong to a component.
+func (p *Protocol) EntitiesInComponent(componentID string) []Entity {
+	c := p.ComponentByID(componentID)
+	if c == nil {
+		return nil
+	}
+	var entities []Entity
+	for _, eid := range c.Entities {
+		if e := p.EntityByID(eid); e != nil {
+			entities = append(entities, *e)
+		}
+	}
+	return entities
+}
+
+// ComponentForEntity returns the component that contains an entity, or nil if not found.
+func (p *Protocol) ComponentForEntity(entityID string) *DeploymentComponent {
+	if p.Metadata == nil {
+		return nil
+	}
+	for i := range p.Metadata.Components {
+		for _, eid := range p.Metadata.Components[i].Entities {
+			if eid == entityID {
+				return &p.Metadata.Components[i]
+			}
+		}
+	}
+	return nil
+}
+
+// TrustRelationByID returns the trust relation with the given ID, or nil if not found.
+func (p *Protocol) TrustRelationByID(id string) *TrustRelationship {
+	if p.Metadata == nil {
+		return nil
+	}
+	for i := range p.Metadata.TrustRelations {
+		if p.Metadata.TrustRelations[i].ID == id {
+			return &p.Metadata.TrustRelations[i]
+		}
+	}
+	return nil
+}
+
+// TrustRelationsFrom returns all trust relations originating from an entity or component.
+func (p *Protocol) TrustRelationsFrom(id string) []TrustRelationship {
+	if p.Metadata == nil {
+		return nil
+	}
+	var relations []TrustRelationship
+	for _, r := range p.Metadata.TrustRelations {
+		if r.From == id {
+			relations = append(relations, r)
+		}
+	}
+	return relations
+}
+
+// TrustRelationsTo returns all trust relations targeting an entity or component.
+func (p *Protocol) TrustRelationsTo(id string) []TrustRelationship {
+	if p.Metadata == nil {
+		return nil
+	}
+	var relations []TrustRelationship
+	for _, r := range p.Metadata.TrustRelations {
+		if r.To == id {
+			relations = append(relations, r)
+		}
+	}
+	return relations
+}
+
+// TrustRelationsByType returns all trust relations of a given type.
+func (p *Protocol) TrustRelationsByType(relType string) []TrustRelationship {
+	if p.Metadata == nil {
+		return nil
+	}
+	var relations []TrustRelationship
+	for _, r := range p.Metadata.TrustRelations {
+		if r.Type == relType {
+			relations = append(relations, r)
+		}
+	}
+	return relations
+}
+
+// AllProtocols returns a unique list of all protocols referenced in entity roles.
+func (p *Protocol) AllProtocols() []string {
+	seen := make(map[string]bool)
+	var protocols []string
+	for _, e := range p.Entities {
+		for _, r := range e.ProtocolRoles {
+			if !seen[r.Protocol] {
+				seen[r.Protocol] = true
+				protocols = append(protocols, r.Protocol)
+			}
+		}
+	}
+	return protocols
+}
+
+// AllComponentTypes returns a unique list of all component types.
+func (p *Protocol) AllComponentTypes() []string {
+	if p.Metadata == nil {
+		return nil
+	}
+	seen := make(map[string]bool)
+	var types []string
+	for _, c := range p.Metadata.Components {
+		if !seen[c.Type] {
+			seen[c.Type] = true
+			types = append(types, c.Type)
+		}
+	}
+	return types
+}
+
+// AllTrustRelationTypes returns a unique list of all trust relation types.
+func (p *Protocol) AllTrustRelationTypes() []string {
+	if p.Metadata == nil {
+		return nil
+	}
+	seen := make(map[string]bool)
+	var types []string
+	for _, r := range p.Metadata.TrustRelations {
+		if !seen[r.Type] {
+			seen[r.Type] = true
+			types = append(types, r.Type)
+		}
+	}
+	return types
+}
+
+// IsValidProtocol checks if the protocol identifier is a known protocol.
+func IsValidProtocol(protocol string) bool {
+	switch protocol {
+	case ProtocolOAuth, ProtocolSCIM, ProtocolSPIFFE, ProtocolAAuth,
+		ProtocolIDJAG, ProtocolAuthZEN, ProtocolMCP, ProtocolA2A:
+		return true
+	}
+	return false
+}
+
+// IsValidComponentType checks if the component type is a known type.
+func IsValidComponentType(t string) bool {
+	switch t {
+	case ComponentTypeIdP, ComponentTypeIGA, ComponentTypeAgentProvider,
+		ComponentTypePersonServer, ComponentTypeAccessServer, ComponentTypePDP,
+		ComponentTypeGateway, ComponentTypeMCPClient, ComponentTypeMCPServer,
+		ComponentTypeResourceAPI, ComponentTypeSPIRE:
+		return true
+	}
+	return false
+}
+
+// IsValidTrustRelationType checks if the trust relation type is a known type.
+func IsValidTrustRelationType(t string) bool {
+	switch t {
+	case TrustTypeAuthenticates, TrustTypeValidates, TrustTypeDelegates,
+		TrustTypeAuthorizes, TrustTypeIssues, TrustTypeTrusts,
+		TrustTypeProvisions, TrustTypeAttests:
+		return true
+	}
+	return false
+}
+
+// IsValidCredential checks if the credential type is a known type.
+func IsValidCredential(c string) bool {
+	switch c {
+	case CredentialX509SVID, CredentialJWTSVID, CredentialJWTAssertion,
+		CredentialAccessToken, CredentialIDToken, CredentialAAAgentJWT,
+		CredentialAAAuthJWT, CredentialMTLS, CredentialAPIKey:
 		return true
 	}
 	return false
