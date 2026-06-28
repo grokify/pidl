@@ -6,6 +6,7 @@ Protocol Interaction Description Language - a JSON-based DSL for describing prot
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| v0.10.0 | 2026-06-28 | Protocol diff, trace visualization, debugger, security analysis |
 | v0.3.0 | 2025-05-18 | SVG rendering, animations, templates, network boundaries |
 | v0.2.0 | 2025-04-18 | Annotations, alternatives, conditions, nested phases, D2 |
 | v0.1.0 | 2025-04-18 | Core DSL, PlantUML, Mermaid, DOT renderers |
@@ -378,12 +379,48 @@ type ExecutionTrace struct {
 | `pidl simulate -v <file>` | Verbose output with each step |
 | `pidl simulate -json <file>` | Output trace as JSON |
 
-### Phase 12: Analysis & Tooling
+### Phase 12: Analysis & Tooling ✅ (v0.10.0)
 
-- [ ] Protocol comparison (diff two protocols)
-- [ ] Execution trace visualization
-- [ ] Interactive protocol debugger
-- [ ] Attack surface analysis
+- [x] Protocol comparison (diff two protocols)
+- [x] Execution trace visualization
+- [x] Interactive protocol debugger
+- [x] Attack surface analysis
+
+**New Types & Commands:**
+
+```go
+// Protocol Comparison
+type ProtocolDiff struct {
+    Items   []DiffItem
+    Summary DiffSummary
+}
+
+// Trace Visualization
+type TraceRenderer struct {
+    ShowStates, ShowTimings, HighlightSkipped bool
+}
+
+// Interactive Debugger
+type DebugSession struct {
+    Executor    *Executor
+    Breakpoints map[int]*Breakpoint
+}
+
+// Security Analysis
+type SecurityAnalysis struct {
+    Risks   []SecurityRisk
+    Summary SecuritySummary
+}
+```
+
+**CLI Commands:**
+
+| Command | Description |
+|---------|-------------|
+| `pidl diff <base> <new>` | Compare two protocols |
+| `pidl simulate --trace-format=svg` | Render execution trace as SVG |
+| `pidl debug <file>` | Interactive step-through debugger |
+| `pidl analyze <file>` | Security analysis with risk identification |
 
 ### Phase 13: Integrations
 
