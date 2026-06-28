@@ -53,6 +53,11 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 - 🔐 **Security annotations** with requirements (token, encryption, mTLS, signature)
 - 🛡️ **Trust levels** for entity classification (trusted, semi_trusted, untrusted, authoritative)
 - 🎫 **Token definitions** with issuer, audience, and binding
+- 🔄 **Protocol composition** with imports and inheritance
+- ▶️ **Protocol simulation** with state tracking and execution traces
+- 🔍 **Protocol comparison** (diff) for change detection
+- 🐛 **Interactive debugger** for step-through protocol execution
+- 🛡️ **Security analysis** with 10 built-in attack surface detection rules
 
 ## Installation
 
@@ -539,6 +544,11 @@ Commands:
   generate   Generate diagrams from PIDL files
   examples   List or show built-in examples
   init       Create a new PIDL file from template
+  simulate   Run protocol simulation with state tracking
+  diff       Compare two protocols and show differences
+  debug      Interactive step-through protocol debugger
+  analyze    Security analysis with attack surface detection
+  resolve    Resolve protocol imports and inheritance
   version    Print version information
   help       Show help message
 ```
@@ -603,6 +613,82 @@ Options:
   -from string   Initialize from example
 ```
 
+### simulate
+
+```bash
+pidl simulate [options] <file>
+
+Options:
+  -steps int           Maximum steps to execute (0 = all)
+  -v                   Verbose output with each step
+  -json                Output trace as JSON
+  --trace-format       Trace output format: text, json, svg, mermaid
+  --trace-output       Write trace to file
+  --show-states        Show entity states in trace
+  --show-timings       Show timing information
+```
+
+### diff
+
+```bash
+pidl diff [options] <base-file> <new-file>
+
+Options:
+  -f, --format         Output format: text, json, markdown (default: text)
+  -o, --output         Output file (default: stdout)
+  --ignore-metadata    Ignore metadata differences
+  -q, --quiet          Summary only
+```
+
+### debug
+
+```bash
+pidl debug <file>
+
+Interactive Commands:
+  step, s              Execute next flow
+  continue, c          Run until breakpoint/completion
+  break <idx> [cond]   Set breakpoint at flow index
+  delete <idx>         Remove breakpoint
+  breakpoints          List all breakpoints
+  inspect              Show current state
+  inspect entity <id>  Show entity details and state
+  inspect flow <idx>   Show flow details
+  list                 List flows with position marker
+  set <entity> <state> Set entity state
+  reset                Restart execution
+  quit, q              Exit debugger
+```
+
+### analyze
+
+```bash
+pidl analyze [options] <file>
+
+Options:
+  -f, --format         Output format: text, json, markdown (default: text)
+  -o, --output         Output file (default: stdout)
+  --min-severity       Minimum severity: critical, high, medium, low, info
+  --category           Filter by category (repeatable)
+  --fail-on            Exit with code 1 if risks at this severity
+  -q, --quiet          Summary only
+```
+
+Built-in security rules:
+
+| Rule | Severity | Description |
+|------|----------|-------------|
+| SEC001 | High | Trust boundary violation (untrusted to trusted without security) |
+| SEC002 | High | Missing encryption on confidential flow |
+| SEC003 | Medium | Unbound bearer token (no mTLS/DPoP binding) |
+| SEC004 | High | Missing authentication on external flow |
+| SEC005 | Medium | JWT without defined audience |
+| SEC006 | Medium | Token transmitted in redirect |
+| SEC007 | Medium | Missing mTLS on sensitive flow |
+| SEC008 | Low | Entity without defined trust level |
+| SEC009 | Medium | Sensitive data in redirect parameters |
+| SEC010 | Medium | Weak authentication method |
+
 ## Go Library
 
 ```go
@@ -610,6 +696,7 @@ import (
     "github.com/grokify/pidl"
     "github.com/grokify/pidl/render"
     "github.com/grokify/pidl/examples"
+    "github.com/grokify/pidl/analyze"
 )
 
 // Parse a PIDL file
@@ -630,6 +717,28 @@ oauth, err := examples.GetProtocol("oauth2_authorization_code")
 // Create a new protocol
 p := pidl.NewMinimalProtocol("my-protocol", "My Protocol")
 pidl.WriteProtocolFile("output.json", p)
+
+// Compare two protocols
+diff := pidl.Compare(base, updated, pidl.DiffOptions{})
+fmt.Println(diff.String())
+
+// Run protocol simulation
+executor := pidl.NewExecutor(p)
+trace, err := executor.Execute()
+fmt.Println(trace.String())
+
+// Interactive debugging
+session := pidl.NewDebugSession(p)
+session.SetBreakpoint(2, "")
+step, _ := session.Step()
+state := session.Inspect()
+
+// Security analysis
+analysis := analyze.Analyze(p, analyze.DefaultAnalysisOptions())
+fmt.Println(analysis.String())
+if analysis.HasRisksAtOrAbove(analyze.SeverityHigh) {
+    // handle high-severity risks
+}
 ```
 
 ## Built-in Examples

@@ -10,10 +10,11 @@ go get github.com/grokify/pidl
 
 | Package | Description |
 |---------|-------------|
-| `github.com/grokify/pidl` | Core types and parsing |
-| `github.com/grokify/pidl/render` | Diagram rendering |
+| `github.com/grokify/pidl` | Core types, parsing, execution, comparison, debugging |
+| `github.com/grokify/pidl/render` | Diagram and trace rendering |
 | `github.com/grokify/pidl/examples` | Built-in examples |
 | `github.com/grokify/pidl/schema` | Embedded JSON Schema |
+| `github.com/grokify/pidl/analyze` | Security analysis and rules |
 
 ## Core Types
 
@@ -242,4 +243,154 @@ func main() {
 
     fmt.Println(diagram)
 }
+```
+
+## Protocol Comparison
+
+```go
+// Compare two protocols
+diff := pidl.Compare(baseProtocol, newProtocol, pidl.DiffOptions{
+    IgnoreMetadata: false,
+})
+
+// Check for differences
+if diff.HasChanges() {
+    fmt.Println(diff.String())
+}
+
+// Output as JSON or Markdown
+jsonBytes, _ := diff.ToJSON()
+markdown := diff.ToMarkdown()
+
+// Access summary
+fmt.Printf("Added: %d, Removed: %d, Modified: %d\n",
+    diff.Summary.Added, diff.Summary.Removed, diff.Summary.Modified)
+```
+
+## Protocol Simulation
+
+```go
+// Create executor
+executor := pidl.NewExecutor(protocol)
+
+// Optional: custom condition evaluator
+executor.ConditionEvaluator = func(ctx *pidl.ExecutionContext, flow *pidl.Flow) bool {
+    return true // evaluate condition
+}
+
+// Execute full protocol
+trace, err := executor.Execute()
+
+// Step-by-step execution
+ctx := executor.NewContext()
+for !ctx.Completed {
+    step, err := executor.Step(ctx)
+    if err != nil {
+        break
+    }
+    fmt.Printf("Step %d: %s -> %s\n", step.StepNumber, step.From, step.To)
+}
+
+// Access trace
+fmt.Println(trace.String())
+jsonBytes, _ := trace.ToJSON()
+```
+
+## Interactive Debugger
+
+```go
+// Create debug session
+session := pidl.NewDebugSession(protocol)
+
+// Set breakpoints
+session.SetBreakpoint(3, "")                    // Unconditional
+session.SetBreakpoint(5, "client.state == \"waiting\"") // Conditional
+
+// Step through execution
+step, _ := session.Step()
+fmt.Printf("Executed: %s\n", step.Action)
+
+// Continue until breakpoint
+session.Continue()
+
+// Inspect state
+state := session.Inspect()
+fmt.Printf("Flow %d, Completed: %v\n", state.FlowIndex, state.IsCompleted)
+fmt.Printf("Entity states: %v\n", state.EntityStates)
+
+// Inspect specific entity
+entity, entityState, _ := session.InspectEntity("client")
+fmt.Printf("%s is in state: %s\n", entity.Name, entityState)
+
+// Modify state
+session.SetEntityState("client", "authenticated")
+
+// Reset and restart
+session.Reset()
+
+// List flows with markers
+fmt.Println(session.FormatFlowList())
+```
+
+## Security Analysis
+
+```go
+import "github.com/grokify/pidl/analyze"
+
+// Run analysis with default options
+analysis := analyze.Analyze(protocol, analyze.DefaultAnalysisOptions())
+
+// Custom options
+opts := analyze.AnalysisOptions{
+    MinSeverity:   analyze.SeverityMedium,
+    Categories:    []analyze.RiskCategory{analyze.CategoryAuthentication},
+    DisabledRules: []string{"SEC008"},
+}
+analysis = analyze.Analyze(protocol, opts)
+
+// Check results
+if analysis.HasRisks() {
+    fmt.Println(analysis.String())
+}
+
+if analysis.HasRisksAtOrAbove(analyze.SeverityHigh) {
+    // Critical action needed
+}
+
+// Filter risks
+authRisks := analysis.RisksByCategory(analyze.CategoryAuthentication)
+highRisks := analysis.RisksBySeverity(analyze.SeverityHigh)
+
+// Output formats
+fmt.Println(analysis.ToMarkdown())
+jsonBytes, _ := analysis.ToJSON()
+
+// Access summary
+fmt.Printf("Score: %d/100, Total: %d risks\n",
+    analysis.Summary.Score, analysis.Summary.TotalRisks)
+```
+
+## Trace Rendering
+
+```go
+import "github.com/grokify/pidl/render"
+
+// Create trace renderer
+tr := render.NewTraceRenderer()
+tr.ShowStates = true
+tr.ShowTimings = true
+
+// Render as text
+text := tr.RenderText(trace, render.TraceTextOptions{
+    ShowTimestamps: true,
+    ShowStates:     true,
+    UseColors:      true,
+})
+
+// Render as SVG
+svg, _ := tr.RenderSVG(trace, protocol)
+
+// Render as Mermaid
+mermaid := tr.RenderMermaid(trace, protocol)
+```
 ```

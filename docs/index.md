@@ -24,6 +24,11 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 - **Nested phases** with parent hierarchy support
 - **State model** with entity states and state transitions
 - **State diagrams** via Mermaid `stateDiagram-v2` output
+- **Protocol composition** with imports and inheritance
+- **Protocol simulation** with state tracking and execution traces
+- **Protocol comparison** (diff) for change detection
+- **Interactive debugger** for step-through protocol execution
+- **Security analysis** with attack surface detection rules
 
 ## Quick Example
 
