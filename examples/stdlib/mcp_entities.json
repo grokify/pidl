@@ -1,0 +1,116 @@
+{
+  "protocol": {
+    "id": "mcp-entities",
+    "name": "MCP Base Entities",
+    "version": "1.0",
+    "description": "Reusable Model Context Protocol entity definitions",
+    "category": "agent"
+  },
+  "entities": [
+    {
+      "id": "user",
+      "name": "User",
+      "type": "user",
+      "description": "Human user interacting with the MCP host",
+      "trust_level": "untrusted",
+      "protocol_roles": []
+    },
+    {
+      "id": "host",
+      "name": "MCP Host",
+      "type": "client",
+      "description": "Application hosting the LLM and MCP client (e.g., Claude Desktop)",
+      "trust_level": "trusted",
+      "protocol_roles": [
+        {"protocol": "mcp", "role": "host"}
+      ]
+    },
+    {
+      "id": "mcp_client",
+      "name": "MCP Client",
+      "type": "agent",
+      "description": "MCP client component within the host",
+      "trust_level": "trusted",
+      "protocol_roles": [
+        {"protocol": "mcp", "role": "client"}
+      ]
+    },
+    {
+      "id": "mcp_server",
+      "name": "MCP Server",
+      "type": "tool_server",
+      "description": "Server exposing tools, resources, and prompts via MCP",
+      "trust_level": "semi_trusted",
+      "protocol_roles": [
+        {"protocol": "mcp", "role": "server"}
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "id": "initialization",
+      "name": "Initialization",
+      "description": "Protocol handshake and capability negotiation"
+    },
+    {
+      "id": "tool_discovery",
+      "name": "Tool Discovery",
+      "description": "Client discovers available tools"
+    },
+    {
+      "id": "tool_invocation",
+      "name": "Tool Invocation",
+      "description": "LLM invokes tools on the server"
+    }
+  ],
+  "flows": [
+    {
+      "from": "mcp_client",
+      "to": "mcp_server",
+      "action": "initialize",
+      "label": "Initialize",
+      "mode": "request",
+      "phase": "initialization"
+    },
+    {
+      "from": "mcp_server",
+      "to": "mcp_client",
+      "action": "initialize_response",
+      "label": "Capabilities",
+      "mode": "response",
+      "phase": "initialization"
+    },
+    {
+      "from": "mcp_client",
+      "to": "mcp_server",
+      "action": "tools_list",
+      "label": "List Tools",
+      "mode": "request",
+      "phase": "tool_discovery"
+    },
+    {
+      "from": "mcp_server",
+      "to": "mcp_client",
+      "action": "tools_list_response",
+      "label": "Available Tools",
+      "mode": "response",
+      "phase": "tool_discovery"
+    },
+    {
+      "from": "mcp_client",
+      "to": "mcp_server",
+      "action": "tools_call",
+      "label": "Call Tool",
+      "mode": "tool_call",
+      "phase": "tool_invocation"
+    },
+    {
+      "from": "mcp_server",
+      "to": "mcp_client",
+      "action": "tools_call_response",
+      "label": "Tool Result",
+      "mode": "tool_result",
+      "phase": "tool_invocation"
+    }
+  ]
+}

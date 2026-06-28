@@ -11,7 +11,7 @@ import (
 	"github.com/grokify/pidl"
 )
 
-//go:embed *.json
+//go:embed *.json stdlib/*.json
 var examplesFS embed.FS
 
 // Example represents an embedded example protocol.
@@ -48,21 +48,36 @@ func (e *Example) Protocol() (*pidl.Protocol, error) {
 
 // List returns all available example names.
 func List() []string {
+	var names []string
+
+	// List root examples
 	entries, err := examplesFS.ReadDir(".")
-	if err != nil {
-		return nil
+	if err == nil {
+		for _, entry := range entries {
+			if entry.IsDir() {
+				continue
+			}
+			name := entry.Name()
+			if strings.HasSuffix(name, ".json") && !strings.HasPrefix(name, ".") {
+				names = append(names, strings.TrimSuffix(name, ".json"))
+			}
+		}
 	}
 
-	var names []string
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		name := entry.Name()
-		if strings.HasSuffix(name, ".json") && !strings.HasPrefix(name, ".") {
-			names = append(names, strings.TrimSuffix(name, ".json"))
+	// List stdlib examples
+	stdlibEntries, err := examplesFS.ReadDir("stdlib")
+	if err == nil {
+		for _, entry := range stdlibEntries {
+			if entry.IsDir() {
+				continue
+			}
+			name := entry.Name()
+			if strings.HasSuffix(name, ".json") && !strings.HasPrefix(name, ".") {
+				names = append(names, "stdlib/"+strings.TrimSuffix(name, ".json"))
+			}
 		}
 	}
+
 	sort.Strings(names)
 	return names
 }

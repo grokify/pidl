@@ -1,0 +1,91 @@
+{
+  "protocol": {
+    "id": "oauth-mcp-composed",
+    "name": "OAuth + MCP Composed Protocol",
+    "version": "1.0",
+    "description": "Example showing protocol composition: extends OAuth base and imports MCP entities",
+    "category": "agent"
+  },
+  "extends": {
+    "path": "stdlib/oauth_entities.json"
+  },
+  "imports": [
+    {
+      "path": "stdlib/mcp_entities.json",
+      "entities": ["mcp_client", "mcp_server"],
+      "phases": ["initialization", "tool_discovery", "tool_invocation"],
+      "include_flows": true
+    }
+  ],
+  "entities": [
+    {
+      "id": "gateway",
+      "name": "API Gateway",
+      "type": "server",
+      "description": "Gateway that validates OAuth tokens and proxies to MCP servers",
+      "trust_level": "trusted",
+      "protocol_roles": [
+        {"protocol": "oauth", "role": "resource_server"},
+        {"protocol": "mcp", "role": "server"}
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "id": "token_validation",
+      "name": "Token Validation",
+      "description": "Gateway validates access token before proxying"
+    }
+  ],
+  "flows": [
+    {
+      "from": "mcp_client",
+      "to": "gateway",
+      "action": "tool_request_with_token",
+      "label": "Tool Request + OAuth Token",
+      "mode": "request",
+      "phase": "token_validation",
+      "note": "MCP client includes OAuth access token"
+    },
+    {
+      "from": "gateway",
+      "to": "authorization_server",
+      "action": "introspect_token",
+      "label": "Token Introspection",
+      "mode": "request",
+      "phase": "token_validation"
+    },
+    {
+      "from": "authorization_server",
+      "to": "gateway",
+      "action": "introspect_response",
+      "label": "Token Valid",
+      "mode": "response",
+      "phase": "token_validation"
+    },
+    {
+      "from": "gateway",
+      "to": "mcp_server",
+      "action": "proxied_tool_call",
+      "label": "Proxied Tool Call",
+      "mode": "tool_call",
+      "phase": "tool_invocation"
+    },
+    {
+      "from": "mcp_server",
+      "to": "gateway",
+      "action": "tool_result",
+      "label": "Tool Result",
+      "mode": "tool_result",
+      "phase": "tool_invocation"
+    },
+    {
+      "from": "gateway",
+      "to": "mcp_client",
+      "action": "tool_response",
+      "label": "Tool Response",
+      "mode": "response",
+      "phase": "tool_invocation"
+    }
+  ]
+}

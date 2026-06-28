@@ -1,0 +1,134 @@
+{
+  "protocol": {
+    "id": "oauth-entities",
+    "name": "OAuth 2.0 Base Entities",
+    "version": "1.0",
+    "description": "Reusable OAuth 2.0 entity definitions for protocol composition",
+    "category": "auth"
+  },
+  "entities": [
+    {
+      "id": "resource_owner",
+      "name": "Resource Owner",
+      "type": "user",
+      "description": "The end-user who owns the protected resources",
+      "trust_level": "untrusted",
+      "protocol_roles": [
+        {"protocol": "oauth", "role": "resource_owner"}
+      ]
+    },
+    {
+      "id": "client",
+      "name": "Client Application",
+      "type": "client",
+      "description": "Application requesting access on behalf of the resource owner",
+      "trust_level": "semi_trusted",
+      "protocol_roles": [
+        {"protocol": "oauth", "role": "client"}
+      ]
+    },
+    {
+      "id": "authorization_server",
+      "name": "Authorization Server",
+      "type": "authorization_server",
+      "description": "Issues access tokens after authenticating the resource owner",
+      "trust_level": "authoritative",
+      "protocol_roles": [
+        {"protocol": "oauth", "role": "authorization_server"}
+      ]
+    },
+    {
+      "id": "resource_server",
+      "name": "Resource Server",
+      "type": "resource_server",
+      "description": "Hosts protected resources and validates access tokens",
+      "trust_level": "trusted",
+      "protocol_roles": [
+        {"protocol": "oauth", "role": "resource_server"}
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "id": "authorization",
+      "name": "Authorization",
+      "description": "User grants permission to the client"
+    },
+    {
+      "id": "token_exchange",
+      "name": "Token Exchange",
+      "description": "Client exchanges authorization grant for tokens"
+    },
+    {
+      "id": "resource_access",
+      "name": "Resource Access",
+      "description": "Client accesses protected resources"
+    }
+  ],
+  "flows": [
+    {
+      "from": "client",
+      "to": "authorization_server",
+      "action": "authorization_request",
+      "label": "Authorization Request",
+      "mode": "redirect",
+      "phase": "authorization"
+    },
+    {
+      "from": "authorization_server",
+      "to": "resource_owner",
+      "action": "authenticate",
+      "label": "Authenticate User",
+      "mode": "interactive",
+      "phase": "authorization"
+    },
+    {
+      "from": "resource_owner",
+      "to": "authorization_server",
+      "action": "grant_consent",
+      "label": "Grant Consent",
+      "mode": "interactive",
+      "phase": "authorization"
+    },
+    {
+      "from": "authorization_server",
+      "to": "client",
+      "action": "authorization_response",
+      "label": "Authorization Code",
+      "mode": "redirect",
+      "phase": "authorization"
+    },
+    {
+      "from": "client",
+      "to": "authorization_server",
+      "action": "token_request",
+      "label": "Token Request",
+      "mode": "request",
+      "phase": "token_exchange"
+    },
+    {
+      "from": "authorization_server",
+      "to": "client",
+      "action": "token_response",
+      "label": "Access Token",
+      "mode": "response",
+      "phase": "token_exchange"
+    },
+    {
+      "from": "client",
+      "to": "resource_server",
+      "action": "api_request",
+      "label": "API Request + Token",
+      "mode": "request",
+      "phase": "resource_access"
+    },
+    {
+      "from": "resource_server",
+      "to": "client",
+      "action": "api_response",
+      "label": "Protected Resource",
+      "mode": "response",
+      "phase": "resource_access"
+    }
+  ]
+}

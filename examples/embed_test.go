@@ -116,11 +116,16 @@ func TestAll(t *testing.T) {
 		t.Errorf("All() returned %d examples, want at least 5", len(examples))
 	}
 
-	// Verify each example is valid
+	// Verify each example is valid (skip composed protocols that need resolution)
 	for _, ex := range examples {
 		p, err := ex.Protocol()
 		if err != nil {
 			t.Errorf("Example %s Protocol() error = %v", ex.Name, err)
+			continue
+		}
+
+		// Skip validation for protocols that need resolution
+		if p.NeedsResolution() {
 			continue
 		}
 
