@@ -1,0 +1,38 @@
+{
+  "name": "high-contrast",
+  "description": "WCAG AA compliant high-contrast template for accessibility",
+  "layout": {
+    "padding": 25,
+    "participant_spacing": 150,
+    "message_spacing": 50,
+    "participant_box": {
+      "width": 110,
+      "height": 40,
+      "corner_radius": 0
+    }
+  },
+  "fonts": {
+    "primary": "Arial, Helvetica, sans-serif"
+  },
+  "line_style": {
+    "stroke_width": 2.5
+  },
+  "colors": {
+    "primary": "#000000",
+    "secondary": "#000000",
+    "accent": "#0000EE",
+    "background": "#FFFFFF",
+    "text": "#000000",
+    "text_muted": "#333333",
+    "line": "#000000",
+    "line_response": "#333333",
+    "lifeline": "#666666",
+    "participant_bg": "#000000",
+    "participant_text": "#FFFFFF",
+    "dot": "#0000EE"
+  },
+  "animation": {
+    "dot_shape": "circle",
+    "dot_size": 6
+  }
+}

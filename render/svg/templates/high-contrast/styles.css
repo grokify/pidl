@@ -1,0 +1,123 @@
+/* High-Contrast Template - WCAG AA Compliant */
+
+/* Override theme colors for maximum contrast */
+:root, .theme-light, .theme-dark, .theme-auto {
+  --color-primary: #000000;
+  --color-secondary: #000000;
+  --color-accent: #0000EE;
+  --color-bg: #FFFFFF;
+  --color-text: #000000;
+  --color-text-muted: #333333;
+  --color-line: #000000;
+  --color-line-response: #333333;
+  --color-lifeline: #666666;
+  --color-participant-bg: #000000;
+  --color-participant-text: #FFFFFF;
+  --color-dot: #0000EE;
+}
+
+/* Thicker lines for visibility */
+.message-line {
+  stroke-width: 2.5px;
+}
+
+.lifeline {
+  stroke-width: 2px;
+  stroke-dasharray: 8, 4;
+}
+
+/* High contrast participant boxes */
+.participant-box {
+  stroke: #000000;
+  stroke-width: 3px;
+  fill: #000000;
+}
+
+.participant-text {
+  fill: #FFFFFF;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* Message text with better readability */
+.message-text {
+  fill: #000000;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Animation presets with high contrast colors */
+.flow-dot {
+  fill: #0000EE;
+  stroke: #000000;
+  stroke-width: 1px;
+}
+
+.flow-dot-success {
+  fill: #006600;
+}
+
+.flow-dot-error {
+  fill: #CC0000;
+}
+
+.flow-dot-warning {
+  fill: #CC6600;
+}
+
+.flow-dot-highlight {
+  fill: #0000EE;
+  stroke: #000000;
+  stroke-width: 2px;
+}
+
+/* Phase boxes with clear borders */
+.phase-box {
+  fill: #F0F0F0;
+  stroke: #000000;
+  stroke-width: 2px;
+}
+
+.phase-label {
+  fill: #000000;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* Alternative paths */
+.alt-box {
+  fill: #FFFFD0;
+  stroke: #000000;
+  stroke-width: 2px;
+}
+
+.alt-label {
+  fill: #000000;
+  font-weight: 700;
+}
+
+/* Underline links for accessibility */
+text[data-link] {
+  text-decoration: underline;
+}
+
+/* Print styles - ensure visibility */
+@media print {
+  .flow-dot {
+    display: none;
+  }
+
+  .message-line {
+    stroke: #000000 !important;
+    stroke-width: 2px;
+  }
+
+  .participant-box {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+  }
+
+  .participant-text {
+    fill: #000000 !important;
+  }
+}
