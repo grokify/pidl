@@ -26,7 +26,7 @@
  [loc-svg]: https://tokei.rs/b1/github/grokify/pidl
  [repo-url]: https://github.com/grokify/pidl
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
- [license-url]: https://github.com/grokify/pidl/blob/master/LICENSE
+ [license-url]: https://github.com/grokify/pidl/blob/main/LICENSE
 
 **Protocol Interaction Description Language** - A JSON-based DSL for describing protocol choreography that compiles to diagrams.
 
