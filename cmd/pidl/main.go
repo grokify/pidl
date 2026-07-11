@@ -152,7 +152,7 @@ Options:
 
 func cmdGenerate(args []string) {
 	fs := flag.NewFlagSet("generate", flag.ExitOnError)
-	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust")
+	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
 	templateDir := fs.String("template-dir", "", "Path to custom SVG template directory")
@@ -163,6 +163,13 @@ func cmdGenerate(args []string) {
 	resolveImports := fs.Bool("resolve", false, "Resolve imports and extends before generating")
 	var boundaries boundaryFlags
 	fs.Var(&boundaries, "boundary", "Network boundary assignment (format: boundary_id:entity1,entity2). Can be repeated.")
+
+	// Infographic options
+	igSize := fs.String("ig-size", "linkedin-square", "Infographic size: linkedin-square, linkedin-portrait, linkedin-landscape, datasheet-tile, datasheet-wide")
+	igTheme := fs.String("ig-theme", "bold", "Infographic theme: bold, minimal, dark, tech")
+	igTitle := fs.String("ig-title", "", "Infographic title (defaults to protocol name)")
+	igNoAnimate := fs.Bool("ig-no-animate", false, "Disable animated dots on infographic edges")
+	igNoShapes := fs.Bool("ig-no-shapes", false, "Use rectangles for all nodes (disable custom shapes)")
 	fs.Usage = func() {
 		fmt.Print(`Usage: pidl generate [options] <file>
 
@@ -188,6 +195,7 @@ Formats:
   svg-network        Network boundary diagram
   svg-component      SVG deployment component diagram
   svg-trust          SVG trust relationship diagram
+  infographic        Compact SVG for LinkedIn/datasheets with animated dots
 
 SVG Templates:
   default          Clean, professional styling
@@ -203,6 +211,13 @@ Network Boundary Examples:
 State Diagram Examples:
   pidl generate -f mermaid-state example.json              All entities with states
   pidl generate -f mermaid-state --entity=client example.json   Single entity
+
+Infographic Examples:
+  pidl generate -f infographic example.json                         Default LinkedIn square
+  pidl generate -f infographic --ig-size=datasheet-tile example.json  400x400 tile
+  pidl generate -f infographic --ig-theme=tech --ig-title="ETL" example.json
+  pidl generate -f infographic --ig-no-animate example.json          No animation
+  pidl generate -f infographic --ig-no-shapes example.json           Rectangles only
 `)
 	}
 
@@ -318,6 +333,54 @@ State Diagram Examples:
 		renderer := render.NewMermaid()
 		renderer.ShowSecurity = *showSecurity
 		diagram, err = renderer.RenderString(p)
+	} else if format == render.FormatInfographic {
+		opts := render.DefaultInfographicOptions()
+
+		// Set size
+		switch *igSize {
+		case "linkedin-square":
+			opts.Size = render.SizeLinkedInSquare
+		case "linkedin-portrait":
+			opts.Size = render.SizeLinkedInPortrait
+		case "linkedin-landscape":
+			opts.Size = render.SizeLinkedInLandscape
+		case "datasheet-tile":
+			opts = render.DatasheetTileOptions()
+		case "datasheet-wide":
+			opts.Size = render.SizeDatasheetWide
+		}
+
+		// Set theme
+		switch *igTheme {
+		case "bold":
+			opts.Theme = render.ThemeBold
+		case "minimal":
+			opts.Theme = render.ThemeMinimal
+		case "dark":
+			opts.Theme = render.ThemeDark
+		case "tech":
+			opts.Theme = render.ThemeTech
+		}
+
+		// Set title
+		if *igTitle != "" {
+			opts.Title = *igTitle
+		} else {
+			opts.Title = p.ProtocolMeta.Name
+		}
+
+		// Set animation
+		if *igNoAnimate {
+			opts.AnimateDots = false
+		}
+
+		// Set custom shapes
+		if *igNoShapes {
+			opts.UseCustomShapes = false
+		}
+
+		renderer := render.NewInfographicRenderer(opts)
+		diagram = renderer.Render(p)
 	} else {
 		diagram, err = render.RenderString(format, p)
 	}
