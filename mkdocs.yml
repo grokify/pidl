@@ -63,6 +63,7 @@ nav:
     - Phases: guide/phases.md
     - Annotations: guide/annotations.md
     - Alternatives: guide/alternatives.md
+    - Process Specifications: guide/process.md
   - Reference:
     - Specification: SPECIFICATION.md
     - CLI Reference: reference/cli.md
@@ -72,6 +73,7 @@ nav:
     - OAuth 2.0: examples/oauth2.md
     - MCP: examples/mcp.md
     - A2A: examples/a2a.md
+    - Infographic: examples/infographic.md
   - Releases:
     - Overview: releases/index.md
     - v0.4.0: releases/v0.4.0.md
