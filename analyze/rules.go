@@ -34,6 +34,12 @@ func DefaultRules() []SecurityRule {
 		ruleExternalEntityWithoutTrustLevel(),
 		ruleSensitiveDataInRedirect(),
 		ruleWeakAuthenticationMethod(),
+		// Process spec rules
+		ruleLLMStepWithoutValidation(),
+		ruleSensitiveDataToLLM(),
+		ruleNonDeterministicInCriticalPath(),
+		ruleExternalStepWithoutFailureModes(),
+		ruleHumanStepWithoutTimeout(),
 	}
 }
 
@@ -449,5 +455,267 @@ func trustWeight(level pidl.TrustLevel) int {
 		return 1
 	default:
 		return 0 // Unknown/unset
+	}
+}
+
+// Process Spec Security Rules (SEC011-SEC015)
+
+// ruleLLMStepWithoutValidation checks for LLM steps that lack downstream validation.
+func ruleLLMStepWithoutValidation() SecurityRule {
+	return SecurityRule{
+		ID:          "SEC011",
+		Name:        "LLM Step Without Validation",
+		Description: "LLM outputs should be validated by deterministic or human steps",
+		Check: func(p *pidl.Protocol) []SecurityRisk {
+			var risks []SecurityRisk
+
+			// Only check process specs
+			if !p.IsProcessSpec() {
+				return risks
+			}
+
+			// Find all LLM steps
+			for _, entity := range p.Entities {
+				if !entity.IsLLMStep() {
+					continue
+				}
+
+				// Check if any outgoing flow leads to a validation step
+				hasValidation := false
+				for _, flow := range p.Flows {
+					if flow.From != entity.ID {
+						continue
+					}
+
+					// Check the target
+					target := p.EntityByID(flow.To)
+					if target == nil {
+						continue
+					}
+
+					// Validation steps are deterministic or human review
+					if target.IsDeterministic() || target.IsHumanStep() {
+						hasValidation = true
+						break
+					}
+				}
+
+				if !hasValidation {
+					risks = append(risks, SecurityRisk{
+						ID:       "SEC011",
+						Severity: SeverityMedium,
+						Category: CategoryProcessSecurity,
+						Title:    "LLM step without downstream validation",
+						Description: fmt.Sprintf(
+							"LLM step '%s' produces output without validation by a deterministic or human step",
+							entity.Name),
+						Location:    fmt.Sprintf("entities[%s]", entity.ID),
+						Remediation: "Add a deterministic validation step or human review after LLM output",
+					})
+				}
+			}
+
+			return risks
+		},
+	}
+}
+
+// ruleSensitiveDataToLLM checks for sensitive data flowing to LLM steps.
+func ruleSensitiveDataToLLM() SecurityRule {
+	return SecurityRule{
+		ID:          "SEC012",
+		Name:        "Sensitive Data to LLM",
+		Description: "Sensitive data should not flow directly to LLM steps",
+		Check: func(p *pidl.Protocol) []SecurityRisk {
+			var risks []SecurityRisk
+
+			// Only check process specs
+			if !p.IsProcessSpec() {
+				return risks
+			}
+
+			// Check each LLM step for sensitive inputs
+			for _, entity := range p.Entities {
+				if !entity.IsLLMStep() {
+					continue
+				}
+
+				// Check for sensitive inputs on the LLM step itself
+				sensitiveInputs := entity.SensitiveInputs()
+				if len(sensitiveInputs) > 0 {
+					for _, input := range sensitiveInputs {
+						risks = append(risks, SecurityRisk{
+							ID:       "SEC012",
+							Severity: SeverityHigh,
+							Category: CategoryProcessSecurity,
+							Title:    "Sensitive data flows to LLM step",
+							Description: fmt.Sprintf(
+								"LLM step '%s' receives sensitive input '%s' which may be exposed in LLM processing",
+								entity.Name, input.Name),
+							Location:    fmt.Sprintf("entities[%s].inputs[%s]", entity.ID, input.Name),
+							Remediation: "Sanitize or redact sensitive data before LLM processing, or use a privacy-preserving approach",
+						})
+					}
+				}
+
+				// Also check flows that bring sensitive data to this step
+				for i, flow := range p.Flows {
+					if flow.To != entity.ID {
+						continue
+					}
+
+					// Check if source entity has sensitive outputs
+					source := p.EntityByID(flow.From)
+					if source == nil {
+						continue
+					}
+
+					for _, output := range source.SensitiveOutputs() {
+						risks = append(risks, SecurityRisk{
+							ID:       "SEC012",
+							Severity: SeverityHigh,
+							Category: CategoryProcessSecurity,
+							Title:    "Sensitive data flows to LLM step",
+							Description: fmt.Sprintf(
+								"Sensitive output '%s' from '%s' flows to LLM step '%s'",
+								output.Name, source.Name, entity.Name),
+							Location:    fmt.Sprintf("flows[%d]", i),
+							Remediation: "Add data sanitization step between the source and LLM step",
+						})
+					}
+				}
+			}
+
+			return risks
+		},
+	}
+}
+
+// ruleNonDeterministicInCriticalPath checks for non-deterministic steps in critical paths.
+func ruleNonDeterministicInCriticalPath() SecurityRule {
+	return SecurityRule{
+		ID:          "SEC013",
+		Name:        "Non-Deterministic Step in Critical Path",
+		Description: "Critical paths should minimize non-deterministic steps for reliability",
+		Check: func(p *pidl.Protocol) []SecurityRisk {
+			var risks []SecurityRisk
+
+			// Only check process specs
+			if !p.IsProcessSpec() {
+				return risks
+			}
+
+			// Check for non-deterministic steps that have critical downstream dependencies
+			for _, entity := range p.Entities {
+				if !entity.IsNonDeterministic() {
+					continue
+				}
+
+				// Count downstream steps that depend on this one
+				downstreamCount := 0
+				for _, flow := range p.Flows {
+					if flow.From == entity.ID {
+						downstreamCount++
+					}
+				}
+
+				// If this non-deterministic step has multiple downstream dependencies,
+				// it's in a critical path
+				if downstreamCount >= 2 {
+					risks = append(risks, SecurityRisk{
+						ID:       "SEC013",
+						Severity: SeverityMedium,
+						Category: CategoryProcessSecurity,
+						Title:    "Non-deterministic step in critical path",
+						Description: fmt.Sprintf(
+							"Step '%s' (%s) is non-deterministic but has %d downstream dependencies",
+							entity.Name, entity.StepType, downstreamCount),
+						Location:    fmt.Sprintf("entities[%s]", entity.ID),
+						Remediation: "Add caching, validation checkpoints, or consider deterministic alternatives",
+					})
+				}
+			}
+
+			return risks
+		},
+	}
+}
+
+// ruleExternalStepWithoutFailureModes checks for external steps without failure handling.
+func ruleExternalStepWithoutFailureModes() SecurityRule {
+	return SecurityRule{
+		ID:          "SEC014",
+		Name:        "External Step Without Failure Modes",
+		Description: "External service steps should define failure modes for resilience",
+		Check: func(p *pidl.Protocol) []SecurityRisk {
+			var risks []SecurityRisk
+
+			// Only check process specs
+			if !p.IsProcessSpec() {
+				return risks
+			}
+
+			for _, entity := range p.Entities {
+				if !entity.IsExternalStep() {
+					continue
+				}
+
+				if len(entity.FailureModes) == 0 {
+					risks = append(risks, SecurityRisk{
+						ID:       "SEC014",
+						Severity: SeverityLow,
+						Category: CategoryProcessSecurity,
+						Title:    "External step without failure modes",
+						Description: fmt.Sprintf(
+							"External step '%s' has no defined failure modes for error handling",
+							entity.Name),
+						Location:    fmt.Sprintf("entities[%s]", entity.ID),
+						Remediation: "Add failure_modes to define error scenarios and recovery strategies",
+					})
+				}
+			}
+
+			return risks
+		},
+	}
+}
+
+// ruleHumanStepWithoutTimeout checks for human steps without timeout configuration.
+func ruleHumanStepWithoutTimeout() SecurityRule {
+	return SecurityRule{
+		ID:          "SEC015",
+		Name:        "Human Step Without Timeout",
+		Description: "Human-in-the-loop steps should have timeout configuration to prevent blocking",
+		Check: func(p *pidl.Protocol) []SecurityRisk {
+			var risks []SecurityRisk
+
+			// Only check process specs
+			if !p.IsProcessSpec() {
+				return risks
+			}
+
+			for _, entity := range p.Entities {
+				if !entity.IsHumanStep() {
+					continue
+				}
+
+				// Check if processing config exists with timeout
+				if entity.Processing == nil || entity.Processing.Timeout == "" {
+					risks = append(risks, SecurityRisk{
+						ID:       "SEC015",
+						Severity: SeverityMedium,
+						Category: CategoryProcessSecurity,
+						Title:    "Human step without timeout",
+						Description: fmt.Sprintf(
+							"Human step '%s' has no timeout configured, which may cause indefinite blocking",
+							entity.Name),
+						Location:    fmt.Sprintf("entities[%s]", entity.ID),
+						Remediation: "Add processing.timeout to define SLA for human response (e.g., '24h', '72h')",
+					})
+				}
+			}
+
+			return risks
+		},
 	}
 }

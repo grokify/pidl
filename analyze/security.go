@@ -48,12 +48,13 @@ func (s RiskSeverity) Weight() int {
 type RiskCategory string
 
 const (
-	CategoryTrustBoundary  RiskCategory = "trust_boundary"
-	CategoryAuthentication RiskCategory = "authentication"
-	CategoryDataProtection RiskCategory = "data_protection"
-	CategoryTokenSecurity  RiskCategory = "token_security"
-	CategoryCommunication  RiskCategory = "communication"
-	CategoryConfiguration  RiskCategory = "configuration"
+	CategoryTrustBoundary   RiskCategory = "trust_boundary"
+	CategoryAuthentication  RiskCategory = "authentication"
+	CategoryDataProtection  RiskCategory = "data_protection"
+	CategoryTokenSecurity   RiskCategory = "token_security"
+	CategoryCommunication   RiskCategory = "communication"
+	CategoryConfiguration   RiskCategory = "configuration"
+	CategoryProcessSecurity RiskCategory = "process_security"
 )
 
 // SecurityRisk represents a security risk identified in the protocol.
@@ -422,6 +423,8 @@ func ParseCategory(s string) (RiskCategory, error) {
 		return CategoryCommunication, nil
 	case "configuration", "config":
 		return CategoryConfiguration, nil
+	case "process_security", "process-security", "processsecurity", "process":
+		return CategoryProcessSecurity, nil
 	default:
 		return "", fmt.Errorf("unknown category: %s", s)
 	}

@@ -458,3 +458,362 @@ func TestDefaultAnalysisOptions(t *testing.T) {
 		t.Errorf("expected MinSeverity to be Info, got %s", opts.MinSeverity)
 	}
 }
+
+// Process Spec Security Rule Tests
+
+func createProcessSpecWithLLM() *pidl.Protocol {
+	return &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{
+			ID:   "process-with-llm",
+			Name: "Process with LLM",
+			Kind: pidl.ProtocolKindProcess,
+		},
+		Entities: []pidl.Entity{
+			{
+				ID:       "input",
+				Name:     "Data Input",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeDeterministic,
+			},
+			{
+				ID:       "llm_analysis",
+				Name:     "LLM Analysis",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeLLM,
+			},
+			{
+				ID:       "output",
+				Name:     "Direct Output",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeExternal, // Not deterministic or human
+			},
+		},
+		Flows: []pidl.Flow{
+			{From: "input", To: "llm_analysis", Action: "process"},
+			{From: "llm_analysis", To: "output", Action: "send"}, // No validation step
+		},
+	}
+}
+
+func createProcessSpecWithValidatedLLM() *pidl.Protocol {
+	return &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{
+			ID:   "process-with-validated-llm",
+			Name: "Process with Validated LLM",
+			Kind: pidl.ProtocolKindProcess,
+		},
+		Entities: []pidl.Entity{
+			{
+				ID:       "llm_step",
+				Name:     "LLM Analysis",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeLLM,
+			},
+			{
+				ID:       "validator",
+				Name:     "Output Validator",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeDeterministic, // Proper validation
+			},
+		},
+		Flows: []pidl.Flow{
+			{From: "llm_step", To: "validator", Action: "validate"},
+		},
+	}
+}
+
+func createProcessSpecWithSensitiveDataToLLM() *pidl.Protocol {
+	return &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{
+			ID:   "sensitive-to-llm",
+			Name: "Sensitive Data to LLM",
+			Kind: pidl.ProtocolKindProcess,
+		},
+		Entities: []pidl.Entity{
+			{
+				ID:       "data_source",
+				Name:     "Data Source",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeDeterministic,
+				Outputs: []pidl.DataPort{
+					{Kind: pidl.DataPortKindObject, Name: "user_data", Sensitive: true},
+				},
+			},
+			{
+				ID:       "llm_processor",
+				Name:     "LLM Processor",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeLLM,
+				Inputs: []pidl.DataPort{
+					{Kind: pidl.DataPortKindObject, Name: "credentials", Sensitive: true},
+				},
+			},
+		},
+		Flows: []pidl.Flow{
+			{From: "data_source", To: "llm_processor", Action: "process"},
+		},
+	}
+}
+
+func createProcessSpecWithExternalWithoutFailure() *pidl.Protocol {
+	return &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{
+			ID:   "external-no-failure",
+			Name: "External Without Failure Modes",
+			Kind: pidl.ProtocolKindProcess,
+		},
+		Entities: []pidl.Entity{
+			{
+				ID:       "api_call",
+				Name:     "External API Call",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeExternal,
+				// No FailureModes defined
+			},
+		},
+	}
+}
+
+func createProcessSpecWithHumanNoTimeout() *pidl.Protocol {
+	return &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{
+			ID:   "human-no-timeout",
+			Name: "Human Without Timeout",
+			Kind: pidl.ProtocolKindProcess,
+		},
+		Entities: []pidl.Entity{
+			{
+				ID:       "approval",
+				Name:     "Manual Approval",
+				Type:     pidl.EntityTypeUser,
+				StepType: pidl.StepTypeHuman,
+				// No Processing.Timeout defined
+			},
+		},
+	}
+}
+
+func createProcessSpecWithHumanTimeout() *pidl.Protocol {
+	return &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{
+			ID:   "human-with-timeout",
+			Name: "Human With Timeout",
+			Kind: pidl.ProtocolKindProcess,
+		},
+		Entities: []pidl.Entity{
+			{
+				ID:       "approval",
+				Name:     "Manual Approval",
+				Type:     pidl.EntityTypeUser,
+				StepType: pidl.StepTypeHuman,
+				Processing: &pidl.ProcessingConfig{
+					Timeout: "24h",
+				},
+			},
+		},
+	}
+}
+
+func createProcessSpecWithCriticalPath() *pidl.Protocol {
+	return &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{
+			ID:   "critical-path",
+			Name: "Non-Deterministic Critical Path",
+			Kind: pidl.ProtocolKindProcess,
+		},
+		Entities: []pidl.Entity{
+			{
+				ID:       "llm_hub",
+				Name:     "LLM Hub",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeLLM,
+			},
+			{
+				ID:       "step1",
+				Name:     "Step 1",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeDeterministic,
+			},
+			{
+				ID:       "step2",
+				Name:     "Step 2",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeDeterministic,
+			},
+		},
+		Flows: []pidl.Flow{
+			{From: "llm_hub", To: "step1", Action: "process1"},
+			{From: "llm_hub", To: "step2", Action: "process2"},
+		},
+	}
+}
+
+func TestAnalyze_SEC011_LLMWithoutValidation(t *testing.T) {
+	p := createProcessSpecWithLLM()
+	opts := DefaultAnalysisOptions()
+
+	analysis := Analyze(p, opts)
+
+	found := false
+	for _, risk := range analysis.Risks {
+		if risk.ID == "SEC011" {
+			found = true
+			if risk.Category != CategoryProcessSecurity {
+				t.Errorf("expected category %s, got %s", CategoryProcessSecurity, risk.Category)
+			}
+			break
+		}
+	}
+
+	if !found {
+		t.Error("expected SEC011 risk for LLM step without validation")
+	}
+}
+
+func TestAnalyze_SEC011_LLMWithValidation_NoRisk(t *testing.T) {
+	p := createProcessSpecWithValidatedLLM()
+	opts := DefaultAnalysisOptions()
+
+	analysis := Analyze(p, opts)
+
+	for _, risk := range analysis.Risks {
+		if risk.ID == "SEC011" {
+			t.Error("should not have SEC011 risk when LLM has validation step")
+		}
+	}
+}
+
+func TestAnalyze_SEC012_SensitiveDataToLLM(t *testing.T) {
+	p := createProcessSpecWithSensitiveDataToLLM()
+	opts := DefaultAnalysisOptions()
+
+	analysis := Analyze(p, opts)
+
+	count := 0
+	for _, risk := range analysis.Risks {
+		if risk.ID == "SEC012" {
+			count++
+			if risk.Severity != SeverityHigh {
+				t.Errorf("expected high severity, got %s", risk.Severity)
+			}
+		}
+	}
+
+	if count == 0 {
+		t.Error("expected SEC012 risks for sensitive data to LLM")
+	}
+}
+
+func TestAnalyze_SEC013_NonDeterministicCriticalPath(t *testing.T) {
+	p := createProcessSpecWithCriticalPath()
+	opts := DefaultAnalysisOptions()
+
+	analysis := Analyze(p, opts)
+
+	found := false
+	for _, risk := range analysis.Risks {
+		if risk.ID == "SEC013" {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		t.Error("expected SEC013 risk for non-deterministic step in critical path")
+	}
+}
+
+func TestAnalyze_SEC014_ExternalWithoutFailureModes(t *testing.T) {
+	p := createProcessSpecWithExternalWithoutFailure()
+	opts := DefaultAnalysisOptions()
+
+	analysis := Analyze(p, opts)
+
+	found := false
+	for _, risk := range analysis.Risks {
+		if risk.ID == "SEC014" {
+			found = true
+			if risk.Severity != SeverityLow {
+				t.Errorf("expected low severity, got %s", risk.Severity)
+			}
+			break
+		}
+	}
+
+	if !found {
+		t.Error("expected SEC014 risk for external step without failure modes")
+	}
+}
+
+func TestAnalyze_SEC015_HumanWithoutTimeout(t *testing.T) {
+	p := createProcessSpecWithHumanNoTimeout()
+	opts := DefaultAnalysisOptions()
+
+	analysis := Analyze(p, opts)
+
+	found := false
+	for _, risk := range analysis.Risks {
+		if risk.ID == "SEC015" {
+			found = true
+			if risk.Severity != SeverityMedium {
+				t.Errorf("expected medium severity, got %s", risk.Severity)
+			}
+			break
+		}
+	}
+
+	if !found {
+		t.Error("expected SEC015 risk for human step without timeout")
+	}
+}
+
+func TestAnalyze_SEC015_HumanWithTimeout_NoRisk(t *testing.T) {
+	p := createProcessSpecWithHumanTimeout()
+	opts := DefaultAnalysisOptions()
+
+	analysis := Analyze(p, opts)
+
+	for _, risk := range analysis.Risks {
+		if risk.ID == "SEC015" {
+			t.Error("should not have SEC015 risk when human step has timeout")
+		}
+	}
+}
+
+func TestParseCategory_ProcessSecurity(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected RiskCategory
+	}{
+		{"process_security", CategoryProcessSecurity},
+		{"process-security", CategoryProcessSecurity},
+		{"process", CategoryProcessSecurity},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			got, err := ParseCategory(tt.input)
+			if err != nil {
+				t.Errorf("ParseCategory(%q) error = %v", tt.input, err)
+			}
+			if got != tt.expected {
+				t.Errorf("ParseCategory(%q) = %v, want %v", tt.input, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestAnalyze_ProcessRulesSkipNonProcessSpecs(t *testing.T) {
+	// Regular protocol (not process spec) should not trigger SEC011-SEC015
+	p := createProtocolWithVulnerabilities()
+	opts := DefaultAnalysisOptions()
+
+	analysis := Analyze(p, opts)
+
+	for _, risk := range analysis.Risks {
+		if risk.ID == "SEC011" || risk.ID == "SEC012" || risk.ID == "SEC013" ||
+			risk.ID == "SEC014" || risk.ID == "SEC015" {
+			t.Errorf("process spec rule %s should not apply to regular protocols", risk.ID)
+		}
+	}
+}
