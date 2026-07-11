@@ -124,6 +124,9 @@ type ProtocolMeta struct {
 	// Name is the human-readable name.
 	Name string `json:"name"`
 
+	// Kind identifies the PIDL profile type (protocol or process).
+	Kind ProtocolKind `json:"kind,omitempty"`
+
 	// Version of this protocol description.
 	Version string `json:"version,omitempty"`
 
@@ -157,6 +160,16 @@ const (
 	CategoryOther        Category = "other"
 )
 
+// ProtocolKind identifies the PIDL profile type.
+type ProtocolKind string
+
+const (
+	// ProtocolKindProtocol is the default for protocol choreography.
+	ProtocolKindProtocol ProtocolKind = "protocol"
+	// ProtocolKindProcess is for workflow/process specifications.
+	ProtocolKindProcess ProtocolKind = "process"
+)
+
 // TrustLevel represents the trust classification of an entity.
 type TrustLevel string
 
@@ -170,6 +183,131 @@ const (
 	// TrustLevelAuthoritative is for sources of truth (IdPs, CAs).
 	TrustLevelAuthoritative TrustLevel = "authoritative"
 )
+
+// StepType classifies the processing nature of a process step.
+type StepType string
+
+const (
+	// StepTypeDeterministic is for repeatable, predictable processing.
+	StepTypeDeterministic StepType = "deterministic"
+	// StepTypeLLM is for LLM/AI-powered non-deterministic processing.
+	StepTypeLLM StepType = "llm"
+	// StepTypeHuman is for human-in-the-loop steps.
+	StepTypeHuman StepType = "human"
+	// StepTypeExternal is for external API/service calls.
+	StepTypeExternal StepType = "external"
+	// StepTypeTool is for tool invocations (MCP-style).
+	StepTypeTool StepType = "tool"
+)
+
+// DataPortKind classifies the type of data port.
+type DataPortKind string
+
+const (
+	// DataPortKindFile represents file-based data.
+	DataPortKindFile DataPortKind = "file"
+	// DataPortKindObject represents in-memory object data.
+	DataPortKindObject DataPortKind = "object"
+	// DataPortKindAPI represents API endpoint data.
+	DataPortKindAPI DataPortKind = "api"
+	// DataPortKindDatabase represents database data.
+	DataPortKindDatabase DataPortKind = "database"
+	// DataPortKindQueue represents message queue data.
+	DataPortKindQueue DataPortKind = "queue"
+	// DataPortKindStream represents streaming data.
+	DataPortKindStream DataPortKind = "stream"
+)
+
+// DataPort represents an input or output of a process step.
+type DataPort struct {
+	// Kind classifies the data type.
+	Kind DataPortKind `json:"kind"`
+
+	// Name is the identifier for this port.
+	Name string `json:"name"`
+
+	// Description provides additional context.
+	Description string `json:"description,omitempty"`
+
+	// Schema is an optional reference to a JSON Schema.
+	Schema string `json:"schema,omitempty"`
+
+	// Required indicates if this input must be provided.
+	Required bool `json:"required,omitempty"`
+
+	// Sensitive marks data as containing PII or secrets.
+	Sensitive bool `json:"sensitive,omitempty"`
+}
+
+// Determinism classifies processing predictability.
+type Determinism string
+
+const (
+	// DeterminismDeterministic indicates repeatable, predictable results.
+	DeterminismDeterministic Determinism = "deterministic"
+	// DeterminismNonDeterministic indicates variable results (e.g., LLM output).
+	DeterminismNonDeterministic Determinism = "non_deterministic"
+)
+
+// ProcessingConfig describes how a step processes its inputs.
+type ProcessingConfig struct {
+	// Engine identifies the processing engine.
+	Engine string `json:"engine,omitempty"`
+
+	// Determinism indicates processing predictability.
+	Determinism Determinism `json:"determinism,omitempty"`
+
+	// ModelPolicy specifies model selection for LLM steps.
+	ModelPolicy string `json:"model_policy,omitempty"`
+
+	// Timeout is the maximum processing duration.
+	Timeout string `json:"timeout,omitempty"`
+
+	// Idempotent indicates if repeated execution is safe.
+	Idempotent bool `json:"idempotent,omitempty"`
+
+	// Cacheable indicates if outputs can be cached.
+	Cacheable bool `json:"cacheable,omitempty"`
+
+	// CacheTTL is the cache time-to-live if cacheable.
+	CacheTTL string `json:"cache_ttl,omitempty"`
+}
+
+// FailureMode describes a possible failure scenario.
+type FailureMode struct {
+	// ID is the unique identifier for this failure mode.
+	ID string `json:"id"`
+
+	// Name is the human-readable name.
+	Name string `json:"name"`
+
+	// Description explains the failure scenario.
+	Description string `json:"description,omitempty"`
+
+	// Severity indicates the impact level.
+	Severity string `json:"severity,omitempty"`
+
+	// Recovery describes how to handle this failure.
+	Recovery string `json:"recovery,omitempty"`
+}
+
+// RetryStrategy configures retry behavior for a step.
+type RetryStrategy struct {
+	// MaxAttempts is the maximum number of retry attempts.
+	MaxAttempts int `json:"max_attempts,omitempty"`
+
+	// InitialDelay is the delay before the first retry.
+	InitialDelay string `json:"initial_delay,omitempty"`
+
+	// MaxDelay is the maximum delay between retries.
+	MaxDelay string `json:"max_delay,omitempty"`
+
+	// BackoffMultiplier increases delay between retries.
+	BackoffMultiplier float64 `json:"backoff_multiplier,omitempty"`
+
+	// RetryOn lists failure mode IDs that trigger retry.
+	RetryOn []string `json:"retry_on,omitempty"`
+}
 
 // ProtocolRole defines a protocol-specific role that an entity implements.
 type ProtocolRole struct {
@@ -298,6 +436,26 @@ type Entity struct {
 
 	// ProtocolRoles defines the protocol-specific roles this entity implements.
 	ProtocolRoles []ProtocolRole `json:"protocol_roles,omitempty"`
+
+	// Process profile fields (used when protocol.kind = "process")
+
+	// StepType classifies the processing nature (process profile).
+	StepType StepType `json:"step_type,omitempty"`
+
+	// Inputs defines input specifications (process profile).
+	Inputs []DataPort `json:"inputs,omitempty"`
+
+	// Outputs defines output specifications (process profile).
+	Outputs []DataPort `json:"outputs,omitempty"`
+
+	// Processing configures step execution (process profile).
+	Processing *ProcessingConfig `json:"processing,omitempty"`
+
+	// FailureModes lists possible failure scenarios (process profile).
+	FailureModes []FailureMode `json:"failure_modes,omitempty"`
+
+	// RetryStrategy configures retry behavior (process profile).
+	RetryStrategy *RetryStrategy `json:"retry_strategy,omitempty"`
 }
 
 // EntityState represents a possible state for an entity.

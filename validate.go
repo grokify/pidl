@@ -89,6 +89,9 @@ func (p *Protocol) Validate() ValidationErrors {
 	// Validate trust relationships
 	errs = append(errs, p.validateTrustRelations()...)
 
+	// Validate process-specific fields (if kind == "process")
+	errs = append(errs, p.ValidateProcess()...)
+
 	return errs
 }
 
