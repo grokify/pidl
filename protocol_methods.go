@@ -1,5 +1,51 @@
 package pidl
 
+// IsProcessSpec returns true if this is a process specification.
+func (p *Protocol) IsProcessSpec() bool {
+	return p.ProtocolMeta.Kind == ProtocolKindProcess
+}
+
+// Kind returns the protocol kind, defaulting to "protocol".
+func (p *Protocol) Kind() ProtocolKind {
+	if p.ProtocolMeta.Kind == "" {
+		return ProtocolKindProtocol
+	}
+	return p.ProtocolMeta.Kind
+}
+
+// ProcessSteps returns all entities that have process step semantics (StepType set).
+func (p *Protocol) ProcessSteps() []Entity {
+	var steps []Entity
+	for _, e := range p.Entities {
+		if e.IsProcessStep() {
+			steps = append(steps, e)
+		}
+	}
+	return steps
+}
+
+// LLMSteps returns all entities that are LLM-powered steps.
+func (p *Protocol) LLMSteps() []Entity {
+	var steps []Entity
+	for _, e := range p.Entities {
+		if e.IsLLMStep() {
+			steps = append(steps, e)
+		}
+	}
+	return steps
+}
+
+// DeterministicSteps returns all entities that are deterministic steps.
+func (p *Protocol) DeterministicSteps() []Entity {
+	var steps []Entity
+	for _, e := range p.Entities {
+		if e.IsDeterministic() {
+			steps = append(steps, e)
+		}
+	}
+	return steps
+}
+
 // EntityByID returns the entity with the given ID, or nil if not found.
 func (p *Protocol) EntityByID(id string) *Entity {
 	for i := range p.Entities {
