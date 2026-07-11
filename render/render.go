@@ -28,6 +28,7 @@ const (
 	FormatSVGNetwork       Format = "svg-network"
 	FormatSVGComponent     Format = "svg-component"
 	FormatSVGTrust         Format = "svg-trust"
+	FormatInfographic      Format = "infographic"
 )
 
 // String returns the format as a string.
@@ -48,7 +49,7 @@ func (f Format) FileExtension() string {
 		return ".dot"
 	case FormatD2, FormatD2Flow, FormatD2Arch:
 		return ".d2"
-	case FormatSVG, FormatSVGAnimated, FormatSVGNetwork, FormatSVGComponent, FormatSVGTrust:
+	case FormatSVG, FormatSVGAnimated, FormatSVGNetwork, FormatSVGComponent, FormatSVGTrust, FormatInfographic:
 		return ".svg"
 	default:
 		return ".txt"
@@ -88,8 +89,10 @@ func ParseFormat(s string) (Format, error) {
 		return FormatSVGComponent, nil
 	case "svg-trust":
 		return FormatSVGTrust, nil
+	case "infographic", "infog", "ig":
+		return FormatInfographic, nil
 	default:
-		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust", s)
+		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic", s)
 	}
 }
 
@@ -134,6 +137,9 @@ type SequenceRenderOptions struct {
 
 	// ShowSecurity renders security requirement notes/badges.
 	ShowSecurity bool
+
+	// ShowDataPorts renders input/output data ports for process steps.
+	ShowDataPorts bool
 }
 
 // DefaultSequenceRenderOptions returns the default sequence render options.
@@ -145,6 +151,7 @@ func DefaultSequenceRenderOptions() SequenceRenderOptions {
 		ShowConditions:   true,
 		ShowAlternatives: true,
 		ShowSecurity:     true,
+		ShowDataPorts:    true,
 	}
 }
 
@@ -222,5 +229,6 @@ func SupportedFormats() []Format {
 		FormatSVGNetwork,
 		FormatSVGComponent,
 		FormatSVGTrust,
+		FormatInfographic,
 	}
 }

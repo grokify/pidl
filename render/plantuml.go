@@ -15,6 +15,9 @@ type PlantUMLRenderer struct {
 
 	// ShowDescriptions includes flow descriptions as notes.
 	ShowDescriptions bool
+
+	// ShowStepTypes includes visual styling for process step types.
+	ShowStepTypes bool
 }
 
 // NewPlantUML creates a new PlantUML renderer with default options.
@@ -22,6 +25,7 @@ func NewPlantUML() *PlantUMLRenderer {
 	return &PlantUMLRenderer{
 		SequenceRenderOptions: DefaultSequenceRenderOptions(),
 		ShowDescriptions:      false,
+		ShowStepTypes:         true,
 	}
 }
 
@@ -52,13 +56,31 @@ func (r *PlantUMLRenderer) render(p *pidl.Protocol) string {
 
 	sb.WriteString("\n")
 
+	// Add process step type styling if enabled and this is a process spec
+	if r.ShowStepTypes && p.IsProcessSpec() {
+		r.writeProcessSkinparams(&sb)
+		sb.WriteString("\n")
+	}
+
 	// Declare participants
 	for _, e := range p.Entities {
-		participant := r.entityToParticipant(e)
+		stereotype := ""
+		if r.ShowStepTypes && e.IsProcessStep() {
+			stereotype = r.stepTypeStereotype(e.StepType)
+		}
+
 		if e.ID != e.Name {
-			fmt.Fprintf(&sb, "participant \"%s\" as %s\n", e.Name, e.ID)
+			if stereotype != "" {
+				fmt.Fprintf(&sb, "participant \"%s\" as %s %s\n", e.Name, e.ID, stereotype)
+			} else {
+				fmt.Fprintf(&sb, "participant \"%s\" as %s\n", e.Name, e.ID)
+			}
 		} else {
-			fmt.Fprintf(&sb, "participant %s\n", participant)
+			if stereotype != "" {
+				fmt.Fprintf(&sb, "participant %s %s\n", e.ID, stereotype)
+			} else {
+				fmt.Fprintf(&sb, "participant %s\n", e.ID)
+			}
 		}
 	}
 
@@ -252,11 +274,6 @@ func (r *PlantUMLRenderer) annotationPrefix(t pidl.AnnotationType) string {
 	}
 }
 
-func (r *PlantUMLRenderer) entityToParticipant(e pidl.Entity) string {
-	// Use ID for simple cases
-	return e.ID
-}
-
 func (r *PlantUMLRenderer) modeToArrow(mode pidl.FlowMode) string {
 	switch mode {
 	case pidl.FlowModeResponse, pidl.FlowModeToolResult, pidl.FlowModeEvent:
@@ -276,6 +293,41 @@ func (r *PlantUMLRenderer) modeAnnotation(mode pidl.FlowMode) string {
 		return "tool"
 	case pidl.FlowModeToolResult:
 		return "result"
+	default:
+		return ""
+	}
+}
+
+// writeProcessSkinparams writes PlantUML skinparams for process step type styling.
+func (r *PlantUMLRenderer) writeProcessSkinparams(sb *strings.Builder) {
+	sb.WriteString("' Process step type styling\n")
+	sb.WriteString("skinparam participant {\n")
+	sb.WriteString("    BackgroundColor<<deterministic>> #E3F2FD\n")
+	sb.WriteString("    BorderColor<<deterministic>> #1976D2\n")
+	sb.WriteString("    BackgroundColor<<llm>> #F3E5F5\n")
+	sb.WriteString("    BorderColor<<llm>> #7B1FA2\n")
+	sb.WriteString("    BackgroundColor<<human>> #E8F5E9\n")
+	sb.WriteString("    BorderColor<<human>> #388E3C\n")
+	sb.WriteString("    BackgroundColor<<external>> #FFF3E0\n")
+	sb.WriteString("    BorderColor<<external>> #F57C00\n")
+	sb.WriteString("    BackgroundColor<<tool>> #ECEFF1\n")
+	sb.WriteString("    BorderColor<<tool>> #607D8B\n")
+	sb.WriteString("}\n")
+}
+
+// stepTypeStereotype returns the PlantUML stereotype for a step type.
+func (r *PlantUMLRenderer) stepTypeStereotype(st pidl.StepType) string {
+	switch st {
+	case pidl.StepTypeDeterministic:
+		return "<<deterministic>>"
+	case pidl.StepTypeLLM:
+		return "<<llm>>"
+	case pidl.StepTypeHuman:
+		return "<<human>>"
+	case pidl.StepTypeExternal:
+		return "<<external>>"
+	case pidl.StepTypeTool:
+		return "<<tool>>"
 	default:
 		return ""
 	}

@@ -37,6 +37,10 @@ type ParticipantLayout struct {
 	LifelineStartY int
 	// LifelineEndY is where the lifeline ends.
 	LifelineEndY int
+	// StepType is the process step type (for process specs).
+	StepType string
+	// IsProcessStep indicates this participant is a process step.
+	IsProcessStep bool
 }
 
 // MessageLayout contains position data for a message arrow.

@@ -46,6 +46,9 @@ func TestParseFormat(t *testing.T) {
 		{"svg-component", FormatSVGComponent, false},
 		{"svg-comp", FormatSVGComponent, false},
 		{"svg-trust", FormatSVGTrust, false},
+		{"infographic", FormatInfographic, false},
+		{"infog", FormatInfographic, false},
+		{"ig", FormatInfographic, false},
 		{"  plantuml  ", FormatPlantUML, false},
 		{"unknown", "", true},
 		{"", "", true},
@@ -194,8 +197,8 @@ func TestMustNewPanics(t *testing.T) {
 
 func TestSupportedFormats(t *testing.T) {
 	formats := SupportedFormats()
-	if len(formats) != 15 {
-		t.Errorf("SupportedFormats() = %d formats, want 15", len(formats))
+	if len(formats) != 16 {
+		t.Errorf("SupportedFormats() = %d formats, want 16", len(formats))
 	}
 }
 
@@ -203,6 +206,10 @@ func TestRenderString(t *testing.T) {
 	p := testProtocol()
 
 	for _, format := range SupportedFormats() {
+		// Skip infographic - it uses a different renderer API
+		if format == FormatInfographic {
+			continue
+		}
 		t.Run(string(format), func(t *testing.T) {
 			s, err := RenderString(format, p)
 			if err != nil {
@@ -487,5 +494,335 @@ func TestD2RendererFormat(t *testing.T) {
 		if got := tt.renderer.Format(); got != tt.want {
 			t.Errorf("Format() = %v, want %v", got, tt.want)
 		}
+	}
+}
+
+// testProcessSpec returns a sample process spec for testing.
+func testProcessSpec() *pidl.Protocol {
+	return &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{
+			ID:   "vision-pipeline",
+			Name: "VisionSpec Execution Pipeline",
+			Kind: pidl.ProtocolKindProcess,
+		},
+		Entities: []pidl.Entity{
+			{ID: "loader", Name: "Document Loader", Type: pidl.EntityTypeServer, StepType: pidl.StepTypeDeterministic},
+			{ID: "analyzer", Name: "LLM Analyzer", Type: pidl.EntityTypeServer, StepType: pidl.StepTypeLLM},
+			{ID: "reviewer", Name: "Human Review", Type: pidl.EntityTypeUser, StepType: pidl.StepTypeHuman},
+			{ID: "extractor", Name: "Data Extractor", Type: pidl.EntityTypeServer, StepType: pidl.StepTypeTool},
+		},
+		Flows: []pidl.Flow{
+			{From: "loader", To: "analyzer", Action: "send", Label: "Document", Mode: pidl.FlowModeRequest},
+			{From: "analyzer", To: "reviewer", Action: "submit", Label: "Analysis", Mode: pidl.FlowModeRequest},
+			{From: "reviewer", To: "extractor", Action: "approve", Label: "Reviewed Data", Mode: pidl.FlowModeRequest},
+		},
+	}
+}
+
+// testProcessSpecWithDataPorts returns a process spec with data ports for testing.
+func testProcessSpecWithDataPorts() *pidl.Protocol {
+	return &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{
+			ID:   "etl-pipeline",
+			Name: "ETL Pipeline",
+			Kind: pidl.ProtocolKindProcess,
+		},
+		Entities: []pidl.Entity{
+			{
+				ID:       "extractor",
+				Name:     "Data Extractor",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeDeterministic,
+				Inputs: []pidl.DataPort{
+					{Kind: pidl.DataPortKindFile, Name: "input.csv", Description: "Raw CSV data", Required: true},
+					{Kind: pidl.DataPortKindAPI, Name: "config_api", Description: "Configuration endpoint"},
+				},
+				Outputs: []pidl.DataPort{
+					{Kind: pidl.DataPortKindObject, Name: "raw_data", Description: "Parsed raw data"},
+				},
+			},
+			{
+				ID:       "transformer",
+				Name:     "Data Transformer",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeLLM,
+				Inputs: []pidl.DataPort{
+					{Kind: pidl.DataPortKindObject, Name: "raw_data", Required: true},
+				},
+				Outputs: []pidl.DataPort{
+					{Kind: pidl.DataPortKindObject, Name: "transformed_data"},
+				},
+			},
+			{
+				ID:       "loader",
+				Name:     "Data Loader",
+				Type:     pidl.EntityTypeServer,
+				StepType: pidl.StepTypeDeterministic,
+				Inputs: []pidl.DataPort{
+					{Kind: pidl.DataPortKindObject, Name: "transformed_data", Required: true},
+				},
+				Outputs: []pidl.DataPort{
+					{Kind: pidl.DataPortKindDatabase, Name: "results_db", Description: "Output database"},
+					{Kind: pidl.DataPortKindQueue, Name: "notifications", Description: "Notification queue"},
+				},
+			},
+		},
+		Flows: []pidl.Flow{
+			{From: "extractor", To: "transformer", Action: "send", Label: "Raw Data", Mode: pidl.FlowModeRequest},
+			{From: "transformer", To: "loader", Action: "send", Label: "Transformed Data", Mode: pidl.FlowModeRequest},
+		},
+	}
+}
+
+func TestPlantUMLProcessSpec(t *testing.T) {
+	p := testProcessSpec()
+	r := NewPlantUML()
+	r.ShowStepTypes = true
+
+	s, err := r.RenderString(p)
+	if err != nil {
+		t.Fatalf("RenderString() error = %v", err)
+	}
+
+	// Check for step type skinparams
+	if !strings.Contains(s, "skinparam participant") {
+		t.Error("PlantUML process spec should have participant skinparams")
+	}
+
+	// Check for step type stereotypes
+	if !strings.Contains(s, "<<deterministic>>") {
+		t.Error("PlantUML process spec should have deterministic stereotype")
+	}
+	if !strings.Contains(s, "<<llm>>") {
+		t.Error("PlantUML process spec should have llm stereotype")
+	}
+	if !strings.Contains(s, "<<human>>") {
+		t.Error("PlantUML process spec should have human stereotype")
+	}
+	if !strings.Contains(s, "<<tool>>") {
+		t.Error("PlantUML process spec should have tool stereotype")
+	}
+}
+
+func TestMermaidProcessSpec(t *testing.T) {
+	p := testProcessSpec()
+	r := NewMermaid()
+	r.ShowStepTypes = true
+
+	s, err := r.RenderString(p)
+	if err != nil {
+		t.Fatalf("RenderString() error = %v", err)
+	}
+
+	// Check for step type emoji badges
+	if !strings.Contains(s, "⚙️") {
+		t.Error("Mermaid process spec should have deterministic badge (⚙️)")
+	}
+	if !strings.Contains(s, "🧠") {
+		t.Error("Mermaid process spec should have LLM badge (🧠)")
+	}
+	if !strings.Contains(s, "👤") {
+		t.Error("Mermaid process spec should have human badge (👤)")
+	}
+	if !strings.Contains(s, "🔧") {
+		t.Error("Mermaid process spec should have tool badge (🔧)")
+	}
+}
+
+func TestD2ProcessSpec(t *testing.T) {
+	p := testProcessSpec()
+	// Use D2Flow style which supports entity styling
+	r := NewD2Flow()
+	r.ShowStepTypes = true
+
+	s, err := r.RenderString(p)
+	if err != nil {
+		t.Fatalf("RenderString() error = %v", err)
+	}
+
+	// Check for step type color styling
+	if !strings.Contains(s, "#E3F2FD") || !strings.Contains(s, "#1976D2") {
+		t.Error("D2 process spec should have deterministic step colors (blue)")
+	}
+	if !strings.Contains(s, "#F3E5F5") || !strings.Contains(s, "#7B1FA2") {
+		t.Error("D2 process spec should have LLM step colors (purple)")
+	}
+	if !strings.Contains(s, "#E8F5E9") || !strings.Contains(s, "#388E3C") {
+		t.Error("D2 process spec should have human step colors (green)")
+	}
+	if !strings.Contains(s, "#ECEFF1") || !strings.Contains(s, "#607D8B") {
+		t.Error("D2 process spec should have tool step colors (gray)")
+	}
+}
+
+func TestSVGProcessSpec(t *testing.T) {
+	p := testProcessSpec()
+	r := NewSVG()
+	r.ShowStepTypes = true
+
+	s, err := r.RenderString(p)
+	if err != nil {
+		t.Fatalf("RenderString() error = %v", err)
+	}
+
+	// Check SVG structure
+	if !strings.HasPrefix(s, "<svg") {
+		t.Error("SVG should start with <svg")
+	}
+	if !strings.Contains(s, "</svg>") {
+		t.Error("SVG should contain closing </svg>")
+	}
+
+	// Check for step type emoji badges in participant text
+	if !strings.Contains(s, "⚙️") {
+		t.Error("SVG process spec should have deterministic badge (⚙️)")
+	}
+	if !strings.Contains(s, "🧠") {
+		t.Error("SVG process spec should have LLM badge (🧠)")
+	}
+	if !strings.Contains(s, "👤") {
+		t.Error("SVG process spec should have human badge (👤)")
+	}
+	if !strings.Contains(s, "🔧") {
+		t.Error("SVG process spec should have tool badge (🔧)")
+	}
+
+	// Check for step type inline styles on participant boxes
+	if !strings.Contains(s, "fill:#E3F2FD") {
+		t.Error("SVG process spec should have deterministic fill color")
+	}
+	if !strings.Contains(s, "fill:#F3E5F5") {
+		t.Error("SVG process spec should have LLM fill color")
+	}
+	if !strings.Contains(s, "fill:#E8F5E9") {
+		t.Error("SVG process spec should have human fill color")
+	}
+	if !strings.Contains(s, "fill:#ECEFF1") {
+		t.Error("SVG process spec should have tool fill color")
+	}
+}
+
+func TestProcessSpecRenderAllFormats(t *testing.T) {
+	p := testProcessSpec()
+
+	// Test all sequence diagram formats can render process specs
+	formats := []Format{
+		FormatPlantUML,
+		FormatMermaid,
+		FormatD2,
+		FormatSVG,
+	}
+
+	for _, format := range formats {
+		t.Run(string(format), func(t *testing.T) {
+			s, err := RenderString(format, p)
+			if err != nil {
+				t.Errorf("RenderString() error = %v", err)
+			}
+			if s == "" {
+				t.Error("RenderString() returned empty string")
+			}
+		})
+	}
+}
+
+func TestD2FlowDataPorts(t *testing.T) {
+	p := testProcessSpecWithDataPorts()
+	r := NewD2Flow()
+	r.ShowDataPorts = true
+
+	s, err := r.RenderString(p)
+	if err != nil {
+		t.Fatalf("RenderString() error = %v", err)
+	}
+
+	// Check for data port shapes
+	if !strings.Contains(s, "shape: page") {
+		t.Error("D2 flow should have page shape for file ports")
+	}
+	if !strings.Contains(s, "shape: cylinder") {
+		t.Error("D2 flow should have cylinder shape for database ports")
+	}
+	if !strings.Contains(s, "shape: cloud") {
+		t.Error("D2 flow should have cloud shape for API ports")
+	}
+	if !strings.Contains(s, "shape: queue") {
+		t.Error("D2 flow should have queue shape for queue ports")
+	}
+
+	// Check for data port icons
+	if !strings.Contains(s, "📄") {
+		t.Error("D2 flow should have file icon (📄)")
+	}
+	if !strings.Contains(s, "🗄️") {
+		t.Error("D2 flow should have database icon (🗄️)")
+	}
+	if !strings.Contains(s, "🌐") {
+		t.Error("D2 flow should have API icon (🌐)")
+	}
+	if !strings.Contains(s, "📬") {
+		t.Error("D2 flow should have queue icon (📬)")
+	}
+
+	// Check for data port names
+	if !strings.Contains(s, "input.csv") {
+		t.Error("D2 flow should contain input.csv port")
+	}
+	if !strings.Contains(s, "results_db") {
+		t.Error("D2 flow should contain results_db port")
+	}
+
+	// Check for data port connections section
+	if !strings.Contains(s, "# Data Port Connections") {
+		t.Error("D2 flow should have data port connections section")
+	}
+}
+
+func TestD2ArchDataPorts(t *testing.T) {
+	p := testProcessSpecWithDataPorts()
+	r := NewD2Arch()
+	r.ShowDataPorts = true
+
+	s, err := r.RenderString(p)
+	if err != nil {
+		t.Fatalf("RenderString() error = %v", err)
+	}
+
+	// Check for grouped data ports
+	if !strings.Contains(s, "Files:") {
+		t.Error("D2 arch should have Files group")
+	}
+	if !strings.Contains(s, "Databases:") {
+		t.Error("D2 arch should have Databases group")
+	}
+	if !strings.Contains(s, "APIs:") {
+		t.Error("D2 arch should have APIs group")
+	}
+	if !strings.Contains(s, "Queues:") {
+		t.Error("D2 arch should have Queues group")
+	}
+
+	// Check for qualified port IDs in connections
+	if !strings.Contains(s, "Files.") || !strings.Contains(s, "Databases.") {
+		t.Error("D2 arch should use qualified IDs for port connections")
+	}
+}
+
+func TestD2FlowDataPortsDisabled(t *testing.T) {
+	p := testProcessSpecWithDataPorts()
+	r := NewD2Flow()
+	r.ShowDataPorts = false
+
+	s, err := r.RenderString(p)
+	if err != nil {
+		t.Fatalf("RenderString() error = %v", err)
+	}
+
+	// Should not contain data port elements
+	if strings.Contains(s, "# Data Ports") {
+		t.Error("D2 flow with ShowDataPorts=false should not have data ports section")
+	}
+	if strings.Contains(s, "port_input") {
+		t.Error("D2 flow with ShowDataPorts=false should not have port IDs")
 	}
 }

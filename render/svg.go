@@ -28,6 +28,9 @@ type SVGRenderer struct {
 	// ShowPhases renders phase boxes around grouped flows.
 	ShowPhases bool
 
+	// ShowStepTypes includes visual styling for process step types.
+	ShowStepTypes bool
+
 	// ParticipantSpacing sets horizontal spacing between participants.
 	ParticipantSpacing int
 
@@ -58,6 +61,7 @@ func NewSVG() *SVGRenderer {
 		Theme:                 "light",
 		ShowStepNumbers:       true,
 		ShowPhases:            true,
+		ShowStepTypes:         true,
 		ParticipantSpacing:    0, // 0 means use default
 		MessageSpacing:        0, // 0 means use default
 		AnimationConfig:       svg.DefaultAnimationConfig(),
@@ -174,6 +178,11 @@ func (r *SVGRenderer) render(p *pidl.Protocol) string {
 	for i, e := range p.Entities {
 		layout.Participants[i].ID = e.ID
 		layout.Participants[i].Name = e.Name
+		// Add step type info for process specs
+		if r.ShowStepTypes && p.IsProcessSpec() && e.IsProcessStep() {
+			layout.Participants[i].StepType = string(e.StepType)
+			layout.Participants[i].IsProcessStep = true
+		}
 	}
 
 	// Populate message data and calculate endpoints
@@ -282,10 +291,25 @@ func (r *SVGRenderer) render(p *pidl.Protocol) string {
 	sb.WriteString("  <!-- Participants -->\n")
 	sb.WriteString("  <g class=\"participants\">\n")
 	for _, part := range layout.Participants {
-		sb.WriteString(fmt.Sprintf(`    <rect class="participant-box" x="%d" y="%d" width="%d" height="%d" rx="%d"/>`+"\n",
-			part.BoxX, part.BoxY, part.BoxWidth, part.BoxHeight, cornerRadius))
+		// Apply step type styling for process specs
+		styleAttr := ""
+		if part.IsProcessStep {
+			fill, stroke := r.stepTypeColors(part.StepType)
+			styleAttr = fmt.Sprintf(` style="fill:%s;stroke:%s;"`, fill, stroke)
+		}
+		sb.WriteString(fmt.Sprintf(`    <rect class="participant-box" x="%d" y="%d" width="%d" height="%d" rx="%d"%s/>`+"\n",
+			part.BoxX, part.BoxY, part.BoxWidth, part.BoxHeight, cornerRadius, styleAttr))
+
+		// Add step type badge for process steps
+		displayName := part.Name
+		if part.IsProcessStep {
+			badge := r.stepTypeBadge(part.StepType)
+			if badge != "" {
+				displayName = badge + " " + displayName
+			}
+		}
 		sb.WriteString(fmt.Sprintf(`    <text class="participant-text" x="%d" y="%d">%s</text>`+"\n",
-			part.CenterX, part.BoxY+part.BoxHeight/2, html.EscapeString(part.Name)))
+			part.CenterX, part.BoxY+part.BoxHeight/2, html.EscapeString(displayName)))
 	}
 	sb.WriteString("  </g>\n\n")
 
@@ -536,4 +560,40 @@ func (r *SVGRenderer) calculatePhaseRegions(p *pidl.Protocol, layout svg.Layout,
 	}
 
 	return result
+}
+
+// stepTypeColors returns fill and stroke colors for a process step type.
+func (r *SVGRenderer) stepTypeColors(st string) (fill, stroke string) {
+	switch st {
+	case string(pidl.StepTypeDeterministic):
+		return "#E3F2FD", "#1976D2" // blue
+	case string(pidl.StepTypeLLM):
+		return "#F3E5F5", "#7B1FA2" // purple
+	case string(pidl.StepTypeHuman):
+		return "#E8F5E9", "#388E3C" // green
+	case string(pidl.StepTypeExternal):
+		return "#FFF3E0", "#F57C00" // orange
+	case string(pidl.StepTypeTool):
+		return "#ECEFF1", "#607D8B" // gray
+	default:
+		return "#FFFFFF", "#333333"
+	}
+}
+
+// stepTypeBadge returns an emoji badge for a process step type.
+func (r *SVGRenderer) stepTypeBadge(st string) string {
+	switch st {
+	case string(pidl.StepTypeDeterministic):
+		return "⚙️"
+	case string(pidl.StepTypeLLM):
+		return "🧠"
+	case string(pidl.StepTypeHuman):
+		return "👤"
+	case string(pidl.StepTypeExternal):
+		return "☁️"
+	case string(pidl.StepTypeTool):
+		return "🔧"
+	default:
+		return ""
+	}
 }

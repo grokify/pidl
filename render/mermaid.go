@@ -15,6 +15,9 @@ type MermaidRenderer struct {
 
 	// Autonumber adds sequence numbers to messages.
 	Autonumber bool
+
+	// ShowStepTypes includes step type indicators for process specs.
+	ShowStepTypes bool
 }
 
 // NewMermaid creates a new Mermaid renderer with default options.
@@ -22,6 +25,7 @@ func NewMermaid() *MermaidRenderer {
 	return &MermaidRenderer{
 		SequenceRenderOptions: DefaultSequenceRenderOptions(),
 		Autonumber:            true,
+		ShowStepTypes:         true,
 	}
 }
 
@@ -58,7 +62,14 @@ func (r *MermaidRenderer) render(p *pidl.Protocol) string {
 
 	// Declare participants
 	for _, e := range p.Entities {
-		fmt.Fprintf(&sb, "    participant %s as %s\n", e.ID, e.Name)
+		name := e.Name
+		if r.ShowStepTypes && p.IsProcessSpec() && e.IsProcessStep() {
+			badge := r.stepTypeBadge(e.StepType)
+			if badge != "" {
+				name = fmt.Sprintf("%s %s", badge, name)
+			}
+		}
+		fmt.Fprintf(&sb, "    participant %s as %s\n", e.ID, name)
 	}
 
 	sb.WriteString("\n")
@@ -291,4 +302,22 @@ func (r *MermaidRenderer) escapeLabel(label string) string {
 	label = strings.ReplaceAll(label, ":", "&#58;")
 	label = strings.ReplaceAll(label, "#", "&#35;")
 	return label
+}
+
+// stepTypeBadge returns a visual badge for a step type.
+func (r *MermaidRenderer) stepTypeBadge(st pidl.StepType) string {
+	switch st {
+	case pidl.StepTypeDeterministic:
+		return "⚙️"
+	case pidl.StepTypeLLM:
+		return "🧠"
+	case pidl.StepTypeHuman:
+		return "👤"
+	case pidl.StepTypeExternal:
+		return "☁️"
+	case pidl.StepTypeTool:
+		return "🔧"
+	default:
+		return ""
+	}
 }
