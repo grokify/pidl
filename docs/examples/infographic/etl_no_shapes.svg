@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <style>
+    .node { filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1)); }
+    .label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; fill: #495057; }
+    .title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 700; fill: #212529; }
+    .icon { font-size: 20px; }
+    .edge { fill: none; stroke: #adb5bd; stroke-width: 2; stroke-linecap: round; }
+    .dot { fill: #6c757d; }
+  </style>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#adb5bd"/>
+    </marker>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="400" height="400" fill="#ffffff"/>
+  <text x="200" y="30" text-anchor="middle" class="title" font-size="16">ETL (No Shapes)</text>
+  <!-- Edges -->
+  <path id="edge0" class="edge" d="M126,218 C118,218 110,218 102,218" marker-end="url(#arrowhead)"/>
+  <circle r="3" class="dot" filter="url(#glow)">
+    <animateMotion dur="2.0s" repeatCount="indefinite" begin="0.0s">
+      <mpath href="#edge0"/>
+    </animateMotion>
+  </circle>
+  <circle r="3" class="dot" filter="url(#glow)">
+    <animateMotion dur="2.0s" repeatCount="indefinite" begin="1.0s">
+      <mpath href="#edge0"/>
+    </animateMotion>
+  </circle>
+  <path id="edge1" class="edge" d="M182,218 C174,218 166,218 158,218" marker-end="url(#arrowhead)"/>
+  <circle r="3" class="dot" filter="url(#glow)">
+    <animateMotion dur="2.0s" repeatCount="indefinite" begin="0.0s">
+      <mpath href="#edge1"/>
+    </animateMotion>
+  </circle>
+  <circle r="3" class="dot" filter="url(#glow)">
+    <animateMotion dur="2.0s" repeatCount="indefinite" begin="1.0s">
+      <mpath href="#edge1"/>
+    </animateMotion>
+  </circle>
+  <path id="edge2" class="edge" d="M182,218 C211,218 241,218 270,218" marker-end="url(#arrowhead)"/>
+  <circle r="3" class="dot" filter="url(#glow)">
+    <animateMotion dur="2.0s" repeatCount="indefinite" begin="0.0s">
+      <mpath href="#edge2"/>
+    </animateMotion>
+  </circle>
+  <circle r="3" class="dot" filter="url(#glow)">
+    <animateMotion dur="2.0s" repeatCount="indefinite" begin="1.0s">
+      <mpath href="#edge2"/>
+    </animateMotion>
+  </circle>
+  <path id="edge3" class="edge" d="M238,218 C230,218 222,218 214,218" marker-end="url(#arrowhead)"/>
+  <circle r="3" class="dot" filter="url(#glow)">
+    <animateMotion dur="2.0s" repeatCount="indefinite" begin="0.0s">
+      <mpath href="#edge3"/>
+    </animateMotion>
+  </circle>
+  <circle r="3" class="dot" filter="url(#glow)">
+    <animateMotion dur="2.0s" repeatCount="indefinite" begin="1.0s">
+      <mpath href="#edge3"/>
+    </animateMotion>
+  </circle>
+  <path id="edge4" class="edge" d="M294,218 C286,218 278,218 270,218" marker-end="url(#arrowhead)"/>
+  <circle r="3" class="dot" filter="url(#glow)">
+    <animateMotion dur="2.0s" repeatCount="indefinite" begin="0.0s">
+      <mpath href="#edge4"/>
+    </animateMotion>
+  </circle>
+  <circle r="3" class="dot" filter="url(#glow)">
+    <animateMotion dur="2.0s" repeatCount="indefinite" begin="1.0s">
+      <mpath href="#edge4"/>
+    </animateMotion>
+  </circle>
+  <!-- Nodes -->
+  <g class="node" transform="translate(46,188)">
+    <rect width="80" height="60" rx="8" fill="#f8f9fa" stroke="#1976D2" stroke-width="2"/>
+    <text x="40" y="25" text-anchor="middle" class="icon">⚙️</text>
+    <text x="40" y="48" text-anchor="middle" class="label" font-size="12">Data Ex…</text>
+  </g>
+  <g class="node" transform="translate(102,188)">
+    <rect width="80" height="60" rx="8" fill="#f8f9fa" stroke="#1976D2" stroke-width="2"/>
+    <text x="40" y="25" text-anchor="middle" class="icon">⚙️</text>
+    <text x="40" y="48" text-anchor="middle" class="label" font-size="12">Data Va…</text>
+  </g>
+  <g class="node" transform="translate(158,188)">
+    <rect width="80" height="60" rx="8" fill="#f8f9fa" stroke="#1976D2" stroke-width="2"/>
+    <text x="40" y="25" text-anchor="middle" class="icon">⚙️</text>
+    <text x="40" y="48" text-anchor="middle" class="label" font-size="12">Data Tr…</text>
+  </g>
+  <g class="node" transform="translate(214,188)">
+    <rect width="80" height="60" rx="8" fill="#f8f9fa" stroke="#1976D2" stroke-width="2"/>
+    <text x="40" y="25" text-anchor="middle" class="icon">⚙️</text>
+    <text x="40" y="48" text-anchor="middle" class="label" font-size="12">Data Lo…</text>
+  </g>
+  <g class="node" transform="translate(270,188)">
+    <rect width="80" height="60" rx="8" fill="#f8f9fa" stroke="#F57C00" stroke-width="2"/>
+    <text x="40" y="25" text-anchor="middle" class="icon">☁️</text>
+    <text x="40" y="48" text-anchor="middle" class="label" font-size="12">Notifier</text>
+  </g>
+</svg>
