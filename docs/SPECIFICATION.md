@@ -363,14 +363,359 @@ Minimal OAuth 2.0 token exchange:
 
 PIDL files use the `.pidl.json` extension by convention.
 
+---
+
+## Process Profile
+
+PIDL supports a **process profile** for describing data processing workflows in addition to the standard protocol profile. Process specs model step-by-step data transformations with explicit input/output ports, processing characteristics, and failure handling.
+
+### Protocol Kind
+
+The `kind` field in the protocol metadata distinguishes between protocol and process specifications:
+
+```json
+{
+  "protocol": {
+    "id": "etl-pipeline",
+    "name": "ETL Pipeline",
+    "kind": "process"
+  }
+}
+```
+
+| Kind | Description |
+|------|-------------|
+| `protocol` | Standard protocol (default) - models interactions between systems |
+| `process` | Process specification - models data processing workflows |
+
+### Step Types
+
+In process specifications, entities represent processing steps. The `step_type` field classifies each step:
+
+```json
+{
+  "entities": [
+    {
+      "id": "extract",
+      "name": "Data Extraction",
+      "type": "server",
+      "step_type": "deterministic"
+    },
+    {
+      "id": "transform",
+      "name": "LLM Transform",
+      "type": "server",
+      "step_type": "llm"
+    }
+  ]
+}
+```
+
+| Step Type | Icon | Description | Characteristics |
+|-----------|------|-------------|-----------------|
+| `deterministic` | ⚙️ | Predictable processing | Same input → same output |
+| `llm` | 🧠 | AI/ML processing | Non-deterministic, may require validation |
+| `human` | 👤 | Human involvement | Manual review, approval, or input |
+| `external` | ☁️ | External services | API calls, third-party services |
+| `tool` | 🔧 | Tool invocations | Function calls, utilities |
+
+### Data Ports
+
+Entities can define input and output data ports for explicit data flow modeling:
+
+```json
+{
+  "entities": [
+    {
+      "id": "transform",
+      "name": "Transform Step",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "name": "raw_data",
+          "kind": "object",
+          "required": true,
+          "description": "Raw input data to transform"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "processed_data",
+          "kind": "object",
+          "description": "Transformed output data"
+        },
+        {
+          "name": "audit_log",
+          "kind": "file",
+          "sensitive": true,
+          "description": "Processing audit trail"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### Data Port Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Port identifier |
+| `kind` | enum | Yes | Data type classification |
+| `description` | string | No | Port description |
+| `required` | boolean | No | Whether input is required (default: false) |
+| `sensitive` | boolean | No | Contains sensitive data (default: false) |
+| `schema` | string | No | JSON Schema reference for validation |
+
+#### Data Port Kinds
+
+| Kind | Icon | Description |
+|------|------|-------------|
+| `file` | 📄 | File-based data |
+| `object` | 📦 | In-memory object/struct |
+| `api` | 🌐 | API request/response |
+| `database` | 🗄️ | Database record/query |
+| `queue` | 📬 | Message queue item |
+| `stream` | 🌊 | Streaming data |
+
+### Processing Configuration
+
+The `processing` field configures step execution characteristics:
+
+```json
+{
+  "entities": [
+    {
+      "id": "llm_step",
+      "name": "LLM Processing",
+      "step_type": "llm",
+      "processing": {
+        "engine": "claude-3-opus",
+        "deterministic": false,
+        "timeout": "PT30S",
+        "cache_key": "input_hash",
+        "max_retries": 3
+      }
+    }
+  ]
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `engine` | string | Processing engine identifier |
+| `deterministic` | boolean | Whether output is deterministic |
+| `timeout` | string | ISO 8601 duration (e.g., "PT30S") |
+| `cache_key` | string | Cache key expression |
+| `max_retries` | integer | Maximum retry attempts |
+
+### Failure Modes
+
+The `failure_modes` field documents potential failure scenarios:
+
+```json
+{
+  "entities": [
+    {
+      "id": "external_api",
+      "name": "External API Call",
+      "step_type": "external",
+      "failure_modes": [
+        {
+          "id": "timeout",
+          "name": "Request Timeout",
+          "severity": "medium",
+          "recovery": "Retry with exponential backoff"
+        },
+        {
+          "id": "rate_limit",
+          "name": "Rate Limited",
+          "severity": "low",
+          "recovery": "Wait and retry"
+        }
+      ]
+    }
+  ]
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | Yes | Failure mode identifier |
+| `name` | string | Yes | Human-readable name |
+| `description` | string | No | Detailed description |
+| `severity` | enum | No | `critical`, `high`, `medium`, `low` |
+| `recovery` | string | No | Recovery strategy description |
+
+### Retry Strategy
+
+The `retry_strategy` field configures automatic retry behavior:
+
+```json
+{
+  "entities": [
+    {
+      "id": "api_call",
+      "name": "API Call",
+      "step_type": "external",
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "PT1S",
+        "max_delay": "PT30S",
+        "backoff_multiplier": 2.0,
+        "retryable_errors": ["timeout", "rate_limit"]
+      }
+    }
+  ]
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `max_attempts` | integer | Maximum retry attempts |
+| `initial_delay` | string | Initial delay (ISO 8601 duration) |
+| `max_delay` | string | Maximum delay between retries |
+| `backoff_multiplier` | number | Exponential backoff multiplier |
+| `retryable_errors` | array | Error types that trigger retry |
+
+### Process Spec Example
+
+Complete ETL pipeline example:
+
+```json
+{
+  "protocol": {
+    "id": "etl-pipeline",
+    "name": "ETL Pipeline",
+    "kind": "process",
+    "description": "Extract, transform, and load data pipeline"
+  },
+  "entities": [
+    {
+      "id": "extract",
+      "name": "Extract",
+      "type": "server",
+      "step_type": "deterministic",
+      "outputs": [
+        {"name": "raw_data", "kind": "object"}
+      ]
+    },
+    {
+      "id": "transform",
+      "name": "Transform",
+      "type": "server",
+      "step_type": "llm",
+      "inputs": [
+        {"name": "raw_data", "kind": "object", "required": true}
+      ],
+      "outputs": [
+        {"name": "processed_data", "kind": "object"}
+      ],
+      "processing": {
+        "engine": "claude-3-opus",
+        "deterministic": false,
+        "timeout": "PT60S"
+      }
+    },
+    {
+      "id": "validate",
+      "name": "Human Review",
+      "type": "server",
+      "step_type": "human",
+      "inputs": [
+        {"name": "processed_data", "kind": "object", "required": true}
+      ],
+      "outputs": [
+        {"name": "approved_data", "kind": "object"}
+      ]
+    },
+    {
+      "id": "load",
+      "name": "Load",
+      "type": "server",
+      "step_type": "external",
+      "inputs": [
+        {"name": "approved_data", "kind": "object", "required": true}
+      ],
+      "failure_modes": [
+        {"id": "connection_error", "name": "Connection Error", "severity": "high"}
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "PT5S",
+        "backoff_multiplier": 2.0
+      }
+    }
+  ],
+  "flows": [
+    {"from": "extract", "to": "transform", "action": "send_data"},
+    {"from": "transform", "to": "validate", "action": "review"},
+    {"from": "validate", "to": "load", "action": "approve"}
+  ]
+}
+```
+
+### Process Spec Security Analysis
+
+PIDL includes security rules specific to process specifications:
+
+| Rule | Severity | Description |
+|------|----------|-------------|
+| SEC011 | Medium | LLM step without downstream validation |
+| SEC012 | High | Sensitive data flows to LLM step |
+| SEC013 | Medium | Non-deterministic step in critical path |
+| SEC014 | Low | External step without failure modes |
+| SEC015 | Medium | Human step without timeout |
+
+### Process Spec Rendering
+
+Process specifications render with step-type-specific styling:
+
+| Output Format | Step Type Rendering |
+|---------------|---------------------|
+| PlantUML | Stereotypes (`<<llm>>`) with colored participants |
+| Mermaid | Emoji badges in participant names |
+| D2 | Fill/stroke colors per step type |
+| SVG | Inline styles and emoji badges |
+| Infographic | Custom shapes per step type |
+
+#### Infographic Output
+
+Process specs can be rendered as compact infographics for social media and datasheets:
+
+```bash
+# LinkedIn-optimized infographic
+pidl generate -f infographic --size=linkedin-square --title="ETL Pipeline" etl.json
+
+# Datasheet tile
+pidl generate -f infographic --size=datasheet-tile --theme=minimal etl.json
+```
+
+| Infographic Size | Dimensions | Use Case |
+|------------------|------------|----------|
+| `linkedin-square` | 1200×1200 | LinkedIn feed posts |
+| `linkedin-portrait` | 1080×1350 | LinkedIn portrait posts |
+| `linkedin-landscape` | 1200×627 | LinkedIn link previews |
+| `datasheet-tile` | 400×400 | Datasheet grid layouts |
+| `datasheet-wide` | 600×300 | Wide datasheet tiles |
+
+| Theme | Description |
+|-------|-------------|
+| `bold` | High contrast, saturated (default) |
+| `minimal` | Clean, subtle |
+| `dark` | Dark background |
+| `tech` | Tech/engineering feel |
+
+---
+
 ## Future Extensions
 
 The following features are planned for future versions:
 
-- State model and mutations
-- Protocol composition and imports
 - Loop constructs (`loop` blocks)
 - Break/continue semantics
 - External tool integration (PlantUML server, Kroki)
+- Workflow engine exports (Temporal, Airflow, Step Functions)
+- Data lineage tracking
 
-See TASKS.md for the complete roadmap.
+See [ROADMAP.md](specs/ROADMAP.md) for the complete roadmap.

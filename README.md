@@ -60,7 +60,9 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 - ▶️ **Protocol simulation** with state tracking and execution traces
 - 🔍 **Protocol comparison** (diff) for change detection
 - 🐛 **Interactive debugger** for step-through protocol execution
-- 🛡️ **Security analysis** with 10 built-in attack surface detection rules
+- 🛡️ **Security analysis** with 15 built-in attack surface detection rules
+- 🔄 **Process specifications** for data pipelines and AI workflows
+- 📊 **Infographic renderer** for LinkedIn and datasheet visuals
 
 ## Installation
 
@@ -122,6 +124,12 @@ pidl generate -f mermaid-state oauth2_with_states
 
 # State diagram for specific entity
 pidl generate -f mermaid-state --entity=client oauth2_with_states
+
+# Infographic for social media
+pidl generate -f infographic --size=linkedin-square --title="OAuth Flow" oauth2_pkce
+
+# Compact infographic for datasheets
+pidl generate -f infographic --size=datasheet-tile --theme=minimal etl_pipeline
 ```
 
 ### Create a new protocol file
@@ -140,6 +148,56 @@ pidl init -from oauth2_authorization_code my-oauth.json
 pidl validate my-protocol.json
 pidl validate *.json
 ```
+
+## Process Specifications
+
+PIDL supports **process specifications** for modeling data pipelines and AI workflows. Process specs use step types to classify processing stages:
+
+```json
+{
+  "protocol": {
+    "id": "etl-pipeline",
+    "name": "ETL Pipeline",
+    "kind": "process"
+  },
+  "entities": [
+    {"id": "extract", "name": "Extract", "type": "server", "step_type": "deterministic"},
+    {"id": "transform", "name": "Transform", "type": "server", "step_type": "llm"},
+    {"id": "review", "name": "Human Review", "type": "server", "step_type": "human"},
+    {"id": "load", "name": "Load", "type": "server", "step_type": "external"}
+  ],
+  "flows": [
+    {"from": "extract", "to": "transform", "action": "send"},
+    {"from": "transform", "to": "review", "action": "review"},
+    {"from": "review", "to": "load", "action": "approve"}
+  ]
+}
+```
+
+### Step Types
+
+| Step Type | Icon | Description |
+|-----------|------|-------------|
+| `deterministic` | ⚙️ | Predictable processing (same input → same output) |
+| `llm` | 🧠 | AI/ML processing (non-deterministic) |
+| `human` | 👤 | Human involvement (review, approval) |
+| `external` | ☁️ | External services (API calls) |
+| `tool` | 🔧 | Tool invocations (function calls) |
+
+### Generate Process Diagrams
+
+```bash
+# SVG with step type styling
+pidl generate -f svg etl_pipeline
+
+# Infographic for LinkedIn
+pidl generate -f infographic --size=linkedin-square --title="ETL Pipeline" etl_pipeline
+
+# Security analysis with process-aware rules
+pidl analyze etl_pipeline
+```
+
+See [Process Guide](docs/guide/process.md) for detailed documentation.
 
 ## PIDL Format
 
@@ -596,6 +654,7 @@ Formats:
 | `svg` | SVG sequence diagram |
 | `svg-animated` | Animated SVG with flow dots |
 | `svg-network` | Network boundary diagram |
+| `infographic` | Compact infographic with animated data flow |
 
 ### examples
 
@@ -746,6 +805,8 @@ if analysis.HasRisksAtOrAbove(analyze.SeverityHigh) {
 
 ## Built-in Examples
 
+### Protocol Examples
+
 | Example | Protocol |
 |---------|----------|
 | `oauth2_authorization_code` | OAuth 2.0 Authorization Code Flow |
@@ -755,6 +816,15 @@ if analysis.HasRisksAtOrAbove(analyze.SeverityHigh) {
 | `oidc_authentication` | OpenID Connect Authentication |
 | `mcp_tool_invocation` | MCP Tool Invocation |
 | `a2a_agent_delegation` | A2A Agent Delegation |
+
+### Process Spec Examples
+
+| Example | Description |
+|---------|-------------|
+| `etl_pipeline` | Extract-Transform-Load pipeline |
+| `llm_document_review` | LLM processing with human approval |
+| `ci_cd_pipeline` | Build-test-deploy workflow |
+| `visionspec_execution` | MRD → PRD → TRD document pipeline |
 
 ## Target Protocols
 
