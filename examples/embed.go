@@ -11,7 +11,7 @@ import (
 	"github.com/grokify/pidl"
 )
 
-//go:embed *.json stdlib/*.json
+//go:embed *.json stdlib/*.json process/*.json
 var examplesFS embed.FS
 
 // Example represents an embedded example protocol.
@@ -74,6 +74,20 @@ func List() []string {
 			name := entry.Name()
 			if strings.HasSuffix(name, ".json") && !strings.HasPrefix(name, ".") {
 				names = append(names, "stdlib/"+strings.TrimSuffix(name, ".json"))
+			}
+		}
+	}
+
+	// List process examples
+	processEntries, err := examplesFS.ReadDir("process")
+	if err == nil {
+		for _, entry := range processEntries {
+			if entry.IsDir() {
+				continue
+			}
+			name := entry.Name()
+			if strings.HasSuffix(name, ".json") && !strings.HasPrefix(name, ".") {
+				names = append(names, "process/"+strings.TrimSuffix(name, ".json"))
 			}
 		}
 	}

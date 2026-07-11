@@ -1,0 +1,322 @@
+{
+  "protocol": {
+    "id": "etl-pipeline",
+    "name": "ETL Data Pipeline",
+    "kind": "process",
+    "version": "1.0",
+    "description": "Extract-Transform-Load pipeline for data warehouse ingestion",
+    "category": "agent"
+  },
+  "entities": [
+    {
+      "id": "extract",
+      "name": "Data Extractor",
+      "type": "server",
+      "description": "Extract data from source systems",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "source_config.yaml",
+          "description": "Source system configuration",
+          "required": true
+        },
+        {
+          "kind": "database",
+          "name": "source_db",
+          "description": "Source database connection",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "raw_data.parquet",
+          "description": "Extracted raw data in Parquet format"
+        },
+        {
+          "kind": "object",
+          "name": "extraction_metadata",
+          "description": "Metadata about the extraction run"
+        }
+      ],
+      "processing": {
+        "engine": "spark",
+        "determinism": "deterministic",
+        "idempotent": true,
+        "timeout": "30m"
+      },
+      "failure_modes": [
+        {
+          "id": "connection_failed",
+          "name": "Database Connection Failed",
+          "description": "Cannot connect to source database",
+          "severity": "high",
+          "recovery": "check credentials and network, retry"
+        },
+        {
+          "id": "timeout",
+          "name": "Extraction Timeout",
+          "description": "Extraction exceeded time limit",
+          "severity": "medium",
+          "recovery": "increase timeout or partition data"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "5s",
+        "max_delay": "2m",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["connection_failed"]
+      }
+    },
+    {
+      "id": "validate_raw",
+      "name": "Data Validator",
+      "type": "server",
+      "description": "Validate extracted data quality and schema",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "raw_data.parquet",
+          "description": "Raw extracted data",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "schema.json",
+          "description": "Expected data schema"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "validation_result",
+          "description": "Validation pass/fail with details"
+        },
+        {
+          "kind": "file",
+          "name": "quality_report.json",
+          "description": "Data quality metrics report"
+        }
+      ],
+      "processing": {
+        "engine": "great-expectations",
+        "determinism": "deterministic",
+        "idempotent": true
+      }
+    },
+    {
+      "id": "transform",
+      "name": "Data Transformer",
+      "type": "server",
+      "description": "Transform and enrich data for target schema",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "raw_data.parquet",
+          "description": "Validated raw data",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "transform_rules.yaml",
+          "description": "Transformation rules configuration"
+        },
+        {
+          "kind": "api",
+          "name": "enrichment_api",
+          "description": "External API for data enrichment"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "transformed_data.parquet",
+          "description": "Transformed data ready for loading"
+        },
+        {
+          "kind": "object",
+          "name": "transform_stats",
+          "description": "Transformation statistics"
+        }
+      ],
+      "processing": {
+        "engine": "dbt",
+        "determinism": "deterministic",
+        "idempotent": true,
+        "timeout": "1h"
+      },
+      "failure_modes": [
+        {
+          "id": "api_unavailable",
+          "name": "Enrichment API Unavailable",
+          "severity": "medium",
+          "recovery": "skip enrichment or use cached data"
+        }
+      ]
+    },
+    {
+      "id": "load",
+      "name": "Data Loader",
+      "type": "server",
+      "description": "Load transformed data into data warehouse",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "transformed_data.parquet",
+          "description": "Transformed data",
+          "required": true
+        },
+        {
+          "kind": "database",
+          "name": "target_warehouse",
+          "description": "Target data warehouse connection",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "load_result",
+          "description": "Load operation result with row counts"
+        },
+        {
+          "kind": "queue",
+          "name": "load_notifications",
+          "description": "Notifications for downstream consumers"
+        }
+      ],
+      "processing": {
+        "engine": "snowflake-loader",
+        "determinism": "deterministic",
+        "idempotent": true,
+        "timeout": "15m"
+      },
+      "failure_modes": [
+        {
+          "id": "warehouse_full",
+          "name": "Warehouse Storage Full",
+          "severity": "critical",
+          "recovery": "alert ops team, pause pipeline"
+        }
+      ]
+    },
+    {
+      "id": "notify",
+      "name": "Notifier",
+      "type": "server",
+      "description": "Send completion notifications",
+      "step_type": "external",
+      "inputs": [
+        {
+          "kind": "object",
+          "name": "load_result",
+          "description": "Load operation result",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "quality_report.json",
+          "description": "Data quality report"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "queue",
+          "name": "slack_notifications",
+          "description": "Slack channel notifications"
+        },
+        {
+          "kind": "api",
+          "name": "metrics_api",
+          "description": "Metrics pushed to monitoring system"
+        }
+      ],
+      "processing": {
+        "engine": "notification-service",
+        "timeout": "30s"
+      }
+    }
+  ],
+  "phases": [
+    {
+      "id": "extraction",
+      "name": "Data Extraction",
+      "description": "Extract data from source systems"
+    },
+    {
+      "id": "validation",
+      "name": "Data Validation",
+      "description": "Validate data quality and schema"
+    },
+    {
+      "id": "transformation",
+      "name": "Data Transformation",
+      "description": "Transform data for target warehouse"
+    },
+    {
+      "id": "loading",
+      "name": "Data Loading",
+      "description": "Load data into target warehouse"
+    },
+    {
+      "id": "notification",
+      "name": "Notification",
+      "description": "Notify stakeholders of completion"
+    }
+  ],
+  "flows": [
+    {
+      "from": "extract",
+      "to": "validate_raw",
+      "action": "submit_for_validation",
+      "label": "raw_data.parquet",
+      "mode": "request",
+      "phase": "extraction"
+    },
+    {
+      "from": "validate_raw",
+      "to": "transform",
+      "action": "send_validated_data",
+      "label": "validation_passed",
+      "mode": "request",
+      "phase": "validation",
+      "condition": "validation_passed"
+    },
+    {
+      "from": "validate_raw",
+      "to": "notify",
+      "action": "send_failure_alert",
+      "label": "validation_failed",
+      "mode": "request",
+      "phase": "validation",
+      "condition": "validation_failed",
+      "annotations": [
+        {
+          "type": "warning",
+          "text": "Pipeline halts on validation failure"
+        }
+      ]
+    },
+    {
+      "from": "transform",
+      "to": "load",
+      "action": "load_data",
+      "label": "transformed_data.parquet",
+      "mode": "request",
+      "phase": "transformation"
+    },
+    {
+      "from": "load",
+      "to": "notify",
+      "action": "send_completion_notification",
+      "label": "load_result",
+      "mode": "request",
+      "phase": "loading"
+    }
+  ]
+}

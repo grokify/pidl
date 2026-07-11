@@ -1,0 +1,293 @@
+{
+  "protocol": {
+    "id": "visionspec-execution",
+    "name": "VisionSpec Document Generation",
+    "kind": "process",
+    "version": "1.0",
+    "description": "MRD to PRD to TRD document generation pipeline with deterministic parsing and LLM generation",
+    "category": "agent"
+  },
+  "entities": [
+    {
+      "id": "ingest_mrd",
+      "name": "Ingest MRD",
+      "type": "server",
+      "description": "Parse and normalize market requirements document",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "MRD.md",
+          "description": "Market Requirements Document",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "market_requirements",
+          "description": "Normalized market requirements"
+        }
+      ],
+      "processing": {
+        "engine": "markdown-parser",
+        "determinism": "deterministic",
+        "idempotent": true,
+        "cacheable": true,
+        "cache_ttl": "24h"
+      }
+    },
+    {
+      "id": "generate_prd",
+      "name": "Generate PRD",
+      "type": "server",
+      "description": "Generate product requirements from market requirements using LLM",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "object",
+          "name": "market_requirements",
+          "description": "Normalized market requirements",
+          "required": true
+        },
+        {
+          "kind": "api",
+          "name": "product_catalog",
+          "description": "Existing product catalog for context"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "PRD.md",
+          "description": "Product Requirements Document"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "5m"
+      },
+      "failure_modes": [
+        {
+          "id": "rate_limit",
+          "name": "API Rate Limit",
+          "description": "LLM API rate limit exceeded",
+          "severity": "medium",
+          "recovery": "retry with exponential backoff"
+        },
+        {
+          "id": "context_overflow",
+          "name": "Context Overflow",
+          "description": "Input exceeds model context window",
+          "severity": "high",
+          "recovery": "chunk and summarize input"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "1s",
+        "max_delay": "30s",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "validate_prd",
+      "name": "Validate PRD",
+      "type": "server",
+      "description": "Validate PRD structure and completeness",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "PRD.md",
+          "description": "Product Requirements Document",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "prd_validated",
+          "description": "Validated PRD with metadata"
+        },
+        {
+          "kind": "object",
+          "name": "validation_report",
+          "description": "Validation results and warnings"
+        }
+      ],
+      "processing": {
+        "engine": "schema-validator",
+        "determinism": "deterministic",
+        "idempotent": true
+      }
+    },
+    {
+      "id": "generate_trd",
+      "name": "Generate TRD",
+      "type": "server",
+      "description": "Generate technical requirements from product requirements using LLM",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "object",
+          "name": "prd_validated",
+          "description": "Validated PRD",
+          "required": true
+        },
+        {
+          "kind": "api",
+          "name": "architecture_catalog",
+          "description": "Architecture patterns and standards"
+        },
+        {
+          "kind": "api",
+          "name": "tech_stack",
+          "description": "Available technology options"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "TRD.md",
+          "description": "Technical Requirements Document"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "10m"
+      },
+      "failure_modes": [
+        {
+          "id": "rate_limit",
+          "name": "API Rate Limit",
+          "severity": "medium"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "review_trd",
+      "name": "Human Review",
+      "type": "user",
+      "description": "Human review and approval of generated TRD",
+      "step_type": "human",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "TRD.md",
+          "description": "Generated TRD",
+          "required": true
+        },
+        {
+          "kind": "object",
+          "name": "validation_report",
+          "description": "Validation results"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "approval",
+          "description": "Approval decision with feedback"
+        }
+      ],
+      "processing": {
+        "determinism": "non_deterministic",
+        "timeout": "7d"
+      }
+    }
+  ],
+  "phases": [
+    {
+      "id": "intake",
+      "name": "Document Intake",
+      "description": "Parse and normalize input documents"
+    },
+    {
+      "id": "generation",
+      "name": "Document Generation",
+      "description": "Generate specification documents using LLM"
+    },
+    {
+      "id": "prd_gen",
+      "name": "PRD Generation",
+      "description": "Generate product requirements",
+      "parent": "generation"
+    },
+    {
+      "id": "trd_gen",
+      "name": "TRD Generation",
+      "description": "Generate technical requirements",
+      "parent": "generation"
+    },
+    {
+      "id": "validation",
+      "name": "Validation",
+      "description": "Validate generated documents"
+    },
+    {
+      "id": "review",
+      "name": "Human Review",
+      "description": "Human review and approval"
+    }
+  ],
+  "flows": [
+    {
+      "from": "ingest_mrd",
+      "to": "generate_prd",
+      "action": "provide_requirements",
+      "label": "market_requirements",
+      "mode": "request",
+      "phase": "intake"
+    },
+    {
+      "from": "generate_prd",
+      "to": "validate_prd",
+      "action": "submit_for_validation",
+      "label": "PRD.md",
+      "mode": "request",
+      "phase": "prd_gen"
+    },
+    {
+      "from": "validate_prd",
+      "to": "generate_trd",
+      "action": "provide_validated_prd",
+      "label": "prd_validated",
+      "mode": "request",
+      "phase": "validation",
+      "condition": "validation_passed"
+    },
+    {
+      "from": "generate_trd",
+      "to": "review_trd",
+      "action": "submit_for_review",
+      "label": "TRD.md",
+      "mode": "request",
+      "phase": "trd_gen"
+    },
+    {
+      "from": "review_trd",
+      "to": "generate_trd",
+      "action": "request_revision",
+      "label": "feedback",
+      "mode": "response",
+      "phase": "review",
+      "condition": "revision_required",
+      "annotations": [
+        {
+          "type": "info",
+          "text": "Human reviewer may request changes"
+        }
+      ]
+    }
+  ]
+}

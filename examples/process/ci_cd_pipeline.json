@@ -1,0 +1,572 @@
+{
+  "protocol": {
+    "id": "ci-cd-pipeline",
+    "name": "CI/CD Pipeline",
+    "kind": "process",
+    "version": "1.0",
+    "description": "Continuous Integration and Continuous Deployment pipeline with build, test, and deploy stages",
+    "category": "agent"
+  },
+  "entities": [
+    {
+      "id": "checkout",
+      "name": "Code Checkout",
+      "type": "server",
+      "description": "Checkout source code from repository",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "api",
+          "name": "git_repo",
+          "description": "Git repository URL and credentials",
+          "required": true
+        },
+        {
+          "kind": "object",
+          "name": "trigger_event",
+          "description": "CI trigger event (push, PR, tag)",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "source_code",
+          "description": "Checked out source code"
+        },
+        {
+          "kind": "object",
+          "name": "commit_info",
+          "description": "Commit SHA, branch, author info"
+        }
+      ],
+      "processing": {
+        "engine": "git",
+        "determinism": "deterministic",
+        "timeout": "5m"
+      },
+      "failure_modes": [
+        {
+          "id": "auth_failed",
+          "name": "Authentication Failed",
+          "severity": "high",
+          "recovery": "check credentials and permissions"
+        }
+      ]
+    },
+    {
+      "id": "build",
+      "name": "Build",
+      "type": "server",
+      "description": "Compile source code and create artifacts",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "source_code",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "build_config",
+          "description": "Build configuration (Makefile, package.json, etc.)"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "build_artifacts",
+          "description": "Compiled binaries or packages"
+        },
+        {
+          "kind": "object",
+          "name": "build_metadata",
+          "description": "Build version, timestamps, dependencies"
+        }
+      ],
+      "processing": {
+        "engine": "build-system",
+        "determinism": "deterministic",
+        "cacheable": true,
+        "timeout": "30m"
+      },
+      "failure_modes": [
+        {
+          "id": "compile_error",
+          "name": "Compilation Error",
+          "severity": "high",
+          "recovery": "fix code and retry"
+        },
+        {
+          "id": "dependency_missing",
+          "name": "Missing Dependency",
+          "severity": "medium",
+          "recovery": "update dependencies and retry"
+        }
+      ]
+    },
+    {
+      "id": "unit_test",
+      "name": "Unit Tests",
+      "type": "server",
+      "description": "Run unit test suite",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "source_code",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "build_artifacts"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "test_results.xml",
+          "description": "JUnit-format test results"
+        },
+        {
+          "kind": "file",
+          "name": "coverage_report",
+          "description": "Code coverage report"
+        }
+      ],
+      "processing": {
+        "engine": "test-runner",
+        "determinism": "deterministic",
+        "timeout": "15m"
+      }
+    },
+    {
+      "id": "lint",
+      "name": "Linting",
+      "type": "server",
+      "description": "Run code linting and static analysis",
+      "step_type": "tool",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "source_code",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "lint_config",
+          "description": "Linting rules configuration"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "lint_report.json",
+          "description": "Linting violations report"
+        }
+      ],
+      "processing": {
+        "engine": "linter",
+        "determinism": "deterministic",
+        "timeout": "10m"
+      }
+    },
+    {
+      "id": "security_scan",
+      "name": "Security Scan",
+      "type": "server",
+      "description": "Scan for security vulnerabilities",
+      "step_type": "external",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "source_code",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "build_artifacts"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "security_report.json",
+          "description": "Security scan findings"
+        },
+        {
+          "kind": "object",
+          "name": "vulnerability_summary",
+          "description": "Summary of vulnerabilities by severity"
+        }
+      ],
+      "processing": {
+        "engine": "snyk",
+        "timeout": "20m"
+      },
+      "failure_modes": [
+        {
+          "id": "critical_vuln",
+          "name": "Critical Vulnerability Found",
+          "severity": "critical",
+          "recovery": "block deployment, alert security team"
+        }
+      ]
+    },
+    {
+      "id": "build_image",
+      "name": "Container Build",
+      "type": "server",
+      "description": "Build container image",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "build_artifacts",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "Dockerfile",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "container_image",
+          "description": "Built container image reference"
+        }
+      ],
+      "processing": {
+        "engine": "docker",
+        "determinism": "deterministic",
+        "timeout": "20m"
+      }
+    },
+    {
+      "id": "push_image",
+      "name": "Push Image",
+      "type": "server",
+      "description": "Push container image to registry",
+      "step_type": "external",
+      "inputs": [
+        {
+          "kind": "object",
+          "name": "container_image",
+          "required": true
+        },
+        {
+          "kind": "api",
+          "name": "registry",
+          "description": "Container registry credentials",
+          "required": true,
+          "sensitive": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "image_digest",
+          "description": "Pushed image digest for verification"
+        }
+      ],
+      "processing": {
+        "engine": "docker-push",
+        "timeout": "10m"
+      }
+    },
+    {
+      "id": "deploy_staging",
+      "name": "Deploy to Staging",
+      "type": "server",
+      "description": "Deploy to staging environment",
+      "step_type": "external",
+      "inputs": [
+        {
+          "kind": "object",
+          "name": "image_digest",
+          "required": true
+        },
+        {
+          "kind": "api",
+          "name": "k8s_staging",
+          "description": "Kubernetes staging cluster access",
+          "required": true,
+          "sensitive": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "staging_deployment",
+          "description": "Deployment status and endpoint"
+        }
+      ],
+      "processing": {
+        "engine": "kubectl",
+        "timeout": "10m"
+      },
+      "failure_modes": [
+        {
+          "id": "rollout_timeout",
+          "name": "Rollout Timeout",
+          "severity": "medium",
+          "recovery": "check pod logs, rollback if needed"
+        }
+      ]
+    },
+    {
+      "id": "integration_test",
+      "name": "Integration Tests",
+      "type": "server",
+      "description": "Run integration tests against staging",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "object",
+          "name": "staging_deployment",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "test_config"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "integration_results.xml"
+        }
+      ],
+      "processing": {
+        "engine": "test-runner",
+        "determinism": "deterministic",
+        "timeout": "30m"
+      }
+    },
+    {
+      "id": "approval",
+      "name": "Production Approval",
+      "type": "user",
+      "description": "Manual approval for production deployment",
+      "step_type": "human",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "test_results.xml"
+        },
+        {
+          "kind": "file",
+          "name": "integration_results.xml"
+        },
+        {
+          "kind": "file",
+          "name": "security_report.json"
+        },
+        {
+          "kind": "object",
+          "name": "staging_deployment"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "approval_decision",
+          "description": "Approve or reject production deployment"
+        }
+      ],
+      "processing": {
+        "timeout": "72h"
+      }
+    },
+    {
+      "id": "deploy_production",
+      "name": "Deploy to Production",
+      "type": "server",
+      "description": "Deploy to production environment",
+      "step_type": "external",
+      "inputs": [
+        {
+          "kind": "object",
+          "name": "image_digest",
+          "required": true
+        },
+        {
+          "kind": "object",
+          "name": "approval_decision",
+          "required": true
+        },
+        {
+          "kind": "api",
+          "name": "k8s_production",
+          "description": "Kubernetes production cluster access",
+          "required": true,
+          "sensitive": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "production_deployment"
+        },
+        {
+          "kind": "queue",
+          "name": "deployment_notifications",
+          "description": "Slack/PagerDuty notifications"
+        }
+      ],
+      "processing": {
+        "engine": "kubectl",
+        "timeout": "15m"
+      },
+      "failure_modes": [
+        {
+          "id": "rollout_failed",
+          "name": "Production Rollout Failed",
+          "severity": "critical",
+          "recovery": "automatic rollback to previous version"
+        }
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "id": "source",
+      "name": "Source",
+      "description": "Code checkout and preparation"
+    },
+    {
+      "id": "build",
+      "name": "Build",
+      "description": "Compile and create artifacts"
+    },
+    {
+      "id": "test",
+      "name": "Test",
+      "description": "Run tests and quality checks"
+    },
+    {
+      "id": "package",
+      "name": "Package",
+      "description": "Build and push container images"
+    },
+    {
+      "id": "staging",
+      "name": "Staging",
+      "description": "Deploy and test in staging"
+    },
+    {
+      "id": "production",
+      "name": "Production",
+      "description": "Production deployment with approval"
+    }
+  ],
+  "flows": [
+    {
+      "from": "checkout",
+      "to": "build",
+      "action": "build",
+      "label": "source_code",
+      "mode": "request",
+      "phase": "source"
+    },
+    {
+      "from": "build",
+      "to": "unit_test",
+      "action": "test",
+      "label": "build_artifacts",
+      "mode": "request",
+      "phase": "build"
+    },
+    {
+      "from": "checkout",
+      "to": "lint",
+      "action": "lint",
+      "label": "source_code",
+      "mode": "request",
+      "phase": "source",
+      "note": "Runs in parallel with build"
+    },
+    {
+      "from": "build",
+      "to": "security_scan",
+      "action": "scan",
+      "label": "artifacts",
+      "mode": "request",
+      "phase": "build"
+    },
+    {
+      "from": "unit_test",
+      "to": "build_image",
+      "action": "package",
+      "label": "test_passed",
+      "mode": "request",
+      "phase": "test",
+      "condition": "tests_passed"
+    },
+    {
+      "from": "build_image",
+      "to": "push_image",
+      "action": "push",
+      "label": "container_image",
+      "mode": "request",
+      "phase": "package"
+    },
+    {
+      "from": "push_image",
+      "to": "deploy_staging",
+      "action": "deploy",
+      "label": "image_digest",
+      "mode": "request",
+      "phase": "package"
+    },
+    {
+      "from": "deploy_staging",
+      "to": "integration_test",
+      "action": "test",
+      "label": "staging_endpoint",
+      "mode": "request",
+      "phase": "staging"
+    },
+    {
+      "from": "integration_test",
+      "to": "approval",
+      "action": "request_approval",
+      "label": "test_results",
+      "mode": "request",
+      "phase": "staging",
+      "condition": "integration_passed"
+    },
+    {
+      "from": "approval",
+      "to": "deploy_production",
+      "action": "deploy",
+      "label": "approved",
+      "mode": "request",
+      "phase": "production",
+      "condition": "approved",
+      "annotations": [
+        {
+          "type": "security",
+          "text": "Requires authorized approver"
+        }
+      ]
+    },
+    {
+      "from": "approval",
+      "to": "checkout",
+      "action": "reject",
+      "label": "rejected",
+      "mode": "response",
+      "phase": "production",
+      "condition": "rejected",
+      "annotations": [
+        {
+          "type": "info",
+          "text": "Pipeline ends, developer must fix issues and re-trigger"
+        }
+      ]
+    }
+  ]
+}

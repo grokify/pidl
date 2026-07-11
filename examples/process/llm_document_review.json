@@ -1,0 +1,383 @@
+{
+  "protocol": {
+    "id": "llm-document-review",
+    "name": "LLM Document Review with Human Approval",
+    "kind": "process",
+    "version": "1.0",
+    "description": "AI-assisted document review with human approval workflow demonstrating human-in-the-loop pattern",
+    "category": "agent"
+  },
+  "entities": [
+    {
+      "id": "ingest",
+      "name": "Document Ingestion",
+      "type": "server",
+      "description": "Ingest and preprocess documents for review",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "documents",
+          "description": "Documents to review (PDF, DOCX, TXT)",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "review_config.yaml",
+          "description": "Review criteria and rules"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "parsed_docs",
+          "description": "Parsed document content with metadata"
+        },
+        {
+          "kind": "object",
+          "name": "review_context",
+          "description": "Review context and criteria"
+        }
+      ],
+      "processing": {
+        "engine": "document-parser",
+        "determinism": "deterministic",
+        "idempotent": true
+      }
+    },
+    {
+      "id": "llm_analysis",
+      "name": "LLM Analysis",
+      "type": "server",
+      "description": "AI analysis of document content for issues and recommendations",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "object",
+          "name": "parsed_docs",
+          "description": "Parsed documents",
+          "required": true
+        },
+        {
+          "kind": "object",
+          "name": "review_context",
+          "description": "Review criteria"
+        },
+        {
+          "kind": "api",
+          "name": "knowledge_base",
+          "description": "Domain knowledge base for context"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "analysis_results",
+          "description": "AI analysis findings and recommendations"
+        },
+        {
+          "kind": "object",
+          "name": "confidence_scores",
+          "description": "Confidence scores for each finding"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "5m"
+      },
+      "failure_modes": [
+        {
+          "id": "context_overflow",
+          "name": "Context Window Exceeded",
+          "description": "Document too large for context window",
+          "severity": "high",
+          "recovery": "chunk document and analyze in parts"
+        },
+        {
+          "id": "rate_limit",
+          "name": "API Rate Limit",
+          "severity": "medium",
+          "recovery": "exponential backoff retry"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "2s",
+        "max_delay": "1m",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "confidence_filter",
+      "name": "Confidence Filter",
+      "type": "server",
+      "description": "Filter findings by confidence threshold",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "object",
+          "name": "analysis_results",
+          "required": true
+        },
+        {
+          "kind": "object",
+          "name": "confidence_scores",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "high_confidence_findings",
+          "description": "Auto-approved high confidence findings"
+        },
+        {
+          "kind": "object",
+          "name": "review_queue",
+          "description": "Findings requiring human review"
+        }
+      ],
+      "processing": {
+        "engine": "rules-engine",
+        "determinism": "deterministic",
+        "idempotent": true
+      }
+    },
+    {
+      "id": "human_reviewer",
+      "name": "Human Reviewer",
+      "type": "user",
+      "description": "Human expert reviews AI findings and makes final decisions",
+      "step_type": "human",
+      "inputs": [
+        {
+          "kind": "object",
+          "name": "review_queue",
+          "description": "Findings requiring review",
+          "required": true
+        },
+        {
+          "kind": "object",
+          "name": "parsed_docs",
+          "description": "Original documents for reference"
+        },
+        {
+          "kind": "object",
+          "name": "analysis_results",
+          "description": "Full AI analysis for context"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "review_decisions",
+          "description": "Human decisions on each finding"
+        },
+        {
+          "kind": "object",
+          "name": "feedback",
+          "description": "Feedback for model improvement",
+          "sensitive": true
+        }
+      ],
+      "processing": {
+        "determinism": "non_deterministic",
+        "timeout": "24h"
+      }
+    },
+    {
+      "id": "merge_results",
+      "name": "Result Merger",
+      "type": "server",
+      "description": "Merge auto-approved and human-reviewed findings",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "object",
+          "name": "high_confidence_findings",
+          "required": true
+        },
+        {
+          "kind": "object",
+          "name": "review_decisions",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "final_results",
+          "description": "Complete review results"
+        }
+      ],
+      "processing": {
+        "engine": "merger",
+        "determinism": "deterministic",
+        "idempotent": true
+      }
+    },
+    {
+      "id": "generate_report",
+      "name": "Report Generator",
+      "type": "server",
+      "description": "Generate final review report",
+      "step_type": "deterministic",
+      "inputs": [
+        {
+          "kind": "object",
+          "name": "final_results",
+          "required": true
+        },
+        {
+          "kind": "object",
+          "name": "parsed_docs"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "review_report.pdf",
+          "description": "Formal review report"
+        },
+        {
+          "kind": "database",
+          "name": "audit_log",
+          "description": "Audit trail of review process"
+        }
+      ],
+      "processing": {
+        "engine": "report-generator",
+        "determinism": "deterministic"
+      }
+    },
+    {
+      "id": "feedback_loop",
+      "name": "Feedback Processor",
+      "type": "server",
+      "description": "Process human feedback for model fine-tuning",
+      "step_type": "tool",
+      "inputs": [
+        {
+          "kind": "object",
+          "name": "feedback",
+          "description": "Human feedback data",
+          "required": true,
+          "sensitive": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "database",
+          "name": "training_data",
+          "description": "Processed training data for model improvement",
+          "sensitive": true
+        }
+      ],
+      "processing": {
+        "engine": "feedback-processor",
+        "determinism": "deterministic"
+      }
+    }
+  ],
+  "phases": [
+    {
+      "id": "ingestion",
+      "name": "Document Ingestion",
+      "description": "Ingest and parse documents"
+    },
+    {
+      "id": "ai_analysis",
+      "name": "AI Analysis",
+      "description": "LLM-powered document analysis"
+    },
+    {
+      "id": "human_review",
+      "name": "Human Review",
+      "description": "Human expert review of AI findings"
+    },
+    {
+      "id": "finalization",
+      "name": "Finalization",
+      "description": "Merge results and generate report"
+    },
+    {
+      "id": "feedback",
+      "name": "Feedback Loop",
+      "description": "Process feedback for continuous improvement"
+    }
+  ],
+  "flows": [
+    {
+      "from": "ingest",
+      "to": "llm_analysis",
+      "action": "analyze",
+      "label": "parsed_docs",
+      "mode": "request",
+      "phase": "ingestion"
+    },
+    {
+      "from": "llm_analysis",
+      "to": "confidence_filter",
+      "action": "filter",
+      "label": "analysis_results",
+      "mode": "request",
+      "phase": "ai_analysis"
+    },
+    {
+      "from": "confidence_filter",
+      "to": "human_reviewer",
+      "action": "request_review",
+      "label": "review_queue",
+      "mode": "request",
+      "phase": "ai_analysis",
+      "condition": "has_low_confidence_findings",
+      "annotations": [
+        {
+          "type": "info",
+          "text": "Only findings below confidence threshold require human review"
+        }
+      ]
+    },
+    {
+      "from": "human_reviewer",
+      "to": "merge_results",
+      "action": "submit_decisions",
+      "label": "review_decisions",
+      "mode": "request",
+      "phase": "human_review"
+    },
+    {
+      "from": "confidence_filter",
+      "to": "merge_results",
+      "action": "auto_approve",
+      "label": "high_confidence_findings",
+      "mode": "request",
+      "phase": "ai_analysis"
+    },
+    {
+      "from": "merge_results",
+      "to": "generate_report",
+      "action": "generate",
+      "label": "final_results",
+      "mode": "request",
+      "phase": "finalization"
+    },
+    {
+      "from": "human_reviewer",
+      "to": "feedback_loop",
+      "action": "send_feedback",
+      "label": "feedback",
+      "mode": "request",
+      "phase": "feedback",
+      "annotations": [
+        {
+          "type": "security",
+          "text": "Feedback may contain sensitive review data"
+        }
+      ]
+    }
+  ]
+}
