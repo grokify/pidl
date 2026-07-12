@@ -336,6 +336,9 @@ type ProcessingConfig struct {
 
 	// CostModel specifies the cost tracking model for this step.
 	CostModel *CostModel `json:"cost_model,omitempty"`
+
+	// LatencyBudget specifies timing SLIs for this step.
+	LatencyBudget *LatencyBudget `json:"latency_budget,omitempty"`
 }
 
 // CostModel defines the cost characteristics of a processing step.
@@ -382,6 +385,36 @@ const (
 	CostModelTypeAPICall CostModelType = "api_call"
 	// CostModelTypeHybrid combines multiple cost factors.
 	CostModelTypeHybrid CostModelType = "hybrid"
+)
+
+// LatencyBudget defines timing SLIs (Service Level Indicators) for a step.
+type LatencyBudget struct {
+	// P50 is the 50th percentile latency target.
+	P50 string `json:"p50,omitempty"`
+	// P95 is the 95th percentile latency target.
+	P95 string `json:"p95,omitempty"`
+	// P99 is the 99th percentile latency target.
+	P99 string `json:"p99,omitempty"`
+	// Max is the maximum acceptable latency (hard limit).
+	Max string `json:"max,omitempty"`
+	// ExpectedLatency is the expected typical latency.
+	ExpectedLatency string `json:"expected_latency,omitempty"`
+	// Critical marks this step as on the critical path.
+	Critical bool `json:"critical,omitempty"`
+	// VarianceClass indicates latency variability (low, medium, high).
+	VarianceClass LatencyVarianceClass `json:"variance_class,omitempty"`
+}
+
+// LatencyVarianceClass classifies the variability of step latency.
+type LatencyVarianceClass string
+
+const (
+	// LatencyVarianceLow indicates consistent, predictable latency.
+	LatencyVarianceLow LatencyVarianceClass = "low"
+	// LatencyVarianceMedium indicates moderate latency variance.
+	LatencyVarianceMedium LatencyVarianceClass = "medium"
+	// LatencyVarianceHigh indicates high variance (e.g., LLM, human tasks).
+	LatencyVarianceHigh LatencyVarianceClass = "high"
 )
 
 // FailureMode describes a possible failure scenario.
