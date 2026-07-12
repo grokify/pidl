@@ -68,7 +68,8 @@ func IsValidSecurityRequirement(r SecurityRequirement) bool {
 func IsValidProtocol(protocol string) bool {
 	switch protocol {
 	case ProtocolOAuth, ProtocolSCIM, ProtocolSPIFFE, ProtocolAAuth,
-		ProtocolIDJAG, ProtocolAuthZEN, ProtocolMCP, ProtocolA2A:
+		ProtocolIDJAG, ProtocolAuthZEN, ProtocolMCP, ProtocolA2A,
+		ProtocolSAML, ProtocolWebAuthn, ProtocolFIDO2, ProtocolOIDC:
 		return true
 	}
 	return false
@@ -102,7 +103,9 @@ func IsValidCredential(c string) bool {
 	switch c {
 	case CredentialX509SVID, CredentialJWTSVID, CredentialJWTAssertion,
 		CredentialAccessToken, CredentialIDToken, CredentialAAAgentJWT,
-		CredentialAAAuthJWT, CredentialMTLS, CredentialAPIKey:
+		CredentialAAAuthJWT, CredentialMTLS, CredentialAPIKey,
+		CredentialX509Certificate, CredentialAttestationCert, CredentialBearerToken,
+		CredentialSAMLAssertion, CredentialSessionCookie:
 		return true
 	}
 	return false

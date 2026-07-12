@@ -198,6 +198,68 @@ const (
 	StepTypeExternal StepType = "external"
 	// StepTypeTool is for tool invocations (MCP-style).
 	StepTypeTool StepType = "tool"
+	// StepTypeParallel is for parallel execution blocks.
+	StepTypeParallel StepType = "parallel"
+	// StepTypeConditional is for conditional branching.
+	StepTypeConditional StepType = "conditional"
+)
+
+// ParallelConfig configures parallel execution for a step or flow.
+type ParallelConfig struct {
+	// Mode specifies the parallel execution mode.
+	Mode ParallelMode `json:"mode"`
+	// Branches lists the parallel branches (entity IDs or flow groups).
+	Branches []ParallelBranch `json:"branches,omitempty"`
+	// JoinCondition specifies when parallel execution is considered complete.
+	JoinCondition JoinCondition `json:"join_condition,omitempty"`
+	// MaxConcurrency limits the number of concurrent executions.
+	MaxConcurrency int `json:"max_concurrency,omitempty"`
+	// Timeout for the entire parallel block.
+	Timeout string `json:"timeout,omitempty"`
+}
+
+// ParallelMode specifies how parallel execution is structured.
+type ParallelMode string
+
+const (
+	// ParallelModeForkJoin executes branches in parallel and waits for all.
+	ParallelModeForkJoin ParallelMode = "fork_join"
+	// ParallelModeRace executes branches in parallel, first to complete wins.
+	ParallelModeRace ParallelMode = "race"
+	// ParallelModeScatter distributes work across multiple instances.
+	ParallelModeScatter ParallelMode = "scatter"
+	// ParallelModeGather collects results from parallel branches.
+	ParallelModeGather ParallelMode = "gather"
+)
+
+// ParallelBranch represents a branch in parallel execution.
+type ParallelBranch struct {
+	// ID is the unique identifier for this branch.
+	ID string `json:"id"`
+	// Name is the human-readable name.
+	Name string `json:"name,omitempty"`
+	// EntityID is the target entity for this branch (optional).
+	EntityID string `json:"entity_id,omitempty"`
+	// FlowRefs lists flow indices that belong to this branch.
+	FlowRefs []int `json:"flow_refs,omitempty"`
+	// Condition specifies when this branch is executed.
+	Condition string `json:"condition,omitempty"`
+	// Weight for load balancing in scatter mode.
+	Weight float64 `json:"weight,omitempty"`
+}
+
+// JoinCondition specifies when parallel execution is considered complete.
+type JoinCondition string
+
+const (
+	// JoinConditionAll waits for all branches to complete.
+	JoinConditionAll JoinCondition = "all"
+	// JoinConditionAny completes when any branch completes.
+	JoinConditionAny JoinCondition = "any"
+	// JoinConditionMajority completes when majority of branches complete.
+	JoinConditionMajority JoinCondition = "majority"
+	// JoinConditionQuorum completes when a quorum of branches complete.
+	JoinConditionQuorum JoinCondition = "quorum"
 )
 
 // DataPortKind classifies the type of data port.
@@ -271,7 +333,56 @@ type ProcessingConfig struct {
 
 	// CacheTTL is the cache time-to-live if cacheable.
 	CacheTTL string `json:"cache_ttl,omitempty"`
+
+	// CostModel specifies the cost tracking model for this step.
+	CostModel *CostModel `json:"cost_model,omitempty"`
 }
+
+// CostModel defines the cost characteristics of a processing step.
+type CostModel struct {
+	// Type classifies the cost model.
+	Type CostModelType `json:"type"`
+
+	// FixedCost is the base cost per execution (in the cost unit).
+	FixedCost float64 `json:"fixed_cost,omitempty"`
+
+	// VariableCost is the cost per unit of work.
+	VariableCost float64 `json:"variable_cost,omitempty"`
+
+	// CostUnit is the currency or unit for costs (e.g., "USD", "tokens", "credits").
+	CostUnit string `json:"cost_unit,omitempty"`
+
+	// TokenCosts for LLM steps (per 1K tokens).
+	InputTokenCost  float64 `json:"input_token_cost,omitempty"`
+	OutputTokenCost float64 `json:"output_token_cost,omitempty"`
+
+	// EstimatedInputTokens for LLM cost estimation.
+	EstimatedInputTokens int `json:"estimated_input_tokens,omitempty"`
+	// EstimatedOutputTokens for LLM cost estimation.
+	EstimatedOutputTokens int `json:"estimated_output_tokens,omitempty"`
+
+	// ComputeCostPerSecond for compute-based steps.
+	ComputeCostPerSecond float64 `json:"compute_cost_per_second,omitempty"`
+
+	// APICallCost for external API steps.
+	APICallCost float64 `json:"api_call_cost,omitempty"`
+}
+
+// CostModelType classifies how costs are calculated.
+type CostModelType string
+
+const (
+	// CostModelTypeFixed has a fixed cost per execution.
+	CostModelTypeFixed CostModelType = "fixed"
+	// CostModelTypeTokenBased costs based on input/output tokens.
+	CostModelTypeTokenBased CostModelType = "token_based"
+	// CostModelTypeTimeBased costs based on execution time.
+	CostModelTypeTimeBased CostModelType = "time_based"
+	// CostModelTypeAPICall costs per API call.
+	CostModelTypeAPICall CostModelType = "api_call"
+	// CostModelTypeHybrid combines multiple cost factors.
+	CostModelTypeHybrid CostModelType = "hybrid"
+)
 
 // FailureMode describes a possible failure scenario.
 type FailureMode struct {
@@ -323,14 +434,18 @@ type ProtocolRole struct {
 
 // Protocol identifier constants.
 const (
-	ProtocolOAuth   = "oauth"
-	ProtocolSCIM    = "scim"
-	ProtocolSPIFFE  = "spiffe"
-	ProtocolAAuth   = "aauth"
-	ProtocolIDJAG   = "idjag"
-	ProtocolAuthZEN = "authzen"
-	ProtocolMCP     = "mcp"
-	ProtocolA2A     = "a2a"
+	ProtocolOAuth    = "oauth"
+	ProtocolSCIM     = "scim"
+	ProtocolSPIFFE   = "spiffe"
+	ProtocolAAuth    = "aauth"
+	ProtocolIDJAG    = "idjag"
+	ProtocolAuthZEN  = "authzen"
+	ProtocolMCP      = "mcp"
+	ProtocolA2A      = "a2a"
+	ProtocolSAML     = "saml"
+	ProtocolWebAuthn = "webauthn"
+	ProtocolFIDO2    = "fido2"
+	ProtocolOIDC     = "oidc"
 )
 
 // DeploymentComponent defines a logical deployment component that groups entities.
@@ -400,15 +515,20 @@ const (
 //
 //nolint:gosec // G101 false positive - these are credential type identifiers, not actual credentials
 const (
-	CredentialX509SVID     = "x509_svid"
-	CredentialJWTSVID      = "jwt_svid"
-	CredentialJWTAssertion = "jwt_assertion"
-	CredentialAccessToken  = "access_token"
-	CredentialIDToken      = "id_token"
-	CredentialAAAgentJWT   = "aa_agent_jwt"
-	CredentialAAAuthJWT    = "aa_auth_jwt"
-	CredentialMTLS         = "mtls"
-	CredentialAPIKey       = "api_key"
+	CredentialX509SVID        = "x509_svid"
+	CredentialJWTSVID         = "jwt_svid"
+	CredentialJWTAssertion    = "jwt_assertion"
+	CredentialAccessToken     = "access_token"
+	CredentialIDToken         = "id_token"
+	CredentialAAAgentJWT      = "aa_agent_jwt"
+	CredentialAAAuthJWT       = "aa_auth_jwt"
+	CredentialMTLS            = "mtls"
+	CredentialAPIKey          = "api_key"
+	CredentialX509Certificate = "x509_certificate"
+	CredentialAttestationCert = "attestation_certificate"
+	CredentialBearerToken     = "bearer_token"
+	CredentialSAMLAssertion   = "saml_assertion"
+	CredentialSessionCookie   = "session_cookie"
 )
 
 // Entity represents a participant in the protocol.
@@ -456,6 +576,9 @@ type Entity struct {
 
 	// RetryStrategy configures retry behavior (process profile).
 	RetryStrategy *RetryStrategy `json:"retry_strategy,omitempty"`
+
+	// Parallel configures parallel execution for this step.
+	Parallel *ParallelConfig `json:"parallel,omitempty"`
 }
 
 // EntityState represents a possible state for an entity.
@@ -629,6 +752,9 @@ type Flow struct {
 
 	// Security specifies security requirements for this flow.
 	Security *FlowSecurity `json:"security,omitempty"`
+
+	// DataMappings explicitly maps output ports to input ports for data lineage.
+	DataMappings []DataPortMapping `json:"data_mappings,omitempty"`
 }
 
 // StateMutation represents a state change for an entity triggered by a flow.
@@ -716,4 +842,56 @@ type StateTransition struct {
 	FlowAction string
 	// FlowLabel is the display label for the triggering flow.
 	FlowLabel string
+}
+
+// LineageEdge represents a data flow connection between ports.
+type LineageEdge struct {
+	// SourceEntity is the ID of the entity providing the data.
+	SourceEntity string `json:"source_entity"`
+	// SourcePort is the name of the output port.
+	SourcePort string `json:"source_port"`
+	// TargetEntity is the ID of the entity consuming the data.
+	TargetEntity string `json:"target_entity"`
+	// TargetPort is the name of the input port.
+	TargetPort string `json:"target_port"`
+	// FlowIndex is the index of the flow that creates this connection.
+	FlowIndex int `json:"flow_index"`
+	// Transformation describes any data transformation applied.
+	Transformation string `json:"transformation,omitempty"`
+}
+
+// DataLineage represents the complete data lineage graph for a protocol.
+type DataLineage struct {
+	// ProtocolID is the ID of the source protocol.
+	ProtocolID string `json:"protocol_id"`
+	// Edges are the data flow connections.
+	Edges []LineageEdge `json:"edges"`
+	// Sources are ports that have no upstream connections.
+	Sources []PortReference `json:"sources"`
+	// Sinks are ports that have no downstream connections.
+	Sinks []PortReference `json:"sinks"`
+	// SensitiveDataPaths tracks paths containing sensitive data.
+	SensitiveDataPaths [][]PortReference `json:"sensitive_paths,omitempty"`
+}
+
+// PortReference identifies a specific port on an entity.
+type PortReference struct {
+	// EntityID is the ID of the entity.
+	EntityID string `json:"entity_id"`
+	// PortName is the name of the port.
+	PortName string `json:"port_name"`
+	// PortKind indicates if this is an input or output port.
+	PortKind string `json:"port_kind"` // "input" or "output"
+	// Sensitive indicates if the port handles sensitive data.
+	Sensitive bool `json:"sensitive,omitempty"`
+}
+
+// DataPortMapping explicitly maps output ports to input ports across a flow.
+type DataPortMapping struct {
+	// OutputPort is the source port name on the From entity.
+	OutputPort string `json:"output_port"`
+	// InputPort is the target port name on the To entity.
+	InputPort string `json:"input_port"`
+	// Transformation describes any data transformation applied.
+	Transformation string `json:"transformation,omitempty"`
 }
