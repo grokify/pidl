@@ -1,0 +1,120 @@
+name: 'PIDL Validate'
+description: 'Validate PIDL protocol files for correctness and security'
+author: 'John Wang'
+
+branding:
+  icon: 'check-circle'
+  color: 'purple'
+
+inputs:
+  files:
+    description: 'Glob pattern for PIDL files to validate'
+    required: false
+    default: '**/*.pidl.json'
+  strict:
+    description: 'Enable strict validation mode'
+    required: false
+    default: 'false'
+  security:
+    description: 'Run security analysis on protocols'
+    required: false
+    default: 'false'
+  version:
+    description: 'PIDL CLI version to use'
+    required: false
+    default: 'latest'
+
+outputs:
+  valid:
+    description: 'Whether all files passed validation'
+  file_count:
+    description: 'Number of files validated'
+  errors:
+    description: 'JSON array of validation errors'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: 'stable'
+
+    - name: Install PIDL CLI
+      shell: bash
+      run: |
+        if [ "${{ inputs.version }}" = "latest" ]; then
+          go install github.com/grokify/pidl/cmd/pidl@latest
+        else
+          go install github.com/grokify/pidl/cmd/pidl@${{ inputs.version }}
+        fi
+
+    - name: Validate PIDL files
+      id: validate
+      shell: bash
+      run: |
+        set +e
+
+        PATTERN="${{ inputs.files }}"
+        STRICT="${{ inputs.strict }}"
+        SECURITY="${{ inputs.security }}"
+
+        # Find all matching files
+        FILES=$(find . -name "*.pidl.json" -type f 2>/dev/null | grep -v node_modules | grep -v vendor)
+
+        if [ -z "$FILES" ]; then
+          echo "No PIDL files found matching pattern"
+          echo "valid=true" >> $GITHUB_OUTPUT
+          echo "file_count=0" >> $GITHUB_OUTPUT
+          echo "errors=[]" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        FILE_COUNT=0
+        ERROR_COUNT=0
+        ERRORS="[]"
+
+        for file in $FILES; do
+          FILE_COUNT=$((FILE_COUNT + 1))
+          echo "Validating: $file"
+
+          # Run validation
+          RESULT=$(pidl validate "$file" 2>&1)
+          VALIDATE_EXIT=$?
+
+          if [ $VALIDATE_EXIT -ne 0 ]; then
+            ERROR_COUNT=$((ERROR_COUNT + 1))
+            echo "❌ Validation failed: $file"
+            echo "$RESULT"
+            ERRORS=$(echo "$ERRORS" | jq --arg f "$file" --arg e "$RESULT" '. + [{"file": $f, "error": $e}]')
+          else
+            echo "✅ Valid: $file"
+          fi
+
+          # Run security analysis if enabled
+          if [ "$SECURITY" = "true" ]; then
+            SEC_RESULT=$(pidl security "$file" 2>&1)
+            SEC_EXIT=$?
+
+            if [ $SEC_EXIT -ne 0 ]; then
+              echo "⚠️ Security issues found: $file"
+              echo "$SEC_RESULT"
+            fi
+          fi
+        done
+
+        echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
+        echo "errors<<EOF" >> $GITHUB_OUTPUT
+        echo "$ERRORS" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+        if [ $ERROR_COUNT -gt 0 ]; then
+          echo "valid=false" >> $GITHUB_OUTPUT
+          echo ""
+          echo "❌ $ERROR_COUNT file(s) failed validation"
+          exit 1
+        else
+          echo "valid=true" >> $GITHUB_OUTPUT
+          echo ""
+          echo "✅ All $FILE_COUNT file(s) passed validation"
+        fi
