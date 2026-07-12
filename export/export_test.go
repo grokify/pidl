@@ -7,6 +7,11 @@ import (
 	"github.com/grokify/pidl"
 )
 
+// exporter is a local interface for testing export functions.
+type exporter interface {
+	Export(*pidl.Protocol) (string, error)
+}
+
 func createTestProcessProtocol() *pidl.Protocol {
 	return &pidl.Protocol{
 		ProtocolMeta: pidl.ProtocolMeta{
@@ -154,48 +159,35 @@ func TestPrefectExporter_SyncMode(t *testing.T) {
 	}
 }
 
-func TestBPMNExporter_Export(t *testing.T) {
+// assertExportContains is a test helper that exports using the given exporter
+// and verifies the result contains all expected substrings.
+func assertExportContains(t *testing.T, e exporter, expectations []struct{ substr, errMsg string }) {
+	t.Helper()
 	p := createTestProcessProtocol()
-	exporter := NewBPMNExporter()
 
-	result, err := exporter.Export(p)
+	result, err := e.Export(p)
 	if err != nil {
 		t.Fatalf("Export failed: %v", err)
 	}
 
-	// Check for expected XML content
-	if !strings.Contains(result, "<?xml") {
-		t.Error("expected XML declaration")
+	for _, exp := range expectations {
+		if !strings.Contains(result, exp.substr) {
+			t.Error(exp.errMsg)
+		}
 	}
+}
 
-	if !strings.Contains(result, "<definitions") {
-		t.Error("expected definitions element")
-	}
-
-	if !strings.Contains(result, "<process") {
-		t.Error("expected process element")
-	}
-
-	if !strings.Contains(result, "<startEvent") {
-		t.Error("expected startEvent")
-	}
-
-	if !strings.Contains(result, "<endEvent") {
-		t.Error("expected endEvent")
-	}
-
-	if !strings.Contains(result, "<sequenceFlow") {
-		t.Error("expected sequenceFlow")
-	}
-
-	// Check for our tasks
-	if !strings.Contains(result, "Extract Data") {
-		t.Error("expected Extract Data task")
-	}
-
-	if !strings.Contains(result, "Transform Data") {
-		t.Error("expected Transform Data task")
-	}
+func TestBPMNExporter_Export(t *testing.T) {
+	assertExportContains(t, NewBPMNExporter(), []struct{ substr, errMsg string }{
+		{"<?xml", "expected XML declaration"},
+		{"<definitions", "expected definitions element"},
+		{"<process", "expected process element"},
+		{"<startEvent", "expected startEvent"},
+		{"<endEvent", "expected endEvent"},
+		{"<sequenceFlow", "expected sequenceFlow"},
+		{"Extract Data", "expected Extract Data task"},
+		{"Transform Data", "expected Transform Data task"},
+	})
 }
 
 func TestToGoName(t *testing.T) {
@@ -237,49 +229,16 @@ func TestToPythonName(t *testing.T) {
 }
 
 func TestStepFunctionsExporter_Export(t *testing.T) {
-	p := createTestProcessProtocol()
-	exporter := NewStepFunctionsExporter()
-
-	result, err := exporter.Export(p)
-	if err != nil {
-		t.Fatalf("Export failed: %v", err)
-	}
-
-	// Check for expected JSON structure
-	if !strings.Contains(result, `"StartAt"`) {
-		t.Error("expected StartAt field in state machine")
-	}
-
-	if !strings.Contains(result, `"States"`) {
-		t.Error("expected States field in state machine")
-	}
-
-	if !strings.Contains(result, `"Comment"`) {
-		t.Error("expected Comment field in state machine")
-	}
-
-	// Check for state types
-	if !strings.Contains(result, `"Type": "Task"`) {
-		t.Error("expected Task state type")
-	}
-
-	// Check for step-type specific resources
-	if !strings.Contains(result, "lambda:invoke") {
-		t.Error("expected lambda:invoke for deterministic step")
-	}
-
-	if !strings.Contains(result, "bedrock:invokeModel") {
-		t.Error("expected bedrock:invokeModel for LLM step")
-	}
-
-	if !strings.Contains(result, "http:invoke") {
-		t.Error("expected http:invoke for external step")
-	}
-
-	// Check for retry policy
-	if !strings.Contains(result, `"Retry"`) {
-		t.Error("expected Retry field for step with retry strategy")
-	}
+	assertExportContains(t, NewStepFunctionsExporter(), []struct{ substr, errMsg string }{
+		{`"StartAt"`, "expected StartAt field in state machine"},
+		{`"States"`, "expected States field in state machine"},
+		{`"Comment"`, "expected Comment field in state machine"},
+		{`"Type": "Task"`, "expected Task state type"},
+		{"lambda:invoke", "expected lambda:invoke for deterministic step"},
+		{"bedrock:invokeModel", "expected bedrock:invokeModel for LLM step"},
+		{"http:invoke", "expected http:invoke for external step"},
+		{`"Retry"`, "expected Retry field for step with retry strategy"},
+	})
 }
 
 func TestStepFunctionsExporter_NonProcess(t *testing.T) {

@@ -8,10 +8,10 @@ import (
 
 func TestValidateData_TypeChecks(t *testing.T) {
 	tests := []struct {
-		name     string
-		data     interface{}
-		schema   map[string]interface{}
-		wantErr  bool
+		name    string
+		data    interface{}
+		schema  map[string]interface{}
+		wantErr bool
 	}{
 		{
 			name: "valid string",
@@ -269,7 +269,7 @@ func TestSchemaRegistry_LoadSchema(t *testing.T) {
 	tmpDir := t.TempDir()
 	schemaPath := filepath.Join(tmpDir, "test.schema.json")
 	schemaContent := `{"type": "object", "properties": {"name": {"type": "string"}}}`
-	if err := os.WriteFile(schemaPath, []byte(schemaContent), 0644); err != nil {
+	if err := os.WriteFile(schemaPath, []byte(schemaContent), 0600); err != nil {
 		t.Fatalf("failed to write test schema: %v", err)
 	}
 
@@ -308,7 +308,7 @@ func TestSchemaRegistry_RelativePath(t *testing.T) {
 
 	schemaPath := filepath.Join(schemaDir, "user.schema.json")
 	schemaContent := `{"type": "object"}`
-	if err := os.WriteFile(schemaPath, []byte(schemaContent), 0644); err != nil {
+	if err := os.WriteFile(schemaPath, []byte(schemaContent), 0600); err != nil {
 		t.Fatalf("failed to write test schema: %v", err)
 	}
 
@@ -339,7 +339,7 @@ func TestPortSchemaValidator_ValidatePortData(t *testing.T) {
 			"name": {"type": "string"}
 		}
 	}`
-	if err := os.WriteFile(schemaPath, []byte(schemaContent), 0644); err != nil {
+	if err := os.WriteFile(schemaPath, []byte(schemaContent), 0600); err != nil {
 		t.Fatalf("failed to write test schema: %v", err)
 	}
 
@@ -402,7 +402,7 @@ func TestPortSchemaValidator_ValidateEntityInputs(t *testing.T) {
 	tmpDir := t.TempDir()
 	userSchemaPath := filepath.Join(tmpDir, "user.schema.json")
 	userSchemaContent := `{"type": "object", "required": ["name"], "properties": {"name": {"type": "string"}}}`
-	if err := os.WriteFile(userSchemaPath, []byte(userSchemaContent), 0644); err != nil {
+	if err := os.WriteFile(userSchemaPath, []byte(userSchemaContent), 0600); err != nil {
 		t.Fatalf("failed to write user schema: %v", err)
 	}
 
