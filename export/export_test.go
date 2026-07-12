@@ -235,3 +235,135 @@ func TestToPythonName(t *testing.T) {
 		}
 	}
 }
+
+func TestStepFunctionsExporter_Export(t *testing.T) {
+	p := createTestProcessProtocol()
+	exporter := NewStepFunctionsExporter()
+
+	result, err := exporter.Export(p)
+	if err != nil {
+		t.Fatalf("Export failed: %v", err)
+	}
+
+	// Check for expected JSON structure
+	if !strings.Contains(result, `"StartAt"`) {
+		t.Error("expected StartAt field in state machine")
+	}
+
+	if !strings.Contains(result, `"States"`) {
+		t.Error("expected States field in state machine")
+	}
+
+	if !strings.Contains(result, `"Comment"`) {
+		t.Error("expected Comment field in state machine")
+	}
+
+	// Check for state types
+	if !strings.Contains(result, `"Type": "Task"`) {
+		t.Error("expected Task state type")
+	}
+
+	// Check for step-type specific resources
+	if !strings.Contains(result, "lambda:invoke") {
+		t.Error("expected lambda:invoke for deterministic step")
+	}
+
+	if !strings.Contains(result, "bedrock:invokeModel") {
+		t.Error("expected bedrock:invokeModel for LLM step")
+	}
+
+	if !strings.Contains(result, "http:invoke") {
+		t.Error("expected http:invoke for external step")
+	}
+
+	// Check for retry policy
+	if !strings.Contains(result, `"Retry"`) {
+		t.Error("expected Retry field for step with retry strategy")
+	}
+}
+
+func TestStepFunctionsExporter_NonProcess(t *testing.T) {
+	p := &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{
+			ID:   "non-process",
+			Name: "Non-Process Protocol",
+			Kind: pidl.ProtocolKindProtocol,
+		},
+	}
+
+	exporter := NewStepFunctionsExporter()
+	_, err := exporter.Export(p)
+	if err == nil {
+		t.Error("expected error for non-process protocol")
+	}
+}
+
+func TestStepFunctionsExporter_CustomName(t *testing.T) {
+	p := createTestProcessProtocol()
+	exporter := NewStepFunctionsExporter()
+	exporter.StateMachineName = "CustomStateMachine"
+	exporter.Comment = "Custom comment"
+
+	result, err := exporter.Export(p)
+	if err != nil {
+		t.Fatalf("Export failed: %v", err)
+	}
+
+	if !strings.Contains(result, "Custom comment") {
+		t.Error("expected custom comment in output")
+	}
+}
+
+func TestStepFunctionsExporter_HumanStep(t *testing.T) {
+	p := &pidl.Protocol{
+		ProtocolMeta: pidl.ProtocolMeta{
+			ID:   "human-review",
+			Name: "Human Review Process",
+			Kind: pidl.ProtocolKindProcess,
+		},
+		Entities: []pidl.Entity{
+			{
+				ID:       "review",
+				Name:     "Human Review",
+				Type:     pidl.EntityTypeUser,
+				StepType: pidl.StepTypeHuman,
+			},
+		},
+	}
+
+	exporter := NewStepFunctionsExporter()
+	result, err := exporter.Export(p)
+	if err != nil {
+		t.Fatalf("Export failed: %v", err)
+	}
+
+	// Check for activity resource for human step
+	if !strings.Contains(result, "activity:") {
+		t.Error("expected activity resource for human step")
+	}
+
+	// Check for heartbeat
+	if !strings.Contains(result, `"HeartbeatSeconds"`) {
+		t.Error("expected HeartbeatSeconds for human step")
+	}
+}
+
+func TestToStateName(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"extract", "extract"},
+		{"extract-data", "extract-data"},
+		{"extract_data", "extract_data"},
+		{"Extract Data", "Extract_Data"},
+		{"step.name", "step.name"},
+	}
+
+	for _, tc := range tests {
+		result := toStateName(tc.input)
+		if result != tc.expected {
+			t.Errorf("toStateName(%q) = %q, expected %q", tc.input, result, tc.expected)
+		}
+	}
+}
