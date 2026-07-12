@@ -47,6 +47,7 @@ type TemporalActivity struct {
 	OutputType  string
 	Timeout     string
 	Retries     int
+	StepType    string
 }
 
 // TemporalStep represents a step in the workflow.
@@ -102,6 +103,7 @@ func (e *TemporalExporter) buildWorkflow(p *pidl.Protocol) *TemporalWorkflow {
 			Description: entity.Description,
 			InputType:   "interface{}",
 			OutputType:  "interface{}",
+			StepType:    string(entity.StepType),
 		}
 
 		// Set timeout and retries from entity config
@@ -196,12 +198,69 @@ func {{.WorkflowName}}(ctx workflow.Context, input interface{}) (interface{}, er
 // Activities
 {{range .Activities}}
 // {{.Name}} - {{.Description}}
+// StepType: {{.StepType}}
 func {{.Name}}(ctx context.Context, input interface{}) (interface{}, error) {
 	logger := activity.GetLogger(ctx)
-	logger.Info("Executing {{.Name}}")
+	logger.Info("Executing {{.Name}}", "step_type", "{{.StepType}}")
+{{- if eq .StepType "deterministic"}}
 
-	// TODO: Implement activity logic
+	// Deterministic processing: same input always produces same output
+	// Implement your deterministic transformation logic here
+	result := input
+	// Example: result = transform(input)
+	return result, nil
+{{- else if eq .StepType "llm"}}
+
+	// LLM processing: non-deterministic AI/ML inference
+	// Implement your LLM API call here
+	// Example:
+	// client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
+	// response, err := client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{...})
+	// if err != nil {
+	//     return nil, fmt.Errorf("LLM call failed: %w", err)
+	// }
+	// return response.Choices[0].Message.Content, nil
 	return input, nil
+{{- else if eq .StepType "human"}}
+
+	// Human-in-the-loop: requires human review or approval
+	// Use Temporal signals or external completion for human input
+	// Example:
+	// signalChan := workflow.GetSignalChannel(ctx, "human-approval")
+	// var approved bool
+	// signalChan.Receive(ctx, &approved)
+	// if !approved {
+	//     return nil, fmt.Errorf("human approval denied")
+	// }
+	return input, nil
+{{- else if eq .StepType "external"}}
+
+	// External service call: API or third-party integration
+	// Implement your external API call with proper error handling
+	// Example:
+	// resp, err := http.Post(apiURL, "application/json", bytes.NewReader(payload))
+	// if err != nil {
+	//     return nil, fmt.Errorf("external call failed: %w", err)
+	// }
+	// defer resp.Body.Close()
+	// return parseResponse(resp)
+	return input, nil
+{{- else if eq .StepType "tool"}}
+
+	// Tool invocation: function or capability execution
+	// Implement your tool execution logic here
+	// Example:
+	// toolResult, err := executeTool(ctx, toolName, input)
+	// if err != nil {
+	//     return nil, fmt.Errorf("tool execution failed: %w", err)
+	// }
+	// return toolResult, nil
+	return input, nil
+{{- else}}
+
+	// Generic processing step
+	return input, nil
+{{- end}}
 }
 {{end}}{{end}}`
 

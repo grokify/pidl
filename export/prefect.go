@@ -46,6 +46,7 @@ type PrefectTask struct {
 	RetryDelay  string
 	Timeout     string
 	Tags        []string
+	StepType    string
 }
 
 // PrefectParallelBlock represents a parallel execution block.
@@ -90,6 +91,7 @@ func (e *PrefectExporter) buildFlow(p *pidl.Protocol) *PrefectFlow {
 			FuncName:    toPythonName(entity.Name) + "_task",
 			Description: entity.Description,
 			Tags:        []string{string(entity.StepType)},
+			StepType:    string(entity.StepType),
 		}
 
 		// Set retries from entity config
@@ -156,9 +158,74 @@ async def {{.FuncName}}(data: Dict[str, Any]) -> Dict[str, Any]:
 {{- else}}
 def {{.FuncName}}(data: Dict[str, Any]) -> Dict[str, Any]:
 {{- end}}
-    """{{.Description}}"""
-    # TODO: Implement task logic
+    """
+    {{.Description}}
+
+    Step Type: {{.StepType}}
+    """
+{{- if eq .StepType "deterministic"}}
+    # Deterministic processing: same input always produces same output
+    # Implement your deterministic transformation logic here
+    result = data  # Replace with: transform_data(data)
+    return result
+{{- else if eq .StepType "llm"}}
+    # LLM processing: non-deterministic AI/ML inference
+    # Example with OpenAI:
+    # import openai
+    # client = openai.OpenAI()
+    # response = client.chat.completions.create(
+    #     model="gpt-4",
+    #     messages=[{"role": "user", "content": str(data)}]
+    # )
+    # return {"result": response.choices[0].message.content, **data}
     return data
+{{- else if eq .StepType "human"}}
+    # Human-in-the-loop: requires human review or approval
+    # Use Prefect artifacts or pause/resume for human input
+{{- if $.UseAsync}}
+    # Example:
+    # from prefect import pause_flow_run
+    # from prefect.artifacts import create_markdown_artifact
+    # result = await create_markdown_artifact(f"## Review Required\n{data}")
+    # approved = await pause_flow_run(wait_for_input=True)
+{{- else}}
+    # Example:
+    # from prefect import pause_flow_run
+    # approved = pause_flow_run(wait_for_input=True)
+{{- end}}
+    # if not approved:
+    #     raise ValueError("Human approval denied")
+    return data
+{{- else if eq .StepType "external"}}
+    # External service call: API or third-party integration
+{{- if $.UseAsync}}
+    # Example:
+    # import httpx
+    # async with httpx.AsyncClient() as client:
+    #     response = await client.post(api_url, json=data)
+    #     response.raise_for_status()
+    #     return response.json()
+{{- else}}
+    # Example:
+    # import requests
+    # response = requests.post(api_url, json=data)
+    # response.raise_for_status()
+    # return response.json()
+{{- end}}
+    return data
+{{- else if eq .StepType "tool"}}
+    # Tool invocation: function or capability execution
+{{- if $.UseAsync}}
+    # result = await execute_tool(tool_name, data)
+{{- else}}
+    # result = execute_tool(tool_name, data)
+{{- end}}
+    # return result
+    return data
+{{- else}}
+    # Generic processing step
+    return data
+{{- end}}
 {{end}}
 
 @flow(name="{{.FlowName}}")
