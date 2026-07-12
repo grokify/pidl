@@ -764,6 +764,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Specifications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1082,6 +1110,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/infographic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Infographic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1338,42 +1394,75 @@
 
 
 <h1 id="pidl-roadmap">PIDL Roadmap<a class="headerlink" href="#pidl-roadmap" title="Permanent link">&para;</a></h1>
-<p>Protocol Interaction Description Language - a JSON-based DSL for describing protocol choreography that compiles to diagrams.</p>
-<h2 id="release-history">Release History<a class="headerlink" href="#release-history" title="Permanent link">&para;</a></h2>
+<p><strong>Protocol Interaction Description Language</strong> - A JSON-based DSL for describing protocol choreography that compiles to diagrams.</p>
+<p><strong>Current Version</strong>: v0.4.0
+<strong>Status</strong>: Active Development</p>
+<hr />
+<h2 id="release-summary">Release Summary<a class="headerlink" href="#release-summary" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
 <th>Version</th>
-<th>Date</th>
-<th>Highlights</th>
+<th>Milestone</th>
+<th>Status</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>v0.4.0</td>
-<td>2026-06-28</td>
-<td>Protocol composition, execution engine, diff, debugger, security analysis</td>
-</tr>
-<tr>
-<td>v0.3.0</td>
-<td>2025-05-18</td>
-<td>SVG rendering, animations, templates, network boundaries</td>
+<td>v0.1.0</td>
+<td>Core DSL &amp; Diagram Generation</td>
+<td>✅ Done</td>
 </tr>
 <tr>
 <td>v0.2.0</td>
-<td>2025-04-18</td>
-<td>Annotations, alternatives, conditions, nested phases, D2</td>
+<td>Enhanced Flow Semantics</td>
+<td>✅ Done</td>
 </tr>
 <tr>
-<td>v0.1.0</td>
-<td>2025-04-18</td>
-<td>Core DSL, PlantUML, Mermaid, DOT renderers</td>
+<td>v0.3.0</td>
+<td>SVG Rendering &amp; Network Boundaries</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>v0.4.0</td>
+<td>State, Security, Roles, Composition, Execution, Analysis</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>v0.5.0</td>
+<td>Process Spec Foundation</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>v0.6.0</td>
+<td>Process Spec Rendering</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>v0.6.1</td>
+<td>Process Spec Examples</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>v0.7.0</td>
+<td>Process Spec Analysis</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>v0.8.0</td>
+<td>Infographic Renderer &amp; Documentation</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>v1.0.0</td>
+<td>Integrations (VS Code, MkDocs, GitHub Actions)</td>
+<td>🔲 Next</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="completed-phases">Completed Phases<a class="headerlink" href="#completed-phases" title="Permanent link">&para;</a></h2>
-<h3 id="phase-1-core-dsl-diagram-generation-v010">Phase 1: Core DSL &amp; Diagram Generation ✅ (v0.1.0)<a class="headerlink" href="#phase-1-core-dsl-diagram-generation-v010" title="Permanent link">&para;</a></h3>
+<h2 id="completed-core-pidl-v010-v040">Completed: Core PIDL (v0.1.0 - v0.4.0)<a class="headerlink" href="#completed-core-pidl-v010-v040" title="Permanent link">&para;</a></h2>
+<h3 id="v010-core-dsl-diagram-generation">v0.1.0: Core DSL &amp; Diagram Generation ✅<a class="headerlink" href="#v010-core-dsl-diagram-generation" title="Permanent link">&para;</a></h3>
 <ul>
 <li>[x] Core PIDL JSON schema with entities, flows, phases</li>
 <li>[x] Entity types for OAuth/OIDC, MCP, A2A protocols</li>
@@ -1383,7 +1472,7 @@
 <li>[x] CLI tool: validate, generate, examples, init</li>
 <li>[x] Go library with parser, model types, validation</li>
 </ul>
-<h3 id="phase-2-enhanced-flow-semantics-v020">Phase 2: Enhanced Flow Semantics ✅ (v0.2.0)<a class="headerlink" href="#phase-2-enhanced-flow-semantics-v020" title="Permanent link">&para;</a></h3>
+<h3 id="v020-enhanced-flow-semantics">v0.2.0: Enhanced Flow Semantics ✅<a class="headerlink" href="#v020-enhanced-flow-semantics" title="Permanent link">&para;</a></h3>
 <ul>
 <li>[x] Conditional flows (<code>condition</code> field)</li>
 <li>[x] Alternative paths (<code>alternatives</code> field)</li>
@@ -1391,754 +1480,504 @@
 <li>[x] Nested phases with parent hierarchy</li>
 <li>[x] D2 diagram renderer (sequence, flow, arch styles)</li>
 </ul>
-<h3 id="phase-3-svg-rendering-v030">Phase 3: SVG Rendering ✅ (v0.3.0)<a class="headerlink" href="#phase-3-svg-rendering-v030" title="Permanent link">&para;</a></h3>
+<h3 id="v030-svg-rendering-network-boundaries">v0.3.0: SVG Rendering &amp; Network Boundaries ✅<a class="headerlink" href="#v030-svg-rendering-network-boundaries" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[x] Static SVG sequence diagrams</li>
-<li>[x] Animated SVG with CSS offset-path flow dots</li>
-<li>[x] Per-message animation control</li>
-<li>[x] Semantic animation presets (request, success, error, warning, highlight)</li>
-<li>[x] Light/dark theme support</li>
-<li>[x] Template system with 5 built-in styles</li>
-</ul>
-<h3 id="phase-4-network-boundary-diagrams-v030">Phase 4: Network Boundary Diagrams ✅ (v0.3.0)<a class="headerlink" href="#phase-4-network-boundary-diagrams-v030" title="Permanent link">&para;</a></h3>
-<ul>
-<li>[x] SVG network boundary renderer</li>
-<li>[x] Boundary inference from entity metadata</li>
-<li>[x] Explicit boundary configuration</li>
+<li>[x] Static and animated SVG sequence diagrams</li>
+<li>[x] Per-message animation control with semantic presets</li>
+<li>[x] Light/dark theme support with template system</li>
+<li>[x] Network boundary renderer with trust zone inference</li>
 <li>[x] Boundary styles: trusted, dmz, external, cloud</li>
-<li>[x] CLI <code>--boundary</code> override flags</li>
 </ul>
-<h3 id="phase-5-advanced-svg-features-v040">Phase 5: Advanced SVG Features ✅ (v0.4.0)<a class="headerlink" href="#phase-5-advanced-svg-features-v040" title="Permanent link">&para;</a></h3>
-<ul>
-<li>[x] Phase boxes with color-coded depth</li>
-<li>[x] Alternative paths with ALT badges</li>
-<li>[x] High-contrast WCAG AA template</li>
-<li>[x] Interactive hover states</li>
-<li>[x] Animation pulse/glow effects</li>
-<li>[x] Note rendering on flows</li>
-</ul>
-<h3 id="phase-6-state-model-v050">Phase 6: State Model ✅ (v0.5.0)<a class="headerlink" href="#phase-6-state-model-v050" title="Permanent link">&para;</a></h3>
+<h3 id="v040-advanced-features">v0.4.0: Advanced Features ✅<a class="headerlink" href="#v040-advanced-features" title="Permanent link">&para;</a></h3>
+<h4 id="state-model">State Model<a class="headerlink" href="#state-model" title="Permanent link">&para;</a></h4>
 <ul>
 <li>[x] Entity state definitions with <code>states</code> field</li>
 <li>[x] State mutations on flows with <code>sets</code> clause</li>
-<li>[x] Initial and final state markers</li>
-<li>[x] State validation (unique IDs, single initial, entity/state references)</li>
 <li>[x] Mermaid <code>stateDiagram-v2</code> output format</li>
-<li>[x] Entity filtering for state diagrams (<code>--entity</code> flag)</li>
-<li>[x] Example: <code>oauth2_with_states.json</code></li>
 </ul>
-<h3 id="phase-7-security-trust-annotations-v060">Phase 7: Security &amp; Trust Annotations ✅ (v0.6.0)<a class="headerlink" href="#phase-7-security-trust-annotations-v060" title="Permanent link">&para;</a></h3>
+<h4 id="security-trust">Security &amp; Trust<a class="headerlink" href="#security-trust" title="Permanent link">&para;</a></h4>
 <ul>
 <li>[x] Trust levels: trusted, semi_trusted, untrusted, authoritative</li>
-<li>[x] Security requirements on flows: token, signature, encryption, mtls, mac</li>
-<li>[x] Token definitions: id, name, type, issuer, audience, binding</li>
-<li>[x] Trust boundary inference from entity trust levels</li>
-<li>[x] Security badges on SVG sequence diagrams</li>
-<li>[x] Security notes in PlantUML and Mermaid output</li>
-<li>[x] CLI flags: <code>--show-security</code>, <code>--show-trust</code></li>
-<li>[x] Example: <code>oauth2_with_security.json</code></li>
+<li>[x] Security requirements: token, signature, encryption, mtls, mac</li>
+<li>[x] Token definitions with issuer, audience, binding</li>
+<li>[x] Security badges in SVG and notes in PlantUML/Mermaid</li>
 </ul>
-<hr />
-<h2 id="future-phases">Future Phases<a class="headerlink" href="#future-phases" title="Permanent link">&para;</a></h2>
-<h3 id="phase-8-protocol-roles-deployment-architecture-v070">Phase 8: Protocol Roles &amp; Deployment Architecture ✅ (v0.7.0)<a class="headerlink" href="#phase-8-protocol-roles-deployment-architecture-v070" title="Permanent link">&para;</a></h3>
-<p><strong>Target:</strong> Enable PIDL to describe protocol roles, logical deployment components, and trust relationships for architecture documentation.</p>
-<p><strong>Use Case:</strong> OAIAF needs to document how protocols map to real-world deployments (IdP, IGA, Gateway, MCP Client, etc.) with explicit trust relationships.</p>
-<h4 id="81-data-model-types-validators">8.1 Data Model - Types &amp; Validators ✅<a class="headerlink" href="#81-data-model-types-validators" title="Permanent link">&para;</a></h4>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Add <code>ProtocolRole</code> type with Protocol, Role, Variant fields</td>
-<td>Done</td>
-</tr>
-<tr>
-<td>Add <code>protocol_roles</code> field to Entity</td>
-<td>Done</td>
-</tr>
-<tr>
-<td>Add <code>DeploymentComponent</code> type</td>
-<td>Done</td>
-</tr>
-<tr>
-<td>Add <code>components</code> field to ProtocolMetadata</td>
-<td>Done</td>
-</tr>
-<tr>
-<td>Add <code>TrustRelationship</code> type</td>
-<td>Done</td>
-</tr>
-<tr>
-<td>Add <code>trust_relations</code> field to ProtocolMetadata</td>
-<td>Done</td>
-</tr>
-<tr>
-<td>Add <code>IsValidProtocol()</code> validator</td>
-<td>Done</td>
-</tr>
-<tr>
-<td>Add <code>IsValidComponentType()</code> validator</td>
-<td>Done</td>
-</tr>
-<tr>
-<td>Add <code>IsValidTrustRelationType()</code> validator</td>
-<td>Done</td>
-</tr>
-<tr>
-<td>Add <code>IsValidCredential()</code> validator</td>
-<td>Done</td>
-</tr>
-</tbody>
-</table>
-<p><strong>ProtocolRole Type:</strong></p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ProtocolRole</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nx">Protocol</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;protocol&quot;`</span><span class="w">          </span><span class="c1">// &quot;oauth&quot;, &quot;scim&quot;, &quot;aauth&quot;, &quot;authzen&quot;, &quot;mcp&quot;, &quot;a2a&quot;, &quot;spiffe&quot;</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nx">Role</span><span class="w">     </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;role&quot;`</span><span class="w">              </span><span class="c1">// &quot;authorization_server&quot;, &quot;client&quot;, &quot;pep&quot;, &quot;pdp&quot;, etc.</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nx">Variant</span><span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;variant,omitempty&quot;`</span><span class="w"> </span><span class="c1">// Sub-role: &quot;person_server&quot; vs &quot;access_server&quot;</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">}</span>
-</span></code></pre></div>
-<p><strong>DeploymentComponent Type:</strong></p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">DeploymentComponent</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nx">ID</span><span class="w">          </span><span class="kt">string</span><span class="w">         </span><span class="s">`json:&quot;id&quot;`</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nx">Name</span><span class="w">        </span><span class="kt">string</span><span class="w">         </span><span class="s">`json:&quot;name&quot;`</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nx">Type</span><span class="w">        </span><span class="kt">string</span><span class="w">         </span><span class="s">`json:&quot;type&quot;`</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nx">Description</span><span class="w"> </span><span class="kt">string</span><span class="w">         </span><span class="s">`json:&quot;description,omitempty&quot;`</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nx">Entities</span><span class="w">    </span><span class="p">[]</span><span class="kt">string</span><span class="w">       </span><span class="s">`json:&quot;entities&quot;`</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nx">Implements</span><span class="w">  </span><span class="p">[]</span><span class="nx">ProtocolRole</span><span class="w"> </span><span class="s">`json:&quot;implements&quot;`</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nx">Examples</span><span class="w">    </span><span class="p">[]</span><span class="kt">string</span><span class="w">       </span><span class="s">`json:&quot;examples,omitempty&quot;`</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">}</span>
-</span></code></pre></div>
-<p><strong>TrustRelationship Type:</strong></p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">TrustRelationship</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nx">ID</span><span class="w">          </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;id,omitempty&quot;`</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nx">From</span><span class="w">        </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;from&quot;`</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nx">To</span><span class="w">          </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;to&quot;`</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nx">Type</span><span class="w">        </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;type&quot;`</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nx">Credentials</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;credentials,omitempty&quot;`</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nx">Mutual</span><span class="w">      </span><span class="kt">bool</span><span class="w">     </span><span class="s">`json:&quot;mutual,omitempty&quot;`</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nx">Description</span><span class="w"> </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;description,omitempty&quot;`</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">}</span>
-</span></code></pre></div>
-<h4 id="82-standard-vocabularies">8.2 Standard Vocabularies<a class="headerlink" href="#82-standard-vocabularies" title="Permanent link">&para;</a></h4>
-<p><strong>Protocols:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Protocol</th>
-<th>Valid Roles</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>oauth</code></td>
-<td><code>resource_owner</code>, <code>client</code>, <code>authorization_server</code>, <code>resource_server</code></td>
-</tr>
-<tr>
-<td><code>scim</code></td>
-<td><code>client</code>, <code>service_provider</code></td>
-</tr>
-<tr>
-<td><code>spiffe</code></td>
-<td><code>workload</code>, <code>agent</code>, <code>server</code>, <code>trust_domain</code></td>
-</tr>
-<tr>
-<td><code>aauth</code></td>
-<td><code>agent</code>, <code>person_server</code>, <code>access_server</code>, <code>agent_provider</code></td>
-</tr>
-<tr>
-<td><code>idjag</code></td>
-<td><code>assertion_issuer</code>, <code>token_endpoint</code>, <code>relying_party</code></td>
-</tr>
-<tr>
-<td><code>authzen</code></td>
-<td><code>pep</code>, <code>pdp</code>, <code>pap</code>, <code>pip</code></td>
-</tr>
-<tr>
-<td><code>mcp</code></td>
-<td><code>host</code>, <code>client</code>, <code>server</code></td>
-</tr>
-<tr>
-<td><code>a2a</code></td>
-<td><code>agent</code>, <code>registry</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Component Types:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>idp</code></td>
-<td>Identity Provider (OAuth AS, OIDC, SCIM SP)</td>
-</tr>
-<tr>
-<td><code>iga</code></td>
-<td>Identity Governance (SCIM Client, Audit)</td>
-</tr>
-<tr>
-<td><code>agent_provider</code></td>
-<td>Agent registration/tokens</td>
-</tr>
-<tr>
-<td><code>person_server</code></td>
-<td>Human consent</td>
-</tr>
-<tr>
-<td><code>access_server</code></td>
-<td>Token issuance</td>
-</tr>
-<tr>
-<td><code>pdp</code></td>
-<td>Policy Decision Point</td>
-</tr>
-<tr>
-<td><code>gateway</code></td>
-<td>Access Gateway (PEP, OAuth RS)</td>
-</tr>
-<tr>
-<td><code>mcp_client</code></td>
-<td>MCP Host/Client</td>
-</tr>
-<tr>
-<td><code>mcp_server</code></td>
-<td>MCP Tool Server</td>
-</tr>
-<tr>
-<td><code>resource_api</code></td>
-<td>Protected Resource</td>
-</tr>
-<tr>
-<td><code>spire</code></td>
-<td>SPIFFE Infrastructure</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Trust Relationship Types:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>authenticates</code></td>
-<td>Verifies identity</td>
-</tr>
-<tr>
-<td><code>validates</code></td>
-<td>Verifies claims/tokens</td>
-</tr>
-<tr>
-<td><code>delegates</code></td>
-<td>Grants delegated authority</td>
-</tr>
-<tr>
-<td><code>authorizes</code></td>
-<td>Grants access permission</td>
-</tr>
-<tr>
-<td><code>issues</code></td>
-<td>Creates token/credential</td>
-</tr>
-<tr>
-<td><code>trusts</code></td>
-<td>Accepts tokens from</td>
-</tr>
-<tr>
-<td><code>provisions</code></td>
-<td>Creates/manages lifecycle</td>
-</tr>
-<tr>
-<td><code>attests</code></td>
-<td>Cryptographically vouches</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Credentials:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Credential</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>x509_svid</code></td>
-<td>SPIFFE X.509 SVID</td>
-</tr>
-<tr>
-<td><code>jwt_svid</code></td>
-<td>SPIFFE JWT SVID</td>
-</tr>
-<tr>
-<td><code>jwt_assertion</code></td>
-<td>ID-JAG assertion</td>
-</tr>
-<tr>
-<td><code>access_token</code></td>
-<td>OAuth access token</td>
-</tr>
-<tr>
-<td><code>id_token</code></td>
-<td>OIDC ID token</td>
-</tr>
-<tr>
-<td><code>aa_agent_jwt</code></td>
-<td>AAuth agent token</td>
-</tr>
-<tr>
-<td><code>aa_auth_jwt</code></td>
-<td>AAuth auth token</td>
-</tr>
-<tr>
-<td><code>mtls</code></td>
-<td>Mutual TLS</td>
-</tr>
-<tr>
-<td><code>api_key</code></td>
-<td>API key</td>
-</tr>
-</tbody>
-</table>
-<h4 id="83-validation">8.3 Validation ✅<a class="headerlink" href="#83-validation" title="Permanent link">&para;</a></h4>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Validate protocol/role combinations</td>
-<td>Done</td>
-</tr>
-<tr>
-<td>Validate entity references in components</td>
-<td>Done</td>
-</tr>
-<tr>
-<td>Validate entity/component references in trust relations</td>
-<td>Done</td>
-</tr>
-<tr>
-<td>Validate credential types in trust relations</td>
-<td>Done</td>
-</tr>
-<tr>
-<td>Update JSON Schema</td>
-<td>Done</td>
-</tr>
-</tbody>
-</table>
-<h4 id="84-protocol-query-methods">8.4 Protocol Query Methods ✅<a class="headerlink" href="#84-protocol-query-methods" title="Permanent link">&para;</a></h4>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Protocol.ComponentsByType(type)</code></td>
-<td>Done</td>
-</tr>
-<tr>
-<td><code>Protocol.EntitiesInComponent(id)</code></td>
-<td>Done</td>
-</tr>
-<tr>
-<td><code>Protocol.TrustRelationsFrom(id)</code></td>
-<td>Done</td>
-</tr>
-<tr>
-<td><code>Protocol.TrustRelationsTo(id)</code></td>
-<td>Done</td>
-</tr>
-<tr>
-<td><code>Protocol.EntitiesByRole(protocol, role)</code></td>
-<td>Done</td>
-</tr>
-<tr>
-<td><code>Protocol.EntitiesByProtocol(protocol)</code></td>
-<td>Done</td>
-</tr>
-<tr>
-<td><code>Protocol.EntitiesWithProtocolRoles()</code></td>
-<td>Done</td>
-</tr>
-<tr>
-<td><code>Protocol.ComponentByID(id)</code></td>
-<td>Done</td>
-</tr>
-<tr>
-<td><code>Protocol.ComponentForEntity(entityID)</code></td>
-<td>Done</td>
-</tr>
-<tr>
-<td><code>Protocol.TrustRelationByID(id)</code></td>
-<td>Done</td>
-</tr>
-<tr>
-<td><code>Protocol.TrustRelationsByType(type)</code></td>
-<td>Done</td>
-</tr>
-<tr>
-<td><code>Protocol.AllProtocols()</code></td>
-<td>Done</td>
-</tr>
-<tr>
-<td><code>Protocol.AllComponentTypes()</code></td>
-<td>Done</td>
-</tr>
-<tr>
-<td><code>Protocol.AllTrustRelationTypes()</code></td>
-<td>Done</td>
-</tr>
-</tbody>
-</table>
-<h4 id="85-new-diagram-types">8.5 New Diagram Types ✅<a class="headerlink" href="#85-new-diagram-types" title="Permanent link">&para;</a></h4>
-<table>
-<thead>
-<tr>
-<th>Diagram Type</th>
-<th>Output</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Component Diagram</td>
-<td>Mermaid</td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td>Trust Diagram</td>
-<td>Mermaid</td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td>Component Diagram</td>
-<td>SVG</td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td>Trust Diagram</td>
-<td>SVG</td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td>Role Matrix</td>
-<td>Markdown</td>
-<td>✅ Done</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Mermaid component diagram (flowchart)</td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td>Mermaid trust diagram (flowchart)</td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td>SVG component diagram renderer</td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td>SVG trust relationship diagram renderer</td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td>Markdown role matrix generator</td>
-<td>✅ Done</td>
-</tr>
-</tbody>
-</table>
-<h4 id="86-cli-enhancements">8.6 CLI Enhancements ✅<a class="headerlink" href="#86-cli-enhancements" title="Permanent link">&para;</a></h4>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>pidl generate --format=component</code></td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td><code>pidl generate --format=trust</code></td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td><code>pidl generate --format=matrix</code></td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td><code>pidl roles &lt;file&gt;</code></td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td><code>pidl components &lt;file&gt;</code></td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td><code>pidl trust &lt;file&gt;</code></td>
-<td>✅ Done</td>
-</tr>
-</tbody>
-</table>
-<h4 id="87-examples-documentation">8.7 Examples &amp; Documentation ✅<a class="headerlink" href="#87-examples-documentation" title="Permanent link">&para;</a></h4>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>examples/oaiaf_architecture.json</code> (combined roles, components, trust)</td>
-<td>✅ Done</td>
-</tr>
-<tr>
-<td>Update docs/index.md with new features</td>
-<td>Planned</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="phase-9-code-quality-refactoring-v07x">Phase 9: Code Quality &amp; Refactoring ✅ (v0.7.x)<a class="headerlink" href="#phase-9-code-quality-refactoring-v07x" title="Permanent link">&para;</a></h3>
-<p><strong>Target:</strong> Improve code organization, eliminate duplication, and standardize patterns for maintainability.</p>
+<h4 id="protocol-roles-components">Protocol Roles &amp; Components<a class="headerlink" href="#protocol-roles-components" title="Permanent link">&para;</a></h4>
 <ul>
-<li>[x] Split <code>pidl.go</code> (1,119 lines) into 5 modules: types.go, protocol_methods.go, entity_methods.go, flow_methods.go, validators.go</li>
-<li>[x] Consolidate duplicate validators into <code>validators.go</code></li>
-<li>[x] Standardize slice-returning methods to return empty slices instead of nil</li>
-<li>[x] Extract <code>SequenceRenderOptions</code> struct for renderer config sharing</li>
-<li>[x] Consolidate write methods into <code>Protocol.WriteFile()</code></li>
-<li>[x] Remove unused <code>NewProtocol()</code> function</li>
+<li>[x] <code>ProtocolRole</code> type with protocol/role/variant</li>
+<li>[x] <code>DeploymentComponent</code> type with entities and implements</li>
+<li>[x] <code>TrustRelationship</code> type with credentials</li>
+<li>[x] Component and trust diagram renderers (Mermaid, SVG)</li>
+<li>[x] Markdown role matrix generator</li>
 </ul>
-<p><strong>Completed (deferred items):</strong></p>
-<ul>
-<li>[x] Split <code>validate.go</code> into 4 modules: validate.go (core), validate_entity.go, validate_flow.go, validate_metadata.go</li>
-<li>[x] Review <code>SanitizeID()</code> and <code>TitleCase()</code> - kept exported as useful public API (has comprehensive tests)</li>
-<li>[x] Verify utility function tests - TitleCase and SanitizeID already have tests in operations_test.go</li>
-</ul>
-<hr />
-<h3 id="phase-10-protocol-composition-v080">Phase 10: Protocol Composition ✅ (v0.8.0)<a class="headerlink" href="#phase-10-protocol-composition-v080" title="Permanent link">&para;</a></h3>
-<p><strong>Target:</strong> Enable modular protocol design with imports and inheritance.</p>
+<h4 id="protocol-composition">Protocol Composition<a class="headerlink" href="#protocol-composition" title="Permanent link">&para;</a></h4>
 <ul>
 <li>[x] Import mechanism for protocol modules (<code>imports</code> field)</li>
 <li>[x] Protocol inheritance/extension (<code>extends</code> field)</li>
-<li>[x] Reusable entity definitions via imports with optional aliasing</li>
-<li>[x] Standard library of common protocols (<code>examples/stdlib/</code>)</li>
-<li>[x] Circular import/extends detection</li>
-<li>[x] CLI <code>resolve</code> command for debugging composition</li>
-<li>[x] Automatic resolution in <code>generate</code> command</li>
+<li>[x] Standard library: <code>stdlib/oauth_entities.json</code>, <code>stdlib/mcp_entities.json</code></li>
+<li>[x] CLI <code>resolve</code> command</li>
 </ul>
-<p><strong>New Types:</strong></p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ProtocolExtends</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nx">Path</span><span class="w">            </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;path&quot;`</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nx">ExcludeEntities</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;exclude_entities,omitempty&quot;`</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nx">ExcludePhases</span><span class="w">   </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;exclude_phases,omitempty&quot;`</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nx">ExcludeFlows</span><span class="w">    </span><span class="p">[]</span><span class="kt">int</span><span class="w">    </span><span class="s">`json:&quot;exclude_flows,omitempty&quot;`</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ProtocolImport</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="nx">Path</span><span class="w">         </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;path&quot;`</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="nx">Alias</span><span class="w">        </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:&quot;alias,omitempty&quot;`</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="nx">Entities</span><span class="w">     </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;entities,omitempty&quot;`</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span><span class="nx">Phases</span><span class="w">       </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;phases,omitempty&quot;`</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">    </span><span class="nx">IncludeFlows</span><span class="w"> </span><span class="kt">bool</span><span class="w">     </span><span class="s">`json:&quot;include_flows,omitempty&quot;`</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="p">}</span>
-</span></code></pre></div>
-<p><strong>Standard Library:</strong></p>
-<table>
-<thead>
-<tr>
-<th>File</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>stdlib/oauth_entities.json</code></td>
-<td>OAuth 2.0 base entities and flows</td>
-</tr>
-<tr>
-<td><code>stdlib/mcp_entities.json</code></td>
-<td>MCP base entities and flows</td>
-</tr>
-</tbody>
-</table>
-<p><strong>CLI Commands:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Command</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>pidl resolve &lt;file&gt;</code></td>
-<td>Resolve imports/extends and output merged protocol</td>
-</tr>
-<tr>
-<td><code>pidl generate --resolve</code></td>
-<td>Explicitly request resolution before generating</td>
-</tr>
-</tbody>
-</table>
-<h3 id="phase-11-runtime-execution-engine-v090">Phase 11: Runtime Execution Engine ✅ (v0.9.0)<a class="headerlink" href="#phase-11-runtime-execution-engine-v090" title="Permanent link">&para;</a></h3>
-<p><strong>Target:</strong> Enable protocol simulation with state tracking and execution traces.</p>
+<h4 id="execution-engine">Execution Engine<a class="headerlink" href="#execution-engine" title="Permanent link">&para;</a></h4>
 <ul>
-<li>[x] Protocol Execution Engine (Executor)</li>
-<li>[x] Event queue for future event-driven execution</li>
-<li>[x] State store per entity with initial state initialization</li>
+<li>[x] Protocol Executor with state tracking</li>
 <li>[x] Execution trace recording with timestamps</li>
-<li>[x] Step-by-step protocol simulation</li>
-<li>[x] Conditional flow support with evaluator callbacks</li>
-<li>[x] State mutation validation (from state checks)</li>
+<li>[x] Conditional flow evaluation</li>
 <li>[x] CLI <code>simulate</code> command with verbose and JSON output</li>
 </ul>
-<p><strong>New Types:</strong></p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Executor</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nx">Protocol</span><span class="w">           </span><span class="o">*</span><span class="nx">Protocol</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nx">ConditionEvaluator</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="o">*</span><span class="nx">ExecutionContext</span><span class="p">,</span><span class="w"> </span><span class="nx">flow</span><span class="w"> </span><span class="o">*</span><span class="nx">Flow</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">}</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ExecutionContext</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="nx">Protocol</span><span class="w">     </span><span class="o">*</span><span class="nx">Protocol</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="nx">EntityStates</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="nx">FlowIndex</span><span class="w">    </span><span class="kt">int</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="nx">Trace</span><span class="w">        </span><span class="o">*</span><span class="nx">ExecutionTrace</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="nx">Completed</span><span class="w">    </span><span class="kt">bool</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">}</span>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ExecutionTrace</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="nx">ProtocolID</span><span class="w">    </span><span class="kt">string</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="nx">Steps</span><span class="w">         </span><span class="p">[]</span><span class="nx">ExecutionStep</span>
-</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="nx">InitialStates</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
-</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="nx">FinalStates</span><span class="w">   </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
-</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">    </span><span class="nx">Duration</span><span class="p">()</span><span class="w">    </span><span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span>
-</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="p">}</span>
-</span></code></pre></div>
-<p><strong>CLI Commands:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Command</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>pidl simulate &lt;file&gt;</code></td>
-<td>Run full protocol simulation</td>
-</tr>
-<tr>
-<td><code>pidl simulate -steps=N &lt;file&gt;</code></td>
-<td>Run N steps only</td>
-</tr>
-<tr>
-<td><code>pidl simulate -v &lt;file&gt;</code></td>
-<td>Verbose output with each step</td>
-</tr>
-<tr>
-<td><code>pidl simulate -json &lt;file&gt;</code></td>
-<td>Output trace as JSON</td>
-</tr>
-</tbody>
-</table>
-<h3 id="phase-12-analysis-tooling-v040">Phase 12: Analysis &amp; Tooling ✅ (v0.4.0)<a class="headerlink" href="#phase-12-analysis-tooling-v040" title="Permanent link">&para;</a></h3>
+<h4 id="analysis-tooling">Analysis &amp; Tooling<a class="headerlink" href="#analysis-tooling" title="Permanent link">&para;</a></h4>
 <ul>
-<li>[x] Protocol comparison (diff two protocols)</li>
+<li>[x] Protocol comparison (<code>pidl diff</code>)</li>
 <li>[x] Execution trace visualization</li>
-<li>[x] Interactive protocol debugger</li>
-<li>[x] Attack surface analysis</li>
+<li>[x] Interactive debugger (<code>pidl debug</code>)</li>
+<li>[x] Security analysis (<code>pidl analyze</code>)</li>
 </ul>
-<p><strong>New Types &amp; Commands:</strong></p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// Protocol Comparison</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ProtocolDiff</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nx">Items</span><span class="w">   </span><span class="p">[]</span><span class="nx">DiffItem</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nx">Summary</span><span class="w"> </span><span class="nx">DiffSummary</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">}</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1">// Trace Visualization</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="kd">type</span><span class="w"> </span><span class="nx">TraceRenderer</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="nx">ShowStates</span><span class="p">,</span><span class="w"> </span><span class="nx">ShowTimings</span><span class="p">,</span><span class="w"> </span><span class="nx">HighlightSkipped</span><span class="w"> </span><span class="kt">bool</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">}</span>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="c1">// Interactive Debugger</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="kd">type</span><span class="w"> </span><span class="nx">DebugSession</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">    </span><span class="nx">Executor</span><span class="w">    </span><span class="o">*</span><span class="nx">Executor</span>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="nx">Breakpoints</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">int</span><span class="p">]</span><span class="o">*</span><span class="nx">Breakpoint</span>
-</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="p">}</span>
-</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
-</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="c1">// Security Analysis</span>
-</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="kd">type</span><span class="w"> </span><span class="nx">SecurityAnalysis</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">    </span><span class="nx">Risks</span><span class="w">   </span><span class="p">[]</span><span class="nx">SecurityRisk</span>
-</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="w">    </span><span class="nx">Summary</span><span class="w"> </span><span class="nx">SecuritySummary</span>
-</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="p">}</span>
-</span></code></pre></div>
-<p><strong>CLI Commands:</strong></p>
+<hr />
+<h2 id="completed-process-spec-profile-v050-v060">Completed: Process Spec Profile (v0.5.0 - v0.6.0)<a class="headerlink" href="#completed-process-spec-profile-v050-v060" title="Permanent link">&para;</a></h2>
+<h3 id="v050-process-spec-foundation">v0.5.0: Process Spec Foundation ✅<a class="headerlink" href="#v050-process-spec-foundation" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Extend PIDL to describe process/workflow specifications with step types and data ports.</p>
+<h4 id="new-types">New Types<a class="headerlink" href="#new-types" title="Permanent link">&para;</a></h4>
 <table>
 <thead>
 <tr>
-<th>Command</th>
+<th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>pidl diff &lt;base&gt; &lt;new&gt;</code></td>
-<td>Compare two protocols</td>
+<td><code>ProtocolKind</code></td>
+<td><code>protocol</code> vs <code>process</code> enum</td>
 </tr>
 <tr>
-<td><code>pidl simulate --trace-format=svg</code></td>
-<td>Render execution trace as SVG</td>
+<td><code>StepType</code></td>
+<td><code>deterministic</code>, <code>llm</code>, <code>human</code>, <code>external</code>, <code>tool</code></td>
 </tr>
 <tr>
-<td><code>pidl debug &lt;file&gt;</code></td>
-<td>Interactive step-through debugger</td>
+<td><code>DataPort</code></td>
+<td>Input/output with kind, schema, required, sensitive</td>
 </tr>
 <tr>
-<td><code>pidl analyze &lt;file&gt;</code></td>
-<td>Security analysis with risk identification</td>
+<td><code>DataPortKind</code></td>
+<td><code>file</code>, <code>object</code>, <code>api</code>, <code>database</code>, <code>queue</code>, <code>stream</code></td>
+</tr>
+<tr>
+<td><code>ProcessingConfig</code></td>
+<td>Engine, determinism, timeout, caching</td>
+</tr>
+<tr>
+<td><code>FailureMode</code></td>
+<td>Failure scenarios with severity and recovery</td>
+</tr>
+<tr>
+<td><code>RetryStrategy</code></td>
+<td>Retry configuration with backoff</td>
 </tr>
 </tbody>
 </table>
-<h3 id="phase-13-integrations">Phase 13: Integrations<a class="headerlink" href="#phase-13-integrations" title="Permanent link">&para;</a></h3>
+<h4 id="entity-extensions">Entity Extensions<a class="headerlink" href="#entity-extensions" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[x] <code>step_type</code> field for process step classification</li>
+<li>[x] <code>inputs</code> and <code>outputs</code> ([]DataPort) for data flow</li>
+<li>[x] <code>processing</code> configuration for step execution</li>
+<li>[x] <code>failure_modes</code> and <code>retry_strategy</code> for resilience</li>
+</ul>
+<h4 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[x] Step type validation for process specs</li>
+<li>[x] Data port kind validation</li>
+<li>[x] Duplicate port name detection</li>
+<li>[x] Processing config validation</li>
+</ul>
+<h4 id="helper-methods">Helper Methods<a class="headerlink" href="#helper-methods" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[x] <code>Protocol.IsProcessSpec()</code>, <code>Protocol.Kind()</code></li>
+<li>[x] <code>Protocol.ProcessSteps()</code>, <code>LLMSteps()</code>, <code>DeterministicSteps()</code></li>
+<li>[x] <code>Entity.IsProcessStep()</code>, <code>IsLLMStep()</code>, <code>IsHumanStep()</code>, etc.</li>
+<li>[x] <code>Entity.RequiredInputs()</code>, <code>SensitiveInputs()</code>, <code>SensitiveOutputs()</code></li>
+</ul>
+<hr />
+<h3 id="v060-process-spec-rendering">v0.6.0: Process Spec Rendering ✅<a class="headerlink" href="#v060-process-spec-rendering" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Visual differentiation for process steps and data ports in diagrams.</p>
+<h4 id="step-type-styling">Step Type Styling<a class="headerlink" href="#step-type-styling" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Step Type</th>
+<th>Color</th>
+<th>Icon</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>deterministic</code></td>
+<td>Blue (#1976D2)</td>
+<td>⚙️</td>
+<td>Predictable processing</td>
+</tr>
+<tr>
+<td><code>llm</code></td>
+<td>Purple (#7B1FA2)</td>
+<td>🧠</td>
+<td>AI/ML processing</td>
+</tr>
+<tr>
+<td><code>human</code></td>
+<td>Green (#388E3C)</td>
+<td>👤</td>
+<td>Human involvement</td>
+</tr>
+<tr>
+<td><code>external</code></td>
+<td>Orange (#F57C00)</td>
+<td>☁️</td>
+<td>External services</td>
+</tr>
+<tr>
+<td><code>tool</code></td>
+<td>Gray (#607D8B)</td>
+<td>🔧</td>
+<td>Tool invocations</td>
+</tr>
+</tbody>
+</table>
+<h4 id="renderer-updates">Renderer Updates<a class="headerlink" href="#renderer-updates" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[x] PlantUML: stereotypes (<code>&lt;&lt;llm&gt;&gt;</code>) with skinparam colors</li>
+<li>[x] Mermaid: emoji badges in participant names</li>
+<li>[x] D2: fill/stroke colors for step types</li>
+<li>[x] SVG: inline styles and emoji badges</li>
+</ul>
+<h4 id="data-port-visualization">Data Port Visualization<a class="headerlink" href="#data-port-visualization" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Port Kind</th>
+<th>Shape</th>
+<th>Icon</th>
+<th>Color</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file</code></td>
+<td>page</td>
+<td>📄</td>
+<td>Amber (#FFF8E1)</td>
+</tr>
+<tr>
+<td><code>object</code></td>
+<td>rectangle</td>
+<td>📦</td>
+<td>Blue (#E3F2FD)</td>
+</tr>
+<tr>
+<td><code>api</code></td>
+<td>cloud</td>
+<td>🌐</td>
+<td>Green (#E8F5E9)</td>
+</tr>
+<tr>
+<td><code>database</code></td>
+<td>cylinder</td>
+<td>🗄️</td>
+<td>Pink (#FCE4EC)</td>
+</tr>
+<tr>
+<td><code>queue</code></td>
+<td>queue</td>
+<td>📬</td>
+<td>Purple (#F3E5F5)</td>
+</tr>
+<tr>
+<td><code>stream</code></td>
+<td>parallelogram</td>
+<td>🌊</td>
+<td>Cyan (#E0F7FA)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>[x] D2Flow: data ports as connected nodes with shapes</li>
+<li>[x] D2Arch: data ports grouped by kind (Files, Databases, etc.)</li>
+<li>[x] <code>ShowDataPorts</code> option in <code>SequenceRenderOptions</code></li>
+</ul>
+<hr />
+<h2 id="upcoming-process-spec-continuation">Upcoming: Process Spec Continuation<a class="headerlink" href="#upcoming-process-spec-continuation" title="Permanent link">&para;</a></h2>
+<h3 id="v061-process-spec-examples">v0.6.1: Process Spec Examples ✅<a class="headerlink" href="#v061-process-spec-examples" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Provide reference process specifications.</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>visionspec_execution.json</code></td>
+<td>MRD → PRD → TRD pipeline</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td><code>etl_pipeline.json</code></td>
+<td>Extract-Transform-Load</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td><code>llm_document_review.json</code></td>
+<td>LLM with human approval</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td><code>ci_cd_pipeline.json</code></td>
+<td>Build-test-deploy</td>
+<td>✅ Done</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul>
+<li>[x] All examples validate successfully</li>
+<li>[x] All examples render to all formats</li>
+<li>[x] Examples discoverable via <code>pidl examples</code></li>
+<li>[x] Examples embedded in binary</li>
+</ul>
+<hr />
+<h3 id="v070-process-spec-analysis">v0.7.0: Process Spec Analysis ✅<a class="headerlink" href="#v070-process-spec-analysis" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Process-aware security analysis and simulation enhancements.</p>
+<h4 id="security-rules">Security Rules ✅<a class="headerlink" href="#security-rules" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Severity</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SEC011</td>
+<td>Medium</td>
+<td>LLM step without downstream validation</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>SEC012</td>
+<td>High</td>
+<td>Sensitive data flows to LLM step</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>SEC013</td>
+<td>Medium</td>
+<td>Non-deterministic step in critical path</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>SEC014</td>
+<td>Low</td>
+<td>External step without failure modes</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>SEC015</td>
+<td>Medium</td>
+<td>Human step without timeout</td>
+<td>✅ Done</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>[x] Added <code>CategoryProcessSecurity</code> risk category</li>
+<li>[x] Process spec rules skip non-process protocols</li>
+<li>[x] Full test coverage for all rules</li>
+</ul>
+<h4 id="simulation-enhancements">Simulation Enhancements ✅<a class="headerlink" href="#simulation-enhancements" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[x] Input availability tracking (<code>AvailableInputs</code> map in <code>ProcessExecutionContext</code>)</li>
+<li>[x] Output production tracking (<code>ProducedOutputs</code> map with data flow propagation)</li>
+<li>[x] Dependency analysis (<code>GetBlockedSteps</code>, <code>AnalyzeDependencies</code>)</li>
+<li>[x] Topological execution ordering (<code>TopologicalSort</code> using Kahn's algorithm)</li>
+</ul>
+<p>New types and methods:</p>
+<ul>
+<li><code>ProcessExecutor</code> - Process-aware executor with data flow tracking</li>
+<li><code>ProcessExecutionContext</code> - Extended context with input/output tracking</li>
+<li><code>DependencyAnalysis</code> - Detailed analysis of step dependencies</li>
+<li><code>ExecutionReadiness</code> - Summary of execution readiness</li>
+<li><code>StepExecutionStatus</code> - Step status enum (pending, ready, blocked, etc.)</li>
+</ul>
+<hr />
+<h3 id="v080-infographic-renderer-documentation">v0.8.0: Infographic Renderer &amp; Documentation ✅<a class="headerlink" href="#v080-infographic-renderer-documentation" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: LinkedIn-friendly infographic renderer and complete documentation.</p>
+<h4 id="infographic-renderer">Infographic Renderer<a class="headerlink" href="#infographic-renderer" title="Permanent link">&para;</a></h4>
+<p>Visual infographics for social media and datasheets with animated data flow.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compact SVG renderer</td>
+<td>Simplified layout for small images</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>Size presets</td>
+<td>linkedin-square, linkedin-portrait, datasheet-tile, etc.</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>Theme support</td>
+<td>bold, minimal, dark, tech themes</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>Animated dots</td>
+<td>SVG animateMotion along edges</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>Step type icons</td>
+<td>⚙️🧠👤☁️🔧 per step type</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>CLI integration</td>
+<td><code>pidl generate -f infographic</code></td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>Regular protocol support</td>
+<td>Handle non-process protocols gracefully</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>Entity type icons</td>
+<td>🤖💻👤🔐🗄️🖥️ per entity type</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>Entity type colors</td>
+<td>Color coding per entity type</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>Custom node shapes</td>
+<td>Per-entity-type shapes</td>
+<td>✅ Done</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Preset Sizes</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Preset</th>
+<th>Dimensions</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>linkedin-square</code></td>
+<td>1200×1200</td>
+<td>LinkedIn feed posts</td>
+</tr>
+<tr>
+<td><code>linkedin-portrait</code></td>
+<td>1080×1350</td>
+<td>LinkedIn portrait posts</td>
+</tr>
+<tr>
+<td><code>linkedin-landscape</code></td>
+<td>1200×627</td>
+<td>LinkedIn link previews</td>
+</tr>
+<tr>
+<td><code>datasheet-tile</code></td>
+<td>400×400</td>
+<td>Datasheet grid layouts</td>
+</tr>
+<tr>
+<td><code>datasheet-wide</code></td>
+<td>600×300</td>
+<td>Wide datasheet tiles</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CLI Options (planned)</strong>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pidl<span class="w"> </span>generate<span class="w"> </span>-f<span class="w"> </span>infographic<span class="w"> </span>--size<span class="o">=</span>linkedin-square<span class="w"> </span>--theme<span class="o">=</span>tech<span class="w"> </span>--title<span class="o">=</span><span class="s2">&quot;OAuth Flow&quot;</span><span class="w"> </span>example.json
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pidl<span class="w"> </span>generate<span class="w"> </span>-f<span class="w"> </span>infographic<span class="w"> </span>--size<span class="o">=</span>datasheet-tile<span class="w"> </span>--no-animate<span class="w"> </span>--theme<span class="o">=</span>minimal<span class="w"> </span>example.json
+</span></code></pre></div>
+<h4 id="documentation">Documentation ✅<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Updates</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SPECIFICATION.md</code></td>
+<td>Process profile section</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>Process spec quick start</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td><code>docs/guide/process.md</code></td>
+<td>When to use process vs protocol</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td><code>mkdocs.yml</code></td>
+<td>Navigation updated</td>
+<td>✅ Done</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="future-milestones">Future Milestones<a class="headerlink" href="#future-milestones" title="Permanent link">&para;</a></h2>
+<h3 id="v100-integrations">v1.0.0: Integrations<a class="headerlink" href="#v100-integrations" title="Permanent link">&para;</a></h3>
 <ul>
 <li>[ ] VS Code extension (syntax highlighting, preview)</li>
 <li>[ ] MkDocs plugin for embedding diagrams</li>
 <li>[ ] GitHub Action for CI validation</li>
 <li>[ ] Web playground for interactive editing</li>
+</ul>
+<h3 id="v110-advanced-data-flow">v1.1.0: Advanced Data Flow<a class="headerlink" href="#v110-advanced-data-flow" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Data lineage tracking through flows</li>
+<li>[ ] JSON Schema references for port validation</li>
+<li>[ ] Data quality gates between steps</li>
+<li>[ ] Parallel execution modeling</li>
+</ul>
+<h3 id="v120-workflow-engine-exports">v1.2.0: Workflow Engine Exports<a class="headerlink" href="#v120-workflow-engine-exports" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Temporal workflow export</li>
+<li>[ ] Airflow DAG export</li>
+<li>[ ] AWS Step Functions export</li>
+<li>[ ] Custom runner plugin system</li>
+</ul>
+<h3 id="v130-observability">v1.3.0: Observability<a class="headerlink" href="#v130-observability" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Metrics definitions (SLIs for steps)</li>
+<li>[ ] OpenTelemetry trace integration</li>
+<li>[ ] Cost tracking for steps</li>
+<li>[ ] Latency budget definitions</li>
 </ul>
 <hr />
 <h2 id="target-protocols">Target Protocols<a class="headerlink" href="#target-protocols" title="Permanent link">&para;</a></h2>
@@ -2177,33 +2016,39 @@
 <td>✅ Example</td>
 </tr>
 <tr>
+<td>OAIAF Architecture</td>
+<td>Multi-Protocol</td>
+<td>✅ Example</td>
+</tr>
+<tr>
 <td>SAML 2.0</td>
 <td>Auth</td>
-<td>Planned</td>
+<td>🔲 Planned</td>
 </tr>
 <tr>
 <td>WebAuthn/FIDO2</td>
 <td>Auth</td>
-<td>Planned</td>
+<td>🔲 Planned</td>
 </tr>
 <tr>
 <td>SCIM</td>
 <td>Provisioning</td>
-<td>Planned</td>
+<td>🔲 Planned</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h2 id="non-goals">Non-Goals<a class="headerlink" href="#non-goals" title="Permanent link">&para;</a></h2>
+<p>The following are explicitly out of scope for PIDL:</p>
 <ul>
-<li>HTTP/transport-level details (use OpenAPI)</li>
-<li>Message schema definitions (use JSON Schema/protobuf)</li>
-<li>Code generation for protocol implementation</li>
-<li>Full formal verification (use TLA+)</li>
+<li><strong>HTTP/transport-level details</strong> - Use OpenAPI for that</li>
+<li><strong>Message schema definitions</strong> - Use JSON Schema or protobuf</li>
+<li><strong>Code generation for implementation</strong> - PIDL describes, not implements</li>
+<li><strong>Full formal verification</strong> - Use TLA+ for rigorous proofs</li>
 </ul>
 <hr />
 <h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
-<p>See <a href="../../CONTRIBUTING.md">CONTRIBUTING.md</a> for guidelines.</p>
+<p>See <a href="../../CONTRIBUTING.md">CONTRIBUTING.md</a> for guidelines on contributing to PIDL development.</p>
 
 
 
