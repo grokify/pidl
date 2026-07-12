@@ -60,6 +60,13 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 - 🛡️ **Security analysis** with 15 built-in attack surface detection rules
 - 🔄 **Process specifications** for data pipelines and AI workflows
 - 📊 **Infographic renderer** for LinkedIn and datasheet visuals
+- 📈 **Data lineage tracking** for tracing data flow through process steps
+- ⚡ **Parallel execution modeling** with fork/join, race, and scatter/gather patterns
+- 💰 **Cost tracking** for LLM tokens, API calls, and time-based pricing
+- 🔌 **Workflow exports** to Temporal (Go), Prefect (Python), and BPMN 2.0
+- 🔧 **IDE integration**: VS Code extension with syntax highlighting and preview
+- 🚀 **CI/CD integration**: GitHub Action for validation in pipelines
+- 📖 **MkDocs plugin** for rendering PIDL diagrams in documentation
 
 ## Installation
 
@@ -798,6 +805,30 @@ fmt.Println(analysis.String())
 if analysis.HasRisksAtOrAbove(analyze.SeverityHigh) {
     // handle high-severity risks
 }
+
+// Data lineage analysis
+lineage := pidl.AnalyzeDataLineage(p)
+upstream := lineage.GetUpstream("transform", "input")
+impacted := lineage.GetImpactedEntities("extract")
+sources := lineage.GetDataProvenance("load")
+
+// Parallel execution analysis
+graph := pidl.AnalyzeExecutionGraph(p)
+canParallel := pidl.CanExecuteInParallel(p, "stepA", "stepB")
+maxParallel := pidl.GetMaxParallelism(p)
+
+// Cost tracking
+costAnalysis := pidl.AnalyzeProcessCosts(p)
+fmt.Printf("Estimated cost: $%.4f\n", costAnalysis.TotalEstimate.ExpectedCost)
+
+// Workflow exports
+import "github.com/grokify/pidl/export"
+temporal := export.NewTemporalExporter()
+goCode, _ := temporal.Export(p)
+prefect := export.NewPrefectExporter()
+pythonCode, _ := prefect.Export(p)
+bpmn := export.NewBPMNExporter()
+xml, _ := bpmn.Export(p)
 ```
 
 ## Built-in Examples
@@ -813,6 +844,9 @@ if analysis.HasRisksAtOrAbove(analyze.SeverityHigh) {
 | `oidc_authentication` | OpenID Connect Authentication |
 | `mcp_tool_invocation` | MCP Tool Invocation |
 | `a2a_agent_delegation` | A2A Agent Delegation |
+| `saml2_sso` | SAML 2.0 Web Browser SSO |
+| `webauthn_registration` | WebAuthn/FIDO2 Credential Registration |
+| `scim_provisioning` | SCIM User Provisioning |
 
 ### Process Spec Examples
 
@@ -827,7 +861,8 @@ if analysis.HasRisksAtOrAbove(analyze.SeverityHigh) {
 
 PIDL is designed for describing:
 
-- **Authentication/Authorization**: OAuth 2.0, OpenID Connect, SAML
+- **Authentication/Authorization**: OAuth 2.0, OpenID Connect, SAML 2.0, WebAuthn/FIDO2
+- **Identity Management**: SCIM provisioning, user lifecycle
 - **Agent Protocols**: MCP (Model Context Protocol), A2A (Agent-to-Agent)
 - **API Flows**: Multi-party API choreography
 

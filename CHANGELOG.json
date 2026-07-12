@@ -7,6 +7,54 @@
   "maintainers": ["grokify"],
   "releases": [
     {
+      "version": "v0.5.0",
+      "date": "2026-07-12",
+      "highlights": [
+        { "description": "Data lineage tracking for tracing data flow through process steps" },
+        { "description": "Parallel execution modeling with fork/join, race, and scatter/gather patterns" },
+        { "description": "Cost tracking with LLM token costs, API call costs, and time-based pricing" },
+        { "description": "Workflow engine exports for Temporal, Prefect, and BPMN" },
+        { "description": "MkDocs plugin, GitHub Action, and VS Code extension integrations" }
+      ],
+      "added": [
+        { "description": "Data lineage tracking with AnalyzeDataLineage(), GetUpstream/Downstream, impact analysis", "commit": "86f4334" },
+        { "description": "LineageEdge, DataLineage, PortReference types for data flow modeling", "commit": "86f4334" },
+        { "description": "Sensitive data path tracking for security analysis", "commit": "86f4334" },
+        { "description": "DataPortMapping for explicit flow data mappings", "commit": "86f4334" },
+        { "description": "Parallel execution modeling with ExecutionGraph and stages", "commit": "a132c7a" },
+        { "description": "ParallelConfig, ParallelBranch, JoinCondition types", "commit": "a132c7a" },
+        { "description": "Fork/join, race, scatter/gather parallel modes", "commit": "a132c7a" },
+        { "description": "Critical path calculation and duration estimation", "commit": "a132c7a" },
+        { "description": "CanExecuteInParallel() and GetMaxParallelism() helpers", "commit": "a132c7a" },
+        { "description": "Cost tracking with CostModel and CostEstimate types", "commit": "e7b9d0a" },
+        { "description": "AnalyzeProcessCosts() for per-step and total cost estimation", "commit": "e7b9d0a" },
+        { "description": "CalculateExecutionCost() for actual execution cost calculation", "commit": "e7b9d0a" },
+        { "description": "LLMCostPresets for GPT-4 and Claude-3 model pricing", "commit": "e7b9d0a" },
+        { "description": "Token-based, time-based, API call, and hybrid cost models", "commit": "e7b9d0a" },
+        { "description": "Temporal workflow exporter (Go code generation)", "commit": "a86aa56" },
+        { "description": "Prefect flow exporter (Python async/sync code generation)", "commit": "a86aa56" },
+        { "description": "BPMN 2.0 exporter (XML interchange format)", "commit": "a86aa56" },
+        { "description": "SAML, WebAuthn, FIDO2, OIDC protocol identifiers", "commit": "fd10705" },
+        { "description": "X.509 certificate, attestation certificate, bearer token credential types", "commit": "fd10705" },
+        { "description": "SAML 2.0 Web Browser SSO example", "commit": "cfc151f" },
+        { "description": "WebAuthn/FIDO2 registration example", "commit": "cfc151f" },
+        { "description": "SCIM user provisioning example", "commit": "cfc151f" },
+        { "description": "MkDocs plugin for PIDL diagram rendering", "commit": "87d2529" },
+        { "description": "GitHub Action for CI/CD PIDL validation", "commit": "33d06e0" },
+        { "description": "VS Code extension with syntax highlighting and preview", "commit": "2695171" }
+      ],
+      "tests": [
+        { "description": "Data lineage tests for port tracking and impact analysis", "commit": "86f4334" },
+        { "description": "Parallel execution tests for graph analysis and parallelism detection", "commit": "a132c7a" },
+        { "description": "Cost tracking tests for all cost model types", "commit": "e7b9d0a" },
+        { "description": "Workflow export tests for Temporal, Prefect, and BPMN", "commit": "a86aa56" },
+        { "description": "MkDocs plugin tests for attribute parsing and rendering", "commit": "87d2529" }
+      ],
+      "documentation": [
+        { "description": "v0.5.0 release notes with comprehensive feature documentation", "commit": "" }
+      ]
+    },
+    {
       "version": "v0.4.0",
       "date": "2026-06-28",
       "highlights": [
