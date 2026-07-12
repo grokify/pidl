@@ -10,10 +10,13 @@
       "version": "v0.5.0",
       "date": "2026-07-12",
       "highlights": [
+        { "description": "Process specifications for modeling workflows with step types and data ports" },
         { "description": "Data lineage tracking for tracing data flow through process steps" },
         { "description": "Parallel execution modeling with fork/join, race, and scatter/gather patterns" },
-        { "description": "Cost tracking with LLM token costs, API call costs, and time-based pricing" },
-        { "description": "Workflow engine exports for Temporal, Prefect, and BPMN" },
+        { "description": "Cost and latency budget tracking with SLI analysis" },
+        { "description": "Workflow engine exports for Temporal, Prefect, BPMN, and AWS Step Functions" },
+        { "description": "JSON Schema validation for data ports with registry support" },
+        { "description": "Infographic renderer with size presets and themes for social media" },
         { "description": "MkDocs plugin, GitHub Action, and VS Code extension integrations" }
       ],
       "added": [
@@ -31,27 +34,47 @@
         { "description": "CalculateExecutionCost() for actual execution cost calculation", "commit": "e7b9d0a" },
         { "description": "LLMCostPresets for GPT-4 and Claude-3 model pricing", "commit": "e7b9d0a" },
         { "description": "Token-based, time-based, API call, and hybrid cost models", "commit": "e7b9d0a" },
+        { "description": "Latency budget support with LatencyBudget, LatencyEstimate types", "commit": "" },
+        { "description": "AnalyzeProcessLatency() for timing SLI analysis", "commit": "" },
+        { "description": "P50/P95/P99 latency percentile tracking and budget violations", "commit": "" },
+        { "description": "Critical path latency analysis with parallel savings calculation", "commit": "" },
+        { "description": "StepTypeLatencyDefaults for per-step-type latency estimates", "commit": "" },
+        { "description": "JSON Schema validation with SchemaRegistry and ValidateData()", "commit": "" },
+        { "description": "PortSchemaValidator for data port schema validation", "commit": "" },
+        { "description": "ValidateEntityInputs() and ValidateEntityOutputs() methods", "commit": "" },
         { "description": "Temporal workflow exporter (Go code generation)", "commit": "a86aa56" },
         { "description": "Prefect flow exporter (Python async/sync code generation)", "commit": "a86aa56" },
         { "description": "BPMN 2.0 exporter (XML interchange format)", "commit": "a86aa56" },
+        { "description": "AWS Step Functions exporter (Amazon States Language JSON)", "commit": "40258ce" },
+        { "description": "Step-type-aware templates for workflow exporters", "commit": "41177a4" },
         { "description": "SAML, WebAuthn, FIDO2, OIDC protocol identifiers", "commit": "fd10705" },
         { "description": "X.509 certificate, attestation certificate, bearer token credential types", "commit": "fd10705" },
         { "description": "SAML 2.0 Web Browser SSO example", "commit": "cfc151f" },
         { "description": "WebAuthn/FIDO2 registration example", "commit": "cfc151f" },
         { "description": "SCIM user provisioning example", "commit": "cfc151f" },
-        { "description": "MkDocs plugin for PIDL diagram rendering", "commit": "87d2529" },
-        { "description": "GitHub Action for CI/CD PIDL validation", "commit": "33d06e0" },
-        { "description": "VS Code extension with syntax highlighting and preview", "commit": "2695171" }
+        { "description": "MkDocs plugin for PIDL diagram rendering", "commit": "f694a0a" },
+        { "description": "GitHub Action for CI/CD PIDL validation", "commit": "b2b3508" },
+        { "description": "VS Code extension with syntax highlighting and preview", "commit": "6c30573" },
+        { "description": "Corporate and accessible (colorblind-friendly) infographic themes", "commit": "ae67b17" }
       ],
       "tests": [
         { "description": "Data lineage tests for port tracking and impact analysis", "commit": "86f4334" },
         { "description": "Parallel execution tests for graph analysis and parallelism detection", "commit": "a132c7a" },
         { "description": "Cost tracking tests for all cost model types", "commit": "e7b9d0a" },
-        { "description": "Workflow export tests for Temporal, Prefect, and BPMN", "commit": "a86aa56" },
-        { "description": "MkDocs plugin tests for attribute parsing and rendering", "commit": "87d2529" }
+        { "description": "Latency budget tests for SLI analysis and budget violations", "commit": "" },
+        { "description": "JSON Schema validation tests for type checking and port validation", "commit": "" },
+        { "description": "Workflow export tests for Temporal, Prefect, BPMN, and Step Functions", "commit": "40258ce" },
+        { "description": "MkDocs plugin tests for attribute parsing and rendering", "commit": "f694a0a" },
+        { "description": "Component and trust renderer tests for all output formats", "commit": "0a1df47" }
       ],
       "documentation": [
-        { "description": "v0.5.0 release notes with comprehensive feature documentation", "commit": "" }
+        { "description": "v0.5.0 release notes with comprehensive feature documentation", "commit": "097741c" },
+        { "description": "Workflow exports guide with Temporal, Prefect, BPMN, Step Functions examples", "commit": "" },
+        { "description": "Developer extension guide for custom renderers, validation rules, exporters", "commit": "" },
+        { "description": "Process spec documentation in SPECIFICATION.md and guides", "commit": "3403511" },
+        { "description": "Infographic examples with CLI usage and theme documentation", "commit": "078d967" },
+        { "description": "SAML, WebAuthn, SCIM protocol examples", "commit": "cfc151f" },
+        { "description": "Process spec PRD and TRD design documents", "commit": "339cb47" }
       ]
     },
     {
