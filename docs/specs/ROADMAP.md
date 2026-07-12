@@ -2,7 +2,7 @@
 
 **Protocol Interaction Description Language** - A JSON-based DSL for describing protocol choreography that compiles to diagrams.
 
-**Current Version**: v0.4.0
+**Current Version**: v0.5.0
 **Status**: Active Development
 
 ---
@@ -20,7 +20,8 @@
 | v0.6.1 | Process Spec Examples | ✅ Done |
 | v0.7.0 | Process Spec Analysis | ✅ Done |
 | v0.8.0 | Infographic Renderer & Documentation | ✅ Done |
-| v1.0.0 | Integrations (VS Code, MkDocs, GitHub Actions) | 🔲 Next |
+| v0.5.0+ | Data Lineage, Parallel, Cost, Workflow Exports, Integrations | ✅ Done |
+| v1.0.0 | Production Ready Release | 🔲 Next |
 
 ---
 
@@ -283,34 +284,52 @@ pidl generate -f infographic --size=datasheet-tile --no-animate --theme=minimal 
 
 ---
 
-## Future Milestones
+## Completed: Advanced Features (v0.5.0)
 
-### v1.0.0: Integrations
+### Integrations ✅
 
-- [ ] VS Code extension (syntax highlighting, preview)
-- [ ] MkDocs plugin for embedding diagrams
-- [ ] GitHub Action for CI validation
+- [x] VS Code extension (syntax highlighting, preview, validation, export)
+- [x] MkDocs plugin for embedding PIDL diagrams
+- [x] GitHub Action for CI validation
 - [ ] Web playground for interactive editing
 
-### v1.1.0: Advanced Data Flow
+### Advanced Data Flow ✅
 
-- [ ] Data lineage tracking through flows
+- [x] Data lineage tracking through flows
 - [ ] JSON Schema references for port validation
 - [ ] Data quality gates between steps
-- [ ] Parallel execution modeling
+- [x] Parallel execution modeling (fork/join, race, scatter/gather)
 
-### v1.2.0: Workflow Engine Exports
+### Workflow Engine Exports ✅
 
-- [ ] Temporal workflow export
-- [ ] Airflow DAG export
-- [ ] AWS Step Functions export
+- [x] Temporal workflow export (Go)
+- [x] Prefect flow export (Python)
+- [x] BPMN 2.0 export (XML)
+- [x] AWS Step Functions export (JSON)
 - [ ] Custom runner plugin system
 
-### v1.3.0: Observability
+### Cost Tracking ✅
+
+- [x] Cost model types (fixed, token_based, time_based, api_call, hybrid)
+- [x] LLM cost presets (GPT-4, Claude-3)
+- [x] Process cost analysis
+- [x] Execution cost calculation
+
+---
+
+## Future Milestones
+
+### v1.0.0: Production Ready
+
+- [ ] Web playground for interactive editing
+- [ ] JSON Schema references for port validation
+- [ ] Data quality gates between steps
+- [ ] Custom runner plugin system
+
+### v1.1.0: Observability
 
 - [ ] Metrics definitions (SLIs for steps)
 - [ ] OpenTelemetry trace integration
-- [ ] Cost tracking for steps
 - [ ] Latency budget definitions
 
 ---
@@ -325,9 +344,9 @@ pidl generate -f infographic --size=datasheet-tile --no-animate --theme=minimal 
 | MCP (Model Context Protocol) | Agent | ✅ Example |
 | A2A (Agent-to-Agent) | Agent | ✅ Example |
 | OAIAF Architecture | Multi-Protocol | ✅ Example |
-| SAML 2.0 | Auth | 🔲 Planned |
-| WebAuthn/FIDO2 | Auth | 🔲 Planned |
-| SCIM | Provisioning | 🔲 Planned |
+| SAML 2.0 | Auth | ✅ Example |
+| WebAuthn/FIDO2 | Auth | ✅ Example |
+| SCIM | Provisioning | ✅ Example |
 
 ---
 
