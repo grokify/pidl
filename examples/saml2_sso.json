@@ -1,0 +1,284 @@
+{
+  "protocol": {
+    "id": "saml2-sso",
+    "name": "SAML 2.0 Web Browser SSO",
+    "version": "1.0",
+    "description": "SAML 2.0 Web Browser Single Sign-On Profile with SP-initiated flow",
+    "category": "auth",
+    "references": [
+      {
+        "name": "SAML 2.0 Core",
+        "url": "https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf"
+      },
+      {
+        "name": "SAML 2.0 Bindings",
+        "url": "https://docs.oasis-open.org/security/saml/v2.0/saml-bindings-2.0-os.pdf"
+      },
+      {
+        "name": "SAML 2.0 Profiles",
+        "url": "https://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "user",
+      "name": "User",
+      "type": "user",
+      "description": "End user accessing the service provider"
+    },
+    {
+      "id": "browser",
+      "name": "User Agent",
+      "type": "browser",
+      "description": "User's web browser"
+    },
+    {
+      "id": "sp",
+      "name": "Service Provider",
+      "type": "service_provider",
+      "description": "Application requesting authentication",
+      "protocol_roles": [
+        {
+          "protocol": "saml",
+          "role": "service_provider"
+        }
+      ]
+    },
+    {
+      "id": "idp",
+      "name": "Identity Provider",
+      "type": "identity_provider",
+      "description": "SAML Identity Provider performing authentication",
+      "trust_level": "authoritative",
+      "protocol_roles": [
+        {
+          "protocol": "saml",
+          "role": "identity_provider"
+        }
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "id": "access",
+      "name": "Resource Access",
+      "description": "User attempts to access protected resource"
+    },
+    {
+      "id": "authn_request",
+      "name": "Authentication Request",
+      "description": "SP generates and sends AuthnRequest to IdP"
+    },
+    {
+      "id": "user_auth",
+      "name": "User Authentication",
+      "description": "IdP authenticates the user"
+    },
+    {
+      "id": "assertion",
+      "name": "Assertion Response",
+      "description": "IdP returns SAML assertion to SP"
+    },
+    {
+      "id": "session",
+      "name": "Session Establishment",
+      "description": "SP establishes session for user"
+    }
+  ],
+  "flows": [
+    {
+      "from": "user",
+      "to": "browser",
+      "action": "access_resource",
+      "label": "Access Protected Resource",
+      "phase": "access",
+      "description": "User navigates to protected resource on SP"
+    },
+    {
+      "from": "browser",
+      "to": "sp",
+      "action": "http_get",
+      "label": "GET /protected",
+      "mode": "request",
+      "phase": "access"
+    },
+    {
+      "from": "sp",
+      "to": "browser",
+      "action": "redirect",
+      "label": "302 Redirect to IdP",
+      "mode": "redirect",
+      "phase": "authn_request",
+      "description": "SP redirects to IdP with SAMLRequest",
+      "note": "SAMLRequest contains AuthnRequest (base64, deflate encoded)",
+      "security": {
+        "requires": ["signature"],
+        "description": "AuthnRequest may be signed by SP"
+      }
+    },
+    {
+      "from": "browser",
+      "to": "idp",
+      "action": "http_get",
+      "label": "GET /sso?SAMLRequest=...",
+      "mode": "redirect",
+      "phase": "authn_request"
+    },
+    {
+      "from": "idp",
+      "to": "browser",
+      "action": "login_form",
+      "label": "Present Login Form",
+      "mode": "response",
+      "phase": "user_auth",
+      "description": "IdP presents authentication challenge"
+    },
+    {
+      "from": "user",
+      "to": "browser",
+      "action": "enter_credentials",
+      "label": "Enter Credentials",
+      "phase": "user_auth"
+    },
+    {
+      "from": "browser",
+      "to": "idp",
+      "action": "submit_credentials",
+      "label": "POST /authenticate",
+      "mode": "request",
+      "phase": "user_auth",
+      "security": {
+        "confidential": true,
+        "requires": ["encryption"],
+        "description": "Credentials sent over HTTPS"
+      }
+    },
+    {
+      "from": "idp",
+      "to": "idp",
+      "action": "verify_credentials",
+      "label": "Verify User Credentials",
+      "phase": "user_auth",
+      "description": "IdP validates username/password"
+    },
+    {
+      "from": "idp",
+      "to": "idp",
+      "action": "create_assertion",
+      "label": "Create SAML Assertion",
+      "phase": "assertion",
+      "description": "IdP creates signed SAML assertion with subject and attributes",
+      "note": "Assertion includes NameID, AuthnStatement, AttributeStatement"
+    },
+    {
+      "from": "idp",
+      "to": "browser",
+      "action": "post_form",
+      "label": "HTML Form with SAMLResponse",
+      "mode": "response",
+      "phase": "assertion",
+      "description": "IdP returns auto-submit form with SAMLResponse",
+      "security": {
+        "requires": ["signature"],
+        "description": "SAML Response and Assertion are signed"
+      }
+    },
+    {
+      "from": "browser",
+      "to": "sp",
+      "action": "post_saml_response",
+      "label": "POST /acs (SAMLResponse)",
+      "mode": "callback",
+      "phase": "assertion",
+      "description": "Browser auto-submits SAMLResponse to SP's ACS endpoint"
+    },
+    {
+      "from": "sp",
+      "to": "sp",
+      "action": "validate_response",
+      "label": "Validate SAML Response",
+      "phase": "assertion",
+      "description": "SP validates signature, conditions, and extracts identity",
+      "note": "Verify signature, NotBefore/NotOnOrAfter, Audience, InResponseTo",
+      "annotations": [
+        {
+          "type": "security",
+          "text": "Validate XML signature and assertion conditions",
+          "details": "Check NotBefore, NotOnOrAfter, AudienceRestriction, InResponseTo"
+        }
+      ]
+    },
+    {
+      "from": "sp",
+      "to": "sp",
+      "action": "create_session",
+      "label": "Create User Session",
+      "phase": "session",
+      "description": "SP creates local session for authenticated user"
+    },
+    {
+      "from": "sp",
+      "to": "browser",
+      "action": "set_cookie_redirect",
+      "label": "Set Session Cookie + Redirect",
+      "mode": "response",
+      "phase": "session"
+    },
+    {
+      "from": "browser",
+      "to": "sp",
+      "action": "access_resource",
+      "label": "GET /protected (with session)",
+      "mode": "request",
+      "phase": "session",
+      "security": {
+        "requires": ["token"],
+        "token": "session_cookie"
+      }
+    },
+    {
+      "from": "sp",
+      "to": "browser",
+      "action": "return_resource",
+      "label": "200 OK (Protected Content)",
+      "mode": "response",
+      "phase": "session"
+    }
+  ],
+  "metadata": {
+    "tokens": [
+      {
+        "id": "saml_assertion",
+        "name": "SAML Assertion",
+        "type": "saml",
+        "issuer": "idp",
+        "audience": "sp",
+        "description": "Signed XML assertion containing subject and attributes"
+      },
+      {
+        "id": "session_cookie",
+        "name": "Session Cookie",
+        "type": "opaque",
+        "issuer": "sp",
+        "description": "SP-issued session identifier"
+      }
+    ],
+    "trust_relations": [
+      {
+        "from": "sp",
+        "to": "idp",
+        "type": "trusts",
+        "credentials": ["x509_certificate"],
+        "description": "SP trusts IdP's signing certificate"
+      },
+      {
+        "from": "idp",
+        "to": "sp",
+        "type": "trusts",
+        "credentials": ["x509_certificate"],
+        "description": "IdP trusts SP's signing certificate (optional)"
+      }
+    ]
+  }
+}

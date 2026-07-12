@@ -1,0 +1,279 @@
+{
+  "protocol": {
+    "id": "webauthn-registration",
+    "name": "WebAuthn Registration",
+    "version": "1.0",
+    "description": "WebAuthn/FIDO2 credential registration flow for passwordless authentication",
+    "category": "auth",
+    "references": [
+      {
+        "name": "Web Authentication: An API for accessing Public Key Credentials",
+        "url": "https://www.w3.org/TR/webauthn-2/"
+      },
+      {
+        "name": "FIDO2 Overview",
+        "url": "https://fidoalliance.org/fido2/"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "user",
+      "name": "User",
+      "type": "user",
+      "description": "End user registering a WebAuthn credential"
+    },
+    {
+      "id": "browser",
+      "name": "Browser",
+      "type": "browser",
+      "description": "Web browser with WebAuthn API support"
+    },
+    {
+      "id": "authenticator",
+      "name": "Authenticator",
+      "type": "server",
+      "description": "FIDO2 authenticator (platform or roaming)",
+      "trust_level": "trusted"
+    },
+    {
+      "id": "rp",
+      "name": "Relying Party",
+      "type": "server",
+      "description": "Web application implementing WebAuthn",
+      "protocol_roles": [
+        {
+          "protocol": "webauthn",
+          "role": "relying_party"
+        }
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "id": "initiate",
+      "name": "Initiate Registration",
+      "description": "User initiates credential registration"
+    },
+    {
+      "id": "challenge",
+      "name": "Challenge Generation",
+      "description": "RP generates registration challenge"
+    },
+    {
+      "id": "credential_creation",
+      "name": "Credential Creation",
+      "description": "Authenticator creates new credential"
+    },
+    {
+      "id": "verification",
+      "name": "Response Verification",
+      "description": "RP verifies and stores credential"
+    }
+  ],
+  "flows": [
+    {
+      "from": "user",
+      "to": "browser",
+      "action": "click_register",
+      "label": "Click Register Button",
+      "phase": "initiate"
+    },
+    {
+      "from": "browser",
+      "to": "rp",
+      "action": "request_options",
+      "label": "POST /webauthn/register/begin",
+      "mode": "request",
+      "phase": "challenge",
+      "description": "Request PublicKeyCredentialCreationOptions"
+    },
+    {
+      "from": "rp",
+      "to": "rp",
+      "action": "generate_challenge",
+      "label": "Generate Challenge",
+      "phase": "challenge",
+      "description": "Generate random challenge bytes",
+      "note": "Challenge must be at least 16 bytes, cryptographically random"
+    },
+    {
+      "from": "rp",
+      "to": "browser",
+      "action": "return_options",
+      "label": "PublicKeyCredentialCreationOptions",
+      "mode": "response",
+      "phase": "challenge",
+      "description": "Return challenge, RP info, user info, and credential parameters",
+      "note": "Includes rp.id, user.id, challenge, pubKeyCredParams, timeout, authenticatorSelection"
+    },
+    {
+      "from": "browser",
+      "to": "browser",
+      "action": "call_webauthn_api",
+      "label": "navigator.credentials.create()",
+      "phase": "credential_creation",
+      "description": "Browser calls WebAuthn API"
+    },
+    {
+      "from": "browser",
+      "to": "user",
+      "action": "prompt_gesture",
+      "label": "Prompt for User Gesture",
+      "phase": "credential_creation",
+      "description": "Browser prompts user to interact with authenticator"
+    },
+    {
+      "from": "user",
+      "to": "authenticator",
+      "action": "user_verification",
+      "label": "Biometric/PIN Verification",
+      "phase": "credential_creation",
+      "description": "User provides biometric or PIN",
+      "security": {
+        "confidential": true,
+        "description": "User verification data never leaves authenticator"
+      }
+    },
+    {
+      "from": "authenticator",
+      "to": "authenticator",
+      "action": "generate_keypair",
+      "label": "Generate Key Pair",
+      "phase": "credential_creation",
+      "description": "Create new ES256/RS256 key pair",
+      "note": "Private key stored securely in authenticator, never exported"
+    },
+    {
+      "from": "authenticator",
+      "to": "authenticator",
+      "action": "create_attestation",
+      "label": "Create Attestation Object",
+      "phase": "credential_creation",
+      "description": "Create signed attestation with authenticator data",
+      "note": "Contains AAGUID, credential ID, and public key in COSE format"
+    },
+    {
+      "from": "authenticator",
+      "to": "browser",
+      "action": "return_credential",
+      "label": "Return AuthenticatorAttestationResponse",
+      "phase": "credential_creation",
+      "description": "Return credential ID, client data, and attestation object",
+      "security": {
+        "requires": ["signature"],
+        "description": "Attestation signed by authenticator"
+      }
+    },
+    {
+      "from": "browser",
+      "to": "rp",
+      "action": "send_credential",
+      "label": "POST /webauthn/register/finish",
+      "mode": "request",
+      "phase": "verification",
+      "description": "Send PublicKeyCredential to RP"
+    },
+    {
+      "from": "rp",
+      "to": "rp",
+      "action": "verify_client_data",
+      "label": "Verify Client Data",
+      "phase": "verification",
+      "description": "Verify type, challenge, and origin in clientDataJSON",
+      "annotations": [
+        {
+          "type": "security",
+          "text": "Validate challenge matches stored value",
+          "details": "Prevents replay attacks"
+        }
+      ]
+    },
+    {
+      "from": "rp",
+      "to": "rp",
+      "action": "verify_attestation",
+      "label": "Verify Attestation",
+      "phase": "verification",
+      "description": "Verify attestation statement and extract public key",
+      "note": "Attestation format: packed, tpm, android-key, none, etc."
+    },
+    {
+      "from": "rp",
+      "to": "rp",
+      "action": "store_credential",
+      "label": "Store Credential",
+      "phase": "verification",
+      "description": "Store credential ID, public key, and sign count",
+      "annotations": [
+        {
+          "type": "security",
+          "text": "Store sign count for replay detection",
+          "details": "Sign count should monotonically increase"
+        }
+      ]
+    },
+    {
+      "from": "rp",
+      "to": "browser",
+      "action": "registration_success",
+      "label": "200 OK - Registration Complete",
+      "mode": "response",
+      "phase": "verification"
+    },
+    {
+      "from": "browser",
+      "to": "user",
+      "action": "show_success",
+      "label": "Display Success Message",
+      "phase": "verification"
+    }
+  ],
+  "alternatives": [
+    {
+      "condition": "Attestation verification fails",
+      "description": "RP may still accept credential with unverified attestation",
+      "flows": [
+        {
+          "from": "rp",
+          "to": "rp",
+          "action": "log_warning",
+          "label": "Log Attestation Warning"
+        },
+        {
+          "from": "rp",
+          "to": "rp",
+          "action": "accept_credential",
+          "label": "Accept with Reduced Trust"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "tokens": [
+      {
+        "id": "webauthn_challenge",
+        "name": "WebAuthn Challenge",
+        "type": "opaque",
+        "issuer": "rp",
+        "description": "Random challenge for credential creation/assertion"
+      },
+      {
+        "id": "credential_id",
+        "name": "Credential ID",
+        "type": "opaque",
+        "issuer": "authenticator",
+        "description": "Unique identifier for the credential"
+      }
+    ],
+    "trust_relations": [
+      {
+        "from": "rp",
+        "to": "authenticator",
+        "type": "trusts",
+        "credentials": ["attestation_certificate"],
+        "description": "RP may validate authenticator attestation"
+      }
+    ]
+  }
+}

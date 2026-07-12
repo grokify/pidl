@@ -1,0 +1,335 @@
+{
+  "protocol": {
+    "id": "scim-provisioning",
+    "name": "SCIM User Provisioning",
+    "version": "1.0",
+    "description": "SCIM 2.0 user lifecycle management from IdP to application",
+    "category": "provisioning",
+    "references": [
+      {
+        "name": "RFC 7643 - SCIM Core Schema",
+        "url": "https://datatracker.ietf.org/doc/html/rfc7643"
+      },
+      {
+        "name": "RFC 7644 - SCIM Protocol",
+        "url": "https://datatracker.ietf.org/doc/html/rfc7644"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "admin",
+      "name": "Admin",
+      "type": "user",
+      "description": "Identity administrator managing user lifecycle"
+    },
+    {
+      "id": "idp",
+      "name": "Identity Provider",
+      "type": "identity_provider",
+      "description": "SCIM Client - source of identity data",
+      "trust_level": "authoritative",
+      "protocol_roles": [
+        {
+          "protocol": "scim",
+          "role": "client"
+        }
+      ]
+    },
+    {
+      "id": "app",
+      "name": "Application",
+      "type": "service_provider",
+      "description": "SCIM Server - target application for provisioning",
+      "protocol_roles": [
+        {
+          "protocol": "scim",
+          "role": "service_provider"
+        }
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "id": "create",
+      "name": "User Creation",
+      "description": "Provision new user to application"
+    },
+    {
+      "id": "read",
+      "name": "User Query",
+      "description": "Query user information"
+    },
+    {
+      "id": "update",
+      "name": "User Update",
+      "description": "Update user attributes"
+    },
+    {
+      "id": "deactivate",
+      "name": "User Deactivation",
+      "description": "Disable user access"
+    },
+    {
+      "id": "delete",
+      "name": "User Deletion",
+      "description": "Remove user from application"
+    }
+  ],
+  "flows": [
+    {
+      "from": "admin",
+      "to": "idp",
+      "action": "create_user",
+      "label": "Create User in IdP",
+      "phase": "create",
+      "description": "Admin creates user in identity provider"
+    },
+    {
+      "from": "idp",
+      "to": "app",
+      "action": "scim_create",
+      "label": "POST /scim/v2/Users",
+      "mode": "request",
+      "phase": "create",
+      "description": "SCIM create user request",
+      "note": "Body contains User resource with required attributes",
+      "security": {
+        "requires": ["token"],
+        "token": "bearer_token",
+        "description": "OAuth 2.0 bearer token for authentication"
+      }
+    },
+    {
+      "from": "app",
+      "to": "app",
+      "action": "validate_schema",
+      "label": "Validate SCIM Schema",
+      "phase": "create",
+      "description": "Validate request against SCIM schema"
+    },
+    {
+      "from": "app",
+      "to": "app",
+      "action": "check_uniqueness",
+      "label": "Check Uniqueness Constraints",
+      "phase": "create",
+      "description": "Verify userName and email are unique",
+      "annotations": [
+        {
+          "type": "error",
+          "text": "409 Conflict if userName exists",
+          "details": "scimType: uniqueness"
+        }
+      ]
+    },
+    {
+      "from": "app",
+      "to": "app",
+      "action": "create_account",
+      "label": "Create User Account",
+      "phase": "create",
+      "description": "Create user record in application database"
+    },
+    {
+      "from": "app",
+      "to": "idp",
+      "action": "scim_response",
+      "label": "201 Created + User Resource",
+      "mode": "response",
+      "phase": "create",
+      "description": "Return created user with id and meta"
+    },
+    {
+      "from": "idp",
+      "to": "app",
+      "action": "scim_get",
+      "label": "GET /scim/v2/Users/{id}",
+      "mode": "request",
+      "phase": "read",
+      "description": "Retrieve user by ID",
+      "security": {
+        "requires": ["token"],
+        "token": "bearer_token"
+      }
+    },
+    {
+      "from": "app",
+      "to": "idp",
+      "action": "return_user",
+      "label": "200 OK + User Resource",
+      "mode": "response",
+      "phase": "read"
+    },
+    {
+      "from": "idp",
+      "to": "app",
+      "action": "scim_filter",
+      "label": "GET /scim/v2/Users?filter=userName eq \"john\"",
+      "mode": "request",
+      "phase": "read",
+      "description": "Query users with SCIM filter",
+      "security": {
+        "requires": ["token"],
+        "token": "bearer_token"
+      }
+    },
+    {
+      "from": "app",
+      "to": "idp",
+      "action": "return_list",
+      "label": "200 OK + ListResponse",
+      "mode": "response",
+      "phase": "read",
+      "description": "Return matching users with pagination"
+    },
+    {
+      "from": "admin",
+      "to": "idp",
+      "action": "update_user",
+      "label": "Update User in IdP",
+      "phase": "update",
+      "description": "Admin updates user attributes"
+    },
+    {
+      "from": "idp",
+      "to": "app",
+      "action": "scim_patch",
+      "label": "PATCH /scim/v2/Users/{id}",
+      "mode": "request",
+      "phase": "update",
+      "description": "Partial update using SCIM PATCH operations",
+      "note": "Operations array with add, replace, remove",
+      "security": {
+        "requires": ["token"],
+        "token": "bearer_token"
+      }
+    },
+    {
+      "from": "app",
+      "to": "app",
+      "action": "apply_operations",
+      "label": "Apply PATCH Operations",
+      "phase": "update",
+      "description": "Apply add/replace/remove operations to user"
+    },
+    {
+      "from": "app",
+      "to": "idp",
+      "action": "return_updated",
+      "label": "200 OK + Updated User",
+      "mode": "response",
+      "phase": "update"
+    },
+    {
+      "from": "admin",
+      "to": "idp",
+      "action": "deactivate_user",
+      "label": "Deactivate User in IdP",
+      "phase": "deactivate",
+      "description": "Admin disables user account"
+    },
+    {
+      "from": "idp",
+      "to": "app",
+      "action": "scim_deactivate",
+      "label": "PATCH /scim/v2/Users/{id}",
+      "mode": "request",
+      "phase": "deactivate",
+      "description": "Set active=false via PATCH",
+      "note": "Operations: [{\"op\": \"replace\", \"path\": \"active\", \"value\": false}]",
+      "security": {
+        "requires": ["token"],
+        "token": "bearer_token"
+      }
+    },
+    {
+      "from": "app",
+      "to": "app",
+      "action": "disable_access",
+      "label": "Disable User Access",
+      "phase": "deactivate",
+      "description": "Revoke active sessions and disable login"
+    },
+    {
+      "from": "app",
+      "to": "idp",
+      "action": "confirm_deactivation",
+      "label": "200 OK + User (active=false)",
+      "mode": "response",
+      "phase": "deactivate"
+    },
+    {
+      "from": "admin",
+      "to": "idp",
+      "action": "delete_user",
+      "label": "Delete User from IdP",
+      "phase": "delete",
+      "description": "Admin permanently removes user"
+    },
+    {
+      "from": "idp",
+      "to": "app",
+      "action": "scim_delete",
+      "label": "DELETE /scim/v2/Users/{id}",
+      "mode": "request",
+      "phase": "delete",
+      "description": "Delete user resource",
+      "security": {
+        "requires": ["token"],
+        "token": "bearer_token"
+      }
+    },
+    {
+      "from": "app",
+      "to": "app",
+      "action": "remove_user",
+      "label": "Remove User Data",
+      "phase": "delete",
+      "description": "Delete or anonymize user data",
+      "annotations": [
+        {
+          "type": "security",
+          "text": "May need to retain audit logs",
+          "details": "Soft delete vs hard delete based on compliance requirements"
+        }
+      ]
+    },
+    {
+      "from": "app",
+      "to": "idp",
+      "action": "confirm_deletion",
+      "label": "204 No Content",
+      "mode": "response",
+      "phase": "delete"
+    }
+  ],
+  "metadata": {
+    "tokens": [
+      {
+        "id": "bearer_token",
+        "name": "Bearer Token",
+        "type": "jwt",
+        "issuer": "idp",
+        "audience": "app",
+        "binding": "bearer",
+        "description": "OAuth 2.0 access token for SCIM API authentication"
+      }
+    ],
+    "trust_relations": [
+      {
+        "from": "app",
+        "to": "idp",
+        "type": "trusts",
+        "credentials": ["bearer_token"],
+        "description": "App trusts IdP-issued tokens for SCIM operations"
+      },
+      {
+        "from": "idp",
+        "to": "app",
+        "type": "provisions",
+        "description": "IdP provisions user identities to App"
+      }
+    ]
+  }
+}
