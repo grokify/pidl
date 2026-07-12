@@ -166,10 +166,11 @@ func cmdGenerate(args []string) {
 
 	// Infographic options
 	igSize := fs.String("ig-size", "linkedin-square", "Infographic size: linkedin-square, linkedin-portrait, linkedin-landscape, datasheet-tile, datasheet-wide")
-	igTheme := fs.String("ig-theme", "bold", "Infographic theme: bold, minimal, dark, tech")
+	igTheme := fs.String("ig-theme", "bold", "Infographic theme: bold, minimal, dark, tech, corporate, accessible")
 	igTitle := fs.String("ig-title", "", "Infographic title (defaults to protocol name)")
 	igNoAnimate := fs.Bool("ig-no-animate", false, "Disable animated dots on infographic edges")
 	igNoShapes := fs.Bool("ig-no-shapes", false, "Use rectangles for all nodes (disable custom shapes)")
+	igDirection := fs.String("ig-direction", "horizontal", "Layout direction: horizontal, vertical")
 	fs.Usage = func() {
 		fmt.Print(`Usage: pidl generate [options] <file>
 
@@ -218,6 +219,7 @@ Infographic Examples:
   pidl generate -f infographic --ig-theme=tech --ig-title="ETL" example.json
   pidl generate -f infographic --ig-no-animate example.json          No animation
   pidl generate -f infographic --ig-no-shapes example.json           Rectangles only
+  pidl generate -f infographic --ig-direction=vertical example.json  Vertical layout
 `)
 	}
 
@@ -360,6 +362,10 @@ Infographic Examples:
 			opts.Theme = render.ThemeDark
 		case "tech":
 			opts.Theme = render.ThemeTech
+		case "corporate":
+			opts.Theme = render.ThemeCorporate
+		case "accessible":
+			opts.Theme = render.ThemeAccessible
 		}
 
 		// Set title
@@ -377,6 +383,11 @@ Infographic Examples:
 		// Set custom shapes
 		if *igNoShapes {
 			opts.UseCustomShapes = false
+		}
+
+		// Set direction
+		if *igDirection == "vertical" {
+			opts.Direction = "vertical"
 		}
 
 		renderer := render.NewInfographicRenderer(opts)

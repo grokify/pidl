@@ -28,10 +28,12 @@ const (
 type InfographicTheme string
 
 const (
-	ThemeBold    InfographicTheme = "bold"    // High contrast, saturated
-	ThemeMinimal InfographicTheme = "minimal" // Clean, subtle
-	ThemeDark    InfographicTheme = "dark"    // Dark background
-	ThemeTech    InfographicTheme = "tech"    // Tech/engineering feel
+	ThemeBold       InfographicTheme = "bold"       // High contrast, saturated
+	ThemeMinimal    InfographicTheme = "minimal"    // Clean, subtle
+	ThemeDark       InfographicTheme = "dark"       // Dark background
+	ThemeTech       InfographicTheme = "tech"       // Tech/engineering feel
+	ThemeCorporate  InfographicTheme = "corporate"  // Professional blues/grays
+	ThemeAccessible InfographicTheme = "accessible" // Colorblind-friendly (CVD safe)
 )
 
 // NodeShape defines the shape of a node.
@@ -293,6 +295,79 @@ func (r *InfographicRenderer) getTheme() infographicTheme {
 			ShadowColor:  "rgba(0,0,0,0.6)",
 			StepColors:   stepColors,
 			EntityColors: entityColors,
+		}
+	case ThemeCorporate:
+		// Professional blues and grays
+		corporateStepColors := map[pidl.StepType]string{
+			pidl.StepTypeDeterministic: "#1565C0", // Dark Blue
+			pidl.StepTypeLLM:           "#5E35B1", // Deep Purple
+			pidl.StepTypeHuman:         "#00695C", // Teal
+			pidl.StepTypeExternal:      "#EF6C00", // Dark Orange
+			pidl.StepTypeTool:          "#455A64", // Blue Gray
+		}
+		corporateEntityColors := map[pidl.EntityType]string{
+			pidl.EntityTypeClient:              "#1976D2", // Blue
+			pidl.EntityTypeUser:                "#00796B", // Teal
+			pidl.EntityTypeBrowser:             "#00796B", // Teal
+			pidl.EntityTypeAgent:               "#7B1FA2", // Purple
+			pidl.EntityTypeDelegatedAgent:      "#512DA8", // Deep Purple
+			pidl.EntityTypeAuthorizationServer: "#C62828", // Dark Red
+			pidl.EntityTypeResourceServer:      "#EF6C00", // Dark Orange
+			pidl.EntityTypeServer:              "#37474F", // Dark Blue Gray
+			pidl.EntityTypeIdentityProvider:    "#283593", // Indigo
+			pidl.EntityTypeServiceProvider:     "#00695C", // Dark Teal
+			pidl.EntityTypeToolServer:          "#4E342E", // Dark Brown
+			pidl.EntityTypeTool:                "#616161", // Gray
+			pidl.EntityTypeOther:               "#424242", // Dark Gray
+		}
+		return infographicTheme{
+			Background:   "#fafafa",
+			NodeFill:     "#ffffff",
+			NodeStroke:   "#bdbdbd",
+			TextColor:    "#212121",
+			TitleColor:   "#0d47a1",
+			EdgeColor:    "#78909c",
+			DotColor:     "#1565C0",
+			ShadowColor:  "rgba(0,0,0,0.12)",
+			StepColors:   corporateStepColors,
+			EntityColors: corporateEntityColors,
+		}
+	case ThemeAccessible:
+		// Colorblind-friendly palette (CVD safe)
+		// Uses IBM Design colorblind-safe palette
+		accessibleStepColors := map[pidl.StepType]string{
+			pidl.StepTypeDeterministic: "#0077BB", // Blue
+			pidl.StepTypeLLM:           "#EE3377", // Magenta
+			pidl.StepTypeHuman:         "#009988", // Teal
+			pidl.StepTypeExternal:      "#EE7733", // Orange
+			pidl.StepTypeTool:          "#BBBBBB", // Gray
+		}
+		accessibleEntityColors := map[pidl.EntityType]string{
+			pidl.EntityTypeClient:              "#0077BB", // Blue
+			pidl.EntityTypeUser:                "#009988", // Teal
+			pidl.EntityTypeBrowser:             "#009988", // Teal
+			pidl.EntityTypeAgent:               "#EE3377", // Magenta
+			pidl.EntityTypeDelegatedAgent:      "#CC3311", // Red
+			pidl.EntityTypeAuthorizationServer: "#EE7733", // Orange
+			pidl.EntityTypeResourceServer:      "#CCBB44", // Yellow
+			pidl.EntityTypeServer:              "#BBBBBB", // Gray
+			pidl.EntityTypeIdentityProvider:    "#33BBEE", // Cyan
+			pidl.EntityTypeServiceProvider:     "#009988", // Teal
+			pidl.EntityTypeToolServer:          "#AA4499", // Purple
+			pidl.EntityTypeTool:                "#BBBBBB", // Gray
+			pidl.EntityTypeOther:               "#888888", // Dark Gray
+		}
+		return infographicTheme{
+			Background:   "#ffffff",
+			NodeFill:     "#ffffff",
+			NodeStroke:   "#888888",
+			TextColor:    "#000000",
+			TitleColor:   "#000000",
+			EdgeColor:    "#666666",
+			DotColor:     "#0077BB",
+			ShadowColor:  "rgba(0,0,0,0.2)",
+			StepColors:   accessibleStepColors,
+			EntityColors: accessibleEntityColors,
 		}
 	default: // ThemeBold
 		return infographicTheme{

@@ -213,6 +213,8 @@ func TestInfographicRenderer_AllThemes(t *testing.T) {
 		ThemeMinimal,
 		ThemeDark,
 		ThemeTech,
+		ThemeCorporate,
+		ThemeAccessible,
 	}
 
 	for _, theme := range themes {
