@@ -64,6 +64,8 @@ nav:
     - Annotations: guide/annotations.md
     - Alternatives: guide/alternatives.md
     - Process Specifications: guide/process.md
+    - Workflow Exports: guide/workflow-exports.md
+    - Extending PIDL: guide/extending.md
   - Reference:
     - Specification: SPECIFICATION.md
     - CLI Reference: reference/cli.md
