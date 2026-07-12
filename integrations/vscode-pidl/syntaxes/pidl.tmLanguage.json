@@ -1,0 +1,126 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "PIDL",
+  "scopeName": "source.pidl",
+  "patterns": [
+    { "include": "#value" }
+  ],
+  "repository": {
+    "value": {
+      "patterns": [
+        { "include": "#object" },
+        { "include": "#array" },
+        { "include": "#string" },
+        { "include": "#number" },
+        { "include": "#constant" }
+      ]
+    },
+    "object": {
+      "begin": "\\{",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.dictionary.begin.pidl" }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.dictionary.end.pidl" }
+      },
+      "patterns": [
+        { "include": "#object-member" },
+        { "include": "#value" }
+      ]
+    },
+    "object-member": {
+      "begin": "(\")(id|name|type|kind|version)(\")",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.string.begin.pidl" },
+        "2": { "name": "keyword.other.pidl" },
+        "3": { "name": "punctuation.definition.string.end.pidl" }
+      },
+      "end": "(?=,|\\})",
+      "patterns": [
+        { "include": "#colon" },
+        { "include": "#value" }
+      ]
+    },
+    "array": {
+      "begin": "\\[",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.array.begin.pidl" }
+      },
+      "end": "\\]",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.array.end.pidl" }
+      },
+      "patterns": [
+        { "include": "#value" }
+      ]
+    },
+    "string": {
+      "patterns": [
+        { "include": "#string-entity-type" },
+        { "include": "#string-step-type" },
+        { "include": "#string-protocol-kind" },
+        { "include": "#string-field-name" },
+        { "include": "#string-generic" }
+      ]
+    },
+    "string-entity-type": {
+      "match": "\"(user|client|agent|server|authorization_server|resource_server|mcp_server|mcp_client|human|llm|tool|external)\"",
+      "captures": {
+        "0": { "name": "string.quoted.double.pidl" },
+        "1": { "name": "entity.name.type.pidl" }
+      }
+    },
+    "string-step-type": {
+      "match": "\"(deterministic|llm|human|external|tool|conditional|parallel)\"",
+      "captures": {
+        "0": { "name": "string.quoted.double.pidl" },
+        "1": { "name": "constant.language.pidl" }
+      }
+    },
+    "string-protocol-kind": {
+      "match": "\"(aauth|mcp|a2a|process)\"",
+      "captures": {
+        "0": { "name": "string.quoted.double.pidl" },
+        "1": { "name": "constant.other.pidl" }
+      }
+    },
+    "string-field-name": {
+      "match": "(\")(entities|flows|phases|alternatives|from|to|action|description|note|annotations|step_type|input_ports|output_ports|processing|consent_ui|required|approval_ui|approval_required|requires_consent|timeout|retries)(\")",
+      "captures": {
+        "1": { "name": "punctuation.definition.string.begin.pidl" },
+        "2": { "name": "support.type.property-name.pidl" },
+        "3": { "name": "punctuation.definition.string.end.pidl" }
+      }
+    },
+    "string-generic": {
+      "begin": "\"",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.string.begin.pidl" }
+      },
+      "end": "\"",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.string.end.pidl" }
+      },
+      "name": "string.quoted.double.pidl",
+      "patterns": [
+        {
+          "name": "constant.character.escape.pidl",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "number": {
+      "match": "-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?",
+      "name": "constant.numeric.pidl"
+    },
+    "constant": {
+      "match": "\\b(true|false|null)\\b",
+      "name": "constant.language.pidl"
+    },
+    "colon": {
+      "match": ":",
+      "name": "punctuation.separator.dictionary.key-value.pidl"
+    }
+  }
+}

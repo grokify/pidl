@@ -1,0 +1,122 @@
+{
+  "name": "vscode-pidl",
+  "displayName": "PIDL",
+  "description": "PIDL (Protocol Interaction Description Language) support for VS Code",
+  "version": "0.1.0",
+  "publisher": "grokify",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/grokify/pidl"
+  },
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Visualization"
+  ],
+  "keywords": [
+    "pidl",
+    "protocol",
+    "sequence diagram",
+    "oauth",
+    "authentication"
+  ],
+  "activationEvents": [
+    "onLanguage:pidl"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "pidl",
+        "aliases": ["PIDL", "pidl"],
+        "extensions": [".pidl.json"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "pidl",
+        "scopeName": "source.pidl",
+        "path": "./syntaxes/pidl.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "pidl.validate",
+        "title": "PIDL: Validate Current File"
+      },
+      {
+        "command": "pidl.preview",
+        "title": "PIDL: Preview Diagram"
+      },
+      {
+        "command": "pidl.exportMermaid",
+        "title": "PIDL: Export as Mermaid"
+      },
+      {
+        "command": "pidl.exportSvg",
+        "title": "PIDL: Export as SVG"
+      },
+      {
+        "command": "pidl.runSecurity",
+        "title": "PIDL: Run Security Analysis"
+      }
+    ],
+    "configuration": {
+      "title": "PIDL",
+      "properties": {
+        "pidl.cliPath": {
+          "type": "string",
+          "default": "pidl",
+          "description": "Path to the PIDL CLI executable"
+        },
+        "pidl.validateOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Validate PIDL files on save"
+        },
+        "pidl.showPreviewOnOpen": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show diagram preview when opening PIDL files"
+        }
+      }
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "command": "pidl.preview",
+          "when": "resourceLangId == pidl",
+          "group": "pidl@1"
+        },
+        {
+          "command": "pidl.validate",
+          "when": "resourceLangId == pidl",
+          "group": "pidl@2"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.74.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0",
+    "@vscode/vsce": "^2.0.0"
+  }
+}
