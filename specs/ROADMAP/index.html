@@ -792,6 +792,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/workflow-exports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Exports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/extending/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extending PIDL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1234,6 +1290,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.5.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.5.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.4.0/" class="md-nav__link">
         
   
@@ -1395,7 +1479,7 @@
 
 <h1 id="pidl-roadmap">PIDL Roadmap<a class="headerlink" href="#pidl-roadmap" title="Permanent link">&para;</a></h1>
 <p><strong>Protocol Interaction Description Language</strong> - A JSON-based DSL for describing protocol choreography that compiles to diagrams.</p>
-<p><strong>Current Version</strong>: v0.4.0
+<p><strong>Current Version</strong>: v0.5.0
 <strong>Status</strong>: Active Development</p>
 <hr />
 <h2 id="release-summary">Release Summary<a class="headerlink" href="#release-summary" title="Permanent link">&para;</a></h2>
@@ -1454,8 +1538,13 @@
 <td>✅ Done</td>
 </tr>
 <tr>
+<td>v0.5.0+</td>
+<td>Data Lineage, Parallel, Cost, Workflow Exports, Integrations</td>
+<td>✅ Done</td>
+</tr>
+<tr>
 <td>v1.0.0</td>
-<td>Integrations (VS Code, MkDocs, GitHub Actions)</td>
+<td>Production Ready Release</td>
 <td>🔲 Next</td>
 </tr>
 </tbody>
@@ -1950,33 +2039,49 @@
 </tbody>
 </table>
 <hr />
-<h2 id="future-milestones">Future Milestones<a class="headerlink" href="#future-milestones" title="Permanent link">&para;</a></h2>
-<h3 id="v100-integrations">v1.0.0: Integrations<a class="headerlink" href="#v100-integrations" title="Permanent link">&para;</a></h3>
+<h2 id="completed-advanced-features-v050">Completed: Advanced Features (v0.5.0)<a class="headerlink" href="#completed-advanced-features-v050" title="Permanent link">&para;</a></h2>
+<h3 id="integrations">Integrations ✅<a class="headerlink" href="#integrations" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] VS Code extension (syntax highlighting, preview)</li>
-<li>[ ] MkDocs plugin for embedding diagrams</li>
-<li>[ ] GitHub Action for CI validation</li>
+<li>[x] VS Code extension (syntax highlighting, preview, validation, export)</li>
+<li>[x] MkDocs plugin for embedding PIDL diagrams</li>
+<li>[x] GitHub Action for CI validation</li>
 <li>[ ] Web playground for interactive editing</li>
 </ul>
-<h3 id="v110-advanced-data-flow">v1.1.0: Advanced Data Flow<a class="headerlink" href="#v110-advanced-data-flow" title="Permanent link">&para;</a></h3>
+<h3 id="advanced-data-flow">Advanced Data Flow ✅<a class="headerlink" href="#advanced-data-flow" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] Data lineage tracking through flows</li>
+<li>[x] Data lineage tracking through flows</li>
 <li>[ ] JSON Schema references for port validation</li>
 <li>[ ] Data quality gates between steps</li>
-<li>[ ] Parallel execution modeling</li>
+<li>[x] Parallel execution modeling (fork/join, race, scatter/gather)</li>
 </ul>
-<h3 id="v120-workflow-engine-exports">v1.2.0: Workflow Engine Exports<a class="headerlink" href="#v120-workflow-engine-exports" title="Permanent link">&para;</a></h3>
+<h3 id="workflow-engine-exports">Workflow Engine Exports ✅<a class="headerlink" href="#workflow-engine-exports" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] Temporal workflow export</li>
-<li>[ ] Airflow DAG export</li>
-<li>[ ] AWS Step Functions export</li>
+<li>[x] Temporal workflow export (Go)</li>
+<li>[x] Prefect flow export (Python)</li>
+<li>[x] BPMN 2.0 export (XML)</li>
+<li>[x] AWS Step Functions export (JSON)</li>
 <li>[ ] Custom runner plugin system</li>
 </ul>
-<h3 id="v130-observability">v1.3.0: Observability<a class="headerlink" href="#v130-observability" title="Permanent link">&para;</a></h3>
+<h3 id="cost-tracking">Cost Tracking ✅<a class="headerlink" href="#cost-tracking" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] Cost model types (fixed, token_based, time_based, api_call, hybrid)</li>
+<li>[x] LLM cost presets (GPT-4, Claude-3)</li>
+<li>[x] Process cost analysis</li>
+<li>[x] Execution cost calculation</li>
+</ul>
+<hr />
+<h2 id="future-milestones">Future Milestones<a class="headerlink" href="#future-milestones" title="Permanent link">&para;</a></h2>
+<h3 id="v100-production-ready">v1.0.0: Production Ready<a class="headerlink" href="#v100-production-ready" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Web playground for interactive editing</li>
+<li>[ ] JSON Schema references for port validation</li>
+<li>[ ] Data quality gates between steps</li>
+<li>[ ] Custom runner plugin system</li>
+</ul>
+<h3 id="v110-observability">v1.1.0: Observability<a class="headerlink" href="#v110-observability" title="Permanent link">&para;</a></h3>
 <ul>
 <li>[ ] Metrics definitions (SLIs for steps)</li>
 <li>[ ] OpenTelemetry trace integration</li>
-<li>[ ] Cost tracking for steps</li>
 <li>[ ] Latency budget definitions</li>
 </ul>
 <hr />
@@ -2023,17 +2128,17 @@
 <tr>
 <td>SAML 2.0</td>
 <td>Auth</td>
-<td>🔲 Planned</td>
+<td>✅ Example</td>
 </tr>
 <tr>
 <td>WebAuthn/FIDO2</td>
 <td>Auth</td>
-<td>🔲 Planned</td>
+<td>✅ Example</td>
 </tr>
 <tr>
 <td>SCIM</td>
 <td>Provisioning</td>
-<td>🔲 Planned</td>
+<td>✅ Example</td>
 </tr>
 </tbody>
 </table>
