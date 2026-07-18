@@ -1,0 +1,1661 @@
+{
+  "protocol": {
+    "id": "aidlc-workflow",
+    "name": "AWS AI Development Lifecycle Workflow",
+    "kind": "process",
+    "version": "1.0",
+    "description": "Complete AIDLC workflow with 12 document types across 3 phases: Inception, Construction, and Operations",
+    "category": "agent",
+    "references": [
+      {
+        "name": "AWS AI DLC Documentation",
+        "url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/ai-driven-software-development/"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "vision_document",
+      "name": "Vision Document",
+      "type": "server",
+      "description": "Strategic vision and product direction. Defines the problem space, target users, and success criteria.",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "product_brief",
+          "description": "Initial product brief or idea document",
+          "required": true
+        },
+        {
+          "kind": "object",
+          "name": "market_context",
+          "description": "Market analysis and competitive landscape"
+        },
+        {
+          "kind": "object",
+          "name": "stakeholder_input",
+          "description": "Stakeholder interviews and feedback"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "vision_document.md",
+          "description": "Vision Document with problem statement, target users, value proposition, and success criteria"
+        },
+        {
+          "kind": "object",
+          "name": "vision_metadata",
+          "description": "Structured vision metadata for downstream documents"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "10m",
+        "cost_model": {
+          "type": "token_based",
+          "cost_unit": "USD",
+          "input_token_cost": 0.003,
+          "output_token_cost": 0.015,
+          "estimated_input_tokens": 5000,
+          "estimated_output_tokens": 3000
+        },
+        "latency_budget": {
+          "p50": "2m",
+          "p95": "5m",
+          "p99": "8m",
+          "max": "10m",
+          "variance_class": "high"
+        }
+      },
+      "failure_modes": [
+        {
+          "id": "insufficient_context",
+          "name": "Insufficient Context",
+          "description": "Product brief lacks necessary detail for vision creation",
+          "severity": "high",
+          "recovery": "Request additional stakeholder input"
+        },
+        {
+          "id": "rate_limit",
+          "name": "LLM Rate Limit",
+          "description": "API rate limit exceeded",
+          "severity": "medium",
+          "recovery": "Retry with exponential backoff"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "5s",
+        "max_delay": "60s",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "requirements_spec",
+      "name": "Requirements Specification",
+      "type": "server",
+      "description": "Detailed functional and non-functional requirements derived from the vision document.",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "vision_document.md",
+          "description": "Approved Vision Document",
+          "required": true
+        },
+        {
+          "kind": "object",
+          "name": "vision_metadata",
+          "description": "Structured vision metadata"
+        },
+        {
+          "kind": "object",
+          "name": "domain_constraints",
+          "description": "Domain-specific constraints and regulations"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "requirements_spec.md",
+          "description": "Requirements Specification with functional requirements, non-functional requirements, and acceptance criteria"
+        },
+        {
+          "kind": "object",
+          "name": "requirements_matrix",
+          "description": "Structured requirements for traceability"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "15m",
+        "cost_model": {
+          "type": "token_based",
+          "cost_unit": "USD",
+          "input_token_cost": 0.003,
+          "output_token_cost": 0.015,
+          "estimated_input_tokens": 8000,
+          "estimated_output_tokens": 6000
+        },
+        "latency_budget": {
+          "p50": "3m",
+          "p95": "8m",
+          "p99": "12m",
+          "max": "15m",
+          "variance_class": "high",
+          "critical": true
+        }
+      },
+      "failure_modes": [
+        {
+          "id": "ambiguous_vision",
+          "name": "Ambiguous Vision",
+          "description": "Vision document contains ambiguous goals",
+          "severity": "high",
+          "recovery": "Request vision clarification"
+        },
+        {
+          "id": "rate_limit",
+          "name": "LLM Rate Limit",
+          "severity": "medium"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "5s",
+        "max_delay": "60s",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "technical_spec",
+      "name": "Technical Specification",
+      "type": "server",
+      "description": "Technical design including APIs, data models, and system interfaces.",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "requirements_spec.md",
+          "description": "Approved Requirements Specification",
+          "required": true
+        },
+        {
+          "kind": "object",
+          "name": "requirements_matrix",
+          "description": "Structured requirements for traceability"
+        },
+        {
+          "kind": "object",
+          "name": "tech_stack",
+          "description": "Available technology options and constraints"
+        },
+        {
+          "kind": "api",
+          "name": "existing_apis",
+          "description": "Existing API documentation for integration"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "technical_spec.md",
+          "description": "Technical Specification with API designs, data models, and interface definitions"
+        },
+        {
+          "kind": "object",
+          "name": "api_contracts",
+          "description": "OpenAPI/AsyncAPI specifications"
+        },
+        {
+          "kind": "object",
+          "name": "data_schemas",
+          "description": "JSON Schema definitions for data models"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "20m",
+        "cost_model": {
+          "type": "token_based",
+          "cost_unit": "USD",
+          "input_token_cost": 0.003,
+          "output_token_cost": 0.015,
+          "estimated_input_tokens": 12000,
+          "estimated_output_tokens": 10000
+        },
+        "latency_budget": {
+          "p50": "5m",
+          "p95": "12m",
+          "p99": "18m",
+          "max": "20m",
+          "variance_class": "high",
+          "critical": true
+        }
+      },
+      "failure_modes": [
+        {
+          "id": "conflicting_requirements",
+          "name": "Conflicting Requirements",
+          "description": "Requirements contain conflicts that prevent technical design",
+          "severity": "critical",
+          "recovery": "Escalate to requirements review"
+        },
+        {
+          "id": "context_overflow",
+          "name": "Context Overflow",
+          "description": "Input exceeds model context window",
+          "severity": "high",
+          "recovery": "Chunk requirements and generate incrementally"
+        },
+        {
+          "id": "rate_limit",
+          "name": "LLM Rate Limit",
+          "severity": "medium"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "5s",
+        "max_delay": "60s",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "architecture_spec",
+      "name": "Architecture Specification",
+      "type": "server",
+      "description": "System architecture including component design, scalability, and deployment topology.",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "requirements_spec.md",
+          "description": "Approved Requirements Specification",
+          "required": true
+        },
+        {
+          "kind": "object",
+          "name": "requirements_matrix",
+          "description": "Structured requirements"
+        },
+        {
+          "kind": "object",
+          "name": "infrastructure_constraints",
+          "description": "Cloud/infrastructure constraints and preferences"
+        },
+        {
+          "kind": "object",
+          "name": "architecture_patterns",
+          "description": "Organization's architecture patterns catalog"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "architecture_spec.md",
+          "description": "Architecture Specification with component diagrams, scalability design, and deployment topology"
+        },
+        {
+          "kind": "object",
+          "name": "component_diagram",
+          "description": "C4 or similar component diagram data"
+        },
+        {
+          "kind": "object",
+          "name": "deployment_config",
+          "description": "Infrastructure as Code templates"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "20m",
+        "cost_model": {
+          "type": "token_based",
+          "cost_unit": "USD",
+          "input_token_cost": 0.003,
+          "output_token_cost": 0.015,
+          "estimated_input_tokens": 10000,
+          "estimated_output_tokens": 8000
+        },
+        "latency_budget": {
+          "p50": "4m",
+          "p95": "10m",
+          "p99": "15m",
+          "max": "20m",
+          "variance_class": "high"
+        }
+      },
+      "failure_modes": [
+        {
+          "id": "scale_mismatch",
+          "name": "Scale Mismatch",
+          "description": "Requirements scale doesn't match available infrastructure",
+          "severity": "high",
+          "recovery": "Review infrastructure constraints with stakeholders"
+        },
+        {
+          "id": "rate_limit",
+          "name": "LLM Rate Limit",
+          "severity": "medium"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "5s",
+        "max_delay": "60s",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "implementation_plan",
+      "name": "Implementation Plan",
+      "type": "server",
+      "description": "Detailed implementation plan with milestones, task breakdown, and resource allocation.",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "technical_spec.md",
+          "description": "Approved Technical Specification",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "architecture_spec.md",
+          "description": "Approved Architecture Specification",
+          "required": true
+        },
+        {
+          "kind": "object",
+          "name": "api_contracts",
+          "description": "API specifications"
+        },
+        {
+          "kind": "object",
+          "name": "team_capacity",
+          "description": "Team capacity and skill matrix"
+        },
+        {
+          "kind": "object",
+          "name": "sprint_config",
+          "description": "Sprint configuration and timeline constraints"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "implementation_plan.md",
+          "description": "Implementation Plan with milestones, task breakdown, dependencies, and resource allocation"
+        },
+        {
+          "kind": "object",
+          "name": "task_backlog",
+          "description": "Structured task backlog for project management"
+        },
+        {
+          "kind": "object",
+          "name": "milestone_timeline",
+          "description": "Milestone timeline with dependencies"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "15m",
+        "cost_model": {
+          "type": "token_based",
+          "cost_unit": "USD",
+          "input_token_cost": 0.003,
+          "output_token_cost": 0.015,
+          "estimated_input_tokens": 15000,
+          "estimated_output_tokens": 8000
+        },
+        "latency_budget": {
+          "p50": "4m",
+          "p95": "10m",
+          "p99": "13m",
+          "max": "15m",
+          "variance_class": "high",
+          "critical": true
+        }
+      },
+      "failure_modes": [
+        {
+          "id": "resource_conflict",
+          "name": "Resource Conflict",
+          "description": "Implementation requires unavailable resources",
+          "severity": "high",
+          "recovery": "Review resource allocation with project management"
+        },
+        {
+          "id": "rate_limit",
+          "name": "LLM Rate Limit",
+          "severity": "medium"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "5s",
+        "max_delay": "60s",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "test_plan",
+      "name": "Test Plan",
+      "type": "server",
+      "description": "Comprehensive test plan including test strategy, test cases, and automation approach.",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "implementation_plan.md",
+          "description": "Approved Implementation Plan",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "requirements_spec.md",
+          "description": "Requirements for test coverage mapping"
+        },
+        {
+          "kind": "object",
+          "name": "requirements_matrix",
+          "description": "Requirements matrix for traceability"
+        },
+        {
+          "kind": "object",
+          "name": "test_infrastructure",
+          "description": "Available test infrastructure and tools"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "test_plan.md",
+          "description": "Test Plan with test strategy, test cases, edge cases, and automation approach"
+        },
+        {
+          "kind": "object",
+          "name": "test_cases",
+          "description": "Structured test cases with requirements traceability"
+        },
+        {
+          "kind": "object",
+          "name": "test_data_requirements",
+          "description": "Test data generation requirements"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "15m",
+        "cost_model": {
+          "type": "token_based",
+          "cost_unit": "USD",
+          "input_token_cost": 0.003,
+          "output_token_cost": 0.015,
+          "estimated_input_tokens": 12000,
+          "estimated_output_tokens": 10000
+        },
+        "latency_budget": {
+          "p50": "4m",
+          "p95": "10m",
+          "p99": "13m",
+          "max": "15m",
+          "variance_class": "high"
+        }
+      },
+      "failure_modes": [
+        {
+          "id": "incomplete_requirements",
+          "name": "Incomplete Requirements",
+          "description": "Cannot achieve full test coverage due to missing requirements",
+          "severity": "medium",
+          "recovery": "Document coverage gaps and request requirements clarification"
+        },
+        {
+          "id": "rate_limit",
+          "name": "LLM Rate Limit",
+          "severity": "medium"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "5s",
+        "max_delay": "60s",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "integration_plan",
+      "name": "Integration Plan",
+      "type": "server",
+      "description": "Integration plan for connecting with external systems and services.",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "implementation_plan.md",
+          "description": "Approved Implementation Plan",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "technical_spec.md",
+          "description": "Technical Specification with API contracts"
+        },
+        {
+          "kind": "object",
+          "name": "api_contracts",
+          "description": "API specifications for integration"
+        },
+        {
+          "kind": "object",
+          "name": "external_systems",
+          "description": "External system documentation and credentials"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "integration_plan.md",
+          "description": "Integration Plan with integration points, protocols, and rollout strategy"
+        },
+        {
+          "kind": "object",
+          "name": "integration_matrix",
+          "description": "System integration matrix"
+        },
+        {
+          "kind": "object",
+          "name": "api_gateway_config",
+          "description": "API gateway configuration"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "12m",
+        "cost_model": {
+          "type": "token_based",
+          "cost_unit": "USD",
+          "input_token_cost": 0.003,
+          "output_token_cost": 0.015,
+          "estimated_input_tokens": 10000,
+          "estimated_output_tokens": 6000
+        },
+        "latency_budget": {
+          "p50": "3m",
+          "p95": "8m",
+          "p99": "10m",
+          "max": "12m",
+          "variance_class": "high"
+        }
+      },
+      "failure_modes": [
+        {
+          "id": "api_incompatibility",
+          "name": "API Incompatibility",
+          "description": "External API versions are incompatible",
+          "severity": "high",
+          "recovery": "Review API compatibility with external teams"
+        },
+        {
+          "id": "rate_limit",
+          "name": "LLM Rate Limit",
+          "severity": "medium"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "5s",
+        "max_delay": "60s",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "security_review",
+      "name": "Security Review",
+      "type": "server",
+      "description": "Security analysis including threat modeling, access control, and compliance requirements.",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "technical_spec.md",
+          "description": "Technical Specification for security analysis",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "architecture_spec.md",
+          "description": "Architecture Specification for attack surface analysis"
+        },
+        {
+          "kind": "object",
+          "name": "api_contracts",
+          "description": "API specifications for authentication review"
+        },
+        {
+          "kind": "object",
+          "name": "compliance_requirements",
+          "description": "Applicable compliance frameworks (SOC2, GDPR, HIPAA, etc.)"
+        },
+        {
+          "kind": "object",
+          "name": "data_classification",
+          "description": "Data classification and sensitivity levels"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "security_review.md",
+          "description": "Security Review with threat model, access control design, data protection, and compliance mapping"
+        },
+        {
+          "kind": "object",
+          "name": "threat_model",
+          "description": "STRIDE threat model"
+        },
+        {
+          "kind": "object",
+          "name": "security_controls",
+          "description": "Required security controls and mitigations"
+        },
+        {
+          "kind": "object",
+          "name": "compliance_matrix",
+          "description": "Compliance requirements mapping",
+          "sensitive": true
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "20m",
+        "cost_model": {
+          "type": "token_based",
+          "cost_unit": "USD",
+          "input_token_cost": 0.003,
+          "output_token_cost": 0.015,
+          "estimated_input_tokens": 15000,
+          "estimated_output_tokens": 12000
+        },
+        "latency_budget": {
+          "p50": "5m",
+          "p95": "12m",
+          "p99": "18m",
+          "max": "20m",
+          "variance_class": "high",
+          "critical": true
+        }
+      },
+      "failure_modes": [
+        {
+          "id": "unmitigated_critical",
+          "name": "Unmitigated Critical Threat",
+          "description": "Critical security threat without viable mitigation",
+          "severity": "critical",
+          "recovery": "Escalate to security team and architecture review"
+        },
+        {
+          "id": "compliance_gap",
+          "name": "Compliance Gap",
+          "description": "Design cannot meet compliance requirements",
+          "severity": "critical",
+          "recovery": "Escalate to compliance team"
+        },
+        {
+          "id": "rate_limit",
+          "name": "LLM Rate Limit",
+          "severity": "medium"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "5s",
+        "max_delay": "60s",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "runbook",
+      "name": "Runbook",
+      "type": "server",
+      "description": "Operational runbook with deployment procedures, troubleshooting guides, and maintenance tasks.",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "implementation_plan.md",
+          "description": "Implementation Plan for deployment context",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "architecture_spec.md",
+          "description": "Architecture Specification for infrastructure details"
+        },
+        {
+          "kind": "object",
+          "name": "deployment_config",
+          "description": "Infrastructure as Code templates"
+        },
+        {
+          "kind": "object",
+          "name": "operational_context",
+          "description": "On-call procedures and escalation paths"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "runbook.md",
+          "description": "Runbook with deployment procedures, troubleshooting guides, rollback procedures, and maintenance tasks"
+        },
+        {
+          "kind": "object",
+          "name": "deployment_checklist",
+          "description": "Pre/post deployment checklist"
+        },
+        {
+          "kind": "object",
+          "name": "troubleshooting_decision_tree",
+          "description": "Troubleshooting decision tree"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "15m",
+        "cost_model": {
+          "type": "token_based",
+          "cost_unit": "USD",
+          "input_token_cost": 0.003,
+          "output_token_cost": 0.015,
+          "estimated_input_tokens": 12000,
+          "estimated_output_tokens": 10000
+        },
+        "latency_budget": {
+          "p50": "4m",
+          "p95": "10m",
+          "p99": "13m",
+          "max": "15m",
+          "variance_class": "high"
+        }
+      },
+      "failure_modes": [
+        {
+          "id": "missing_infrastructure_details",
+          "name": "Missing Infrastructure Details",
+          "description": "Insufficient infrastructure information for runbook creation",
+          "severity": "medium",
+          "recovery": "Request infrastructure documentation"
+        },
+        {
+          "id": "rate_limit",
+          "name": "LLM Rate Limit",
+          "severity": "medium"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "5s",
+        "max_delay": "60s",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "monitoring_plan",
+      "name": "Monitoring Plan",
+      "type": "server",
+      "description": "Monitoring and observability plan with metrics, alerts, and dashboards.",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "test_plan.md",
+          "description": "Test Plan for quality metrics context",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "architecture_spec.md",
+          "description": "Architecture Specification for component metrics"
+        },
+        {
+          "kind": "object",
+          "name": "monitoring_infrastructure",
+          "description": "Available monitoring tools (Prometheus, Datadog, etc.)"
+        },
+        {
+          "kind": "object",
+          "name": "business_kpis",
+          "description": "Business KPIs to track"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "monitoring_plan.md",
+          "description": "Monitoring Plan with metrics definitions, alerting rules, dashboard specifications, and on-call integration"
+        },
+        {
+          "kind": "object",
+          "name": "metrics_definitions",
+          "description": "Prometheus/OpenTelemetry metric definitions"
+        },
+        {
+          "kind": "object",
+          "name": "alert_rules",
+          "description": "Alerting rules configuration"
+        },
+        {
+          "kind": "object",
+          "name": "dashboard_specs",
+          "description": "Grafana/dashboard specifications"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "12m",
+        "cost_model": {
+          "type": "token_based",
+          "cost_unit": "USD",
+          "input_token_cost": 0.003,
+          "output_token_cost": 0.015,
+          "estimated_input_tokens": 10000,
+          "estimated_output_tokens": 8000
+        },
+        "latency_budget": {
+          "p50": "3m",
+          "p95": "8m",
+          "p99": "10m",
+          "max": "12m",
+          "variance_class": "high"
+        }
+      },
+      "failure_modes": [
+        {
+          "id": "metric_conflict",
+          "name": "Metric Naming Conflict",
+          "description": "Proposed metrics conflict with existing naming conventions",
+          "severity": "low",
+          "recovery": "Align with platform monitoring standards"
+        },
+        {
+          "id": "rate_limit",
+          "name": "LLM Rate Limit",
+          "severity": "medium"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "5s",
+        "max_delay": "60s",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "disaster_recovery_plan",
+      "name": "Disaster Recovery Plan",
+      "type": "server",
+      "description": "Disaster recovery plan with RTO/RPO targets, backup strategies, and failover procedures.",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "runbook.md",
+          "description": "Runbook for operational context",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "architecture_spec.md",
+          "description": "Architecture Specification for infrastructure topology"
+        },
+        {
+          "kind": "object",
+          "name": "deployment_config",
+          "description": "Infrastructure as Code templates"
+        },
+        {
+          "kind": "object",
+          "name": "business_continuity_requirements",
+          "description": "Business continuity and availability requirements"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "disaster_recovery_plan.md",
+          "description": "Disaster Recovery Plan with RTO/RPO targets, backup strategies, failover procedures, and recovery testing"
+        },
+        {
+          "kind": "object",
+          "name": "backup_config",
+          "description": "Backup configuration and schedules"
+        },
+        {
+          "kind": "object",
+          "name": "failover_playbook",
+          "description": "Failover and recovery playbook"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "15m",
+        "cost_model": {
+          "type": "token_based",
+          "cost_unit": "USD",
+          "input_token_cost": 0.003,
+          "output_token_cost": 0.015,
+          "estimated_input_tokens": 10000,
+          "estimated_output_tokens": 8000
+        },
+        "latency_budget": {
+          "p50": "4m",
+          "p95": "10m",
+          "p99": "13m",
+          "max": "15m",
+          "variance_class": "high"
+        }
+      },
+      "failure_modes": [
+        {
+          "id": "rto_infeasible",
+          "name": "RTO Infeasible",
+          "description": "Requested RTO cannot be achieved with current architecture",
+          "severity": "high",
+          "recovery": "Review RTO requirements with business stakeholders"
+        },
+        {
+          "id": "rate_limit",
+          "name": "LLM Rate Limit",
+          "severity": "medium"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "5s",
+        "max_delay": "60s",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "slo_document",
+      "name": "SLO Document",
+      "type": "server",
+      "description": "Service Level Objectives with SLIs, SLOs, error budgets, and reporting.",
+      "step_type": "llm",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "monitoring_plan.md",
+          "description": "Monitoring Plan for metrics foundation",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "requirements_spec.md",
+          "description": "Requirements for non-functional requirements"
+        },
+        {
+          "kind": "object",
+          "name": "metrics_definitions",
+          "description": "Available metrics for SLI calculation"
+        },
+        {
+          "kind": "object",
+          "name": "business_sla",
+          "description": "Business SLA commitments"
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "file",
+          "name": "slo_document.md",
+          "description": "SLO Document with SLI definitions, SLO targets, error budgets, burn rate alerts, and reporting cadence"
+        },
+        {
+          "kind": "object",
+          "name": "sli_definitions",
+          "description": "SLI calculation formulas and data sources"
+        },
+        {
+          "kind": "object",
+          "name": "error_budget_config",
+          "description": "Error budget policies and alerting"
+        },
+        {
+          "kind": "object",
+          "name": "slo_dashboard",
+          "description": "SLO dashboard configuration"
+        }
+      ],
+      "processing": {
+        "engine": "llm",
+        "determinism": "non_deterministic",
+        "model_policy": "quality-gated",
+        "timeout": "12m",
+        "cost_model": {
+          "type": "token_based",
+          "cost_unit": "USD",
+          "input_token_cost": 0.003,
+          "output_token_cost": 0.015,
+          "estimated_input_tokens": 8000,
+          "estimated_output_tokens": 6000
+        },
+        "latency_budget": {
+          "p50": "3m",
+          "p95": "8m",
+          "p99": "10m",
+          "max": "12m",
+          "variance_class": "high"
+        }
+      },
+      "failure_modes": [
+        {
+          "id": "slo_conflict",
+          "name": "SLO Conflict",
+          "description": "SLO targets conflict with infrastructure capabilities",
+          "severity": "medium",
+          "recovery": "Review SLO targets with platform team"
+        },
+        {
+          "id": "rate_limit",
+          "name": "LLM Rate Limit",
+          "severity": "medium"
+        }
+      ],
+      "retry_strategy": {
+        "max_attempts": 3,
+        "initial_delay": "5s",
+        "max_delay": "60s",
+        "backoff_multiplier": 2.0,
+        "retry_on": ["rate_limit"]
+      }
+    },
+    {
+      "id": "human_review_inception",
+      "name": "Inception Review",
+      "type": "user",
+      "description": "Human review and approval of Inception phase documents",
+      "step_type": "human",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "vision_document.md",
+          "description": "Vision Document for review",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "requirements_spec.md",
+          "description": "Requirements Specification for review",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "technical_spec.md",
+          "description": "Technical Specification for review",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "architecture_spec.md",
+          "description": "Architecture Specification for review",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "inception_approval",
+          "description": "Approval decision with reviewer feedback"
+        },
+        {
+          "kind": "object",
+          "name": "inception_feedback",
+          "description": "Detailed feedback and revision requests"
+        }
+      ],
+      "processing": {
+        "determinism": "non_deterministic",
+        "timeout": "7d"
+      }
+    },
+    {
+      "id": "human_review_construction",
+      "name": "Construction Review",
+      "type": "user",
+      "description": "Human review and approval of Construction phase documents",
+      "step_type": "human",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "implementation_plan.md",
+          "description": "Implementation Plan for review",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "test_plan.md",
+          "description": "Test Plan for review",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "integration_plan.md",
+          "description": "Integration Plan for review",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "security_review.md",
+          "description": "Security Review for review",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "construction_approval",
+          "description": "Approval decision with reviewer feedback"
+        },
+        {
+          "kind": "object",
+          "name": "construction_feedback",
+          "description": "Detailed feedback and revision requests"
+        }
+      ],
+      "processing": {
+        "determinism": "non_deterministic",
+        "timeout": "5d"
+      }
+    },
+    {
+      "id": "human_review_operations",
+      "name": "Operations Review",
+      "type": "user",
+      "description": "Human review and approval of Operations phase documents",
+      "step_type": "human",
+      "inputs": [
+        {
+          "kind": "file",
+          "name": "runbook.md",
+          "description": "Runbook for review",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "monitoring_plan.md",
+          "description": "Monitoring Plan for review",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "disaster_recovery_plan.md",
+          "description": "Disaster Recovery Plan for review",
+          "required": true
+        },
+        {
+          "kind": "file",
+          "name": "slo_document.md",
+          "description": "SLO Document for review",
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "kind": "object",
+          "name": "operations_approval",
+          "description": "Approval decision with reviewer feedback"
+        },
+        {
+          "kind": "object",
+          "name": "operations_feedback",
+          "description": "Detailed feedback and revision requests"
+        }
+      ],
+      "processing": {
+        "determinism": "non_deterministic",
+        "timeout": "5d"
+      }
+    }
+  ],
+  "phases": [
+    {
+      "id": "inception",
+      "name": "Inception",
+      "description": "Discovery and requirements definition phase. Establishes vision, requirements, technical design, and architecture."
+    },
+    {
+      "id": "inception_vision",
+      "name": "Vision & Strategy",
+      "description": "Define product vision and strategic direction",
+      "parent": "inception"
+    },
+    {
+      "id": "inception_requirements",
+      "name": "Requirements Definition",
+      "description": "Define functional and non-functional requirements",
+      "parent": "inception"
+    },
+    {
+      "id": "inception_design",
+      "name": "Technical Design",
+      "description": "Define technical specification and architecture",
+      "parent": "inception"
+    },
+    {
+      "id": "inception_review",
+      "name": "Inception Review Gate",
+      "description": "Human review and approval of Inception phase",
+      "parent": "inception"
+    },
+    {
+      "id": "construction",
+      "name": "Construction",
+      "description": "Implementation planning and testing phase. Creates implementation plan, test plan, integration plan, and security review."
+    },
+    {
+      "id": "construction_planning",
+      "name": "Implementation Planning",
+      "description": "Create detailed implementation and resource plan",
+      "parent": "construction"
+    },
+    {
+      "id": "construction_quality",
+      "name": "Quality & Security",
+      "description": "Define test strategy and security controls",
+      "parent": "construction"
+    },
+    {
+      "id": "construction_review",
+      "name": "Construction Review Gate",
+      "description": "Human review and approval of Construction phase",
+      "parent": "construction"
+    },
+    {
+      "id": "operations",
+      "name": "Operations",
+      "description": "Deployment and operational readiness phase. Creates runbook, monitoring plan, disaster recovery plan, and SLO document."
+    },
+    {
+      "id": "operations_deployment",
+      "name": "Deployment Readiness",
+      "description": "Prepare deployment procedures and runbooks",
+      "parent": "operations"
+    },
+    {
+      "id": "operations_observability",
+      "name": "Observability & SRE",
+      "description": "Define monitoring, disaster recovery, and SLOs",
+      "parent": "operations"
+    },
+    {
+      "id": "operations_review",
+      "name": "Operations Review Gate",
+      "description": "Human review and approval of Operations phase",
+      "parent": "operations"
+    }
+  ],
+  "flows": [
+    {
+      "from": "vision_document",
+      "to": "requirements_spec",
+      "action": "provide_vision",
+      "label": "Vision → Requirements",
+      "mode": "request",
+      "phase": "inception_vision",
+      "note": "Vision document provides strategic direction for requirements",
+      "data_mappings": [
+        {
+          "output_port": "vision_document.md",
+          "input_port": "vision_document.md"
+        },
+        {
+          "output_port": "vision_metadata",
+          "input_port": "vision_metadata"
+        }
+      ]
+    },
+    {
+      "from": "requirements_spec",
+      "to": "technical_spec",
+      "action": "provide_requirements",
+      "label": "Requirements → Technical",
+      "mode": "request",
+      "phase": "inception_requirements",
+      "note": "Requirements inform technical design decisions",
+      "data_mappings": [
+        {
+          "output_port": "requirements_spec.md",
+          "input_port": "requirements_spec.md"
+        },
+        {
+          "output_port": "requirements_matrix",
+          "input_port": "requirements_matrix"
+        }
+      ]
+    },
+    {
+      "from": "requirements_spec",
+      "to": "architecture_spec",
+      "action": "provide_requirements",
+      "label": "Requirements → Architecture",
+      "mode": "request",
+      "phase": "inception_requirements",
+      "note": "Requirements inform architecture decisions",
+      "data_mappings": [
+        {
+          "output_port": "requirements_spec.md",
+          "input_port": "requirements_spec.md"
+        },
+        {
+          "output_port": "requirements_matrix",
+          "input_port": "requirements_matrix"
+        }
+      ]
+    },
+    {
+      "from": "technical_spec",
+      "to": "implementation_plan",
+      "action": "provide_technical_design",
+      "label": "Technical → Implementation",
+      "mode": "request",
+      "phase": "inception_design",
+      "note": "Technical design informs implementation planning",
+      "data_mappings": [
+        {
+          "output_port": "technical_spec.md",
+          "input_port": "technical_spec.md"
+        },
+        {
+          "output_port": "api_contracts",
+          "input_port": "api_contracts"
+        }
+      ]
+    },
+    {
+      "from": "architecture_spec",
+      "to": "implementation_plan",
+      "action": "provide_architecture",
+      "label": "Architecture → Implementation",
+      "mode": "request",
+      "phase": "inception_design",
+      "note": "Architecture informs implementation planning",
+      "data_mappings": [
+        {
+          "output_port": "architecture_spec.md",
+          "input_port": "architecture_spec.md"
+        }
+      ]
+    },
+    {
+      "from": "technical_spec",
+      "to": "human_review_inception",
+      "action": "submit_for_review",
+      "label": "Submit Inception",
+      "mode": "request",
+      "phase": "inception_design"
+    },
+    {
+      "from": "architecture_spec",
+      "to": "human_review_inception",
+      "action": "submit_for_review",
+      "label": "Submit Inception",
+      "mode": "request",
+      "phase": "inception_design"
+    },
+    {
+      "from": "human_review_inception",
+      "to": "requirements_spec",
+      "action": "request_revision",
+      "label": "Revision Required",
+      "mode": "response",
+      "phase": "inception_review",
+      "condition": "revision_required",
+      "annotations": [
+        {
+          "type": "info",
+          "text": "Human reviewer may request changes to Inception documents"
+        }
+      ]
+    },
+    {
+      "from": "implementation_plan",
+      "to": "test_plan",
+      "action": "provide_implementation",
+      "label": "Implementation → Test",
+      "mode": "request",
+      "phase": "construction_planning",
+      "note": "Implementation plan informs test planning",
+      "data_mappings": [
+        {
+          "output_port": "implementation_plan.md",
+          "input_port": "implementation_plan.md"
+        }
+      ]
+    },
+    {
+      "from": "implementation_plan",
+      "to": "integration_plan",
+      "action": "provide_implementation",
+      "label": "Implementation → Integration",
+      "mode": "request",
+      "phase": "construction_planning",
+      "note": "Implementation plan informs integration planning",
+      "data_mappings": [
+        {
+          "output_port": "implementation_plan.md",
+          "input_port": "implementation_plan.md"
+        }
+      ]
+    },
+    {
+      "from": "technical_spec",
+      "to": "security_review",
+      "action": "provide_technical_design",
+      "label": "Technical → Security",
+      "mode": "request",
+      "phase": "construction_quality",
+      "note": "Technical design enables security analysis",
+      "data_mappings": [
+        {
+          "output_port": "technical_spec.md",
+          "input_port": "technical_spec.md"
+        },
+        {
+          "output_port": "api_contracts",
+          "input_port": "api_contracts"
+        }
+      ]
+    },
+    {
+      "from": "security_review",
+      "to": "human_review_construction",
+      "action": "submit_for_review",
+      "label": "Submit Construction",
+      "mode": "request",
+      "phase": "construction_quality"
+    },
+    {
+      "from": "human_review_construction",
+      "to": "implementation_plan",
+      "action": "request_revision",
+      "label": "Revision Required",
+      "mode": "response",
+      "phase": "construction_review",
+      "condition": "revision_required",
+      "annotations": [
+        {
+          "type": "info",
+          "text": "Human reviewer may request changes to Construction documents"
+        }
+      ]
+    },
+    {
+      "from": "implementation_plan",
+      "to": "runbook",
+      "action": "provide_implementation",
+      "label": "Implementation → Runbook",
+      "mode": "request",
+      "phase": "operations_deployment",
+      "note": "Implementation plan informs operational procedures",
+      "data_mappings": [
+        {
+          "output_port": "implementation_plan.md",
+          "input_port": "implementation_plan.md"
+        }
+      ]
+    },
+    {
+      "from": "test_plan",
+      "to": "monitoring_plan",
+      "action": "provide_test_plan",
+      "label": "Test → Monitoring",
+      "mode": "request",
+      "phase": "operations_observability",
+      "note": "Test plan informs quality metrics and monitoring",
+      "data_mappings": [
+        {
+          "output_port": "test_plan.md",
+          "input_port": "test_plan.md"
+        }
+      ]
+    },
+    {
+      "from": "runbook",
+      "to": "disaster_recovery_plan",
+      "action": "provide_runbook",
+      "label": "Runbook → DR",
+      "mode": "request",
+      "phase": "operations_deployment",
+      "note": "Runbook informs disaster recovery procedures",
+      "data_mappings": [
+        {
+          "output_port": "runbook.md",
+          "input_port": "runbook.md"
+        }
+      ]
+    },
+    {
+      "from": "monitoring_plan",
+      "to": "slo_document",
+      "action": "provide_monitoring",
+      "label": "Monitoring → SLO",
+      "mode": "request",
+      "phase": "operations_observability",
+      "note": "Monitoring plan provides metrics for SLO definition",
+      "data_mappings": [
+        {
+          "output_port": "monitoring_plan.md",
+          "input_port": "monitoring_plan.md"
+        },
+        {
+          "output_port": "metrics_definitions",
+          "input_port": "metrics_definitions"
+        }
+      ]
+    },
+    {
+      "from": "slo_document",
+      "to": "human_review_operations",
+      "action": "submit_for_review",
+      "label": "Submit Operations",
+      "mode": "request",
+      "phase": "operations_observability"
+    },
+    {
+      "from": "disaster_recovery_plan",
+      "to": "human_review_operations",
+      "action": "submit_for_review",
+      "label": "Submit Operations",
+      "mode": "request",
+      "phase": "operations_observability"
+    },
+    {
+      "from": "human_review_operations",
+      "to": "runbook",
+      "action": "request_revision",
+      "label": "Revision Required",
+      "mode": "response",
+      "phase": "operations_review",
+      "condition": "revision_required",
+      "annotations": [
+        {
+          "type": "info",
+          "text": "Human reviewer may request changes to Operations documents"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "networks": {
+      "internal": {
+        "name": "Internal Network",
+        "style": "trusted",
+        "entities": [
+          "vision_document",
+          "requirements_spec",
+          "technical_spec",
+          "architecture_spec",
+          "implementation_plan",
+          "test_plan",
+          "integration_plan",
+          "security_review",
+          "runbook",
+          "monitoring_plan",
+          "disaster_recovery_plan",
+          "slo_document"
+        ],
+        "description": "Internal document generation pipeline"
+      },
+      "human": {
+        "name": "Human Review",
+        "style": "dmz",
+        "entities": [
+          "human_review_inception",
+          "human_review_construction",
+          "human_review_operations"
+        ],
+        "description": "Human review gates between phases"
+      }
+    }
+  }
+}
