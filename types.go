@@ -738,6 +738,27 @@ type FlowSecurity struct {
 	Description string `json:"description,omitempty"`
 }
 
+// VerificationTier records how well-substantiated a flow is. Values match the
+// aisecurity-incidents deepdive.json vocabulary.
+type VerificationTier string
+
+const (
+	VerificationTierReported            VerificationTier = "reported"
+	VerificationTierCorroborated        VerificationTier = "corroborated"
+	VerificationTierReproduced          VerificationTier = "reproduced"
+	VerificationTierPartiallyReproduced VerificationTier = "partially_reproduced"
+)
+
+// FlowVerification records the evidentiary provenance of a single flow: its
+// verification tier and where it is sourced from. Used for incident attack-flows
+// where every step must trace to a primary or independent source (or be marked
+// reproduced/inferred).
+type FlowVerification struct {
+	Tier     VerificationTier `json:"tier"`
+	Source   string           `json:"source,omitempty"`   // e.g. "OpenAI technical report", "METR"
+	Citation string           `json:"citation,omitempty"` // URL or reference locating the source
+}
+
 // Flow represents an interaction between two entities.
 type Flow struct {
 	// From is the source entity ID.
@@ -785,6 +806,9 @@ type Flow struct {
 
 	// Security specifies security requirements for this flow.
 	Security *FlowSecurity `json:"security,omitempty"`
+
+	// Verification records the evidentiary provenance/tier of this flow.
+	Verification *FlowVerification `json:"verification,omitempty"`
 
 	// DataMappings explicitly maps output ports to input ports for data lineage.
 	DataMappings []DataPortMapping `json:"data_mappings,omitempty"`

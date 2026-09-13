@@ -140,6 +140,22 @@ type SequenceRenderOptions struct {
 
 	// ShowDataPorts renders input/output data ports for process steps.
 	ShowDataPorts bool
+
+	// ShowVerification renders flow verification provenance badges.
+	ShowVerification bool
+}
+
+// verificationBadge formats a flow's verification provenance as a compact
+// diagram note, e.g. "🔎 corroborated — METR" (source omitted if empty).
+func verificationBadge(v *pidl.FlowVerification) string {
+	if v == nil {
+		return ""
+	}
+	badge := fmt.Sprintf("🔎 %s", v.Tier)
+	if v.Source != "" {
+		badge += " — " + v.Source
+	}
+	return badge
 }
 
 // DefaultSequenceRenderOptions returns the default sequence render options.
@@ -152,6 +168,7 @@ func DefaultSequenceRenderOptions() SequenceRenderOptions {
 		ShowAlternatives: true,
 		ShowSecurity:     true,
 		ShowDataPorts:    true,
+		ShowVerification: true,
 	}
 }
 

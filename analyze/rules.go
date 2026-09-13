@@ -40,6 +40,8 @@ func DefaultRules() []SecurityRule {
 		ruleNonDeterministicInCriticalPath(),
 		ruleExternalStepWithoutFailureModes(),
 		ruleHumanStepWithoutTimeout(),
+		// Provenance rules
+		ruleFlowWithoutVerification(),
 	}
 }
 
@@ -671,6 +673,78 @@ func ruleExternalStepWithoutFailureModes() SecurityRule {
 							entity.Name),
 						Location:    fmt.Sprintf("entities[%s]", entity.ID),
 						Remediation: "Add failure_modes to define error scenarios and recovery strategies",
+					})
+				}
+			}
+
+			return risks
+		},
+	}
+}
+
+// verificationTierWeight returns a numeric weight for verification tiers
+// (higher = better substantiated). Unknown/unset returns 0.
+func verificationTierWeight(t pidl.VerificationTier) int {
+	switch t {
+	case pidl.VerificationTierReproduced:
+		return 4
+	case pidl.VerificationTierPartiallyReproduced:
+		return 3
+	case pidl.VerificationTierCorroborated:
+		return 2
+	case pidl.VerificationTierReported:
+		return 1
+	default:
+		return 0
+	}
+}
+
+// ruleFlowWithoutVerification checks that flows in agent/attack protocols carry
+// verification provenance at or above the corroborated tier. An inferred or
+// merely-reported attack step presented in a diagram overstates its evidentiary
+// basis.
+func ruleFlowWithoutVerification() SecurityRule {
+	return SecurityRule{
+		ID:          "SEC016",
+		Name:        "Flow Without Verification Provenance",
+		Description: "Flows in agent/attack protocols should record verification provenance at or above the corroborated tier",
+		Check: func(p *pidl.Protocol) []SecurityRisk {
+			var risks []SecurityRisk
+
+			// Only applies to agent-category protocols (attack/agent flows).
+			if p.ProtocolMeta.Category != pidl.CategoryAgent {
+				return risks
+			}
+
+			corroborated := verificationTierWeight(pidl.VerificationTierCorroborated)
+
+			for i, flow := range p.Flows {
+				if !flow.HasVerification() {
+					risks = append(risks, SecurityRisk{
+						ID:       "SEC016",
+						Severity: SeverityMedium,
+						Category: CategoryProcessSecurity,
+						Title:    "Flow without verification provenance",
+						Description: fmt.Sprintf(
+							"Flow from %s to %s in an agent protocol has no verification provenance recorded",
+							flow.From, flow.To),
+						Location:    fmt.Sprintf("flows[%d]", i),
+						Remediation: "Add a verification block with a tier (corroborated or higher) and source",
+					})
+					continue
+				}
+
+				if verificationTierWeight(flow.Verification.Tier) < corroborated {
+					risks = append(risks, SecurityRisk{
+						ID:       "SEC016",
+						Severity: SeverityLow,
+						Category: CategoryProcessSecurity,
+						Title:    "Flow verification below corroborated tier",
+						Description: fmt.Sprintf(
+							"Flow from %s to %s has verification tier '%s' which is below the corroborated threshold",
+							flow.From, flow.To, flow.Verification.Tier),
+						Location:    fmt.Sprintf("flows[%d]", i),
+						Remediation: "Corroborate the flow with a primary or independent source, or reproduce it",
 					})
 				}
 			}

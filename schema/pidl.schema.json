@@ -336,6 +336,9 @@
         },
         "security": {
           "$ref": "#/$defs/flowSecurity"
+        },
+        "verification": {
+          "$ref": "#/$defs/flowVerification"
         }
       }
     },
@@ -453,6 +456,26 @@
         "description": {
           "type": "string",
           "description": "Additional security context"
+        }
+      }
+    },
+    "flowVerification": {
+      "type": "object",
+      "description": "Evidentiary provenance/tier of a flow",
+      "required": ["tier"],
+      "properties": {
+        "tier": {
+          "type": "string",
+          "description": "How well-substantiated the flow is",
+          "enum": ["reported", "corroborated", "reproduced", "partially_reproduced"]
+        },
+        "source": {
+          "type": "string",
+          "description": "Where the flow is sourced from (e.g., 'OpenAI technical report', 'METR')"
+        },
+        "citation": {
+          "type": "string",
+          "description": "URL or reference locating the source"
         }
       }
     },

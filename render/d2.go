@@ -234,6 +234,13 @@ func (r *D2Renderer) renderSequenceFlow(sb *strings.Builder, _ *pidl.Protocol, f
 		}
 	}
 
+	// Render verification provenance as a compact note
+	if r.ShowVerification && f.HasVerification() {
+		badge := verificationBadge(f.Verification)
+		fmt.Fprintf(sb, "%snote%d: %s -> %s: %s\n", indent, seq, to, to, badge)
+		seq++
+	}
+
 	// Render alternatives as additional flows
 	if r.ShowAlternatives && f.HasAlternatives() {
 		for _, alt := range f.Alternatives {
