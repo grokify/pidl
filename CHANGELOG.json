@@ -4,277 +4,933 @@
   "repository": "https://github.com/grokify/pidl",
   "versioning": "semver",
   "commitConvention": "conventional",
-  "maintainers": ["grokify"],
+  "maintainers": [
+    "grokify"
+  ],
   "releases": [
+    {
+      "version": "v0.6.0",
+      "date": "2026-09-13",
+      "highlights": [
+        {
+          "description": "Flow verification provenance: record a verification tier, source, and citation per flow"
+        },
+        {
+          "description": "Verification tiers matching aisecurity-incidents deepdive.json (reported/corroborated/reproduced/partially_reproduced)"
+        },
+        {
+          "description": "Renderer provenance badges (d2 + mermaid) and an analyzer rule flagging flows below the corroborated tier"
+        }
+      ],
+      "added": [
+        {
+          "description": "Flow.Verification: FlowVerification { tier, source, citation }, VerificationTier enum, and Flow.HasVerification helper; additive backward-compatible schema",
+          "commit": "9371e82"
+        },
+        {
+          "description": "d2 and mermaid per-flow verification provenance badges, gated by SequenceRenderOptions.ShowVerification",
+          "commit": "0f0c3d1"
+        },
+        {
+          "description": "Security-analysis rule flagging flows below the corroborated verification tier",
+          "commit": "f6a06ae"
+        },
+        {
+          "description": "Comprehensive AIDLC workflow process-specification example",
+          "commit": "7699959"
+        }
+      ],
+      "fixed": [
+        {
+          "description": "Resolve golangci-lint errors",
+          "commit": "61699c4"
+        }
+      ],
+      "tests": [
+        {
+          "description": "Flow.Verification round-trip test",
+          "commit": "9371e82"
+        },
+        {
+          "description": "Renderer verification-badge test",
+          "commit": "0f0c3d1"
+        }
+      ],
+      "documentation": [
+        {
+          "description": "Document Flow.Verification in the Flows guide and the Specification"
+        },
+        {
+          "description": "Add v0.6.0 release notes and update the releases index"
+        }
+      ]
+    },
     {
       "version": "v0.5.0",
       "date": "2026-07-12",
       "highlights": [
-        { "description": "Process specifications for modeling workflows with step types and data ports" },
-        { "description": "Data lineage tracking for tracing data flow through process steps" },
-        { "description": "Parallel execution modeling with fork/join, race, and scatter/gather patterns" },
-        { "description": "Cost and latency budget tracking with SLI analysis" },
-        { "description": "Workflow engine exports for Temporal, Prefect, BPMN, and AWS Step Functions" },
-        { "description": "JSON Schema validation for data ports with registry support" },
-        { "description": "Infographic renderer with size presets and themes for social media" },
-        { "description": "MkDocs plugin, GitHub Action, and VS Code extension integrations" }
+        {
+          "description": "Process specifications for modeling workflows with step types and data ports"
+        },
+        {
+          "description": "Data lineage tracking for tracing data flow through process steps"
+        },
+        {
+          "description": "Parallel execution modeling with fork/join, race, and scatter/gather patterns"
+        },
+        {
+          "description": "Cost and latency budget tracking with SLI analysis"
+        },
+        {
+          "description": "Workflow engine exports for Temporal, Prefect, BPMN, and AWS Step Functions"
+        },
+        {
+          "description": "JSON Schema validation for data ports with registry support"
+        },
+        {
+          "description": "Infographic renderer with size presets and themes for social media"
+        },
+        {
+          "description": "MkDocs plugin, GitHub Action, and VS Code extension integrations"
+        }
       ],
       "added": [
-        { "description": "Data lineage tracking with AnalyzeDataLineage(), GetUpstream/Downstream, impact analysis", "commit": "86f4334" },
-        { "description": "LineageEdge, DataLineage, PortReference types for data flow modeling", "commit": "86f4334" },
-        { "description": "Sensitive data path tracking for security analysis", "commit": "86f4334" },
-        { "description": "DataPortMapping for explicit flow data mappings", "commit": "86f4334" },
-        { "description": "Parallel execution modeling with ExecutionGraph and stages", "commit": "a132c7a" },
-        { "description": "ParallelConfig, ParallelBranch, JoinCondition types", "commit": "a132c7a" },
-        { "description": "Fork/join, race, scatter/gather parallel modes", "commit": "a132c7a" },
-        { "description": "Critical path calculation and duration estimation", "commit": "a132c7a" },
-        { "description": "CanExecuteInParallel() and GetMaxParallelism() helpers", "commit": "a132c7a" },
-        { "description": "Cost tracking with CostModel and CostEstimate types", "commit": "e7b9d0a" },
-        { "description": "AnalyzeProcessCosts() for per-step and total cost estimation", "commit": "e7b9d0a" },
-        { "description": "CalculateExecutionCost() for actual execution cost calculation", "commit": "e7b9d0a" },
-        { "description": "LLMCostPresets for GPT-4 and Claude-3 model pricing", "commit": "e7b9d0a" },
-        { "description": "Token-based, time-based, API call, and hybrid cost models", "commit": "e7b9d0a" },
-        { "description": "Latency budget support with LatencyBudget, LatencyEstimate types", "commit": "" },
-        { "description": "AnalyzeProcessLatency() for timing SLI analysis", "commit": "" },
-        { "description": "P50/P95/P99 latency percentile tracking and budget violations", "commit": "" },
-        { "description": "Critical path latency analysis with parallel savings calculation", "commit": "" },
-        { "description": "StepTypeLatencyDefaults for per-step-type latency estimates", "commit": "" },
-        { "description": "JSON Schema validation with SchemaRegistry and ValidateData()", "commit": "" },
-        { "description": "PortSchemaValidator for data port schema validation", "commit": "" },
-        { "description": "ValidateEntityInputs() and ValidateEntityOutputs() methods", "commit": "" },
-        { "description": "Temporal workflow exporter (Go code generation)", "commit": "a86aa56" },
-        { "description": "Prefect flow exporter (Python async/sync code generation)", "commit": "a86aa56" },
-        { "description": "BPMN 2.0 exporter (XML interchange format)", "commit": "a86aa56" },
-        { "description": "AWS Step Functions exporter (Amazon States Language JSON)", "commit": "40258ce" },
-        { "description": "Step-type-aware templates for workflow exporters", "commit": "41177a4" },
-        { "description": "SAML, WebAuthn, FIDO2, OIDC protocol identifiers", "commit": "fd10705" },
-        { "description": "X.509 certificate, attestation certificate, bearer token credential types", "commit": "fd10705" },
-        { "description": "SAML 2.0 Web Browser SSO example", "commit": "cfc151f" },
-        { "description": "WebAuthn/FIDO2 registration example", "commit": "cfc151f" },
-        { "description": "SCIM user provisioning example", "commit": "cfc151f" },
-        { "description": "MkDocs plugin for PIDL diagram rendering", "commit": "f694a0a" },
-        { "description": "GitHub Action for CI/CD PIDL validation", "commit": "b2b3508" },
-        { "description": "VS Code extension with syntax highlighting and preview", "commit": "6c30573" },
-        { "description": "Corporate and accessible (colorblind-friendly) infographic themes", "commit": "ae67b17" }
+        {
+          "description": "Data lineage tracking with AnalyzeDataLineage(), GetUpstream/Downstream, impact analysis",
+          "commit": "86f4334"
+        },
+        {
+          "description": "LineageEdge, DataLineage, PortReference types for data flow modeling",
+          "commit": "86f4334"
+        },
+        {
+          "description": "Sensitive data path tracking for security analysis",
+          "commit": "86f4334"
+        },
+        {
+          "description": "DataPortMapping for explicit flow data mappings",
+          "commit": "86f4334"
+        },
+        {
+          "description": "Parallel execution modeling with ExecutionGraph and stages",
+          "commit": "a132c7a"
+        },
+        {
+          "description": "ParallelConfig, ParallelBranch, JoinCondition types",
+          "commit": "a132c7a"
+        },
+        {
+          "description": "Fork/join, race, scatter/gather parallel modes",
+          "commit": "a132c7a"
+        },
+        {
+          "description": "Critical path calculation and duration estimation",
+          "commit": "a132c7a"
+        },
+        {
+          "description": "CanExecuteInParallel() and GetMaxParallelism() helpers",
+          "commit": "a132c7a"
+        },
+        {
+          "description": "Cost tracking with CostModel and CostEstimate types",
+          "commit": "e7b9d0a"
+        },
+        {
+          "description": "AnalyzeProcessCosts() for per-step and total cost estimation",
+          "commit": "e7b9d0a"
+        },
+        {
+          "description": "CalculateExecutionCost() for actual execution cost calculation",
+          "commit": "e7b9d0a"
+        },
+        {
+          "description": "LLMCostPresets for GPT-4 and Claude-3 model pricing",
+          "commit": "e7b9d0a"
+        },
+        {
+          "description": "Token-based, time-based, API call, and hybrid cost models",
+          "commit": "e7b9d0a"
+        },
+        {
+          "description": "Latency budget support with LatencyBudget, LatencyEstimate types",
+          "commit": ""
+        },
+        {
+          "description": "AnalyzeProcessLatency() for timing SLI analysis",
+          "commit": ""
+        },
+        {
+          "description": "P50/P95/P99 latency percentile tracking and budget violations",
+          "commit": ""
+        },
+        {
+          "description": "Critical path latency analysis with parallel savings calculation",
+          "commit": ""
+        },
+        {
+          "description": "StepTypeLatencyDefaults for per-step-type latency estimates",
+          "commit": ""
+        },
+        {
+          "description": "JSON Schema validation with SchemaRegistry and ValidateData()",
+          "commit": ""
+        },
+        {
+          "description": "PortSchemaValidator for data port schema validation",
+          "commit": ""
+        },
+        {
+          "description": "ValidateEntityInputs() and ValidateEntityOutputs() methods",
+          "commit": ""
+        },
+        {
+          "description": "Temporal workflow exporter (Go code generation)",
+          "commit": "a86aa56"
+        },
+        {
+          "description": "Prefect flow exporter (Python async/sync code generation)",
+          "commit": "a86aa56"
+        },
+        {
+          "description": "BPMN 2.0 exporter (XML interchange format)",
+          "commit": "a86aa56"
+        },
+        {
+          "description": "AWS Step Functions exporter (Amazon States Language JSON)",
+          "commit": "40258ce"
+        },
+        {
+          "description": "Step-type-aware templates for workflow exporters",
+          "commit": "41177a4"
+        },
+        {
+          "description": "SAML, WebAuthn, FIDO2, OIDC protocol identifiers",
+          "commit": "fd10705"
+        },
+        {
+          "description": "X.509 certificate, attestation certificate, bearer token credential types",
+          "commit": "fd10705"
+        },
+        {
+          "description": "SAML 2.0 Web Browser SSO example",
+          "commit": "cfc151f"
+        },
+        {
+          "description": "WebAuthn/FIDO2 registration example",
+          "commit": "cfc151f"
+        },
+        {
+          "description": "SCIM user provisioning example",
+          "commit": "cfc151f"
+        },
+        {
+          "description": "MkDocs plugin for PIDL diagram rendering",
+          "commit": "f694a0a"
+        },
+        {
+          "description": "GitHub Action for CI/CD PIDL validation",
+          "commit": "b2b3508"
+        },
+        {
+          "description": "VS Code extension with syntax highlighting and preview",
+          "commit": "6c30573"
+        },
+        {
+          "description": "Corporate and accessible (colorblind-friendly) infographic themes",
+          "commit": "ae67b17"
+        }
       ],
       "tests": [
-        { "description": "Data lineage tests for port tracking and impact analysis", "commit": "86f4334" },
-        { "description": "Parallel execution tests for graph analysis and parallelism detection", "commit": "a132c7a" },
-        { "description": "Cost tracking tests for all cost model types", "commit": "e7b9d0a" },
-        { "description": "Latency budget tests for SLI analysis and budget violations", "commit": "" },
-        { "description": "JSON Schema validation tests for type checking and port validation", "commit": "" },
-        { "description": "Workflow export tests for Temporal, Prefect, BPMN, and Step Functions", "commit": "40258ce" },
-        { "description": "MkDocs plugin tests for attribute parsing and rendering", "commit": "f694a0a" },
-        { "description": "Component and trust renderer tests for all output formats", "commit": "0a1df47" }
+        {
+          "description": "Data lineage tests for port tracking and impact analysis",
+          "commit": "86f4334"
+        },
+        {
+          "description": "Parallel execution tests for graph analysis and parallelism detection",
+          "commit": "a132c7a"
+        },
+        {
+          "description": "Cost tracking tests for all cost model types",
+          "commit": "e7b9d0a"
+        },
+        {
+          "description": "Latency budget tests for SLI analysis and budget violations",
+          "commit": ""
+        },
+        {
+          "description": "JSON Schema validation tests for type checking and port validation",
+          "commit": ""
+        },
+        {
+          "description": "Workflow export tests for Temporal, Prefect, BPMN, and Step Functions",
+          "commit": "40258ce"
+        },
+        {
+          "description": "MkDocs plugin tests for attribute parsing and rendering",
+          "commit": "f694a0a"
+        },
+        {
+          "description": "Component and trust renderer tests for all output formats",
+          "commit": "0a1df47"
+        }
       ],
       "documentation": [
-        { "description": "v0.5.0 release notes with comprehensive feature documentation", "commit": "097741c" },
-        { "description": "Workflow exports guide with Temporal, Prefect, BPMN, Step Functions examples", "commit": "" },
-        { "description": "Developer extension guide for custom renderers, validation rules, exporters", "commit": "" },
-        { "description": "Process spec documentation in SPECIFICATION.md and guides", "commit": "3403511" },
-        { "description": "Infographic examples with CLI usage and theme documentation", "commit": "078d967" },
-        { "description": "SAML, WebAuthn, SCIM protocol examples", "commit": "cfc151f" },
-        { "description": "Process spec PRD and TRD design documents", "commit": "339cb47" }
+        {
+          "description": "v0.5.0 release notes with comprehensive feature documentation",
+          "commit": "097741c"
+        },
+        {
+          "description": "Workflow exports guide with Temporal, Prefect, BPMN, Step Functions examples",
+          "commit": ""
+        },
+        {
+          "description": "Developer extension guide for custom renderers, validation rules, exporters",
+          "commit": ""
+        },
+        {
+          "description": "Process spec documentation in SPECIFICATION.md and guides",
+          "commit": "3403511"
+        },
+        {
+          "description": "Infographic examples with CLI usage and theme documentation",
+          "commit": "078d967"
+        },
+        {
+          "description": "SAML, WebAuthn, SCIM protocol examples",
+          "commit": "cfc151f"
+        },
+        {
+          "description": "Process spec PRD and TRD design documents",
+          "commit": "339cb47"
+        }
       ]
     },
     {
       "version": "v0.4.0",
       "date": "2026-06-28",
       "highlights": [
-        { "description": "Protocol composition with imports and inheritance for modular protocol design" },
-        { "description": "Runtime execution engine with state tracking and execution traces" },
-        { "description": "Protocol comparison (diff) for detecting changes between protocols" },
-        { "description": "Interactive step-through debugger with breakpoints and state inspection" },
-        { "description": "Security analysis with 10 built-in attack surface detection rules" }
+        {
+          "description": "Protocol composition with imports and inheritance for modular protocol design"
+        },
+        {
+          "description": "Runtime execution engine with state tracking and execution traces"
+        },
+        {
+          "description": "Protocol comparison (diff) for detecting changes between protocols"
+        },
+        {
+          "description": "Interactive step-through debugger with breakpoints and state inspection"
+        },
+        {
+          "description": "Security analysis with 10 built-in attack surface detection rules"
+        }
       ],
       "added": [
-        { "description": "Protocol roles, deployment components, and trust relationship types", "commit": "f75f00b" },
-        { "description": "Schema and validation for protocol roles, components, trust relations", "commit": "d96b81f" },
-        { "description": "SVG component diagram renderer", "commit": "046206b" },
-        { "description": "SVG trust relationship diagram renderer", "commit": "087d0f3" },
-        { "description": "Markdown protocol role matrix renderer", "commit": "4e87b4e" },
-        { "description": "Mermaid component and trust diagram renderers", "commit": "3ac8b80" },
-        { "description": "CLI `roles`, `components`, and `trust` list commands", "commit": "c2aacc2" },
-        { "description": "CLI support for component and trust diagram formats", "commit": "14d3ff8" },
-        { "description": "ProtocolImport and ProtocolExtends types for composition", "commit": "69aa941" },
-        { "description": "Protocol resolver with circular import/extends detection", "commit": "7339d66" },
-        { "description": "Standard library protocols: oauth_entities.json, mcp_entities.json", "commit": "669a273" },
-        { "description": "CLI `resolve` command for debugging composition", "commit": "87d33d1" },
-        { "description": "Protocol execution engine (Executor) with state tracking", "commit": "e80e979" },
-        { "description": "ExecutionContext, ExecutionTrace, and ExecutionStep types", "commit": "e80e979" },
-        { "description": "CLI `simulate` command with verbose and JSON output", "commit": "f6c8d38" },
-        { "description": "Protocol comparison with DiffItem, ProtocolDiff types", "commit": "53ab027" },
-        { "description": "CLI `diff` command with text, JSON, markdown output", "commit": "47c2fd4" },
-        { "description": "Execution trace visualization renderer (text, SVG, Mermaid)", "commit": "f6acc27" },
-        { "description": "Interactive protocol debugger (DebugSession) with breakpoints", "commit": "5745fdf" },
-        { "description": "CLI `debug` command for step-through execution", "commit": "47c2fd4" },
-        { "description": "Security analysis package with 10 built-in rules (SEC001-SEC010)", "commit": "0341d5b" },
-        { "description": "CLI `analyze` command with severity filtering and CI fail-on", "commit": "47c2fd4" },
-        { "description": "High-contrast SVG theme for accessibility (WCAG AA)", "commit": "dd316a3" },
-        { "description": "Mermaid state diagram rendering", "commit": "643e971" },
-        { "description": "OAuth2 examples with security and state features", "commit": "898c711" },
-        { "description": "OAIAF architecture example with roles, components, trust", "commit": "d3abf6e" }
+        {
+          "description": "Protocol roles, deployment components, and trust relationship types",
+          "commit": "f75f00b"
+        },
+        {
+          "description": "Schema and validation for protocol roles, components, trust relations",
+          "commit": "d96b81f"
+        },
+        {
+          "description": "SVG component diagram renderer",
+          "commit": "046206b"
+        },
+        {
+          "description": "SVG trust relationship diagram renderer",
+          "commit": "087d0f3"
+        },
+        {
+          "description": "Markdown protocol role matrix renderer",
+          "commit": "4e87b4e"
+        },
+        {
+          "description": "Mermaid component and trust diagram renderers",
+          "commit": "3ac8b80"
+        },
+        {
+          "description": "CLI `roles`, `components`, and `trust` list commands",
+          "commit": "c2aacc2"
+        },
+        {
+          "description": "CLI support for component and trust diagram formats",
+          "commit": "14d3ff8"
+        },
+        {
+          "description": "ProtocolImport and ProtocolExtends types for composition",
+          "commit": "69aa941"
+        },
+        {
+          "description": "Protocol resolver with circular import/extends detection",
+          "commit": "7339d66"
+        },
+        {
+          "description": "Standard library protocols: oauth_entities.json, mcp_entities.json",
+          "commit": "669a273"
+        },
+        {
+          "description": "CLI `resolve` command for debugging composition",
+          "commit": "87d33d1"
+        },
+        {
+          "description": "Protocol execution engine (Executor) with state tracking",
+          "commit": "e80e979"
+        },
+        {
+          "description": "ExecutionContext, ExecutionTrace, and ExecutionStep types",
+          "commit": "e80e979"
+        },
+        {
+          "description": "CLI `simulate` command with verbose and JSON output",
+          "commit": "f6c8d38"
+        },
+        {
+          "description": "Protocol comparison with DiffItem, ProtocolDiff types",
+          "commit": "53ab027"
+        },
+        {
+          "description": "CLI `diff` command with text, JSON, markdown output",
+          "commit": "47c2fd4"
+        },
+        {
+          "description": "Execution trace visualization renderer (text, SVG, Mermaid)",
+          "commit": "f6acc27"
+        },
+        {
+          "description": "Interactive protocol debugger (DebugSession) with breakpoints",
+          "commit": "5745fdf"
+        },
+        {
+          "description": "CLI `debug` command for step-through execution",
+          "commit": "47c2fd4"
+        },
+        {
+          "description": "Security analysis package with 10 built-in rules (SEC001-SEC010)",
+          "commit": "0341d5b"
+        },
+        {
+          "description": "CLI `analyze` command with severity filtering and CI fail-on",
+          "commit": "47c2fd4"
+        },
+        {
+          "description": "High-contrast SVG theme for accessibility (WCAG AA)",
+          "commit": "dd316a3"
+        },
+        {
+          "description": "Mermaid state diagram rendering",
+          "commit": "643e971"
+        },
+        {
+          "description": "OAuth2 examples with security and state features",
+          "commit": "898c711"
+        },
+        {
+          "description": "OAIAF architecture example with roles, components, trust",
+          "commit": "d3abf6e"
+        }
       ],
       "refactored": [
-        { "description": "Split pidl.go into logical modules (types, protocol_methods, entity_methods, flow_methods, validators)", "commit": "8f46d4f" },
-        { "description": "Split validate.go into focused modules (validate, validate_entity, validate_flow, validate_metadata)", "commit": "af4657c" },
-        { "description": "Consolidate write methods and remove unused code", "commit": "444f898" },
-        { "description": "Extract common SequenceRenderOptions struct for renderer config sharing", "commit": "b445c5a" }
+        {
+          "description": "Split pidl.go into logical modules (types, protocol_methods, entity_methods, flow_methods, validators)",
+          "commit": "8f46d4f"
+        },
+        {
+          "description": "Split validate.go into focused modules (validate, validate_entity, validate_flow, validate_metadata)",
+          "commit": "af4657c"
+        },
+        {
+          "description": "Consolidate write methods and remove unused code",
+          "commit": "444f898"
+        },
+        {
+          "description": "Extract common SequenceRenderOptions struct for renderer config sharing",
+          "commit": "b445c5a"
+        }
       ],
       "tests": [
-        { "description": "Execution engine tests for state tracking and trace recording", "commit": "6a78105" },
-        { "description": "Protocol comparison tests for entities, flows, phases", "commit": "53ab027" },
-        { "description": "Interactive debugger tests for breakpoints and stepping", "commit": "5745fdf" },
-        { "description": "Security analysis tests for all 10 rules", "commit": "0341d5b" }
+        {
+          "description": "Execution engine tests for state tracking and trace recording",
+          "commit": "6a78105"
+        },
+        {
+          "description": "Protocol comparison tests for entities, flows, phases",
+          "commit": "53ab027"
+        },
+        {
+          "description": "Interactive debugger tests for breakpoints and stepping",
+          "commit": "5745fdf"
+        },
+        {
+          "description": "Security analysis tests for all 10 rules",
+          "commit": "0341d5b"
+        }
       ],
       "documentation": [
-        { "description": "Phase 12 features documentation in README and MkDocs", "commit": "394ca1e" },
-        { "description": "CLI reference for new commands (simulate, diff, debug, analyze)", "commit": "394ca1e" },
-        { "description": "Go library examples for comparison, simulation, debugging, analysis", "commit": "394ca1e" },
-        { "description": "Protocol architecture tables for nodes and edges", "commit": "619ef59" },
-        { "description": "Roadmap updates for Phases 8-12 completion", "commit": "11222f2" }
+        {
+          "description": "Phase 12 features documentation in README and MkDocs",
+          "commit": "394ca1e"
+        },
+        {
+          "description": "CLI reference for new commands (simulate, diff, debug, analyze)",
+          "commit": "394ca1e"
+        },
+        {
+          "description": "Go library examples for comparison, simulation, debugging, analysis",
+          "commit": "394ca1e"
+        },
+        {
+          "description": "Protocol architecture tables for nodes and edges",
+          "commit": "619ef59"
+        },
+        {
+          "description": "Roadmap updates for Phases 8-12 completion",
+          "commit": "11222f2"
+        }
       ]
     },
     {
       "version": "v0.3.0",
       "date": "2025-05-18",
       "highlights": [
-        { "description": "Native SVG rendering with static sequence diagrams, animated flow visualizations, and network boundary diagrams" },
-        { "description": "CSS animation support with per-message control and semantic presets (request, success, error, warning, highlight)" },
-        { "description": "Template system with 5 built-in styles: default, minimal, sketch, blueprint, dark" },
-        { "description": "Network boundary diagrams for visualizing trust zones and security boundaries" }
+        {
+          "description": "Native SVG rendering with static sequence diagrams, animated flow visualizations, and network boundary diagrams"
+        },
+        {
+          "description": "CSS animation support with per-message control and semantic presets (request, success, error, warning, highlight)"
+        },
+        {
+          "description": "Template system with 5 built-in styles: default, minimal, sketch, blueprint, dark"
+        },
+        {
+          "description": "Network boundary diagrams for visualizing trust zones and security boundaries"
+        }
       ],
       "added": [
-        { "description": "SVG sequence diagram renderer with light/dark theme support", "commit": "1b0ef7f" },
-        { "description": "SVG animated renderer with CSS offset-path flow dots", "commit": "1b0ef7f" },
-        { "description": "Per-message animation control via `flow.animation` field", "commit": "2ee5da6" },
-        { "description": "Semantic animation presets: request, success, error, warning, highlight, none", "commit": "2ee5da6" },
-        { "description": "Global animation configuration via `metadata.animation`", "commit": "2ee5da6" },
-        { "description": "Stagger modes for animation sequencing: sequential, overlap, parallel, phase", "commit": "2ee5da6" },
-        { "description": "SVG template system with embedded template resources", "commit": "18b9ad8" },
-        { "description": "Built-in templates: default, minimal, sketch, blueprint, dark", "commit": "18b9ad8" },
-        { "description": "Custom template loading from directory via `--template-dir`", "commit": "1742ea1" },
-        { "description": "Template configuration with layout, fonts, colors, and animation settings", "commit": "18b9ad8" },
-        { "description": "Network boundary diagram renderer (`svg-network` format)", "commit": "a145005" },
-        { "description": "Boundary inference from `entity.metadata.network` field", "commit": "a145005" },
-        { "description": "Explicit boundary configuration via `metadata.networks`", "commit": "a145005" },
-        { "description": "Boundary styles: trusted, dmz, external, cloud", "commit": "a145005" },
-        { "description": "Horizontal and vertical layout directions for network diagrams", "commit": "a145005" },
-        { "description": "Cross-boundary connection visualization", "commit": "a145005" },
-        { "description": "CLI `--template` flag for selecting SVG templates", "commit": "1742ea1" },
-        { "description": "CLI `--template-dir` flag for custom template directories", "commit": "1742ea1" },
-        { "description": "CLI `--theme` flag for SVG theme selection (light, dark, auto)", "commit": "1742ea1" },
-        { "description": "CLI `--boundary` flag for network boundary overrides", "commit": "a59ebac" },
-        { "description": "EntityMetadata type with Network and ServiceType fields", "commit": "a145005" },
-        { "description": "ProtocolMetadata type with Networks and NetworkLayout configuration", "commit": "a145005" },
-        { "description": "FlowAnimation type for per-flow animation control", "commit": "2ee5da6" },
-        { "description": "AnimationPreset type for semantic animation presets", "commit": "2ee5da6" }
+        {
+          "description": "SVG sequence diagram renderer with light/dark theme support",
+          "commit": "1b0ef7f"
+        },
+        {
+          "description": "SVG animated renderer with CSS offset-path flow dots",
+          "commit": "1b0ef7f"
+        },
+        {
+          "description": "Per-message animation control via `flow.animation` field",
+          "commit": "2ee5da6"
+        },
+        {
+          "description": "Semantic animation presets: request, success, error, warning, highlight, none",
+          "commit": "2ee5da6"
+        },
+        {
+          "description": "Global animation configuration via `metadata.animation`",
+          "commit": "2ee5da6"
+        },
+        {
+          "description": "Stagger modes for animation sequencing: sequential, overlap, parallel, phase",
+          "commit": "2ee5da6"
+        },
+        {
+          "description": "SVG template system with embedded template resources",
+          "commit": "18b9ad8"
+        },
+        {
+          "description": "Built-in templates: default, minimal, sketch, blueprint, dark",
+          "commit": "18b9ad8"
+        },
+        {
+          "description": "Custom template loading from directory via `--template-dir`",
+          "commit": "1742ea1"
+        },
+        {
+          "description": "Template configuration with layout, fonts, colors, and animation settings",
+          "commit": "18b9ad8"
+        },
+        {
+          "description": "Network boundary diagram renderer (`svg-network` format)",
+          "commit": "a145005"
+        },
+        {
+          "description": "Boundary inference from `entity.metadata.network` field",
+          "commit": "a145005"
+        },
+        {
+          "description": "Explicit boundary configuration via `metadata.networks`",
+          "commit": "a145005"
+        },
+        {
+          "description": "Boundary styles: trusted, dmz, external, cloud",
+          "commit": "a145005"
+        },
+        {
+          "description": "Horizontal and vertical layout directions for network diagrams",
+          "commit": "a145005"
+        },
+        {
+          "description": "Cross-boundary connection visualization",
+          "commit": "a145005"
+        },
+        {
+          "description": "CLI `--template` flag for selecting SVG templates",
+          "commit": "1742ea1"
+        },
+        {
+          "description": "CLI `--template-dir` flag for custom template directories",
+          "commit": "1742ea1"
+        },
+        {
+          "description": "CLI `--theme` flag for SVG theme selection (light, dark, auto)",
+          "commit": "1742ea1"
+        },
+        {
+          "description": "CLI `--boundary` flag for network boundary overrides",
+          "commit": "a59ebac"
+        },
+        {
+          "description": "EntityMetadata type with Network and ServiceType fields",
+          "commit": "a145005"
+        },
+        {
+          "description": "ProtocolMetadata type with Networks and NetworkLayout configuration",
+          "commit": "a145005"
+        },
+        {
+          "description": "FlowAnimation type for per-flow animation control",
+          "commit": "2ee5da6"
+        },
+        {
+          "description": "AnimationPreset type for semantic animation presets",
+          "commit": "2ee5da6"
+        }
       ],
       "tests": [
-        { "description": "SVG renderer tests for static and animated output", "commit": "4b06b55" },
-        { "description": "Per-message animation tests with preset validation", "commit": "4e03ce3" },
-        { "description": "Template system tests for loading and CSS generation", "commit": "b0aebe6" },
-        { "description": "Network boundary diagram tests with layout verification", "commit": "abd8e39" }
+        {
+          "description": "SVG renderer tests for static and animated output",
+          "commit": "4b06b55"
+        },
+        {
+          "description": "Per-message animation tests with preset validation",
+          "commit": "4e03ce3"
+        },
+        {
+          "description": "Template system tests for loading and CSS generation",
+          "commit": "b0aebe6"
+        },
+        {
+          "description": "Network boundary diagram tests with layout verification",
+          "commit": "abd8e39"
+        }
       ],
       "documentation": [
-        { "description": "SVG renderer design document with animation and template specifications", "commit": "e83e59d" },
-        { "description": "Release notes reorganization into docs/releases/", "commit": "b30a961" }
+        {
+          "description": "SVG renderer design document with animation and template specifications",
+          "commit": "e83e59d"
+        },
+        {
+          "description": "Release notes reorganization into docs/releases/",
+          "commit": "b30a961"
+        }
       ]
     },
     {
       "version": "v0.2.0",
       "date": "2025-04-18",
       "highlights": [
-        { "description": "Add annotations, alternatives, conditions, notes, and nested phases to PIDL" },
-        { "description": "Enhanced renderers with support for alt/else blocks, opt conditionals, and nested phase visualization" },
-        { "description": "New D2 diagram format with sequence, flow, and architecture rendering styles" },
-        { "description": "Comprehensive validation for phase hierarchies and new flow features" }
+        {
+          "description": "Add annotations, alternatives, conditions, notes, and nested phases to PIDL"
+        },
+        {
+          "description": "Enhanced renderers with support for alt/else blocks, opt conditionals, and nested phase visualization"
+        },
+        {
+          "description": "New D2 diagram format with sequence, flow, and architecture rendering styles"
+        },
+        {
+          "description": "Comprehensive validation for phase hierarchies and new flow features"
+        }
       ],
       "added": [
-        { "description": "D2 diagram renderer with sequence, flow, and architecture styles", "commit": "a5f8f35" },
-        { "description": "AnnotationType enum: security, performance, deprecated, info, warning, error", "commit": "843c18d" },
-        { "description": "Annotation type with Type, Text, and Details fields", "commit": "843c18d" },
-        { "description": "Alternative type for alternative/error flow paths", "commit": "843c18d" },
-        { "description": "Phase.Parent field for nested phase hierarchies", "commit": "843c18d" },
-        { "description": "Flow.Condition field for conditional flows (when clause)", "commit": "843c18d" },
-        { "description": "Flow.Note field for visible diagram notes", "commit": "843c18d" },
-        { "description": "Flow.Annotations field for typed annotations", "commit": "843c18d" },
-        { "description": "Flow.Alternatives field for alternative paths", "commit": "843c18d" },
-        { "description": "Protocol.RootPhases(), ChildPhases(), PhaseDepth() helper methods", "commit": "843c18d" },
-        { "description": "Flow.HasCondition(), HasNote(), HasAnnotations(), HasAlternatives() helper methods", "commit": "843c18d" },
-        { "description": "IsValidAnnotationType() validation function", "commit": "843c18d" },
-        { "description": "JSON Schema definitions for annotation and alternative types", "commit": "fffad47" },
-        { "description": "Phase parent reference validation with cycle detection", "commit": "37afe81" },
-        { "description": "Annotation type and text validation", "commit": "37afe81" },
-        { "description": "Alternative condition and flows validation", "commit": "37afe81" },
-        { "description": "Mermaid opt blocks for conditional flows", "commit": "ab82c3b" },
-        { "description": "Mermaid alt/else blocks for alternatives", "commit": "ab82c3b" },
-        { "description": "Mermaid note right of for flow notes and annotations", "commit": "ab82c3b" },
-        { "description": "Mermaid colored rect blocks for nested phases", "commit": "ab82c3b" },
-        { "description": "PlantUML opt/alt/else blocks for conditionals and alternatives", "commit": "ab82c3b" },
-        { "description": "PlantUML colored box containers for nested phases", "commit": "ab82c3b" },
-        { "description": "D2 condition label prefixes and grouped alternatives", "commit": "ab82c3b" },
-        { "description": "D2 nested phase groups with hierarchy support", "commit": "ab82c3b" },
-        { "description": "DOT condition edge labels and alternative edges", "commit": "ab82c3b" }
+        {
+          "description": "D2 diagram renderer with sequence, flow, and architecture styles",
+          "commit": "a5f8f35"
+        },
+        {
+          "description": "AnnotationType enum: security, performance, deprecated, info, warning, error",
+          "commit": "843c18d"
+        },
+        {
+          "description": "Annotation type with Type, Text, and Details fields",
+          "commit": "843c18d"
+        },
+        {
+          "description": "Alternative type for alternative/error flow paths",
+          "commit": "843c18d"
+        },
+        {
+          "description": "Phase.Parent field for nested phase hierarchies",
+          "commit": "843c18d"
+        },
+        {
+          "description": "Flow.Condition field for conditional flows (when clause)",
+          "commit": "843c18d"
+        },
+        {
+          "description": "Flow.Note field for visible diagram notes",
+          "commit": "843c18d"
+        },
+        {
+          "description": "Flow.Annotations field for typed annotations",
+          "commit": "843c18d"
+        },
+        {
+          "description": "Flow.Alternatives field for alternative paths",
+          "commit": "843c18d"
+        },
+        {
+          "description": "Protocol.RootPhases(), ChildPhases(), PhaseDepth() helper methods",
+          "commit": "843c18d"
+        },
+        {
+          "description": "Flow.HasCondition(), HasNote(), HasAnnotations(), HasAlternatives() helper methods",
+          "commit": "843c18d"
+        },
+        {
+          "description": "IsValidAnnotationType() validation function",
+          "commit": "843c18d"
+        },
+        {
+          "description": "JSON Schema definitions for annotation and alternative types",
+          "commit": "fffad47"
+        },
+        {
+          "description": "Phase parent reference validation with cycle detection",
+          "commit": "37afe81"
+        },
+        {
+          "description": "Annotation type and text validation",
+          "commit": "37afe81"
+        },
+        {
+          "description": "Alternative condition and flows validation",
+          "commit": "37afe81"
+        },
+        {
+          "description": "Mermaid opt blocks for conditional flows",
+          "commit": "ab82c3b"
+        },
+        {
+          "description": "Mermaid alt/else blocks for alternatives",
+          "commit": "ab82c3b"
+        },
+        {
+          "description": "Mermaid note right of for flow notes and annotations",
+          "commit": "ab82c3b"
+        },
+        {
+          "description": "Mermaid colored rect blocks for nested phases",
+          "commit": "ab82c3b"
+        },
+        {
+          "description": "PlantUML opt/alt/else blocks for conditionals and alternatives",
+          "commit": "ab82c3b"
+        },
+        {
+          "description": "PlantUML colored box containers for nested phases",
+          "commit": "ab82c3b"
+        },
+        {
+          "description": "D2 condition label prefixes and grouped alternatives",
+          "commit": "ab82c3b"
+        },
+        {
+          "description": "D2 nested phase groups with hierarchy support",
+          "commit": "ab82c3b"
+        },
+        {
+          "description": "DOT condition edge labels and alternative edges",
+          "commit": "ab82c3b"
+        }
       ],
       "tests": [
-        { "description": "Tests for nested phases, phase parent validation, circular hierarchy detection", "commit": "d9dd392" },
-        { "description": "Tests for annotation types and text validation", "commit": "d9dd392" },
-        { "description": "Tests for alternative flows, conditions, and entity references", "commit": "d9dd392" },
-        { "description": "Tests for flow helper methods (HasCondition, HasNote, etc.)", "commit": "d9dd392" },
-        { "description": "Tests for phase hierarchy helpers (RootPhases, ChildPhases, PhaseDepth)", "commit": "d9dd392" }
+        {
+          "description": "Tests for nested phases, phase parent validation, circular hierarchy detection",
+          "commit": "d9dd392"
+        },
+        {
+          "description": "Tests for annotation types and text validation",
+          "commit": "d9dd392"
+        },
+        {
+          "description": "Tests for alternative flows, conditions, and entity references",
+          "commit": "d9dd392"
+        },
+        {
+          "description": "Tests for flow helper methods (HasCondition, HasNote, etc.)",
+          "commit": "d9dd392"
+        },
+        {
+          "description": "Tests for phase hierarchy helpers (RootPhases, ChildPhases, PhaseDepth)",
+          "commit": "d9dd392"
+        }
       ]
     },
     {
       "version": "v0.1.0",
       "date": "2025-04-18",
       "highlights": [
-        { "description": "Protocol Interaction Description Language - a JSON-based DSL for describing protocol choreography that compiles to diagrams" },
-        { "description": "Support for OAuth 2.0, PKCE, OIDC, MCP, and A2A protocol examples" },
-        { "description": "Three diagram output formats: PlantUML, Mermaid, and Graphviz DOT" }
+        {
+          "description": "Protocol Interaction Description Language - a JSON-based DSL for describing protocol choreography that compiles to diagrams"
+        },
+        {
+          "description": "Support for OAuth 2.0, PKCE, OIDC, MCP, and A2A protocol examples"
+        },
+        {
+          "description": "Three diagram output formats: PlantUML, Mermaid, and Graphviz DOT"
+        }
       ],
       "added": [
-        { "description": "Core PIDL library with Protocol, Entity, Flow, and Phase types", "commit": "6555cbb" },
-        { "description": "JSON parser with file and reader support", "commit": "6555cbb" },
-        { "description": "Validation logic with detailed error reporting", "commit": "6555cbb" },
-        { "description": "High-level operations: `ValidateFile`, `ValidateFiles`, `NewMinimalProtocol`, `WriteProtocolFile`", "commit": "6555cbb" },
-        { "description": "JSON Schema (draft 2020-12) for PIDL validation", "commit": "61f0a39" },
-        { "description": "Embedded JSON Schema for programmatic access", "commit": "61f0a39" },
-        { "description": "PlantUML sequence diagram renderer", "commit": "524e920" },
-        { "description": "Mermaid sequence diagram renderer", "commit": "524e920" },
-        { "description": "Graphviz DOT data flow diagram renderer", "commit": "524e920" },
-        { "description": "Renderer interface with format parsing and file extension helpers", "commit": "524e920" },
-        { "description": "Embedded protocol examples with API: `List`, `Get`, `GetProtocol`, `GetJSON`", "commit": "66f6aa6" },
-        { "description": "OAuth 2.0 Authorization Code flow example", "commit": "66f6aa6" },
-        { "description": "OAuth 2.0 + PKCE flow example", "commit": "66f6aa6" },
-        { "description": "OpenID Connect Authentication flow example", "commit": "66f6aa6" },
-        { "description": "MCP tool invocation flow example", "commit": "66f6aa6" },
-        { "description": "A2A agent delegation flow example", "commit": "66f6aa6" },
-        { "description": "`pidl validate` command for validating PIDL JSON files", "commit": "8bf725d" },
-        { "description": "`pidl generate` command for generating diagrams (PlantUML, Mermaid, DOT)", "commit": "8bf725d" },
-        { "description": "`pidl examples` command for listing and showing built-in examples", "commit": "8bf725d" },
-        { "description": "`pidl init` command for creating new protocol files from templates", "commit": "8bf725d" }
+        {
+          "description": "Core PIDL library with Protocol, Entity, Flow, and Phase types",
+          "commit": "6555cbb"
+        },
+        {
+          "description": "JSON parser with file and reader support",
+          "commit": "6555cbb"
+        },
+        {
+          "description": "Validation logic with detailed error reporting",
+          "commit": "6555cbb"
+        },
+        {
+          "description": "High-level operations: `ValidateFile`, `ValidateFiles`, `NewMinimalProtocol`, `WriteProtocolFile`",
+          "commit": "6555cbb"
+        },
+        {
+          "description": "JSON Schema (draft 2020-12) for PIDL validation",
+          "commit": "61f0a39"
+        },
+        {
+          "description": "Embedded JSON Schema for programmatic access",
+          "commit": "61f0a39"
+        },
+        {
+          "description": "PlantUML sequence diagram renderer",
+          "commit": "524e920"
+        },
+        {
+          "description": "Mermaid sequence diagram renderer",
+          "commit": "524e920"
+        },
+        {
+          "description": "Graphviz DOT data flow diagram renderer",
+          "commit": "524e920"
+        },
+        {
+          "description": "Renderer interface with format parsing and file extension helpers",
+          "commit": "524e920"
+        },
+        {
+          "description": "Embedded protocol examples with API: `List`, `Get`, `GetProtocol`, `GetJSON`",
+          "commit": "66f6aa6"
+        },
+        {
+          "description": "OAuth 2.0 Authorization Code flow example",
+          "commit": "66f6aa6"
+        },
+        {
+          "description": "OAuth 2.0 + PKCE flow example",
+          "commit": "66f6aa6"
+        },
+        {
+          "description": "OpenID Connect Authentication flow example",
+          "commit": "66f6aa6"
+        },
+        {
+          "description": "MCP tool invocation flow example",
+          "commit": "66f6aa6"
+        },
+        {
+          "description": "A2A agent delegation flow example",
+          "commit": "66f6aa6"
+        },
+        {
+          "description": "`pidl validate` command for validating PIDL JSON files",
+          "commit": "8bf725d"
+        },
+        {
+          "description": "`pidl generate` command for generating diagrams (PlantUML, Mermaid, DOT)",
+          "commit": "8bf725d"
+        },
+        {
+          "description": "`pidl examples` command for listing and showing built-in examples",
+          "commit": "8bf725d"
+        },
+        {
+          "description": "`pidl init` command for creating new protocol files from templates",
+          "commit": "8bf725d"
+        }
       ],
       "documentation": [
-        { "description": "README with installation, quick start, CLI reference, and library usage", "commit": "45e558b" },
-        { "description": "Full PIDL language specification document", "commit": "45e558b" },
-        { "description": "Project roadmap with phased implementation plan", "commit": "45e558b" },
-        { "description": "UTF-8 icons for README features list", "commit": "e6830b0" }
+        {
+          "description": "README with installation, quick start, CLI reference, and library usage",
+          "commit": "45e558b"
+        },
+        {
+          "description": "Full PIDL language specification document",
+          "commit": "45e558b"
+        },
+        {
+          "description": "Project roadmap with phased implementation plan",
+          "commit": "45e558b"
+        },
+        {
+          "description": "UTF-8 icons for README features list",
+          "commit": "e6830b0"
+        }
       ],
       "tests": [
-        { "description": "Unit tests for core library: types, parser, validation, operations", "commit": "d448ea7" },
-        { "description": "Tests for render package: format parsing, all renderers", "commit": "524e920" },
-        { "description": "Tests for examples package: embedding, listing, retrieval", "commit": "66f6aa6" },
-        { "description": "60 tests total with full linting compliance", "commit": "d448ea7" }
+        {
+          "description": "Unit tests for core library: types, parser, validation, operations",
+          "commit": "d448ea7"
+        },
+        {
+          "description": "Tests for render package: format parsing, all renderers",
+          "commit": "524e920"
+        },
+        {
+          "description": "Tests for examples package: embedding, listing, retrieval",
+          "commit": "66f6aa6"
+        },
+        {
+          "description": "60 tests total with full linting compliance",
+          "commit": "d448ea7"
+        }
       ],
       "build": [
-        { "description": "Go module initialization", "commit": "284d99a" },
-        { "description": "GitHub Actions CI/CD workflows", "commit": "9e7c3af" },
-        { "description": "Linting fixes for golangci-lint compliance", "commit": "03e1460" }
+        {
+          "description": "Go module initialization",
+          "commit": "284d99a"
+        },
+        {
+          "description": "GitHub Actions CI/CD workflows",
+          "commit": "9e7c3af"
+        },
+        {
+          "description": "Linting fixes for golangci-lint compliance",
+          "commit": "03e1460"
+        }
       ],
       "infrastructure": [
-        { "description": "MIT License", "commit": "bc35c74" },
-        { "description": "Gitignore with binary and ideation file patterns", "commit": "284d99a" }
+        {
+          "description": "MIT License",
+          "commit": "bc35c74"
+        },
+        {
+          "description": "Gitignore with binary and ideation file patterns",
+          "commit": "284d99a"
+        }
       ]
     }
   ]
