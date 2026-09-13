@@ -107,6 +107,11 @@ func (f Flow) HasStateMutations() bool {
 	return len(f.Sets) > 0
 }
 
+// HasVerification returns true if the flow has verification provenance recorded.
+func (f Flow) HasVerification() bool {
+	return f.Verification != nil && f.Verification.Tier != ""
+}
+
 // HasSecurity returns true if the flow has security requirements.
 func (f Flow) HasSecurity() bool {
 	return f.Security != nil && (len(f.Security.Requires) > 0 || f.Security.Token != "" || f.Security.Confidential)
