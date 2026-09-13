@@ -219,6 +219,27 @@ Flows are the core semantic unit: directed interactions between entities.
 | `note` | string | No | Visible note displayed on diagram |
 | `annotations` | array | No | Typed annotations for tooling |
 | `alternatives` | array | No | Alternative flow paths |
+| `verification` | object | No | Evidentiary provenance (tier/source/citation) |
+
+### Flow Verification
+
+Records the evidentiary provenance of a flow — used for incident attack-flows
+where every step should trace to a source (or be marked reproduced/inferred).
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `tier` | enum | Yes | `reported` \| `corroborated` \| `reproduced` \| `partially_reproduced` |
+| `source` | string | No | Originating source (e.g. "OpenAI technical report", "METR") |
+| `citation` | string | No | URL or reference locating the source |
+
+```json
+{
+  "from": "agent", "to": "target", "action": "exfiltrate",
+  "verification": {"tier": "corroborated", "source": "METR", "citation": "https://metr.org/..."}
+}
+```
+
+The tier vocabulary matches the aisecurity-incidents `deepdive.json`.
 
 ### Flow Modes
 

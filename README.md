@@ -57,7 +57,8 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 - ▶️ **Protocol simulation** with state tracking and execution traces
 - 🔍 **Protocol comparison** (diff) for change detection
 - 🐛 **Interactive debugger** for step-through protocol execution
-- 🛡️ **Security analysis** with 15 built-in attack surface detection rules
+- 🛡️ **Security analysis** with built-in attack surface detection rules
+- 🔎 **Flow verification provenance** with evidentiary tiers (reported/corroborated/reproduced) for incident attack-flows, renderer badges, and an analyzer rule
 - 🔄 **Process specifications** for data pipelines and AI workflows
 - 📊 **Infographic renderer** for LinkedIn and datasheet visuals
 - 📈 **Data lineage tracking** for tracing data flow through process steps

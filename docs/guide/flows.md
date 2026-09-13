@@ -41,6 +41,7 @@ Flows are the core semantic unit: directed interactions between entities.
 | `note` | string | No | Visible note on diagram |
 | `annotations` | array | No | Typed annotations |
 | `alternatives` | array | No | Alternative flow paths |
+| `verification` | object | No | Evidentiary provenance (see [Verification](#verification)) |
 
 ## Flow Modes
 
@@ -96,6 +97,37 @@ Add visible notes to flows:
   "note": "Requires TLS 1.3"
 }
 ```
+
+## Verification
+
+For incident attack-flows, a flow can record its **evidentiary provenance** — how
+well-substantiated the step is and where it is sourced from. This lets a published
+attack chain distinguish a step observed in a primary source from one that is
+inferred.
+
+```json
+{
+  "from": "agent-collective",
+  "to": "hugging-face",
+  "action": "exploit_worker",
+  "verification": {
+    "tier": "corroborated",
+    "source": "METR",
+    "citation": "https://metr.org/..."
+  }
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `tier` | enum | Yes | `reported` \| `corroborated` \| `reproduced` \| `partially_reproduced` |
+| `source` | string | No | Originating source (e.g. "OpenAI technical report", "METR") |
+| `citation` | string | No | URL or reference locating the source |
+
+The tier vocabulary matches the aisecurity-incidents `deepdive.json`. Sequence
+renderers emit a compact provenance badge (e.g. `🔎 corroborated — METR`), toggled
+by the renderer's `ShowVerification` option, and the security analyzer flags flows
+below the `corroborated` tier.
 
 See also:
 
