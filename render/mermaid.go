@@ -204,6 +204,11 @@ func (r *MermaidRenderer) renderFlow(sb *strings.Builder, _ *pidl.Protocol, f pi
 		secNote := r.formatSecurityNote(f.Security)
 		fmt.Fprintf(sb, "%snote right of %s: %s\n", indent, f.To, r.escapeLabel(secNote))
 	}
+
+	// Render verification provenance
+	if r.ShowVerification && f.HasVerification() {
+		fmt.Fprintf(sb, "%snote right of %s: %s\n", indent, f.To, r.escapeLabel(verificationBadge(f.Verification)))
+	}
 }
 
 // formatSecurityNote formats security requirements for display.
