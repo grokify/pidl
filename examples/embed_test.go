@@ -159,3 +159,45 @@ func TestExampleProtocolCaching(t *testing.T) {
 		t.Error("Protocol() should return cached instance")
 	}
 }
+
+func TestExampleProtocol_LazyLoad(t *testing.T) {
+	names := List()
+	if len(names) == 0 {
+		t.Fatal("List() returned no examples")
+	}
+
+	tests := []struct {
+		name    string
+		example *Example
+		wantErr bool
+	}{
+		{name: "lazy load from filename", example: &Example{Name: names[0], Filename: names[0] + ".json"}},
+		{name: "missing file", example: &Example{Name: "missing", Filename: "missing.json"}, wantErr: true},
+		{name: "directory instead of file", example: &Example{Name: "stdlib", Filename: "stdlib"}, wantErr: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p, err := tt.example.Protocol()
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("Protocol() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if tt.wantErr {
+				if p != nil {
+					t.Error("Protocol() should return nil protocol on error")
+				}
+				return
+			}
+			if p == nil {
+				t.Fatal("Protocol() returned nil protocol")
+			}
+			again, err := tt.example.Protocol()
+			if err != nil {
+				t.Fatalf("second Protocol() error: %v", err)
+			}
+			if again != p {
+				t.Error("Protocol() should cache and return the same pointer on repeat calls")
+			}
+		})
+	}
+}

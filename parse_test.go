@@ -1,6 +1,8 @@
 package pidl
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -117,4 +119,78 @@ func TestMustParsePanics(t *testing.T) {
 		}
 	}()
 	MustParse([]byte("invalid"))
+}
+
+func TestMustParseFile(t *testing.T) {
+	validPath := filepath.Join(t.TempDir(), "valid.json")
+	if err := os.WriteFile(validPath, []byte(`{"protocol": {"id": "disk", "name": "From Disk"}}`), 0600); err != nil {
+		t.Fatalf("writing fixture: %v", err)
+	}
+	invalidPath := filepath.Join(t.TempDir(), "invalid.json")
+	if err := os.WriteFile(invalidPath, []byte(`{not json`), 0600); err != nil {
+		t.Fatalf("writing fixture: %v", err)
+	}
+
+	tests := []struct {
+		name      string
+		path      string
+		wantPanic bool
+		wantID    string
+	}{
+		{name: "valid file", path: validPath, wantID: "disk"},
+		{name: "missing file panics", path: filepath.Join(t.TempDir(), "missing.json"), wantPanic: true},
+		{name: "invalid json panics", path: invalidPath, wantPanic: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			defer func() {
+				r := recover()
+				if (r != nil) != tt.wantPanic {
+					t.Errorf("MustParseFile(%q) panic = %v, wantPanic %v", tt.path, r, tt.wantPanic)
+				}
+			}()
+			p := MustParseFile(tt.path)
+			if p.ProtocolMeta.ID != tt.wantID {
+				t.Errorf("MustParseFile(%q).ID = %q, want %q", tt.path, p.ProtocolMeta.ID, tt.wantID)
+			}
+		})
+	}
+}
+
+func TestProtocolToJSONCompact(t *testing.T) {
+	tests := []struct {
+		name string
+		p    *Protocol
+		want string
+	}{
+		{
+			name: "minimal protocol",
+			p:    &Protocol{ProtocolMeta: ProtocolMeta{ID: "c", Name: "Compact"}},
+			want: `{"protocol":{"id":"c","name":"Compact"},"entities":null,"flows":null}`,
+		},
+		{
+			name: "protocol with entity",
+			p: &Protocol{
+				ProtocolMeta: ProtocolMeta{ID: "c", Name: "Compact"},
+				Entities:     []Entity{{ID: "e", Name: "E", Type: EntityTypeClient}},
+			},
+			want: `{"protocol":{"id":"c","name":"Compact"},"entities":[{"id":"e","name":"E","type":"client"}],"flows":null}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := tt.p.ToJSONCompact()
+			if err != nil {
+				t.Fatalf("ToJSONCompact() error: %v", err)
+			}
+			if got := string(data); got != tt.want {
+				t.Errorf("ToJSONCompact() = %s, want %s", got, tt.want)
+			}
+			if strings.Contains(string(data), "\n") {
+				t.Error("ToJSONCompact() output should not contain newlines")
+			}
+		})
+	}
 }

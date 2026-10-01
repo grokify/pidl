@@ -1,6 +1,7 @@
 package pidl
 
 import (
+	"reflect"
 	"testing"
 	"time"
 )
@@ -289,5 +290,54 @@ func TestLLMCostPresets(t *testing.T) {
 		if preset.OutputCost <= 0 {
 			t.Errorf("expected positive output cost for %s", name)
 		}
+	}
+}
+
+func TestEstimateDefaultCost(t *testing.T) {
+	llmPreset := LLMCostPresets["claude-3-sonnet"]
+	llmExpected := 1.0*llmPreset.InputCost + 0.5*llmPreset.OutputCost
+
+	tests := []struct {
+		name         string
+		entity       *Entity
+		wantExpected float64
+		wantMin      float64
+		wantMax      float64
+	}{
+		{name: "llm", entity: &Entity{ID: "llm", StepType: StepTypeLLM}, wantExpected: llmExpected, wantMin: llmExpected * 0.2, wantMax: llmExpected * 5.0},
+		{name: "external", entity: &Entity{ID: "ext", StepType: StepTypeExternal}, wantExpected: 0.001, wantMin: 0, wantMax: 0.01},
+		{name: "human", entity: &Entity{ID: "hum", StepType: StepTypeHuman}, wantExpected: 0, wantMin: 0, wantMax: 0},
+		{name: "tool", entity: &Entity{ID: "tool", StepType: StepTypeTool}, wantExpected: 0.0001, wantMin: 0, wantMax: 0.001},
+		{name: "deterministic", entity: &Entity{ID: "det", StepType: StepTypeDeterministic}, wantExpected: 0.00001, wantMin: 0, wantMax: 0.0001},
+		{name: "no step type falls back to deterministic", entity: &Entity{ID: "none"}, wantExpected: 0.00001, wantMin: 0, wantMax: 0.0001},
+		{name: "cost model without values still uses defaults path", entity: &Entity{ID: "proc", StepType: StepTypeTool, Processing: &ProcessingConfig{}}, wantExpected: 0.0001, wantMin: 0, wantMax: 0.001},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// estimateEntityCost routes to estimateDefaultCost whenever no
+			// CostModel is configured; assert both paths agree.
+			direct := estimateDefaultCost(tt.entity)
+			viaEntity := estimateEntityCost(tt.entity)
+			if !reflect.DeepEqual(direct, viaEntity) {
+				t.Errorf("estimateEntityCost() = %+v, estimateDefaultCost() = %+v; want equal", viaEntity, direct)
+			}
+
+			if direct.EntityID != tt.entity.ID {
+				t.Errorf("EntityID = %q, want %q", direct.EntityID, tt.entity.ID)
+			}
+			if direct.CostUnit != "USD" {
+				t.Errorf("CostUnit = %q, want USD", direct.CostUnit)
+			}
+			if direct.ExpectedCost != tt.wantExpected {
+				t.Errorf("ExpectedCost = %v, want %v", direct.ExpectedCost, tt.wantExpected)
+			}
+			if direct.MinCost != tt.wantMin {
+				t.Errorf("MinCost = %v, want %v", direct.MinCost, tt.wantMin)
+			}
+			if direct.MaxCost != tt.wantMax {
+				t.Errorf("MaxCost = %v, want %v", direct.MaxCost, tt.wantMax)
+			}
+		})
 	}
 }

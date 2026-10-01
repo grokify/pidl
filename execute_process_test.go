@@ -1,6 +1,7 @@
 package pidl
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -499,5 +500,95 @@ func TestParallelExecution(t *testing.T) {
 	}
 	if !found {
 		t.Error("merge should be ready after both branches complete")
+	}
+}
+
+// externalInputProcessSpec returns a two-step process where the second step
+// needs both the first step's output and an externally supplied "config"
+// input that no step produces.
+func externalInputProcessSpec() *Protocol {
+	return &Protocol{
+		ProtocolMeta: ProtocolMeta{ID: "ext-input", Name: "External Input", Kind: ProtocolKindProcess},
+		Entities: []Entity{
+			{
+				ID: "extract", Name: "Extract", Type: EntityTypeServer, StepType: StepTypeDeterministic,
+				Outputs: []DataPort{{Kind: DataPortKindFile, Name: "raw_data"}},
+			},
+			{
+				ID: "transform", Name: "Transform", Type: EntityTypeServer, StepType: StepTypeDeterministic,
+				Inputs: []DataPort{
+					{Kind: DataPortKindFile, Name: "raw_data", Required: true},
+					{Kind: DataPortKindObject, Name: "config", Required: true},
+				},
+			},
+		},
+		// No Label: a flow label equal to an output name maps that output to
+		// every input, which would make "config" look internally supplied.
+		Flows: []Flow{{From: "extract", To: "transform", Action: "send"}},
+	}
+}
+
+func TestProcessExecutor_MarkInputAvailable(t *testing.T) {
+	tests := []struct {
+		name             string
+		completeFirst    bool
+		entityID         string
+		inputName        string
+		wantStatus       StepExecutionStatus
+		wantBlockedOn    []string
+		wantAvailableKey string
+	}{
+		{
+			name:             "external input alone keeps step blocked on predecessor",
+			entityID:         "transform",
+			inputName:        "config",
+			wantStatus:       StepStatusBlocked,
+			wantBlockedOn:    []string{"raw_data", "step:extract"},
+			wantAvailableKey: "transform.config",
+		},
+		{
+			name:             "external input after predecessor completes makes step ready",
+			completeFirst:    true,
+			entityID:         "transform",
+			inputName:        "config",
+			wantStatus:       StepStatusReady,
+			wantAvailableKey: "transform.config",
+		},
+		{
+			name:             "unknown port is recorded but step stays blocked",
+			completeFirst:    true,
+			entityID:         "transform",
+			inputName:        "does_not_exist",
+			wantStatus:       StepStatusBlocked,
+			wantBlockedOn:    []string{"config"},
+			wantAvailableKey: "transform.does_not_exist",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			pe, err := NewProcessExecutor(externalInputProcessSpec())
+			if err != nil {
+				t.Fatalf("NewProcessExecutor failed: %v", err)
+			}
+			ctx := pe.NewProcessContext()
+			if tt.completeFirst {
+				if err := pe.CompleteStep(ctx, "extract"); err != nil {
+					t.Fatalf("CompleteStep failed: %v", err)
+				}
+			}
+
+			pe.MarkInputAvailable(ctx, tt.entityID, tt.inputName)
+
+			if !ctx.AvailableInputs[tt.wantAvailableKey] {
+				t.Errorf("AvailableInputs[%q] = false, want true", tt.wantAvailableKey)
+			}
+			if got := ctx.StepStatus[tt.entityID]; got != tt.wantStatus {
+				t.Errorf("StepStatus[%q] = %q, want %q", tt.entityID, got, tt.wantStatus)
+			}
+			if got := ctx.BlockedSteps[tt.entityID]; !reflect.DeepEqual(got, tt.wantBlockedOn) {
+				t.Errorf("BlockedSteps[%q] = %v, want %v", tt.entityID, got, tt.wantBlockedOn)
+			}
+		})
 	}
 }
