@@ -2,9 +2,12 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,50 +33,73 @@ func (b *boundaryFlags) Set(value string) error {
 
 const version = "0.6.1"
 
+// stdin is the reader used by interactive commands (the debug REPL). It is a
+// package-level variable so tests can substitute scripted input.
+var stdin io.Reader = os.Stdin
+
 func main() {
-	if len(os.Args) < 2 {
-		printUsage()
-		os.Exit(1)
+	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
+}
+
+// run dispatches the CLI subcommand named by args[0] and returns the process
+// exit code. All output goes to stdout and stderr so callers (and tests) can
+// capture it.
+func run(args []string, stdout, stderr io.Writer) int {
+	if len(args) < 1 {
+		printUsage(stderr)
+		return 1
 	}
 
-	switch os.Args[1] {
+	rest := args[1:]
+	switch args[0] {
 	case "validate":
-		cmdValidate(os.Args[2:])
+		return cmdValidate(rest, stdout, stderr)
 	case "generate", "gen":
-		cmdGenerate(os.Args[2:])
+		return cmdGenerate(rest, stdout, stderr)
 	case "resolve":
-		cmdResolve(os.Args[2:])
+		return cmdResolve(rest, stdout, stderr)
 	case "simulate", "sim", "run":
-		cmdSimulate(os.Args[2:])
+		return cmdSimulate(rest, stdout, stderr)
 	case "examples", "list-examples":
-		cmdExamples(os.Args[2:])
+		return cmdExamples(rest, stdout, stderr)
 	case "init":
-		cmdInit(os.Args[2:])
+		return cmdInit(rest, stdout, stderr)
 	case "roles":
-		cmdRoles(os.Args[2:])
+		return cmdRoles(rest, stdout, stderr)
 	case "components":
-		cmdComponents(os.Args[2:])
+		return cmdComponents(rest, stdout, stderr)
 	case "trust":
-		cmdTrust(os.Args[2:])
+		return cmdTrust(rest, stdout, stderr)
 	case "diff":
-		cmdDiff(os.Args[2:])
+		return cmdDiff(rest, stdout, stderr)
 	case "debug":
-		cmdDebug(os.Args[2:])
+		return cmdDebug(rest, stdout, stderr)
 	case "analyze":
-		cmdAnalyze(os.Args[2:])
+		return cmdAnalyze(rest, stdout, stderr)
 	case "version", "--version", "-v":
-		fmt.Printf("pidl version %s\n", version)
+		fmt.Fprintf(stdout, "pidl version %s\n", version)
+		return 0
 	case "help", "--help", "-h":
-		printUsage()
+		printUsage(stdout)
+		return 0
 	default:
-		fmt.Fprintf(os.Stderr, "Unknown command: %s\n\n", os.Args[1])
-		printUsage()
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Unknown command: %s\n\n", args[0])
+		printUsage(stderr)
+		return 1
 	}
 }
 
-func printUsage() {
-	fmt.Print(`pidl - Protocol Interaction Description Language CLI
+// flagExitCode maps a flag.FlagSet parse error to an exit code: 0 for -h/-help
+// (usage was already printed), 2 for any other parse error.
+func flagExitCode(err error) int {
+	if errors.Is(err, flag.ErrHelp) {
+		return 0
+	}
+	return 2
+}
+
+func printUsage(w io.Writer) {
+	fmt.Fprint(w, `pidl - Protocol Interaction Description Language CLI
 
 Usage:
   pidl <command> [options] [arguments]
@@ -98,11 +124,12 @@ Run 'pidl <command> -h' for more information on a command.
 `)
 }
 
-func cmdValidate(args []string) {
-	fs := flag.NewFlagSet("validate", flag.ExitOnError)
+func cmdValidate(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("validate", flag.ContinueOnError)
+	fs.SetOutput(stderr)
 	quiet := fs.Bool("q", false, "Quiet mode (only show errors)")
 	fs.Usage = func() {
-		fmt.Print(`Usage: pidl validate [options] <file> [file...]
+		fmt.Fprint(stdout, `Usage: pidl validate [options] <file> [file...]
 
 Validate PIDL JSON files against the schema.
 
@@ -112,12 +139,12 @@ Options:
 	}
 
 	if err := fs.Parse(args); err != nil {
-		os.Exit(1)
+		return flagExitCode(err)
 	}
 
 	if fs.NArg() == 0 {
 		fs.Usage()
-		os.Exit(1)
+		return 1
 	}
 
 	files := fs.Args()
@@ -126,32 +153,34 @@ Options:
 	hasErrors := false
 	for _, r := range results {
 		if r.ParseErr != nil {
-			fmt.Fprintf(os.Stderr, "%s: parse error: %v\n", r.Filename, r.ParseErr)
+			fmt.Fprintf(stderr, "%s: parse error: %v\n", r.Filename, r.ParseErr)
 			hasErrors = true
 			continue
 		}
 
 		if r.Errors.HasErrors() {
-			fmt.Fprintf(os.Stderr, "%s: validation failed\n", r.Filename)
+			fmt.Fprintf(stderr, "%s: validation failed\n", r.Filename)
 			for _, e := range r.Errors {
-				fmt.Fprintf(os.Stderr, "  - %s\n", e)
+				fmt.Fprintf(stderr, "  - %s\n", e)
 			}
 			hasErrors = true
 			continue
 		}
 
 		if !*quiet {
-			fmt.Printf("%s: valid (%s)\n", r.Filename, r.Protocol.ProtocolMeta.Name)
+			fmt.Fprintf(stdout, "%s: valid (%s)\n", r.Filename, r.Protocol.ProtocolMeta.Name)
 		}
 	}
 
 	if hasErrors {
-		os.Exit(1)
+		return 1
 	}
+	return 0
 }
 
-func cmdGenerate(args []string) {
-	fs := flag.NewFlagSet("generate", flag.ExitOnError)
+func cmdGenerate(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
+	fs.SetOutput(stderr)
 	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
@@ -172,14 +201,14 @@ func cmdGenerate(args []string) {
 	igNoShapes := fs.Bool("ig-no-shapes", false, "Use rectangles for all nodes (disable custom shapes)")
 	igDirection := fs.String("ig-direction", "horizontal", "Layout direction: horizontal, vertical")
 	fs.Usage = func() {
-		fmt.Print(`Usage: pidl generate [options] <file>
+		fmt.Fprint(stdout, `Usage: pidl generate [options] <file>
 
 Generate diagram output from a PIDL file.
 
 Options:
 `)
 		fs.PrintDefaults()
-		fmt.Print(`
+		fmt.Fprint(stdout, `
 Formats:
   plantuml, puml     PlantUML sequence diagram
   mermaid, mmd       Mermaid sequence diagram
@@ -224,18 +253,18 @@ Infographic Examples:
 	}
 
 	if err := fs.Parse(args); err != nil {
-		os.Exit(1)
+		return flagExitCode(err)
 	}
 
 	if fs.NArg() == 0 {
 		fs.Usage()
-		os.Exit(1)
+		return 1
 	}
 
 	format, err := render.ParseFormat(*formatStr)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
 
 	filename := fs.Arg(0)
@@ -253,8 +282,8 @@ Infographic Examples:
 	}
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error parsing %s: %v\n", filename, err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error parsing %s: %v\n", filename, err)
+		return 1
 	}
 
 	// Resolve imports/extends if requested or needed
@@ -263,14 +292,14 @@ Infographic Examples:
 		opts.BasePath = filepath.Dir(filename)
 		p, err = p.Resolve(opts)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error resolving %s: %v\n", filename, err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error resolving %s: %v\n", filename, err)
+			return 1
 		}
 	}
 
 	if errs := p.Validate(); errs.HasErrors() {
-		fmt.Fprintf(os.Stderr, "Validation errors in %s:\n%s", filename, errs)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Validation errors in %s:\n%s", filename, errs)
+		return 1
 	}
 
 	// Handle format-specific rendering
@@ -286,14 +315,14 @@ Infographic Examples:
 		if *templateDir != "" {
 			renderer, err = render.NewSVGWithTemplateDir(*templateDir)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error loading template: %v\n", err)
-				os.Exit(1)
+				fmt.Fprintf(stderr, "Error loading template: %v\n", err)
+				return 1
 			}
 		} else if *template != "" {
 			renderer, err = render.NewSVGWithTemplate(*template)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error loading template: %v\n", err)
-				os.Exit(1)
+				fmt.Fprintf(stderr, "Error loading template: %v\n", err)
+				return 1
 			}
 		} else {
 			renderer = render.NewSVG()
@@ -320,8 +349,8 @@ Infographic Examples:
 		for _, b := range boundaries {
 			boundaryID, entityIDs, parseErr := parseBoundaryFlag(b)
 			if parseErr != nil {
-				fmt.Fprintf(os.Stderr, "Error parsing boundary flag %q: %v\n", b, parseErr)
-				os.Exit(1)
+				fmt.Fprintf(stderr, "Error parsing boundary flag %q: %v\n", b, parseErr)
+				return 1
 			}
 			renderer.AddBoundaryOverride(boundaryID, entityIDs)
 		}
@@ -397,27 +426,29 @@ Infographic Examples:
 	}
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error rendering: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error rendering: %v\n", err)
+		return 1
 	}
 
 	if *output == "" {
-		fmt.Print(diagram)
+		fmt.Fprint(stdout, diagram)
 	} else {
 		if err := os.WriteFile(*output, []byte(diagram), 0600); err != nil {
-			fmt.Fprintf(os.Stderr, "Error writing %s: %v\n", *output, err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error writing %s: %v\n", *output, err)
+			return 1
 		}
-		fmt.Printf("Wrote %s\n", *output)
+		fmt.Fprintf(stdout, "Wrote %s\n", *output)
 	}
+	return 0
 }
 
-func cmdResolve(args []string) {
-	fs := flag.NewFlagSet("resolve", flag.ExitOnError)
+func cmdResolve(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("resolve", flag.ContinueOnError)
+	fs.SetOutput(stderr)
 	output := fs.String("o", "", "Output file (default: stdout)")
 	validate := fs.Bool("validate", true, "Validate resolved protocol")
 	fs.Usage = func() {
-		fmt.Print(`Usage: pidl resolve [options] <file>
+		fmt.Fprint(stdout, `Usage: pidl resolve [options] <file>
 
 Resolve imports and extends in a PIDL file, outputting the merged protocol.
 
@@ -428,7 +459,7 @@ This command recursively resolves:
 Options:
 `)
 		fs.PrintDefaults()
-		fmt.Print(`
+		fmt.Fprint(stdout, `
 Examples:
   pidl resolve composed.json              Resolve and print to stdout
   pidl resolve composed.json -o out.json  Resolve and write to file
@@ -437,59 +468,61 @@ Examples:
 	}
 
 	if err := fs.Parse(args); err != nil {
-		os.Exit(1)
+		return flagExitCode(err)
 	}
 
 	if fs.NArg() == 0 {
 		fs.Usage()
-		os.Exit(1)
+		return 1
 	}
 
 	filename := fs.Arg(0)
 	p, err := pidl.ParseFile(filename)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error parsing %s: %v\n", filename, err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error parsing %s: %v\n", filename, err)
+		return 1
 	}
 
 	if !p.NeedsResolution() {
-		fmt.Fprintf(os.Stderr, "Note: %s has no imports or extends to resolve\n", filename)
+		fmt.Fprintf(stderr, "Note: %s has no imports or extends to resolve\n", filename)
 	}
 
 	opts := pidl.DefaultResolveOptions()
 	opts.BasePath = filepath.Dir(filename)
 	resolved, err := p.Resolve(opts)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error resolving %s: %v\n", filename, err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error resolving %s: %v\n", filename, err)
+		return 1
 	}
 
 	if *validate {
 		if errs := resolved.Validate(); errs.HasErrors() {
-			fmt.Fprintf(os.Stderr, "Validation errors in resolved protocol:\n%s", errs)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Validation errors in resolved protocol:\n%s", errs)
+			return 1
 		}
 	}
 
 	jsonBytes, err := json.MarshalIndent(resolved, "", "  ")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error marshaling JSON: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error marshaling JSON: %v\n", err)
+		return 1
 	}
 
 	if *output == "" || *output == "-" {
-		fmt.Println(string(jsonBytes))
+		fmt.Fprintln(stdout, string(jsonBytes))
 	} else {
 		if err := os.WriteFile(*output, jsonBytes, 0600); err != nil {
-			fmt.Fprintf(os.Stderr, "Error writing %s: %v\n", *output, err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error writing %s: %v\n", *output, err)
+			return 1
 		}
-		fmt.Printf("Wrote resolved protocol to %s\n", *output)
+		fmt.Fprintf(stdout, "Wrote resolved protocol to %s\n", *output)
 	}
+	return 0
 }
 
-func cmdSimulate(args []string) {
-	fs := flag.NewFlagSet("simulate", flag.ExitOnError)
+func cmdSimulate(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("simulate", flag.ContinueOnError)
+	fs.SetOutput(stderr)
 	steps := fs.Int("steps", 0, "Number of steps to execute (0 = all)")
 	outputJSON := fs.Bool("json", false, "Output trace as JSON (shorthand for --trace-format=json)")
 	verbose := fs.Bool("v", false, "Verbose output (show each step)")
@@ -498,7 +531,7 @@ func cmdSimulate(args []string) {
 	showStates := fs.Bool("show-states", true, "Show entity state changes in trace")
 	showTimings := fs.Bool("show-timings", false, "Show timing information in trace")
 	fs.Usage = func() {
-		fmt.Print(`Usage: pidl simulate [options] <file>
+		fmt.Fprint(stdout, `Usage: pidl simulate [options] <file>
 
 Simulate protocol execution and display the execution trace.
 
@@ -509,7 +542,7 @@ protocol's state machine behavior.
 Options:
 `)
 		fs.PrintDefaults()
-		fmt.Print(`
+		fmt.Fprint(stdout, `
 Examples:
   pidl simulate oauth2_with_states.json                Run full simulation
   pidl simulate -steps=5 protocol.json                 Run first 5 steps
@@ -522,19 +555,19 @@ Examples:
 	}
 
 	if err := fs.Parse(args); err != nil {
-		os.Exit(1)
+		return flagExitCode(err)
 	}
 
 	if fs.NArg() == 0 {
 		fs.Usage()
-		os.Exit(1)
+		return 1
 	}
 
 	filename := fs.Arg(0)
 	p, err := loadProtocol(filename)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
 
 	// Resolve if needed
@@ -543,8 +576,8 @@ Examples:
 		opts.BasePath = filepath.Dir(filename)
 		p, err = p.Resolve(opts)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error resolving: %v\n", err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error resolving: %v\n", err)
+			return 1
 		}
 	}
 
@@ -557,11 +590,11 @@ Examples:
 			for i := 0; i < *steps && !ctx.Completed; i++ {
 				step, err := exec.Step(ctx)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "Error at step %d: %v\n", i+1, err)
-					os.Exit(1)
+					fmt.Fprintf(stderr, "Error at step %d: %v\n", i+1, err)
+					return 1
 				}
 				if step != nil {
-					printStep(step)
+					printStep(stdout, step)
 				}
 			}
 			trace = ctx.Trace
@@ -573,11 +606,11 @@ Examples:
 			for !ctx.Completed {
 				step, err := exec.Step(ctx)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-					os.Exit(1)
+					fmt.Fprintf(stderr, "Error: %v\n", err)
+					return 1
 				}
 				if step != nil {
-					printStep(step)
+					printStep(stdout, step)
 				}
 			}
 			trace = ctx.Trace
@@ -587,8 +620,8 @@ Examples:
 	}
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Execution error: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Execution error: %v\n", err)
+		return 1
 	}
 
 	// Determine output format
@@ -607,15 +640,15 @@ Examples:
 	case "json":
 		jsonBytes, err := trace.ToJSON()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error marshaling trace: %v\n", err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error marshaling trace: %v\n", err)
+			return 1
 		}
 		result = string(jsonBytes)
 	case "svg":
 		svg, err := traceRenderer.RenderSVG(trace, p)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error rendering SVG: %v\n", err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error rendering SVG: %v\n", err)
+			return 1
 		}
 		result = svg
 	case "mermaid", "mmd":
@@ -624,9 +657,9 @@ Examples:
 		// Text format
 		if *verbose {
 			// Verbose already printed steps, just print summary
-			fmt.Println()
-			printTraceSummary(trace)
-			return
+			fmt.Fprintln(stdout)
+			printTraceSummary(stdout, trace)
+			return 0
 		}
 		opts := render.TraceTextOptions{
 			ShowTimestamps: *showTimings,
@@ -639,16 +672,17 @@ Examples:
 	// Output result
 	if *traceOutput != "" {
 		if err := os.WriteFile(*traceOutput, []byte(result), 0600); err != nil {
-			fmt.Fprintf(os.Stderr, "Error writing %s: %v\n", *traceOutput, err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error writing %s: %v\n", *traceOutput, err)
+			return 1
 		}
-		fmt.Printf("Wrote trace to %s\n", *traceOutput)
+		fmt.Fprintf(stdout, "Wrote trace to %s\n", *traceOutput)
 	} else {
-		fmt.Print(result)
+		fmt.Fprint(stdout, result)
 	}
+	return 0
 }
 
-func printStep(step *pidl.ExecutionStep) {
+func printStep(stdout io.Writer, step *pidl.ExecutionStep) {
 	status := "✓"
 	if step.Skipped {
 		status = "○"
@@ -659,67 +693,68 @@ func printStep(step *pidl.ExecutionStep) {
 		label = step.Label
 	}
 
-	fmt.Printf("%s Step %d: %s -> %s: %s", status, step.StepNumber, step.From, step.To, label)
+	fmt.Fprintf(stdout, "%s Step %d: %s -> %s: %s", status, step.StepNumber, step.From, step.To, label)
 
 	if step.Skipped {
-		fmt.Printf(" (skipped: %s)", step.SkipReason)
+		fmt.Fprintf(stdout, " (skipped: %s)", step.SkipReason)
 	}
 
 	if len(step.StateChanges) > 0 {
-		fmt.Print(" [")
+		fmt.Fprint(stdout, " [")
 		for i, sc := range step.StateChanges {
 			if i > 0 {
-				fmt.Print(", ")
+				fmt.Fprint(stdout, ", ")
 			}
 			if sc.FromState != "" {
-				fmt.Printf("%s: %s→%s", sc.Entity, sc.FromState, sc.ToState)
+				fmt.Fprintf(stdout, "%s: %s→%s", sc.Entity, sc.FromState, sc.ToState)
 			} else {
-				fmt.Printf("%s: →%s", sc.Entity, sc.ToState)
+				fmt.Fprintf(stdout, "%s: →%s", sc.Entity, sc.ToState)
 			}
 		}
-		fmt.Print("]")
+		fmt.Fprint(stdout, "]")
 	}
 
-	fmt.Println()
+	fmt.Fprintln(stdout)
 }
 
-func printTraceSummary(trace *pidl.ExecutionTrace) {
-	fmt.Printf("Protocol: %s\n", trace.ProtocolName)
-	fmt.Printf("Steps executed: %d\n", trace.StepCount())
+func printTraceSummary(stdout io.Writer, trace *pidl.ExecutionTrace) {
+	fmt.Fprintf(stdout, "Protocol: %s\n", trace.ProtocolName)
+	fmt.Fprintf(stdout, "Steps executed: %d\n", trace.StepCount())
 
 	if trace.SkippedCount() > 0 {
-		fmt.Printf("Steps skipped: %d\n", trace.SkippedCount())
+		fmt.Fprintf(stdout, "Steps skipped: %d\n", trace.SkippedCount())
 	}
 
 	if trace.StateChangeCount() > 0 {
-		fmt.Printf("State changes: %d\n", trace.StateChangeCount())
+		fmt.Fprintf(stdout, "State changes: %d\n", trace.StateChangeCount())
 	}
 
-	fmt.Printf("Duration: %v\n", trace.Duration().Round(100*time.Microsecond))
+	fmt.Fprintf(stdout, "Duration: %v\n", trace.Duration().Round(100*time.Microsecond))
 
 	if trace.Completed {
-		fmt.Println("Status: completed")
+		fmt.Fprintln(stdout, "Status: completed")
 	} else {
-		fmt.Println("Status: partial")
+		fmt.Fprintln(stdout, "Status: partial")
 	}
 
 	if len(trace.FinalStates) > 0 {
-		fmt.Println("Final states:")
+		fmt.Fprintln(stdout, "Final states:")
 		for entity, state := range trace.FinalStates {
-			fmt.Printf("  %s: %s\n", entity, state)
+			fmt.Fprintf(stdout, "  %s: %s\n", entity, state)
 		}
 	}
 
 	if trace.Error != "" {
-		fmt.Printf("Error: %s\n", trace.Error)
+		fmt.Fprintf(stdout, "Error: %s\n", trace.Error)
 	}
 }
 
-func cmdExamples(args []string) {
-	fs := flag.NewFlagSet("examples", flag.ExitOnError)
+func cmdExamples(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("examples", flag.ContinueOnError)
+	fs.SetOutput(stderr)
 	showJSON := fs.Bool("json", false, "Show example JSON content")
 	fs.Usage = func() {
-		fmt.Print(`Usage: pidl examples [options] [name]
+		fmt.Fprint(stdout, `Usage: pidl examples [options] [name]
 
 List built-in example protocols or show a specific example.
 
@@ -729,30 +764,30 @@ Options:
 	}
 
 	if err := fs.Parse(args); err != nil {
-		os.Exit(1)
+		return flagExitCode(err)
 	}
 
 	if fs.NArg() == 0 {
 		// List all examples
 		names := examples.List()
-		fmt.Println("Available examples:")
+		fmt.Fprintln(stdout, "Available examples:")
 		for _, name := range names {
 			ex, err := examples.Get(name)
 			if err != nil {
-				fmt.Printf("  %s\n", name)
+				fmt.Fprintf(stdout, "  %s\n", name)
 				continue
 			}
 			p, err := ex.Protocol()
 			if err != nil {
-				fmt.Printf("  %s\n", name)
+				fmt.Fprintf(stdout, "  %s\n", name)
 				continue
 			}
-			fmt.Printf("  %-30s %s\n", name, p.ProtocolMeta.Name)
+			fmt.Fprintf(stdout, "  %-30s %s\n", name, p.ProtocolMeta.Name)
 		}
-		fmt.Println("\nUse 'pidl examples <name>' to show details.")
-		fmt.Println("Use 'pidl examples <name> -json' to show JSON content.")
-		fmt.Println("Use 'pidl generate <name>' to generate diagrams.")
-		return
+		fmt.Fprintln(stdout, "\nUse 'pidl examples <name>' to show details.")
+		fmt.Fprintln(stdout, "Use 'pidl examples <name> -json' to show JSON content.")
+		fmt.Fprintln(stdout, "Use 'pidl generate <name>' to generate diagrams.")
+		return 0
 	}
 
 	name := fs.Arg(0)
@@ -760,57 +795,59 @@ Options:
 	if *showJSON {
 		data, err := examples.GetJSON(name)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error: %v\n", err)
+			return 1
 		}
-		fmt.Println(string(data))
-		return
+		fmt.Fprintln(stdout, string(data))
+		return 0
 	}
 
 	ex, err := examples.Get(name)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
 
 	p, err := ex.Protocol()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
 
-	fmt.Printf("Example: %s\n", ex.Name)
-	fmt.Printf("Protocol: %s\n", p.ProtocolMeta.Name)
-	fmt.Printf("ID: %s\n", p.ProtocolMeta.ID)
+	fmt.Fprintf(stdout, "Example: %s\n", ex.Name)
+	fmt.Fprintf(stdout, "Protocol: %s\n", p.ProtocolMeta.Name)
+	fmt.Fprintf(stdout, "ID: %s\n", p.ProtocolMeta.ID)
 	if p.ProtocolMeta.Description != "" {
-		fmt.Printf("Description: %s\n", p.ProtocolMeta.Description)
+		fmt.Fprintf(stdout, "Description: %s\n", p.ProtocolMeta.Description)
 	}
-	fmt.Printf("Category: %s\n", p.ProtocolMeta.Category)
-	fmt.Printf("Entities: %d\n", len(p.Entities))
-	fmt.Printf("Phases: %d\n", len(p.Phases))
-	fmt.Printf("Flows: %d\n", len(p.Flows))
+	fmt.Fprintf(stdout, "Category: %s\n", p.ProtocolMeta.Category)
+	fmt.Fprintf(stdout, "Entities: %d\n", len(p.Entities))
+	fmt.Fprintf(stdout, "Phases: %d\n", len(p.Phases))
+	fmt.Fprintf(stdout, "Flows: %d\n", len(p.Flows))
 
 	if len(p.ProtocolMeta.References) > 0 {
-		fmt.Println("References:")
+		fmt.Fprintln(stdout, "References:")
 		for _, ref := range p.ProtocolMeta.References {
-			fmt.Printf("  - %s: %s\n", ref.Name, ref.URL)
+			fmt.Fprintf(stdout, "  - %s: %s\n", ref.Name, ref.URL)
 		}
 	}
+	return 0
 }
 
-func cmdInit(args []string) {
-	fs := flag.NewFlagSet("init", flag.ExitOnError)
+func cmdInit(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("init", flag.ContinueOnError)
+	fs.SetOutput(stderr)
 	name := fs.String("name", "", "Protocol name")
 	from := fs.String("from", "", "Initialize from example (e.g., oauth2_authorization_code)")
 	fs.Usage = func() {
-		fmt.Print(`Usage: pidl init [options] <filename>
+		fmt.Fprint(stdout, `Usage: pidl init [options] <filename>
 
 Create a new PIDL file from a template or example.
 
 Options:
 `)
 		fs.PrintDefaults()
-		fmt.Print(`
+		fmt.Fprint(stdout, `
 Examples:
   pidl init my-protocol.json
   pidl init -name "My Protocol" my-protocol.json
@@ -819,20 +856,20 @@ Examples:
 	}
 
 	if err := fs.Parse(args); err != nil {
-		os.Exit(1)
+		return flagExitCode(err)
 	}
 
 	if fs.NArg() == 0 {
 		fs.Usage()
-		os.Exit(1)
+		return 1
 	}
 
 	filename := fs.Arg(0)
 
 	// Check if file exists
 	if _, err := os.Stat(filename); err == nil {
-		fmt.Fprintf(os.Stderr, "Error: file already exists: %s\n", filename)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error: file already exists: %s\n", filename)
+		return 1
 	}
 
 	var p *pidl.Protocol
@@ -841,17 +878,25 @@ Examples:
 		// Copy from example
 		ex, err := examples.Get(*from)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error: %v\n", err)
+			return 1
 		}
 		p, err = ex.Protocol()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error: %v\n", err)
+			return 1
 		}
 		// Deep copy by serializing and deserializing
-		data, _ := p.ToJSON()
-		p, _ = pidl.Parse(data)
+		data, err := p.ToJSON()
+		if err != nil {
+			fmt.Fprintf(stderr, "Error: %v\n", err)
+			return 1
+		}
+		p, err = pidl.Parse(data)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error: %v\n", err)
+			return 1
+		}
 	} else {
 		// Create minimal protocol
 		id := pidl.SanitizeID(strings.TrimSuffix(filepath.Base(filename), ".json"))
@@ -870,28 +915,30 @@ Examples:
 	}
 
 	if err := p.WriteFile(filename); err != nil {
-		fmt.Fprintf(os.Stderr, "Error writing file: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error writing file: %v\n", err)
+		return 1
 	}
 
-	fmt.Printf("Created %s\n", filename)
-	fmt.Printf("Protocol: %s\n", p.ProtocolMeta.Name)
-	fmt.Printf("ID: %s\n", p.ProtocolMeta.ID)
+	fmt.Fprintf(stdout, "Created %s\n", filename)
+	fmt.Fprintf(stdout, "Protocol: %s\n", p.ProtocolMeta.Name)
+	fmt.Fprintf(stdout, "ID: %s\n", p.ProtocolMeta.ID)
+	return 0
 }
 
-func cmdRoles(args []string) {
-	fs := flag.NewFlagSet("roles", flag.ExitOnError)
+func cmdRoles(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("roles", flag.ContinueOnError)
+	fs.SetOutput(stderr)
 	formatStr := fs.String("f", "table", "Output format: table, json")
 	protocol := fs.String("protocol", "", "Filter by protocol (e.g., oauth, scim, mcp)")
 	fs.Usage = func() {
-		fmt.Print(`Usage: pidl roles [options] <file>
+		fmt.Fprint(stdout, `Usage: pidl roles [options] <file>
 
 List protocol roles defined in a PIDL file.
 
 Options:
 `)
 		fs.PrintDefaults()
-		fmt.Print(`
+		fmt.Fprint(stdout, `
 Examples:
   pidl roles example.json
   pidl roles -protocol=oauth example.json
@@ -900,18 +947,18 @@ Examples:
 	}
 
 	if err := fs.Parse(args); err != nil {
-		os.Exit(1)
+		return flagExitCode(err)
 	}
 
 	if fs.NArg() == 0 {
 		fs.Usage()
-		os.Exit(1)
+		return 1
 	}
 
 	p, err := loadProtocol(fs.Arg(0))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
 
 	entities := p.EntitiesWithProtocolRoles()
@@ -941,37 +988,43 @@ Examples:
 				}
 			}
 		}
-		data, _ := jsonMarshalIndent(entries)
-		fmt.Println(string(data))
-		return
+		data, err := jsonMarshalIndent(entries)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error marshaling JSON: %v\n", err)
+			return 1
+		}
+		fmt.Fprintln(stdout, string(data))
+		return 0
 	}
 
 	// Table format
-	fmt.Printf("Protocol Roles in %s\n\n", p.ProtocolMeta.Name)
-	fmt.Printf("%-20s %-25s %-12s %-20s %s\n", "ENTITY ID", "ENTITY NAME", "PROTOCOL", "ROLE", "VARIANT")
-	fmt.Println(strings.Repeat("-", 90))
+	fmt.Fprintf(stdout, "Protocol Roles in %s\n\n", p.ProtocolMeta.Name)
+	fmt.Fprintf(stdout, "%-20s %-25s %-12s %-20s %s\n", "ENTITY ID", "ENTITY NAME", "PROTOCOL", "ROLE", "VARIANT")
+	fmt.Fprintln(stdout, strings.Repeat("-", 90))
 	for _, e := range entities {
 		for _, r := range e.ProtocolRoles {
 			if *protocol == "" || r.Protocol == *protocol {
-				fmt.Printf("%-20s %-25s %-12s %-20s %s\n", e.ID, truncate(e.Name, 25), r.Protocol, r.Role, r.Variant)
+				fmt.Fprintf(stdout, "%-20s %-25s %-12s %-20s %s\n", e.ID, truncate(e.Name, 25), r.Protocol, r.Role, r.Variant)
 			}
 		}
 	}
+	return 0
 }
 
-func cmdComponents(args []string) {
-	fs := flag.NewFlagSet("components", flag.ExitOnError)
+func cmdComponents(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("components", flag.ContinueOnError)
+	fs.SetOutput(stderr)
 	formatStr := fs.String("f", "table", "Output format: table, json")
 	typeFilter := fs.String("type", "", "Filter by component type (e.g., idp, gateway, pdp)")
 	fs.Usage = func() {
-		fmt.Print(`Usage: pidl components [options] <file>
+		fmt.Fprint(stdout, `Usage: pidl components [options] <file>
 
 List deployment components defined in a PIDL file.
 
 Options:
 `)
 		fs.PrintDefaults()
-		fmt.Print(`
+		fmt.Fprint(stdout, `
 Examples:
   pidl components example.json
   pidl components -type=idp example.json
@@ -980,60 +1033,69 @@ Examples:
 	}
 
 	if err := fs.Parse(args); err != nil {
-		os.Exit(1)
+		return flagExitCode(err)
 	}
 
 	if fs.NArg() == 0 {
 		fs.Usage()
-		os.Exit(1)
+		return 1
 	}
 
 	p, err := loadProtocol(fs.Arg(0))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
 
-	components := p.Metadata.Components
+	var components []pidl.DeploymentComponent
+	if p.Metadata != nil {
+		components = p.Metadata.Components
+	}
 	if *typeFilter != "" {
 		components = p.ComponentsByType(*typeFilter)
 	}
 
 	if *formatStr == "json" {
-		data, _ := jsonMarshalIndent(components)
-		fmt.Println(string(data))
-		return
+		data, err := jsonMarshalIndent(components)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error marshaling JSON: %v\n", err)
+			return 1
+		}
+		fmt.Fprintln(stdout, string(data))
+		return 0
 	}
 
 	// Table format
-	fmt.Printf("Deployment Components in %s\n\n", p.ProtocolMeta.Name)
-	fmt.Printf("%-20s %-30s %-15s %-30s\n", "ID", "NAME", "TYPE", "ENTITIES")
-	fmt.Println(strings.Repeat("-", 100))
+	fmt.Fprintf(stdout, "Deployment Components in %s\n\n", p.ProtocolMeta.Name)
+	fmt.Fprintf(stdout, "%-20s %-30s %-15s %-30s\n", "ID", "NAME", "TYPE", "ENTITIES")
+	fmt.Fprintln(stdout, strings.Repeat("-", 100))
 	for _, c := range components {
 		entities := strings.Join(c.Entities, ", ")
-		fmt.Printf("%-20s %-30s %-15s %-30s\n", c.ID, truncate(c.Name, 30), c.Type, truncate(entities, 30))
+		fmt.Fprintf(stdout, "%-20s %-30s %-15s %-30s\n", c.ID, truncate(c.Name, 30), c.Type, truncate(entities, 30))
 	}
 
 	if len(components) > 0 {
-		fmt.Printf("\nTotal: %d components\n", len(components))
+		fmt.Fprintf(stdout, "\nTotal: %d components\n", len(components))
 	} else {
-		fmt.Println("No components defined.")
+		fmt.Fprintln(stdout, "No components defined.")
 	}
+	return 0
 }
 
-func cmdTrust(args []string) {
-	fs := flag.NewFlagSet("trust", flag.ExitOnError)
+func cmdTrust(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("trust", flag.ContinueOnError)
+	fs.SetOutput(stderr)
 	formatStr := fs.String("f", "table", "Output format: table, json")
 	typeFilter := fs.String("type", "", "Filter by relationship type (e.g., authenticates, delegates, issues)")
 	fs.Usage = func() {
-		fmt.Print(`Usage: pidl trust [options] <file>
+		fmt.Fprint(stdout, `Usage: pidl trust [options] <file>
 
 List trust relationships defined in a PIDL file.
 
 Options:
 `)
 		fs.PrintDefaults()
-		fmt.Print(`
+		fmt.Fprint(stdout, `
 Examples:
   pidl trust example.json
   pidl trust -type=authenticates example.json
@@ -1042,68 +1104,77 @@ Examples:
 	}
 
 	if err := fs.Parse(args); err != nil {
-		os.Exit(1)
+		return flagExitCode(err)
 	}
 
 	if fs.NArg() == 0 {
 		fs.Usage()
-		os.Exit(1)
+		return 1
 	}
 
 	p, err := loadProtocol(fs.Arg(0))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
 
-	relations := p.Metadata.TrustRelations
+	var relations []pidl.TrustRelationship
+	if p.Metadata != nil {
+		relations = p.Metadata.TrustRelations
+	}
 	if *typeFilter != "" {
 		relations = p.TrustRelationsByType(*typeFilter)
 	}
 
 	if *formatStr == "json" {
-		data, _ := jsonMarshalIndent(relations)
-		fmt.Println(string(data))
-		return
+		data, err := jsonMarshalIndent(relations)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error marshaling JSON: %v\n", err)
+			return 1
+		}
+		fmt.Fprintln(stdout, string(data))
+		return 0
 	}
 
 	// Table format
-	fmt.Printf("Trust Relationships in %s\n\n", p.ProtocolMeta.Name)
-	fmt.Printf("%-15s %-20s %-15s %-20s %-25s\n", "ID", "FROM", "TYPE", "TO", "CREDENTIALS")
-	fmt.Println(strings.Repeat("-", 100))
+	fmt.Fprintf(stdout, "Trust Relationships in %s\n\n", p.ProtocolMeta.Name)
+	fmt.Fprintf(stdout, "%-15s %-20s %-15s %-20s %-25s\n", "ID", "FROM", "TYPE", "TO", "CREDENTIALS")
+	fmt.Fprintln(stdout, strings.Repeat("-", 100))
 	for _, t := range relations {
 		creds := strings.Join(t.Credentials, ", ")
 		mutual := ""
 		if t.Mutual {
 			mutual = " (mutual)"
 		}
-		fmt.Printf("%-15s %-20s %-15s %-20s %-25s%s\n",
+		fmt.Fprintf(stdout, "%-15s %-20s %-15s %-20s %-25s%s\n",
 			truncate(t.ID, 15), truncate(t.From, 20), t.Type, truncate(t.To, 20), truncate(creds, 25), mutual)
 	}
 
 	if len(relations) > 0 {
-		fmt.Printf("\nTotal: %d trust relationships\n", len(relations))
+		fmt.Fprintf(stdout, "\nTotal: %d trust relationships\n", len(relations))
 	} else {
-		fmt.Println("No trust relationships defined.")
+		fmt.Fprintln(stdout, "No trust relationships defined.")
 	}
+	return 0
 }
 
-func cmdDiff(args []string) {
-	fs := flag.NewFlagSet("diff", flag.ExitOnError)
+func cmdDiff(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("diff", flag.ContinueOnError)
+	fs.SetOutput(stderr)
 	formatStr := fs.String("f", "text", "Output format: text, json, markdown")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	ignoreMetadata := fs.Bool("ignore-metadata", false, "Ignore metadata changes")
 	ignoreDescriptions := fs.Bool("ignore-descriptions", false, "Ignore description changes")
 	quiet := fs.Bool("q", false, "Quiet mode (summary only)")
 	fs.Usage = func() {
-		fmt.Print(`Usage: pidl diff [options] <base-file> <new-file>
+		fmt.Fprint(stdout, `Usage: pidl diff [options] <base-file> <new-file>
 
 Compare two PIDL protocol files and show differences.
 
 Options:
 `)
 		fs.PrintDefaults()
-		fmt.Print(`
+		fmt.Fprint(stdout, `
 Examples:
   pidl diff base.json new.json
   pidl diff -f json base.json new.json
@@ -1114,12 +1185,12 @@ Examples:
 	}
 
 	if err := fs.Parse(args); err != nil {
-		os.Exit(1)
+		return flagExitCode(err)
 	}
 
 	if fs.NArg() != 2 {
 		fs.Usage()
-		os.Exit(1)
+		return 1
 	}
 
 	baseFile := fs.Arg(0)
@@ -1127,14 +1198,14 @@ Examples:
 
 	base, err := loadProtocol(baseFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading base file: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error loading base file: %v\n", err)
+		return 1
 	}
 
 	newProto, err := loadProtocol(newFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading new file: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error loading new file: %v\n", err)
+		return 1
 	}
 
 	opts := pidl.DefaultDiffOptions()
@@ -1148,8 +1219,8 @@ Examples:
 	case "json":
 		jsonBytes, err := diff.ToJSON()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error marshaling JSON: %v\n", err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error marshaling JSON: %v\n", err)
+			return 1
 		}
 		result = string(jsonBytes)
 	case "markdown", "md":
@@ -1168,20 +1239,22 @@ Examples:
 	}
 
 	if *output == "" {
-		fmt.Print(result)
+		fmt.Fprint(stdout, result)
 	} else {
 		if err := os.WriteFile(*output, []byte(result), 0600); err != nil {
-			fmt.Fprintf(os.Stderr, "Error writing %s: %v\n", *output, err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error writing %s: %v\n", *output, err)
+			return 1
 		}
-		fmt.Printf("Wrote diff to %s\n", *output)
+		fmt.Fprintf(stdout, "Wrote diff to %s\n", *output)
 	}
+	return 0
 }
 
-func cmdDebug(args []string) {
-	fs := flag.NewFlagSet("debug", flag.ExitOnError)
+func cmdDebug(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("debug", flag.ContinueOnError)
+	fs.SetOutput(stderr)
 	fs.Usage = func() {
-		fmt.Print(`Usage: pidl debug <file>
+		fmt.Fprint(stdout, `Usage: pidl debug <file>
 
 Interactive protocol debugger. Step through protocol execution,
 set breakpoints, and inspect entity states.
@@ -1206,19 +1279,19 @@ Commands:
 	}
 
 	if err := fs.Parse(args); err != nil {
-		os.Exit(1)
+		return flagExitCode(err)
 	}
 
 	if fs.NArg() == 0 {
 		fs.Usage()
-		os.Exit(1)
+		return 1
 	}
 
 	filename := fs.Arg(0)
 	p, err := loadProtocol(filename)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
 
 	// Resolve if needed
@@ -1227,23 +1300,23 @@ Commands:
 		opts.BasePath = filepath.Dir(filename)
 		p, err = p.Resolve(opts)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error resolving: %v\n", err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error resolving: %v\n", err)
+			return 1
 		}
 	}
 
 	session := pidl.NewDebugSession(p)
 
-	fmt.Printf("PIDL Debugger: %s\n", p.ProtocolMeta.Name)
-	fmt.Printf("Entities: %d, Flows: %d\n", len(p.Entities), len(p.Flows))
-	fmt.Println("Type 'help' for commands, 'quit' to exit.")
+	fmt.Fprintf(stdout, "PIDL Debugger: %s\n", p.ProtocolMeta.Name)
+	fmt.Fprintf(stdout, "Entities: %d, Flows: %d\n", len(p.Entities), len(p.Flows))
+	fmt.Fprintln(stdout, "Type 'help' for commands, 'quit' to exit.")
 
-	runDebugREPL(session)
+	runDebugREPL(session, stdout, stderr)
+	return 0
 }
 
-func runDebugREPL(session *pidl.DebugSession) {
-	reader := strings.NewReader("")
-	var input string
+func runDebugREPL(session *pidl.DebugSession, stdout, stderr io.Writer) {
+	reader := bufio.NewReader(stdin)
 
 	for {
 		// Print prompt
@@ -1252,24 +1325,22 @@ func runDebugREPL(session *pidl.DebugSession) {
 		if state.IsCompleted {
 			prompt = "(pidl:done) "
 		}
-		fmt.Print(prompt)
+		fmt.Fprint(stdout, prompt)
 
 		// Read input
-		_, err := fmt.Scanln(&input)
-		if err != nil {
-			// Handle empty input or EOF
-			if err.Error() == "unexpected newline" || err.Error() == "EOF" {
-				continue
-			}
-			fmt.Fprintf(os.Stderr, "Error reading input: %v\n", err)
-			continue
+		input, err := reader.ReadString('\n')
+		if err != nil && !errors.Is(err, io.EOF) {
+			fmt.Fprintf(stderr, "Error reading input: %v\n", err)
+			return
 		}
-
-		// Handle empty reader
-		_ = reader
+		atEOF := err != nil
 
 		parts := strings.Fields(input)
 		if len(parts) == 0 {
+			if atEOF {
+				// Input exhausted (Ctrl-D or scripted input ended): leave the REPL.
+				return
+			}
 			continue
 		}
 
@@ -1280,39 +1351,39 @@ func runDebugREPL(session *pidl.DebugSession) {
 		case "step", "s":
 			step, err := session.Step()
 			if err != nil {
-				fmt.Printf("Error: %v\n", err)
+				fmt.Fprintf(stdout, "Error: %v\n", err)
 				continue
 			}
 			if step == nil {
-				fmt.Println("Execution complete.")
+				fmt.Fprintln(stdout, "Execution complete.")
 			} else {
-				printDebugStep(step)
+				printDebugStep(stdout, step)
 			}
 
 		case "continue", "c":
 			step, err := session.Continue()
 			if err != nil {
-				fmt.Printf("Error: %v\n", err)
+				fmt.Fprintf(stdout, "Error: %v\n", err)
 				continue
 			}
 			state := session.Inspect()
 			if state.IsCompleted {
-				fmt.Println("Execution complete.")
+				fmt.Fprintln(stdout, "Execution complete.")
 			} else if state.AtBreakpoint {
-				fmt.Printf("Breakpoint hit at flow %d\n", state.FlowIndex)
+				fmt.Fprintf(stdout, "Breakpoint hit at flow %d\n", state.FlowIndex)
 			}
 			if step != nil {
-				printDebugStep(step)
+				printDebugStep(stdout, step)
 			}
 
 		case "break", "b":
 			if len(args) < 1 {
-				fmt.Println("Usage: break <flow-index> [condition]")
+				fmt.Fprintln(stdout, "Usage: break <flow-index> [condition]")
 				continue
 			}
 			var idx int
 			if _, err := fmt.Sscanf(args[0], "%d", &idx); err != nil {
-				fmt.Printf("Invalid flow index: %s\n", args[0])
+				fmt.Fprintf(stdout, "Invalid flow index: %s\n", args[0])
 				continue
 			}
 			condition := ""
@@ -1320,33 +1391,33 @@ func runDebugREPL(session *pidl.DebugSession) {
 				condition = strings.Join(args[1:], " ")
 			}
 			if err := session.SetBreakpoint(idx, condition); err != nil {
-				fmt.Printf("Error: %v\n", err)
+				fmt.Fprintf(stdout, "Error: %v\n", err)
 			} else {
-				fmt.Printf("Breakpoint set at flow %d\n", idx)
+				fmt.Fprintf(stdout, "Breakpoint set at flow %d\n", idx)
 			}
 
 		case "delete", "d":
 			if len(args) < 1 {
-				fmt.Println("Usage: delete <flow-index>")
+				fmt.Fprintln(stdout, "Usage: delete <flow-index>")
 				continue
 			}
 			var idx int
 			if _, err := fmt.Sscanf(args[0], "%d", &idx); err != nil {
-				fmt.Printf("Invalid flow index: %s\n", args[0])
+				fmt.Fprintf(stdout, "Invalid flow index: %s\n", args[0])
 				continue
 			}
 			if err := session.RemoveBreakpoint(idx); err != nil {
-				fmt.Printf("Error: %v\n", err)
+				fmt.Fprintf(stdout, "Error: %v\n", err)
 			} else {
-				fmt.Printf("Breakpoint removed at flow %d\n", idx)
+				fmt.Fprintf(stdout, "Breakpoint removed at flow %d\n", idx)
 			}
 
 		case "breakpoints", "bp":
 			bps := session.ListBreakpoints()
 			if len(bps) == 0 {
-				fmt.Println("No breakpoints set.")
+				fmt.Fprintln(stdout, "No breakpoints set.")
 			} else {
-				fmt.Println("Breakpoints:")
+				fmt.Fprintln(stdout, "Breakpoints:")
 				for _, bp := range bps {
 					status := "enabled"
 					if !bp.Enabled {
@@ -1356,119 +1427,119 @@ func runDebugREPL(session *pidl.DebugSession) {
 					if bp.Condition != "" {
 						cond = fmt.Sprintf(" if %s", bp.Condition)
 					}
-					fmt.Printf("  %d: %s%s (hit %d times)\n", bp.FlowIndex, status, cond, bp.HitCount)
+					fmt.Fprintf(stdout, "  %d: %s%s (hit %d times)\n", bp.FlowIndex, status, cond, bp.HitCount)
 				}
 			}
 
 		case "inspect", "i":
 			if len(args) == 0 {
 				state := session.Inspect()
-				fmt.Print(state.String())
+				fmt.Fprint(stdout, state.String())
 			} else if args[0] == "entity" && len(args) > 1 {
 				entity, entityState, err := session.InspectEntity(args[1])
 				if err != nil {
-					fmt.Printf("Error: %v\n", err)
+					fmt.Fprintf(stdout, "Error: %v\n", err)
 				} else {
-					fmt.Printf("Entity: %s (%s)\n", entity.Name, entity.ID)
-					fmt.Printf("Type: %s\n", entity.Type)
+					fmt.Fprintf(stdout, "Entity: %s (%s)\n", entity.Name, entity.ID)
+					fmt.Fprintf(stdout, "Type: %s\n", entity.Type)
 					if entity.TrustLevel != "" {
-						fmt.Printf("Trust Level: %s\n", entity.TrustLevel)
+						fmt.Fprintf(stdout, "Trust Level: %s\n", entity.TrustLevel)
 					}
 					if entityState != "" {
-						fmt.Printf("Current State: %s\n", entityState)
+						fmt.Fprintf(stdout, "Current State: %s\n", entityState)
 					}
 					if entity.HasStates() {
-						fmt.Println("Available States:")
+						fmt.Fprintln(stdout, "Available States:")
 						for _, s := range entity.States {
 							marker := "  "
 							if s.ID == entityState {
 								marker = "* "
 							}
-							fmt.Printf("  %s%s", marker, s.ID)
+							fmt.Fprintf(stdout, "  %s%s", marker, s.ID)
 							if s.Initial {
-								fmt.Print(" (initial)")
+								fmt.Fprint(stdout, " (initial)")
 							}
 							if s.Final {
-								fmt.Print(" (final)")
+								fmt.Fprint(stdout, " (final)")
 							}
-							fmt.Println()
+							fmt.Fprintln(stdout)
 						}
 					}
 				}
 			} else if args[0] == "flow" && len(args) > 1 {
 				var idx int
 				if _, err := fmt.Sscanf(args[1], "%d", &idx); err != nil {
-					fmt.Printf("Invalid flow index: %s\n", args[1])
+					fmt.Fprintf(stdout, "Invalid flow index: %s\n", args[1])
 					continue
 				}
 				flow, err := session.InspectFlow(idx)
 				if err != nil {
-					fmt.Printf("Error: %v\n", err)
+					fmt.Fprintf(stdout, "Error: %v\n", err)
 				} else {
-					fmt.Printf("Flow %d:\n", idx)
-					fmt.Printf("  From: %s\n", flow.From)
-					fmt.Printf("  To: %s\n", flow.To)
-					fmt.Printf("  Action: %s\n", flow.Action)
+					fmt.Fprintf(stdout, "Flow %d:\n", idx)
+					fmt.Fprintf(stdout, "  From: %s\n", flow.From)
+					fmt.Fprintf(stdout, "  To: %s\n", flow.To)
+					fmt.Fprintf(stdout, "  Action: %s\n", flow.Action)
 					if flow.Label != "" {
-						fmt.Printf("  Label: %s\n", flow.Label)
+						fmt.Fprintf(stdout, "  Label: %s\n", flow.Label)
 					}
 					if flow.Mode != "" {
-						fmt.Printf("  Mode: %s\n", flow.Mode)
+						fmt.Fprintf(stdout, "  Mode: %s\n", flow.Mode)
 					}
 					if flow.Phase != "" {
-						fmt.Printf("  Phase: %s\n", flow.Phase)
+						fmt.Fprintf(stdout, "  Phase: %s\n", flow.Phase)
 					}
 					if flow.Condition != "" {
-						fmt.Printf("  Condition: %s\n", flow.Condition)
+						fmt.Fprintf(stdout, "  Condition: %s\n", flow.Condition)
 					}
 					if len(flow.Sets) > 0 {
-						fmt.Println("  State Mutations:")
+						fmt.Fprintln(stdout, "  State Mutations:")
 						for _, m := range flow.Sets {
 							if m.From != "" {
-								fmt.Printf("    %s: %s -> %s\n", m.Entity, m.From, m.To)
+								fmt.Fprintf(stdout, "    %s: %s -> %s\n", m.Entity, m.From, m.To)
 							} else {
-								fmt.Printf("    %s: -> %s\n", m.Entity, m.To)
+								fmt.Fprintf(stdout, "    %s: -> %s\n", m.Entity, m.To)
 							}
 						}
 					}
 				}
 			} else {
-				fmt.Println("Usage: inspect | inspect entity <id> | inspect flow <idx>")
+				fmt.Fprintln(stdout, "Usage: inspect | inspect entity <id> | inspect flow <idx>")
 			}
 
 		case "list", "l":
-			fmt.Print(session.FormatFlowList())
+			fmt.Fprint(stdout, session.FormatFlowList())
 
 		case "set":
 			if len(args) < 2 {
-				fmt.Println("Usage: set <entity-id> <state-id>")
+				fmt.Fprintln(stdout, "Usage: set <entity-id> <state-id>")
 				continue
 			}
 			if err := session.SetEntityState(args[0], args[1]); err != nil {
-				fmt.Printf("Error: %v\n", err)
+				fmt.Fprintf(stdout, "Error: %v\n", err)
 			} else {
-				fmt.Printf("Set %s state to %s\n", args[0], args[1])
+				fmt.Fprintf(stdout, "Set %s state to %s\n", args[0], args[1])
 			}
 
 		case "reset", "r":
 			session.Reset()
-			fmt.Println("Execution reset to beginning.")
+			fmt.Fprintln(stdout, "Execution reset to beginning.")
 
 		case "trace", "t":
 			trace := session.Trace()
-			fmt.Printf("Steps executed: %d\n", trace.StepCount())
-			fmt.Printf("Steps skipped: %d\n", trace.SkippedCount())
-			fmt.Printf("State changes: %d\n", trace.StateChangeCount())
+			fmt.Fprintf(stdout, "Steps executed: %d\n", trace.StepCount())
+			fmt.Fprintf(stdout, "Steps skipped: %d\n", trace.SkippedCount())
+			fmt.Fprintf(stdout, "State changes: %d\n", trace.StateChangeCount())
 			for _, step := range trace.Steps {
 				status := "+"
 				if step.Skipped {
 					status = "-"
 				}
-				fmt.Printf("  %s %d: %s -> %s: %s\n", status, step.StepNumber, step.From, step.To, step.Action)
+				fmt.Fprintf(stdout, "  %s %d: %s -> %s: %s\n", status, step.StepNumber, step.From, step.To, step.Action)
 			}
 
 		case "help", "h", "?":
-			fmt.Print(`Commands:
+			fmt.Fprint(stdout, `Commands:
   step, s              Execute next flow
   continue, c          Run until breakpoint or completion
   break <idx> [cond]   Set breakpoint at flow index
@@ -1486,16 +1557,16 @@ func runDebugREPL(session *pidl.DebugSession) {
 `)
 
 		case "quit", "q", "exit":
-			fmt.Println("Goodbye.")
+			fmt.Fprintln(stdout, "Goodbye.")
 			return
 
 		default:
-			fmt.Printf("Unknown command: %s (type 'help' for commands)\n", cmd)
+			fmt.Fprintf(stdout, "Unknown command: %s (type 'help' for commands)\n", cmd)
 		}
 	}
 }
 
-func printDebugStep(step *pidl.ExecutionStep) {
+func printDebugStep(stdout io.Writer, step *pidl.ExecutionStep) {
 	label := step.Action
 	if step.Label != "" {
 		label = step.Label
@@ -1506,21 +1577,22 @@ func printDebugStep(step *pidl.ExecutionStep) {
 		status = fmt.Sprintf("skipped (%s)", step.SkipReason)
 	}
 
-	fmt.Printf("Step %d: %s -> %s: %s [%s]\n", step.StepNumber, step.From, step.To, label, status)
+	fmt.Fprintf(stdout, "Step %d: %s -> %s: %s [%s]\n", step.StepNumber, step.From, step.To, label, status)
 
 	if len(step.StateChanges) > 0 {
 		for _, sc := range step.StateChanges {
 			if sc.FromState != "" {
-				fmt.Printf("  State: %s: %s -> %s\n", sc.Entity, sc.FromState, sc.ToState)
+				fmt.Fprintf(stdout, "  State: %s: %s -> %s\n", sc.Entity, sc.FromState, sc.ToState)
 			} else {
-				fmt.Printf("  State: %s: -> %s\n", sc.Entity, sc.ToState)
+				fmt.Fprintf(stdout, "  State: %s: -> %s\n", sc.Entity, sc.ToState)
 			}
 		}
 	}
 }
 
-func cmdAnalyze(args []string) {
-	fs := flag.NewFlagSet("analyze", flag.ExitOnError)
+func cmdAnalyze(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("analyze", flag.ContinueOnError)
+	fs.SetOutput(stderr)
 	formatStr := fs.String("f", "text", "Output format: text, json, markdown")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	minSeverity := fs.String("min-severity", "info", "Minimum severity: critical, high, medium, low, info")
@@ -1529,7 +1601,7 @@ func cmdAnalyze(args []string) {
 	var categories categoryFlags
 	fs.Var(&categories, "category", "Filter by category (repeatable): trust_boundary, authentication, data_protection, token_security, communication, configuration")
 	fs.Usage = func() {
-		fmt.Print(`Usage: pidl analyze [options] <file>
+		fmt.Fprint(stdout, `Usage: pidl analyze [options] <file>
 
 Perform security analysis on a PIDL protocol file.
 
@@ -1544,7 +1616,7 @@ The analyzer checks for common security issues including:
 Options:
 `)
 		fs.PrintDefaults()
-		fmt.Print(`
+		fmt.Fprint(stdout, `
 Examples:
   pidl analyze protocol.json
   pidl analyze -f json protocol.json
@@ -1556,19 +1628,19 @@ Examples:
 	}
 
 	if err := fs.Parse(args); err != nil {
-		os.Exit(1)
+		return flagExitCode(err)
 	}
 
 	if fs.NArg() == 0 {
 		fs.Usage()
-		os.Exit(1)
+		return 1
 	}
 
 	filename := fs.Arg(0)
 	p, err := loadProtocol(filename)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
 
 	// Resolve if needed
@@ -1577,8 +1649,8 @@ Examples:
 		opts.BasePath = filepath.Dir(filename)
 		p, err = p.Resolve(opts)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error resolving: %v\n", err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error resolving: %v\n", err)
+			return 1
 		}
 	}
 
@@ -1588,8 +1660,8 @@ Examples:
 	if *minSeverity != "" {
 		sev, err := analyze.ParseSeverity(*minSeverity)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Invalid severity: %v\n", err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Invalid severity: %v\n", err)
+			return 1
 		}
 		opts.MinSeverity = sev
 	}
@@ -1597,8 +1669,8 @@ Examples:
 	for _, cat := range categories {
 		parsedCat, err := analyze.ParseCategory(cat)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Invalid category: %v\n", err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Invalid category: %v\n", err)
+			return 1
 		}
 		opts.Categories = append(opts.Categories, parsedCat)
 	}
@@ -1612,8 +1684,8 @@ Examples:
 	case "json":
 		jsonBytes, err := analysis.ToJSON()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error marshaling JSON: %v\n", err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error marshaling JSON: %v\n", err)
+			return 1
 		}
 		result = string(jsonBytes)
 	case "markdown", "md":
@@ -1639,26 +1711,27 @@ Examples:
 
 	// Output result
 	if *output == "" {
-		fmt.Print(result)
+		fmt.Fprint(stdout, result)
 	} else {
 		if err := os.WriteFile(*output, []byte(result), 0600); err != nil {
-			fmt.Fprintf(os.Stderr, "Error writing %s: %v\n", *output, err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Error writing %s: %v\n", *output, err)
+			return 1
 		}
-		fmt.Printf("Wrote analysis to %s\n", *output)
+		fmt.Fprintf(stdout, "Wrote analysis to %s\n", *output)
 	}
 
 	// Check fail-on condition
 	if *failOn != "" {
 		failSeverity, err := analyze.ParseSeverity(*failOn)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Invalid fail-on severity: %v\n", err)
-			os.Exit(1)
+			fmt.Fprintf(stderr, "Invalid fail-on severity: %v\n", err)
+			return 1
 		}
 		if analysis.HasRisksAtOrAbove(failSeverity) {
-			os.Exit(1)
+			return 1
 		}
 	}
+	return 0
 }
 
 // categoryFlags is a custom flag type that collects multiple --category values.
