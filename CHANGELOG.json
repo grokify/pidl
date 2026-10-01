@@ -14,6 +14,9 @@
       "highlights": [
         {
           "description": "D2 sequence diagrams now render as sequence diagrams: messages are edges, responses are dashed in the flow direction, and labels are quoted so punctuation cannot break compilation"
+        },
+        {
+          "description": "Unit test coverage raised from 73.5% to 87.6%: the CLI is now driven through a testable run() function, every SVG format has golden-file tests, and the library packages sit between 89% and 94%"
         }
       ],
       "fixed": [
@@ -36,6 +39,22 @@
         {
           "description": "CLI `version` reported 0.4.0 since v0.5.0; now 0.6.1",
           "commit": "9355423"
+        },
+        {
+          "description": "Network SVG connection order and trust SVG node placement varied between runs; both now follow first-appearance order",
+          "commit": "175d171"
+        },
+        {
+          "description": "CLI `components` and `trust` crashed on protocols without a metadata block",
+          "commit": "560d07b"
+        },
+        {
+          "description": "Debug REPL lost arguments of multi-word commands and looped forever on EOF",
+          "commit": "560d07b"
+        },
+        {
+          "description": "CLI `init`, `roles`, `components` and `trust` silently discarded JSON errors",
+          "commit": "560d07b"
         }
       ],
       "changed": [
@@ -50,6 +69,10 @@
         {
           "description": "D2 sequence container no longer shows a visible `sequence` label",
           "commit": "b139797"
+        },
+        {
+          "description": "CLI entry point extracted to run(args, stdout, stderr) int; subcommands return exit codes and a flag parse error exits 2",
+          "commit": "560d07b"
         }
       ],
       "tests": [
@@ -60,6 +83,18 @@
         {
           "description": "Assert D2 sequence output has no keyed messages or reversed arrows",
           "commit": "6d29a8e"
+        },
+        {
+          "description": "Golden-file tests for svg, svg-animated, svg-network, svg-component, svg-trust and infographic output across templates, themes, boundaries and animation presets",
+          "commit": "fa63d4b"
+        },
+        {
+          "description": "Table-driven CLI tests covering every subcommand through run(), including a scripted debug REPL",
+          "commit": "a71e457"
+        },
+        {
+          "description": "Table-driven tests for Entity and FlowAnimation accessors, executors, analyzer rules and the Step Functions exporter",
+          "commit": "b316228"
         }
       ]
     },
