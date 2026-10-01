@@ -9,6 +9,61 @@
   ],
   "releases": [
     {
+      "version": "v0.6.1",
+      "date": "2026-10-01",
+      "highlights": [
+        {
+          "description": "D2 sequence diagrams now render as sequence diagrams: messages are edges, responses are dashed in the flow direction, and labels are quoted so punctuation cannot break compilation"
+        }
+      ],
+      "fixed": [
+        {
+          "description": "D2 sequence renderer emitted messages as `seqN:`-keyed shapes, which D2 drew as notes and phase groups as extra actors",
+          "commit": "b139797"
+        },
+        {
+          "description": "D2 responses were written as `from <- to`, pointing the arrow at the sender",
+          "commit": "b139797"
+        },
+        {
+          "description": "D2 conditions were prefixed as `[cond]` in unquoted labels, which D2 parses as an array and refuses to compile",
+          "commit": "b139797"
+        },
+        {
+          "description": "All D2 labels, actor names, group names and tooltips in sequence, flow and arch styles are now double-quoted",
+          "commit": "b139797"
+        },
+        {
+          "description": "CLI `version` reported 0.4.0 since v0.5.0; now 0.6.1",
+          "commit": "9355423"
+        }
+      ],
+      "changed": [
+        {
+          "description": "D2 annotations render as D2 notes on the receiving actor instead of self-messages",
+          "commit": "b139797"
+        },
+        {
+          "description": "D2 events render dotted; responses and tool results dashed",
+          "commit": "b139797"
+        },
+        {
+          "description": "D2 sequence container no longer shows a visible `sequence` label",
+          "commit": "b139797"
+        }
+      ],
+      "tests": [
+        {
+          "description": "Compile every built-in example and an awkward-label fixture in all three D2 styles with the `d2` CLI when installed",
+          "commit": "6d29a8e"
+        },
+        {
+          "description": "Assert D2 sequence output has no keyed messages or reversed arrows",
+          "commit": "6d29a8e"
+        }
+      ]
+    },
+    {
       "version": "v0.6.0",
       "date": "2026-09-13",
       "highlights": [
