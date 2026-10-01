@@ -1,0 +1,36 @@
+<svg viewBox="0 0 820 520" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .title { font-family: sans-serif; font-size: 16px; font-weight: 600; fill: #e2e8f0; text-anchor: middle; }
+    .component-box { stroke: #4a5568; stroke-width: 2; }
+    .component-name { font-family: sans-serif; font-size: 13px; font-weight: 600; fill: #e2e8f0; text-anchor: middle; }
+    .component-type { font-family: sans-serif; font-size: 10px; fill: #718096; text-anchor: middle; }
+    .component-roles { font-family: monospace; font-size: 9px; fill: #4a5568; text-anchor: middle; }
+    .component-entities { font-family: sans-serif; font-size: 9px; fill: #718096; text-anchor: middle; }
+    .component-examples { font-family: sans-serif; font-size: 8px; font-style: italic; fill: #a0aec0; text-anchor: middle; }
+  </style>
+  <rect class="component-box" x="40" y="40" width="220" height="120" rx="8" fill="#cce5ff"/>
+  <text class="component-name" x="150" y="60">Identity Provider</text>
+  <text class="component-type" x="150" y="76">[idp]</text>
+  <text class="component-examples" x="150" y="154">e.g., Okta, Entra ID, Auth0</text>
+  <rect class="component-box" x="300" y="40" width="220" height="120" rx="8" fill="#fff3cd"/>
+  <text class="component-name" x="410" y="60">Agent Provider</text>
+  <text class="component-type" x="410" y="76">[agent_provider]</text>
+  <rect class="component-box" x="560" y="40" width="220" height="120" rx="8" fill="#c3e6cb"/>
+  <text class="component-name" x="670" y="60">AI Assistant</text>
+  <text class="component-type" x="670" y="76">[mcp_client]</text>
+  <text class="component-examples" x="670" y="154">e.g., Claude Desktop, ChatGPT, Cu...</text>
+  <rect class="component-box" x="40" y="200" width="220" height="120" rx="8" fill="#bee5eb"/>
+  <text class="component-name" x="150" y="220">Tool Server</text>
+  <text class="component-type" x="150" y="236">[mcp_server]</text>
+  <rect class="component-box" x="300" y="200" width="220" height="120" rx="8" fill="#e2d5f0"/>
+  <text class="component-name" x="410" y="220">Policy Engine</text>
+  <text class="component-type" x="410" y="236">[pdp]</text>
+  <text class="component-examples" x="410" y="314">e.g., Topaz, OPA, Cedar</text>
+  <rect class="component-box" x="560" y="200" width="220" height="120" rx="8" fill="#ffeeba"/>
+  <text class="component-name" x="670" y="220">API Gateway</text>
+  <text class="component-type" x="670" y="236">[gateway]</text>
+  <text class="component-examples" x="670" y="314">e.g., Kong, Envoy, AWS API Gateway</text>
+  <rect class="component-box" x="40" y="360" width="220" height="120" rx="8" fill="#f5c6cb"/>
+  <text class="component-name" x="150" y="380">Resource APIs</text>
+  <text class="component-type" x="150" y="396">[resource_api]</text>
+</svg>

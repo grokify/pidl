@@ -1,0 +1,332 @@
+<svg viewBox="0 0 330 540" xmlns="http://www.w3.org/2000/svg" class="theme-light">
+  <style>
+
+    /* Light theme (default) */
+    :root, .theme-light {
+      --color-primary: #1a365d;
+      --color-secondary: #2c5282;
+      --color-accent: #3182ce;
+      --color-bg: #ffffff;
+      --color-text: #1a202c;
+      --color-text-muted: #718096;
+      --color-line: #3182ce;
+      --color-line-response: #a0aec0;
+      --color-lifeline: #cbd5e0;
+      --color-participant-bg: #1a365d;
+      --color-participant-text: #ffffff;
+      --color-dot: #3182ce;
+    }
+
+    /* Dark theme */
+    .theme-dark {
+      --color-primary: #63b3ed;
+      --color-secondary: #90cdf4;
+      --color-accent: #4299e1;
+      --color-bg: #1a202c;
+      --color-text: #e2e8f0;
+      --color-text-muted: #a0aec0;
+      --color-line: #63b3ed;
+      --color-line-response: #4a5568;
+      --color-lifeline: #4a5568;
+      --color-participant-bg: #4299e1;
+      --color-participant-text: #ffffff;
+      --color-dot: #63b3ed;
+    }
+
+    /* Element styles */
+    .participant-box {
+      fill: var(--color-participant-bg);
+    }
+
+    .participant-text {
+      fill: var(--color-participant-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .lifeline {
+      stroke: var(--color-lifeline);
+      stroke-width: 1;
+      stroke-dasharray: 4,4;
+    }
+
+    .message-line {
+      fill: none;
+      stroke: var(--color-line);
+      stroke-width: 1.5;
+    }
+
+    .message-line-response {
+      fill: none;
+      stroke: var(--color-line-response);
+      stroke-width: 1.5;
+      stroke-dasharray: 6,3;
+    }
+
+    .message-arrow {
+      fill: var(--color-line);
+    }
+
+    .message-arrow-response {
+      fill: var(--color-line-response);
+    }
+
+    .message-text {
+      fill: var(--color-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 11px;
+    }
+
+    .step-circle {
+      fill: var(--color-accent);
+    }
+
+    .step-number {
+      fill: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 9px;
+      font-weight: bold;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    /* Phase box styles */
+    .phase-box {
+      stroke: var(--color-lifeline);
+      stroke-width: 1;
+      stroke-dasharray: 4, 2;
+    }
+
+    .phase-label {
+      fill: var(--color-text-muted);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Alternative badge styles */
+    .alt-badge-bg {
+      fill: var(--color-accent);
+      opacity: 0.9;
+    }
+
+    .alt-badge-text {
+      fill: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 8px;
+      font-weight: 600;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .alt-badge {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .alt-badge:hover {
+      transform: scale(1.1);
+    }
+
+    /* Note styles */
+    .message-note {
+      fill: var(--color-text-muted);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 9px;
+      font-style: italic;
+    }
+
+    /* Interactive hover states */
+    .participant-box {
+      transition: filter 0.2s ease, transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    .participant-box:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .message-line, .message-line-response {
+      transition: stroke-width 0.2s ease, filter 0.2s ease;
+      cursor: pointer;
+    }
+
+    .message-line:hover, .message-line-response:hover {
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 2px var(--color-line));
+    }
+
+    .message-text {
+      transition: font-weight 0.2s ease;
+      cursor: pointer;
+    }
+
+    .message-text:hover {
+      font-weight: 600;
+    }
+
+    .flow-dot {
+      transition: r 0.15s ease;
+    }
+
+    .flow-dot:hover {
+      r: 6;
+    }
+
+    .step-circle {
+      transition: transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    .step-circle:hover {
+      transform: scale(1.2);
+    }
+
+    /* Print styles */
+    @media print {
+      .flow-dot {
+        display: none;
+      }
+      /* Disable hover effects in print */
+      .participant-box:hover,
+      .message-line:hover,
+      .message-line-response:hover {
+        filter: none;
+        transform: none;
+      }
+    }
+
+    /* Network boundary styles */
+    .boundary {
+      stroke-width: 2;
+    }
+
+    .boundary-label {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      fill: var(--color-text);
+    }
+
+    .entity-box {
+      fill: var(--color-participant-bg);
+      stroke: var(--color-line);
+      stroke-width: 1;
+    }
+
+    .entity-text {
+      fill: var(--color-participant-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .connection {
+      fill: none;
+      stroke: var(--color-line);
+      stroke-width: 1.5;
+    }
+
+    .connection-cross-boundary {
+      stroke: var(--color-accent);
+      stroke-width: 2;
+    }
+
+    .connection-label {
+      fill: var(--color-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 10px;
+    }
+
+    /* Boundary style colors */
+    .boundary-trusted {
+      fill: rgba(39, 103, 73, 0.1);
+      stroke: #276749;
+    }
+
+    .boundary-dmz {
+      fill: rgba(49, 130, 206, 0.1);
+      stroke: #3182ce;
+      stroke-dasharray: 8,4;
+    }
+
+    .boundary-external {
+      fill: rgba(197, 48, 48, 0.1);
+      stroke: #c53030;
+      stroke-dasharray: 4,4;
+    }
+
+    .boundary-cloud {
+      fill: rgba(113, 128, 150, 0.1);
+      stroke: #718096;
+    }
+  </style>
+
+  <defs>
+    <marker id="arrow-connection" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <text x="165" y="15" class="message-text" style="font-size:14px;font-weight:600;text-anchor:middle;">OAuth 2.0 Authorization Code Flow with Security Annotations</text>
+
+  <!-- Network Boundaries -->
+  <g class="boundaries">
+    <rect class="boundary boundary-external" x="30" y="30" width="270" height="90" rx="8"/>
+    <text class="boundary-label" x="40" y="48">External</text>
+    <rect class="boundary boundary-dmz" x="30" y="160" width="140" height="90" rx="8"/>
+    <text class="boundary-label" x="40" y="178">Dmz</text>
+    <rect class="boundary boundary-trusted" x="30" y="290" width="140" height="90" rx="8"/>
+    <text class="boundary-label" x="40" y="308">Private</text>
+    <rect class="boundary boundary-cloud" x="30" y="420" width="140" height="90" rx="8"/>
+    <text class="boundary-label" x="40" y="438">Cloud</text>
+  </g>
+
+  <!-- Entities -->
+  <g class="entities">
+    <rect class="entity-box" x="50" y="50" width="100" height="50" rx="4"/>
+    <text class="entity-text" x="100" y="75">User Agent</text>
+    <rect class="entity-box" x="180" y="50" width="100" height="50" rx="4"/>
+    <text class="entity-text" x="230" y="75">Resource Owner</text>
+    <rect class="entity-box" x="50" y="180" width="100" height="50" rx="4"/>
+    <text class="entity-text" x="100" y="205">Client Application</text>
+    <rect class="entity-box" x="50" y="310" width="100" height="50" rx="4"/>
+    <text class="entity-text" x="100" y="335">Resource Server</text>
+    <rect class="entity-box" x="50" y="440" width="100" height="50" rx="4"/>
+    <text class="entity-text" x="100" y="465">Authorization Server</text>
+  </g>
+
+  <!-- Connections -->
+  <g class="connections">
+    <path class="connection connection-cross-boundary" d="M230,75 Q165,140 100,205" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="165" y="135" text-anchor="middle">Click Login</text>
+    <path class="connection connection-cross-boundary" d="M100,205 Q100,140 100,75" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="135" text-anchor="middle">Redirect to Authorization Server</text>
+    <path class="connection connection-cross-boundary" d="M100,75 Q100,270 100,465" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="265" text-anchor="middle">GET /authorize?response_type=code&amp;client_id=...&amp;redirect_uri=...&amp;scope=...</text>
+    <path class="connection connection-cross-boundary" d="M100,465 Q165,270 230,75" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="165" y="265" text-anchor="middle">Login + Consent Form</text>
+    <path class="connection connection-cross-boundary" d="M230,75 Q165,270 100,465" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="165" y="265" text-anchor="middle">Submit Credentials + Grant Consent</text>
+    <path class="connection connection-cross-boundary" d="M100,465 Q100,270 100,75" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="265" text-anchor="middle">Redirect to redirect_uri?code=...&amp;state=...</text>
+    <path class="connection connection-cross-boundary" d="M100,75 Q100,140 100,205" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="135" text-anchor="middle">Callback with Authorization Code</text>
+    <path class="connection connection-cross-boundary" d="M100,205 Q100,335 100,465" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="330" text-anchor="middle">POST /token (grant_type=authorization_code&amp;code=...)</text>
+    <path class="connection connection-cross-boundary" d="M100,465 Q100,335 100,205" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="330" text-anchor="middle">Access Token + Refresh Token</text>
+    <path class="connection connection-cross-boundary" d="M100,205 Q100,270 100,335" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="265" text-anchor="middle">API Request (Authorization: Bearer &lt;token&gt;)</text>
+    <path class="connection connection-cross-boundary" d="M100,335 Q100,270 100,205" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="265" text-anchor="middle">Protected Resource</text>
+  </g>
+</svg>
