@@ -568,14 +568,21 @@ func AggregateConnections(p *pidl.Protocol, entityToBoundary map[string]string) 
 	// Group flows by from-to pair
 	type pair struct{ from, to string }
 	flowsByPair := make(map[pair][]string)
+	// pairOrder records each pair in first-appearance (flow) order so the
+	// output is deterministic rather than following map iteration order.
+	var pairOrder []pair
 
 	for _, f := range p.Flows {
 		key := pair{f.From, f.To}
+		if _, seen := flowsByPair[key]; !seen {
+			pairOrder = append(pairOrder, key)
+		}
 		flowsByPair[key] = append(flowsByPair[key], f.DisplayLabel())
 	}
 
 	var connections []ConnectionLayout
-	for key, labels := range flowsByPair {
+	for _, key := range pairOrder {
+		labels := flowsByPair[key]
 		// Determine if crosses boundary
 		fromBoundary := entityToBoundary[key.from]
 		toBoundary := entityToBoundary[key.to]
