@@ -405,12 +405,12 @@ func TestD2SequenceRenderer(t *testing.T) {
 	}
 
 	// Check title
-	if !strings.Contains(s, "title: Test Protocol") {
+	if !strings.Contains(s, `title: "Test Protocol"`) {
 		t.Error("D2 should contain title")
 	}
 
 	// Check actors
-	if !strings.Contains(s, "client: Client") || !strings.Contains(s, "server: Server") {
+	if !strings.Contains(s, `client: "Client"`) || !strings.Contains(s, `server: "Server"`) {
 		t.Error("D2 should contain actor declarations")
 	}
 
