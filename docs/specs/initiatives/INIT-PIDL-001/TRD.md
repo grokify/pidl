@@ -190,7 +190,8 @@ Golden files in `render/testdata` cover each format.
   available IDs in order, except for `analyze`, which runs on all.
 - `generate --all-scenarios -o <dir>` writes
   `NN-<scenario-id>.<ext>`. `NN` is the 1-based position among
-  non-fragment scenarios, zero-padded to the width of the count.
+  non-fragment scenarios, zero-padded to at least two digits
+  (wider when there are 100 or more scenarios).
   `--include-fragments` adds fragments after the main scenarios, with
   continued numbering.
 - `--expand` on `generate` inlines fragments.

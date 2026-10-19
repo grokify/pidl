@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -192,6 +193,8 @@ func cmdGenerate(args []string, stdout, stderr io.Writer) int {
 	resolveImports := fs.Bool("resolve", false, "Resolve imports and extends before generating")
 	scenario := fs.String("scenario", "", "Scenario ID to render (required for files with scenarios)")
 	expand := fs.Bool("expand", false, "Inline included fragments instead of drawing them as boxes")
+	allScenarios := fs.Bool("all-scenarios", false, "Render every scenario to its own file in the -o directory")
+	includeFragments := fs.Bool("include-fragments", false, "With --all-scenarios, also render fragments, after the main scenarios")
 	var boundaries boundaryFlags
 	fs.Var(&boundaries, "boundary", "Network boundary assignment (format: boundary_id:entity1,entity2). Can be repeated.")
 
@@ -243,6 +246,7 @@ Network Boundary Examples:
 Scenario Examples:
   pidl generate -f mermaid --scenario=three-party aauth.json           One scenario
   pidl generate -f mermaid --scenario=three-party --expand aauth.json  Inline fragments
+  pidl generate -f svg --all-scenarios -o diagrams/ aauth.json         01-<id>.svg, 02-<id>.svg, ...
 
 State Diagram Examples:
   pidl generate -f mermaid-state example.json              All entities with states
@@ -308,137 +312,152 @@ Infographic Examples:
 		return 1
 	}
 
-	p, err = selectScenario(p, *scenario, *expand || !render.SupportsIncludes(format))
+	// renderOne renders one protocol (or scenario projection) in the
+	// requested format.
+	renderOne := func(p *pidl.Protocol) (string, error) {
+		var diagram string
+		var err error
+		if format == render.FormatMermaidState {
+			renderer := render.NewMermaidState()
+			if *entity != "" {
+				renderer.EntityFilter = *entity
+			}
+			diagram, err = renderer.RenderString(p)
+		} else if format == render.FormatSVG || format == render.FormatSVGAnimated {
+			var renderer *render.SVGRenderer
+			if *templateDir != "" {
+				renderer, err = render.NewSVGWithTemplateDir(*templateDir)
+				if err != nil {
+					return "", fmt.Errorf("loading template: %w", err)
+				}
+			} else if *template != "" {
+				renderer, err = render.NewSVGWithTemplate(*template)
+				if err != nil {
+					return "", fmt.Errorf("loading template: %w", err)
+				}
+			} else {
+				renderer = render.NewSVG()
+			}
+
+			if format == render.FormatSVGAnimated {
+				renderer.Animated = true
+			}
+			if *theme != "" {
+				renderer.Theme = *theme
+			}
+			renderer.ShowSecurity = *showSecurity
+
+			diagram, err = renderer.RenderString(p)
+		} else if format == render.FormatSVGNetwork {
+			renderer := render.NewSVGNetwork()
+			if *theme != "" {
+				renderer.Theme = *theme
+			}
+			renderer.ShowTrust = *showTrust
+			renderer.InferBoundariesFromTrust = *showTrust
+
+			// Parse and apply boundary overrides
+			for _, b := range boundaries {
+				boundaryID, entityIDs, parseErr := parseBoundaryFlag(b)
+				if parseErr != nil {
+					return "", fmt.Errorf("parsing boundary flag %q: %w", b, parseErr)
+				}
+				renderer.AddBoundaryOverride(boundaryID, entityIDs)
+			}
+
+			diagram, err = renderer.RenderString(p)
+		} else if format == render.FormatPlantUML {
+			renderer := render.NewPlantUML()
+			renderer.ShowSecurity = *showSecurity
+			diagram, err = renderer.RenderString(p)
+		} else if format == render.FormatMermaid {
+			renderer := render.NewMermaid()
+			renderer.ShowSecurity = *showSecurity
+			diagram, err = renderer.RenderString(p)
+		} else if format == render.FormatInfographic {
+			opts := render.DefaultInfographicOptions()
+
+			// Set size
+			switch *igSize {
+			case "linkedin-square":
+				opts.Size = render.SizeLinkedInSquare
+			case "linkedin-portrait":
+				opts.Size = render.SizeLinkedInPortrait
+			case "linkedin-landscape":
+				opts.Size = render.SizeLinkedInLandscape
+			case "datasheet-tile":
+				opts = render.DatasheetTileOptions()
+			case "datasheet-wide":
+				opts.Size = render.SizeDatasheetWide
+			}
+
+			// Set theme
+			switch *igTheme {
+			case "bold":
+				opts.Theme = render.ThemeBold
+			case "minimal":
+				opts.Theme = render.ThemeMinimal
+			case "dark":
+				opts.Theme = render.ThemeDark
+			case "tech":
+				opts.Theme = render.ThemeTech
+			case "corporate":
+				opts.Theme = render.ThemeCorporate
+			case "accessible":
+				opts.Theme = render.ThemeAccessible
+			}
+
+			// Set title
+			if *igTitle != "" {
+				opts.Title = *igTitle
+			} else {
+				opts.Title = p.ProtocolMeta.Name
+			}
+
+			// Set animation
+			if *igNoAnimate {
+				opts.AnimateDots = false
+			}
+
+			// Set custom shapes
+			if *igNoShapes {
+				opts.UseCustomShapes = false
+			}
+
+			// Set direction
+			if *igDirection == "vertical" {
+				opts.Direction = "vertical"
+			}
+
+			renderer := render.NewInfographicRenderer(opts)
+			diagram = renderer.Render(p)
+		} else {
+			diagram, err = render.RenderString(format, p)
+		}
+		if err != nil {
+			return "", fmt.Errorf("rendering: %w", err)
+		}
+		return diagram, nil
+	}
+
+	includeExpand := *expand || !render.SupportsIncludes(format)
+	if *allScenarios {
+		if *scenario != "" {
+			fmt.Fprintln(stderr, "Error: --all-scenarios and --scenario cannot be combined")
+			return 1
+		}
+		return generateAllScenarios(p, format, *output, *includeFragments, includeExpand, renderOne, stdout, stderr)
+	}
+
+	p, err = selectScenario(p, *scenario, includeExpand)
 	if err != nil {
 		fmt.Fprintf(stderr, "Error: %v\n", err)
 		return 1
 	}
 
-	// Handle format-specific rendering
-	var diagram string
-	if format == render.FormatMermaidState {
-		renderer := render.NewMermaidState()
-		if *entity != "" {
-			renderer.EntityFilter = *entity
-		}
-		diagram, err = renderer.RenderString(p)
-	} else if format == render.FormatSVG || format == render.FormatSVGAnimated {
-		var renderer *render.SVGRenderer
-		if *templateDir != "" {
-			renderer, err = render.NewSVGWithTemplateDir(*templateDir)
-			if err != nil {
-				fmt.Fprintf(stderr, "Error loading template: %v\n", err)
-				return 1
-			}
-		} else if *template != "" {
-			renderer, err = render.NewSVGWithTemplate(*template)
-			if err != nil {
-				fmt.Fprintf(stderr, "Error loading template: %v\n", err)
-				return 1
-			}
-		} else {
-			renderer = render.NewSVG()
-		}
-
-		if format == render.FormatSVGAnimated {
-			renderer.Animated = true
-		}
-		if *theme != "" {
-			renderer.Theme = *theme
-		}
-		renderer.ShowSecurity = *showSecurity
-
-		diagram, err = renderer.RenderString(p)
-	} else if format == render.FormatSVGNetwork {
-		renderer := render.NewSVGNetwork()
-		if *theme != "" {
-			renderer.Theme = *theme
-		}
-		renderer.ShowTrust = *showTrust
-		renderer.InferBoundariesFromTrust = *showTrust
-
-		// Parse and apply boundary overrides
-		for _, b := range boundaries {
-			boundaryID, entityIDs, parseErr := parseBoundaryFlag(b)
-			if parseErr != nil {
-				fmt.Fprintf(stderr, "Error parsing boundary flag %q: %v\n", b, parseErr)
-				return 1
-			}
-			renderer.AddBoundaryOverride(boundaryID, entityIDs)
-		}
-
-		diagram, err = renderer.RenderString(p)
-	} else if format == render.FormatPlantUML {
-		renderer := render.NewPlantUML()
-		renderer.ShowSecurity = *showSecurity
-		diagram, err = renderer.RenderString(p)
-	} else if format == render.FormatMermaid {
-		renderer := render.NewMermaid()
-		renderer.ShowSecurity = *showSecurity
-		diagram, err = renderer.RenderString(p)
-	} else if format == render.FormatInfographic {
-		opts := render.DefaultInfographicOptions()
-
-		// Set size
-		switch *igSize {
-		case "linkedin-square":
-			opts.Size = render.SizeLinkedInSquare
-		case "linkedin-portrait":
-			opts.Size = render.SizeLinkedInPortrait
-		case "linkedin-landscape":
-			opts.Size = render.SizeLinkedInLandscape
-		case "datasheet-tile":
-			opts = render.DatasheetTileOptions()
-		case "datasheet-wide":
-			opts.Size = render.SizeDatasheetWide
-		}
-
-		// Set theme
-		switch *igTheme {
-		case "bold":
-			opts.Theme = render.ThemeBold
-		case "minimal":
-			opts.Theme = render.ThemeMinimal
-		case "dark":
-			opts.Theme = render.ThemeDark
-		case "tech":
-			opts.Theme = render.ThemeTech
-		case "corporate":
-			opts.Theme = render.ThemeCorporate
-		case "accessible":
-			opts.Theme = render.ThemeAccessible
-		}
-
-		// Set title
-		if *igTitle != "" {
-			opts.Title = *igTitle
-		} else {
-			opts.Title = p.ProtocolMeta.Name
-		}
-
-		// Set animation
-		if *igNoAnimate {
-			opts.AnimateDots = false
-		}
-
-		// Set custom shapes
-		if *igNoShapes {
-			opts.UseCustomShapes = false
-		}
-
-		// Set direction
-		if *igDirection == "vertical" {
-			opts.Direction = "vertical"
-		}
-
-		renderer := render.NewInfographicRenderer(opts)
-		diagram = renderer.Render(p)
-	} else {
-		diagram, err = render.RenderString(format, p)
-	}
-
+	diagram, err := renderOne(p)
 	if err != nil {
-		fmt.Fprintf(stderr, "Error rendering: %v\n", err)
+		fmt.Fprintf(stderr, "Error %v\n", err)
 		return 1
 	}
 
@@ -1784,6 +1803,57 @@ func (c *categoryFlags) String() string {
 func (c *categoryFlags) Set(value string) error {
 	*c = append(*c, value)
 	return nil
+}
+
+// generateAllScenarios renders every main scenario of p (and, when
+// includeFragments is set, every fragment after them) into dir, one file per
+// scenario named NN-<scenario-id><ext>. NN is the 1-based position, padded to
+// at least two digits so a name sort keeps document order.
+func generateAllScenarios(p *pidl.Protocol, format render.Format, dir string, includeFragments, expand bool,
+	renderOne func(*pidl.Protocol) (string, error), stdout, stderr io.Writer) int {
+	if !p.HasScenarios() {
+		fmt.Fprintf(stderr, "Error: %s has no scenarios\n", p.ProtocolMeta.ID)
+		return 1
+	}
+	if dir == "" {
+		fmt.Fprintln(stderr, "Error: --all-scenarios needs an output directory: -o <dir>")
+		return 1
+	}
+
+	ids := p.ScenarioIDs(false)
+	if includeFragments {
+		for _, sc := range p.Scenarios {
+			if sc.Fragment {
+				ids = append(ids, sc.ID)
+			}
+		}
+	}
+
+	if err := os.MkdirAll(dir, 0o750); err != nil {
+		fmt.Fprintf(stderr, "Error creating %s: %v\n", dir, err)
+		return 1
+	}
+
+	width := max(2, len(strconv.Itoa(len(ids))))
+	for i, id := range ids {
+		proj, err := p.Scenario(id, pidl.ProjectOptions{Expand: expand})
+		if err != nil {
+			fmt.Fprintf(stderr, "Error: %v\n", err)
+			return 1
+		}
+		diagram, err := renderOne(proj)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error in scenario %s: %v\n", id, err)
+			return 1
+		}
+		path := filepath.Join(dir, fmt.Sprintf("%0*d-%s%s", width, i+1, id, format.FileExtension()))
+		if err := os.WriteFile(path, []byte(diagram), 0o600); err != nil {
+			fmt.Fprintf(stderr, "Error writing %s: %v\n", path, err)
+			return 1
+		}
+		fmt.Fprintf(stdout, "Wrote %s\n", path)
+	}
+	return 0
 }
 
 // selectScenario returns the protocol to work on. For a file with

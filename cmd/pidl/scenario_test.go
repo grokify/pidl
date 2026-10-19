@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -104,5 +105,99 @@ func TestRunScenarios(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestRunAllScenarios(t *testing.T) {
+	dir := t.TempDir()
+	demo := writeScenarioFixture(t, dir)
+	legacy := writeExample(t, dir, "oauth2_pkce")
+
+	listDir := func(t *testing.T, d string) []string {
+		t.Helper()
+		entries, err := os.ReadDir(d)
+		if err != nil {
+			t.Fatalf("ReadDir(%s): %v", d, err)
+		}
+		var names []string
+		for _, e := range entries {
+			names = append(names, e.Name())
+		}
+		return names
+	}
+
+	tests := []struct {
+		name      string
+		args      []string
+		outDir    string
+		wantCode  int
+		wantFiles []string
+		wantErr   string
+	}{
+		{
+			name:      "main scenarios in document order",
+			args:      []string{"generate", "-f", "mermaid", "--all-scenarios"},
+			outDir:    "main",
+			wantFiles: []string{"01-agent-identity.mmd", "02-three-party.mmd"},
+		},
+		{
+			name:      "fragments after main scenarios",
+			args:      []string{"generate", "-f", "d2", "--all-scenarios", "--include-fragments"},
+			outDir:    "frags",
+			wantFiles: []string{"01-agent-identity.d2", "02-three-party.d2", "03-consent.d2"},
+		},
+		{
+			name:     "needs an output directory",
+			args:     []string{"generate", "-f", "mermaid", "--all-scenarios"},
+			wantCode: 1,
+			wantErr:  "needs an output directory",
+		},
+		{
+			name:     "cannot combine with --scenario",
+			args:     []string{"generate", "-f", "mermaid", "--all-scenarios", "--scenario", "three-party"},
+			outDir:   "combined",
+			wantCode: 1,
+			wantErr:  "cannot be combined",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			args := append([]string{}, tt.args...)
+			out := ""
+			if tt.outDir != "" {
+				out = filepath.Join(dir, tt.outDir)
+				args = append(args, "-o", out)
+			}
+			args = append(args, demo)
+			var stdout, stderr bytes.Buffer
+			code := run(args, &stdout, &stderr)
+			if code != tt.wantCode {
+				t.Fatalf("run(%q) = %d, want %d\nstderr: %s", args, code, tt.wantCode, stderr.String())
+			}
+			if tt.wantErr != "" && !strings.Contains(stderr.String(), tt.wantErr) {
+				t.Fatalf("stderr = %q, want %q", stderr.String(), tt.wantErr)
+			}
+			if tt.wantFiles != nil {
+				if got := listDir(t, out); !reflect.DeepEqual(got, tt.wantFiles) {
+					t.Fatalf("files = %v, want %v", got, tt.wantFiles)
+				}
+			}
+		})
+	}
+
+	// The collapsed include box appears in the scenario that includes the fragment.
+	data, err := os.ReadFile(filepath.Join(dir, "main", "02-three-party.mmd"))
+	if err != nil {
+		t.Fatalf("reading three-party output: %v", err)
+	}
+	if !strings.Contains(string(data), "ref: Consent") {
+		t.Fatalf("three-party output missing include box:\n%s", data)
+	}
+
+	// A legacy file has no scenarios to render.
+	var stdout, stderr bytes.Buffer
+	if code := run([]string{"generate", "--all-scenarios", "-o", filepath.Join(dir, "legacy"), legacy}, &stdout, &stderr); code != 1 ||
+		!strings.Contains(stderr.String(), "has no scenarios") {
+		t.Fatalf("legacy --all-scenarios: code %d, stderr %q", code, stderr.String())
 	}
 }
