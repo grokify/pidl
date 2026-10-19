@@ -2,6 +2,8 @@ package pidl
 
 import (
 	"fmt"
+	"io/fs"
+	"path"
 	"path/filepath"
 )
 
@@ -9,6 +11,12 @@ import (
 type ResolveOptions struct {
 	// BasePath is the directory to resolve relative paths from.
 	BasePath string
+
+	// FS, when set, is the file system extends and imports paths are read
+	// from, such as an embedded set of documents. Paths are then
+	// slash-separated and relative to the file system's root, and may not
+	// leave it.
+	FS fs.FS
 
 	// MaxDepth limits import nesting depth (default: 10).
 	MaxDepth int
@@ -75,17 +83,52 @@ func (p *Protocol) resolveWithChain(opts ResolveOptions, chain []string, depth i
 	return result, nil
 }
 
+// locate returns the path to read for ref, relative to BasePath, and the
+// key that identifies it in the resolution chain.
+func (o ResolveOptions) locate(ref string) (p, key string, err error) {
+	if o.FS != nil {
+		p = path.Join(o.BasePath, filepath.ToSlash(ref))
+		if !fs.ValidPath(p) {
+			return "", "", fmt.Errorf("path %q leaves the file system", ref)
+		}
+		return p, "fs:" + p, nil
+	}
+	p = ref
+	if !filepath.IsAbs(p) && o.BasePath != "" {
+		p = filepath.Join(o.BasePath, p)
+	}
+	key, err = filepath.Abs(p)
+	if err != nil {
+		return "", "", fmt.Errorf("getting absolute path: %w", err)
+	}
+	return p, key, nil
+}
+
+// parse reads and parses the document at p.
+func (o ResolveOptions) parse(p string) (*Protocol, error) {
+	if o.FS == nil {
+		return ParseFile(p)
+	}
+	data, err := fs.ReadFile(o.FS, p)
+	if err != nil {
+		return nil, fmt.Errorf("reading file: %w", err)
+	}
+	return Parse(data)
+}
+
+// dir returns the directory of p, the base of the paths p references.
+func (o ResolveOptions) dir(p string) string {
+	if o.FS != nil {
+		return path.Dir(p)
+	}
+	return filepath.Dir(p)
+}
+
 // resolveExtends loads and resolves the base protocol.
 func (p *Protocol) resolveExtends(opts ResolveOptions, chain []string, depth int) (*Protocol, error) {
-	path := p.Extends.Path
-	if !filepath.IsAbs(path) && opts.BasePath != "" {
-		path = filepath.Join(opts.BasePath, path)
-	}
-
-	// Check for circular reference
-	absPath, err := filepath.Abs(path)
+	path, absPath, err := opts.locate(p.Extends.Path)
 	if err != nil {
-		return nil, fmt.Errorf("getting absolute path: %w", err)
+		return nil, err
 	}
 
 	for _, c := range chain {
@@ -94,14 +137,14 @@ func (p *Protocol) resolveExtends(opts ResolveOptions, chain []string, depth int
 		}
 	}
 
-	base, err := ParseFile(path)
+	base, err := opts.parse(path)
 	if err != nil {
 		return nil, fmt.Errorf("parsing base protocol %q: %w", path, err)
 	}
 
 	// Recursively resolve the base
 	baseOpts := opts
-	baseOpts.BasePath = filepath.Dir(path)
+	baseOpts.BasePath = opts.dir(path)
 	resolved, err := base.resolveWithChain(baseOpts, append(chain, absPath), depth+1)
 	if err != nil {
 		return nil, err
@@ -126,15 +169,9 @@ func (p *Protocol) resolveExtends(opts ResolveOptions, chain []string, depth int
 
 // resolveImport loads and resolves an imported protocol.
 func (p *Protocol) resolveImport(imp ProtocolImport, opts ResolveOptions, chain []string, depth int) (*Protocol, error) {
-	path := imp.Path
-	if !filepath.IsAbs(path) && opts.BasePath != "" {
-		path = filepath.Join(opts.BasePath, path)
-	}
-
-	// Check for circular reference
-	absPath, err := filepath.Abs(path)
+	path, absPath, err := opts.locate(imp.Path)
 	if err != nil {
-		return nil, fmt.Errorf("getting absolute path: %w", err)
+		return nil, err
 	}
 
 	for _, c := range chain {
@@ -143,14 +180,14 @@ func (p *Protocol) resolveImport(imp ProtocolImport, opts ResolveOptions, chain 
 		}
 	}
 
-	imported, err := ParseFile(path)
+	imported, err := opts.parse(path)
 	if err != nil {
 		return nil, fmt.Errorf("parsing imported protocol %q: %w", path, err)
 	}
 
 	// Recursively resolve the import
 	importOpts := opts
-	importOpts.BasePath = filepath.Dir(path)
+	importOpts.BasePath = opts.dir(path)
 	resolved, err := imported.resolveWithChain(importOpts, append(chain, absPath), depth+1)
 	if err != nil {
 		return nil, err
