@@ -89,6 +89,54 @@ Profiles (`analyze/profiles`): `aauth-draft-11` adds AA101 (`alg` must be fully 
 - **Representation tabs**: HTTP, cURL and one tab per sample language present; the chosen language is remembered per browser.
 - **Decoded/raw toggle** on tokens.
 
+### 8. Explorer parity
+
+```go
+type GlossaryEntry struct {
+    Term        string `json:"term"`                // e.g. "Signature-Key", "agent_jkt"
+    Kind        string `json:"kind"`                // header | claim | term
+    Category    string `json:"category,omitempty"`  // e.g. "protocol" to badge protocol-defined headers
+    Description string `json:"description"`
+    Reference   string `json:"reference,omitempty"` // spec section or URL
+}
+type Artifact struct {
+    ID, Name  string
+    MediaType string          // application/json | text/markdown
+    Content   json.RawMessage // JSON value, or a JSON string for Markdown
+    Digest    *ArtifactDigest // {alg: "sha-256", encoding: "base64url", of: "raw"|"canonical-json"}
+}
+type Comparison struct {
+    ID, Name, Group string
+    Scenarios []string        // column order
+    Rows      []ComparisonRow // {question, answers: map[scenarioID]string}
+}
+type Page struct {
+    ID, Name, Group string
+    Markdown        string
+}
+// Scenario gains References []Reference; Protocol gains Glossary, Comparisons, Pages; scenarios and flows gain Artifacts.
+```
+
+- **Signature base** (`httpsig.go`): build the RFC 9421 base from `Signature-Input` components: derived components from the URL and method, header fields by name, and `@signature-params` from the input's parameters. Unknown components are reported as an example check finding.
+- **Deferred timeline**: derived in the walkthrough from steps whose response is 202 with `Location`, pairing later polls of that URL until a non-202 response.
+- **Value tracing**: the walkthrough indexes string values of at least 16 characters across headers, bodies, token claims and artifacts; the viewer highlights matches on selection.
+- **Pages** render Markdown with a small, dependency-free renderer in the viewer (headings, lists, code, tables, links).
+
+### 9. Guided tours
+
+```go
+type TourBeat struct {
+    Focus     string `json:"focus"`
+    Narration string `json:"narration,omitempty"`
+    Hold      int    `json:"hold,omitempty"` // minimum milliseconds on screen
+}
+// Flow gains Tour []TourBeat
+```
+
+- **Regions** resolve against the walkthrough step: header names case-insensitively, JSON pointers per RFC 6901 into bodies, token claims by token definition ID and claim name, artifacts by ID.
+- **Viewer** elements carry `data-pidl-region` attributes. `window.pidl.focus` selects the HTTP or Tokens tab as needed, expands collapsed values, scrolls the panel with `behavior: "instant"` in video mode, applies a highlight ring, and resolves after two animation frames.
+- **`pidl tour draft`** emits beats for the step's notable regions (signature headers, challenge headers, body fields, claims the receiver checks) with narration drafted from glossary descriptions; values are not read aloud.
+
 ## Sequencing
 
 Types and validation precede sample resolution and checks; walkthrough changes precede viewer work; the AAuth example gains groups, IDs and narration in `INIT-PIDL-004`, with a small fixture here for tests.

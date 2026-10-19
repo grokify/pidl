@@ -45,12 +45,16 @@ segments:
       - action: evaluate
         script: "() => window.pidl.goTo('federated-authorization', 1)"
         voiceover: "<step 1 narration>"
-      # … one step per walkthrough step
+      # a step with a tour adds one evaluate per beat:
+      - action: evaluate
+        script: "() => window.pidl.focus('federated-authorization', 12, 'token.resource_token.claims.agent_jkt')"
+        voiceover: "<beat narration>"
+      # … one step per walkthrough step, then its beats
       - action: wait
         duration: 1500
 ```
 
-Scenario IDs are validated to `^[a-z][a-z0-9_-]*$`, so they are safe to embed in the script string. Narration falls back to the step description; a step with neither gets `minDuration` 2500.
+Beats come from `INIT-PIDL-003` tours; region strings are validated against the step and escaped for the script string. Scenario IDs are validated to `^[a-z][a-z0-9_-]*$`, so they are safe to embed in the script string. Narration falls back to the step description; a step with neither gets `minDuration` 2500.
 
 ### 3. Briefing deck (`render/marp.go`)
 

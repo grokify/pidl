@@ -14,7 +14,9 @@ PIDL generates per-scenario videoascode configurations and briefing decks; video
   - Depends on: `RMI-PIDL-069`
 - [ ] `RMI-PIDL-071` Briefing decks: title, why, key points and network diagram slides with spoken notes, placed before the browser segment
   - Depends on: `RMI-PIDL-070`
+- [ ] `RMI-PIDL-085` Tours in video: one `evaluate` focus step per beat with its narration, so scrolling and highlighting follow the voiceover
+  - Depends on: `RMI-PIDL-070`, `RMI-PIDL-083`
 - [ ] `RMI-PIDL-072` Compatibility test against videoascode's configuration types
-  - Depends on: `RMI-PIDL-071`
+  - Depends on: `RMI-PIDL-071`, `RMI-PIDL-085`
 - [ ] `RMI-PIDL-073` Video guide with an end-to-end AAuth render, and release notes
   - Depends on: `RMI-PIDL-072`

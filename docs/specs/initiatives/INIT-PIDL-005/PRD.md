@@ -29,18 +29,19 @@ videoascode (`vac`) already turns a configuration of Marp slides and browser ste
 3. **`generate -f vac`** writes one videoascode configuration per selected scenario (`<NN>-<scenario-id>.vac.yaml`), each with:
    - a **slide segment** for that scenario's briefing deck;
    - a **browser segment** that opens the viewer at the scenario's overview, holds on it with the scenario narration, then runs one `evaluate` step per walkthrough step calling `window.pidl.goTo` with that step's narration as its voiceover, and holds briefly at the end.
-4. **Combined configuration** (`--combined`): one configuration listing the selected scenarios' segments in navigation order, for a single longer video.
-5. **Briefing deck** (`generate -f marp-briefing`): a Marp deck per scenario with speaker notes as voiceover:
+4. **Tours in video.** When a step has a tour, each beat follows the step as its own `evaluate` step calling `window.pidl.focus` with the beat's narration as voiceover, so the panel scrolls to and highlights what the narrator is describing, held for exactly that narration. A long panel is covered by several beats.
+5. **Combined configuration** (`--combined`): one configuration listing the selected scenarios' segments in navigation order, for a single longer video.
+6. **Briefing deck** (`generate -f marp-briefing`): a Marp deck per scenario with speaker notes as voiceover:
    - title slide: group and scenario name;
    - why slide: the briefing's `why` prose;
    - key points slide: the briefing's `points`;
    - network slide: the scenario's roles and trust boundaries as an image rendered by PIDL (`svg-network` for the scenario projection).
    Slides without briefing content are omitted; narration falls back to the scenario description.
-6. **Selection**: `--scenario`, `--group`, or all main scenarios; fragments only when asked; navigation order throughout.
-7. **Viewer location**: a file URL to a generated viewer HTML (default) or an HTTP URL supplied with `--viewer-url`.
-8. **Pronunciations and language**: PIDL's pronunciations and `protocol.language` are written into each configuration unchanged.
-9. **Voice settings** (`--voice-provider`, `--voice-id`, `--model`) become the configuration's default voice; credentials stay in the environment, where videoascode reads them.
-10. **Output layout**: one directory per run with the viewer HTML, per-scenario decks, diagram images and configurations, ready for `vac browser video --config`.
+7. **Selection**: `--scenario`, `--group`, or all main scenarios; fragments only when asked; navigation order throughout.
+8. **Viewer location**: a file URL to a generated viewer HTML (default) or an HTTP URL supplied with `--viewer-url`.
+9. **Pronunciations and language**: PIDL's pronunciations and `protocol.language` are written into each configuration unchanged.
+10. **Voice settings** (`--voice-provider`, `--voice-id`, `--model`) become the configuration's default voice; credentials stay in the environment, where videoascode reads them.
+11. **Output layout**: one directory per run with the viewer HTML, per-scenario decks, diagram images and configurations, ready for `vac browser video --config`.
 
 ## Success Criteria
 

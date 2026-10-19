@@ -48,7 +48,7 @@ Every area of AAuth draft-11 and its companion drafts in PIDL, with draft-source
 - [ ] `RMI-PIDL-065` Mission context at a resource, permission and audit endpoints, out-of-bounds access, and with and without missions
   - Depends on: `RMI-PIDL-064`
 
-## Phase 5 — Rich Resource Requests, Samples and Release
+## Phase 5 — Rich Resource Requests and Samples
 
 **Theme:** The experimental edge and code developers can copy
 
@@ -56,5 +56,23 @@ Every area of AAuth draft-11 and its companion drafts in PIDL, with draft-source
   - Depends on: `RMI-PIDL-056`
 - [ ] `RMI-PIDL-067` Go samples from aauth-go for agent, resource, PS and AS roles
   - Depends on: `RMI-PIDL-056`
+
+## Phase 6 — Explorer-Parity Content and Tours
+
+**Theme:** The glossary, documents, comparisons, reference pages and tours for AAuth
+
+- [ ] `RMI-PIDL-086` AAuth glossary: headers, token claims and key terms with spec references
+  - Depends on: `RMI-PIDL-074`
+- [ ] `RMI-PIDL-087` Mission and R3 documents as artifacts with digests
+  - Depends on: `RMI-PIDL-077`, `RMI-PIDL-065`, `RMI-PIDL-066`
+- [ ] `RMI-PIDL-088` Comparison tables, reference pages and overview content for AAuth
+  - Depends on: `RMI-PIDL-079`, `RMI-PIDL-080`
+- [ ] `RMI-PIDL-089` Tours for signed requests, challenges, resource tokens, federation, mission approval and R3 consent
+  - Depends on: `RMI-PIDL-083`, `RMI-PIDL-086`
+
+## Phase 7 — Release
+
+**Theme:** Coverage table and release
+
 - [ ] `RMI-PIDL-068` Coverage table, documentation and release notes
-  - Depends on: `RMI-PIDL-057`, `RMI-PIDL-059`, `RMI-PIDL-061`, `RMI-PIDL-062`, `RMI-PIDL-063`, `RMI-PIDL-065`, `RMI-PIDL-066`, `RMI-PIDL-067`
+  - Depends on: `RMI-PIDL-057`, `RMI-PIDL-059`, `RMI-PIDL-061`, `RMI-PIDL-062`, `RMI-PIDL-063`, `RMI-PIDL-065`, `RMI-PIDL-066`, `RMI-PIDL-067`, `RMI-PIDL-086`, `RMI-PIDL-087`, `RMI-PIDL-088`, `RMI-PIDL-089`

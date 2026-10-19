@@ -37,7 +37,7 @@ Protocol-neutral extensions that make PIDL a source for developer education. Com
 - [ ] `RMI-PIDL-048` Profile selection in documents and `pidl analyze --profile`
   - Depends on: `RMI-PIDL-047`
 
-## Phase 4 — Viewer and Release
+## Phase 4 — Viewer
 
 **Theme:** Navigate, play and read in your language
 
@@ -49,5 +49,38 @@ Protocol-neutral extensions that make PIDL a source for developer education. Com
   - Depends on: `RMI-PIDL-045`
 - [ ] `RMI-PIDL-052` Representation tabs: HTTP, cURL and sample languages, remembered per browser
   - Depends on: `RMI-PIDL-045`
+
+## Phase 5 — Explorer Parity
+
+**Theme:** Everything a dedicated protocol explorer shows, defined generically
+
+- [ ] `RMI-PIDL-074` Glossary of headers, claims and terms, with help and category badges in the viewer
+- [ ] `RMI-PIDL-075` Computed RFC 9421 signature base and a signature panel
+- [ ] `RMI-PIDL-076` Deferred-response timeline derived from 202 steps
+  - Depends on: `RMI-PIDL-045`
+- [ ] `RMI-PIDL-077` Artifacts: named JSON and Markdown documents with computed digests, and an artifact panel
+- [ ] `RMI-PIDL-078` Value tracing across steps, headers, bodies, claims and artifacts
+  - Depends on: `RMI-PIDL-077`
+- [ ] `RMI-PIDL-079` Comparison tables as viewer pages
+  - Depends on: `RMI-PIDL-049`
+- [ ] `RMI-PIDL-080` Reference pages, a generated overview page, and scenario spec links
+  - Depends on: `RMI-PIDL-049`
+- [ ] `RMI-PIDL-081` Copy buttons and a collapsible, resizable details panel
+
+## Phase 6 — Guided Tours
+
+**Theme:** Walk the reader through each part of a step
+
+- [ ] `RMI-PIDL-082` Tour beats on flows: focus regions, narration and holds, with region validation
+  - Depends on: `RMI-PIDL-045`
+- [ ] `RMI-PIDL-083` Viewer focus hook (`window.pidl.focus`) with tab switching, scrolling and highlighting; autoplay plays beats
+  - Depends on: `RMI-PIDL-082`
+- [ ] `RMI-PIDL-084` `pidl tour draft`: propose beats and draft narration from the example and glossary
+  - Depends on: `RMI-PIDL-074`, `RMI-PIDL-082`
+
+## Phase 7 — Release
+
+**Theme:** Document and ship v0.9.0
+
 - [ ] `RMI-PIDL-053` Documentation and v0.9.0 changelog and release notes
-  - Depends on: `RMI-PIDL-049`, `RMI-PIDL-050`, `RMI-PIDL-051`, `RMI-PIDL-052`
+  - Depends on: `RMI-PIDL-049`, `RMI-PIDL-050`, `RMI-PIDL-051`, `RMI-PIDL-052`, `RMI-PIDL-081`, `RMI-PIDL-084`

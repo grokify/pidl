@@ -23,6 +23,8 @@ PIDL v0.8.0 describes a protocol's scenarios and shows one illustrative HTTP exc
 - A message can be shown as HTTP, as generated cURL, and as SDK code drawn from tested source files.
 - Examples are checked: generic HTTP and JWT consistency for every protocol, and protocol-specific rules through profiles.
 - The viewer gains grouped left navigation, variant toggles, autoplay, a token lifecycle panel, and representation tabs.
+- The viewer reaches feature parity with dedicated protocol explorers: header and claim help, signature bases, deferred-response timelines, protocol documents, value tracing, comparison tables, and reference pages, all defined generically in PIDL.
+- Steps can carry guided tours: ordered beats that focus a region of the page with narration, for live autoplay and for narrated video.
 
 ## Non-Goals
 
@@ -54,6 +56,18 @@ PIDL v0.8.0 describes a protocol's scenarios and shows one illustrative HTTP exc
 10. **Check profiles.** Protocol-specific rules live in named profiles (first: `aauth-draft-11`) selected by the document (`protocol.profiles`) or on the command line.
 11. **Walkthrough data** carries groups, variants, flow IDs, narration, briefings, pronunciations, resolved samples, generated cURL and token lifecycle events.
 12. **Viewer:** grouped left navigation; variant toggle; play, pause and replay with speeds (0.5× to 3×) and per-step durations from narration length; a token lifecycle panel (issued, forwarded, presented, checked); a decoded/raw token toggle; representation tabs (HTTP, cURL, and each sample language) with the chosen language remembered.
+
+13. **Glossary.** A document MAY declare a `glossary` of headers, claims and terms (`term`, `kind`, `category`, `description`, optional `reference`). The viewer shows descriptions as help on headers and claims and badges terms by category (for example, protocol-defined headers).
+14. **Signature base.** For each example request with `Signature-Input`, tools compute the RFC 9421 signature base from the request; the viewer shows it with each covered component distinguished.
+15. **Deferred timeline.** When steps return `202 Accepted` with a `Location`, the walkthrough derives the pending request's timeline (each poll and its status) and the viewer shows it.
+16. **Artifacts.** Scenarios and steps MAY carry `artifacts`: named JSON or Markdown documents (such as a mission document), optionally with a computed digest (`sha-256`, base64url) the viewer shows.
+17. **Value tracing.** The viewer lets the reader select a value (a digest, identifier or thumbprint) and highlights every step, header, body field, token claim and artifact where it appears.
+18. **Comparisons.** A document MAY declare `comparisons`: tables whose columns are scenarios and whose rows are questions with a short answer per scenario. The viewer shows them as pages in the navigation.
+19. **Pages.** A document MAY declare `pages`: Markdown reference documents placed in a group. The viewer also generates an overview page from the protocol description, roles and groups. Scenarios MAY carry `references` (name and URL) shown as spec links.
+20. **Viewer conveniences:** copy buttons on headers, bodies and tokens; a collapsible and resizable details panel, remembered per browser.
+21. **Guided tours.** A flow MAY carry a `tour`: ordered beats, each with a `focus` region and `narration` (and optional `hold` milliseconds). Regions name parts of the page generically (`diagram`, `narrative`, `request.line`, `request.headers.<name>`, `request.body[/<json-pointer>]`, the same for `response`, `token.<id>.header`, `token.<id>.claims.<claim>`, `artifact.<id>[/<json-pointer>]`, `lifecycle`, `page.<id>#<heading>`). Validation checks each region resolves against the step.
+22. **Focus hook.** The viewer exposes `window.pidl.focus(scenarioId, step, region)`, which switches to the tab holding the region, scrolls its panel so the region is visible, highlights it, and resolves after rendering. Autoplay plays a step's beats in order.
+23. **Tour drafting.** `pidl tour draft` proposes beats for a step from its example (headers, body fields, token claims) with narration drafted from the glossary, for an author to edit.
 
 ### Non-Functional
 

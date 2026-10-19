@@ -44,6 +44,8 @@ Variants: autonomous and with-user-approval for the PS and federated modes; plat
 5. Agent, resource, PS and AS roles show Go samples from `aauth-go` for the scenarios it covers, referenced by region.
 6. Findings the analyzer reports against the drafts (such as SEC019 in federated access) remain visible as callouts.
 7. A coverage table in the documentation lists each scenario, its source sections and its status.
+8. **Explorer-parity content:** an AAuth glossary (every AAuth header, every token claim, key terms); mission documents and R3 documents as artifacts with their digests; comparison tables for signing modes, access modes, and with and without missions; reference pages for the HTTP Signatures profile, the Signature-Key schemes and the error model; and the overview's layers prose.
+9. **Tours** for the steps that teach the most: signed requests, challenges, resource tokens, the PS-to-AS federation request, mission approval and R3 per-call consent.
 
 ## Success Criteria
 
