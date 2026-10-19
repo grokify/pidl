@@ -23,6 +23,11 @@ type Protocol struct {
 	// Flows (a single unnamed scenario) or Scenarios, not both.
 	Flows []Flow `json:"flows,omitempty"`
 
+	// Pronunciations map a term to its spoken form per language, such as
+	// {"agent_jkt": {"en-US": "agent J K T"}}, in the shape videoascode
+	// reads. Entries are looked up by term, never listed in order.
+	Pronunciations map[string]map[string]string `json:"pronunciations,omitempty"`
+
 	// Groups are ordered sections for navigation, such as "Signing" or
 	// "Access modes". Scenarios name their group; group order, then
 	// scenario order within a group, sets the output order.
@@ -168,6 +173,11 @@ type ProtocolMeta struct {
 
 	// References links to relevant specifications.
 	References []Reference `json:"references,omitempty"`
+
+	// Language is the BCP 47 tag of the document's source language, used
+	// for narration that does not name another language and as the
+	// fallback. It defaults to "en-US".
+	Language string `json:"language,omitempty"`
 }
 
 // Reference links to external documentation.
@@ -722,6 +732,13 @@ type Scenario struct {
 	// approval". It is required with VariantOf.
 	VariantLabel string `json:"variant_label,omitempty"`
 
+	// Narration is spoken when the scenario opens, keyed by language.
+	Narration Narration `json:"narration,omitempty"`
+
+	// Briefing introduces the scenario: why it exists, its key points,
+	// and what is spoken over them.
+	Briefing *Briefing `json:"briefing,omitempty"`
+
 	// Flows are the scenario's steps, in order.
 	Flows []Flow `json:"flows"`
 }
@@ -864,6 +881,14 @@ type Flow struct {
 	// and narration. It is optional, unique within the scenario, and
 	// stable when steps are added or moved.
 	ID string `json:"id,omitempty"`
+
+	// Narration is spoken for this step, keyed by language. Without it,
+	// tools fall back to Description.
+	Narration Narration `json:"narration,omitempty"`
+
+	// Representations override the narration when the step is viewed as
+	// "http", "curl" or a sample language.
+	Representations map[string]RepresentationNarration `json:"representations,omitempty"`
 
 	// From is the source entity ID.
 	From string `json:"from,omitempty"`

@@ -5,6 +5,9 @@ export interface Walkthrough {
   id: string;
   name: string;
   description?: string;
+  // language is the narration source language.
+  language?: string;
+  pronunciations?: Record<string, Record<string, string>>;
   roles: Role[];
   groups?: Group[];
   scenarios: Scenario[];
@@ -29,8 +32,19 @@ export interface Scenario {
   group?: string;
   variant_of?: string;
   variant_label?: string;
+  narration?: Narration;
+  briefing?: Briefing;
   participants: string[];
   steps: Step[];
+}
+
+// Narration is spoken text keyed by BCP 47 language tag.
+export type Narration = Record<string, string>;
+
+export interface Briefing {
+  why?: string;
+  points?: string[];
+  narration?: Narration;
 }
 
 export interface Group {
@@ -43,6 +57,8 @@ export interface Step {
   number: number;
   // id is the step's flow ID, "<include>.<id>" inside a fragment.
   id?: string;
+  narration?: Narration;
+  representations?: Record<string, { narration?: Narration }>;
   from: string;
   to: string;
   label: string;

@@ -177,6 +177,7 @@ func (p *Protocol) clone() *Protocol {
 		result.Groups = make([]Group, len(p.Groups))
 		copy(result.Groups, p.Groups)
 	}
+	result.Pronunciations = mergePronunciations(nil, p.Pronunciations)
 	if len(p.Scenarios) > 0 {
 		result.Scenarios = make([]Scenario, len(p.Scenarios))
 		copy(result.Scenarios, p.Scenarios)
@@ -251,6 +252,12 @@ func mergeBase(base, derived *Protocol) *Protocol {
 	// Merge groups the same way
 	result.Groups = mergeGroups(base.Groups, derived.Groups)
 
+	// Merge pronunciations: derived spoken forms win per term and language
+	result.Pronunciations = mergePronunciations(base.Pronunciations, derived.Pronunciations)
+	if result.ProtocolMeta.Language == "" {
+		result.ProtocolMeta.Language = base.ProtocolMeta.Language
+	}
+
 	// Merge metadata
 	result.Metadata = mergeMetadata(base.Metadata, derived.Metadata)
 
@@ -310,6 +317,26 @@ func mergeGroups(base, derived []Group) []Group {
 	for _, g := range derived {
 		if !used[g.ID] {
 			out = append(out, g)
+		}
+	}
+	return out
+}
+
+// mergePronunciations returns a new map with base's entries overlaid by
+// over's, per term and language. It returns nil when both are empty.
+func mergePronunciations(base, over map[string]map[string]string) map[string]map[string]string {
+	if len(base) == 0 && len(over) == 0 {
+		return nil
+	}
+	out := make(map[string]map[string]string, len(base)+len(over))
+	for _, m := range []map[string]map[string]string{base, over} {
+		for term, byLang := range m {
+			if out[term] == nil {
+				out[term] = make(map[string]string, len(byLang))
+			}
+			for lang, spoken := range byLang {
+				out[term][lang] = spoken
+			}
 		}
 	}
 	return out
@@ -411,6 +438,8 @@ func mergeImport(target, imported *Protocol, imp ProtocolImport) *Protocol {
 		scenarios := importScenarios(imported, imp)
 		result.Scenarios = append(result.Scenarios, scenarios...)
 		result.Groups = appendImportedGroups(result.Groups, imported, imp, scenarios)
+		// The importing document's spoken forms win
+		result.Pronunciations = mergePronunciations(imported.Pronunciations, result.Pronunciations)
 	}
 
 	// Import flows if requested

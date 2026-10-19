@@ -310,6 +310,12 @@ func validateIncludeStep(field string, f Flow) ValidationErrors {
 	if f.Example != nil {
 		bad = append(bad, "example")
 	}
+	if len(f.Narration) > 0 {
+		bad = append(bad, "narration")
+	}
+	if len(f.Representations) > 0 {
+		bad = append(bad, "representations")
+	}
 	if len(bad) == 0 {
 		return nil
 	}

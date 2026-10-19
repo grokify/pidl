@@ -1,6 +1,7 @@
 {
   "id": "tokens-demo",
   "name": "Tokens Demo",
+  "language": "en-US",
   "roles": [
     {
       "position": 1,
