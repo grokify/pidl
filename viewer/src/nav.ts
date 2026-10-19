@@ -1,4 +1,4 @@
-import type { Scenario, Step, Walkthrough } from "./types";
+import type { Scenario, Walkthrough } from "./types";
 
 // Position is where the viewer is: a scenario and a step. Step 0 is the
 // overview, with every step shown and none active.
@@ -36,42 +36,44 @@ export interface Exchange {
   responseLater: number | null;
 }
 
-// A step's example fills the request pane when the step is a request and
-// the response pane when it is a response. An example with only decoded
-// tokens (such as a token handed over outside HTTP) follows the same rule.
-const tokensOnly = (s: Step) => Boolean(s.example && !s.example.request && !s.example.response && s.example.tokens?.length);
-const hasRequest = (s: Step) => Boolean(s.example?.request) || (!s.response && tokensOnly(s));
-const hasResponse = (s: Step) => Boolean(s.example?.response) || (Boolean(s.response) && tokensOnly(s));
-
-// exchangeFor pairs requests with responses. When a request is active, its
-// response is the next step going the other way between the same two roles;
-// it is revealed only once the presenter steps to it. When a response is
-// active, its request is the nearest earlier request going the other way,
-// such as the poll a pending response answers.
+// exchangeFor pairs requests with responses by direction, whether or not
+// the steps carry examples. When a request is active, its response is the
+// next step going back between the same two roles; it is revealed only
+// once the presenter steps to it. When a response is active, its request is
+// the nearest earlier request going the other way, such as the poll a
+// pending response answers. A step without an example still takes its
+// place, so the pane can say what the message is.
 export function exchangeFor(sc: Scenario, index: number): Exchange {
   const steps = sc.steps;
   const s = steps[index];
   if (!s) {
     return { request: null, response: null, responseLater: null };
   }
-  if (hasRequest(s)) {
-    if (hasResponse(s)) {
+  if (!s.response) {
+    if (s.example?.request && s.example.response) {
       return { request: index, response: index, responseLater: null };
     }
-    const next = steps[index + 1];
-    const later = next && next.response && next.from === s.to && next.to === s.from && hasResponse(next) ? index + 1 : null;
+    // The answer may come several steps later, after other parties act
+    // (a pending poll answered once the PS has federated with the AS). A new
+    // request between the same two roles ends the search.
+    let later: number | null = null;
+    for (let j = index + 1; j < steps.length; j++) {
+      const n = steps[j];
+      if (n.response && n.from === s.to && n.to === s.from) {
+        later = j;
+        break;
+      }
+      if (!n.response && n.from === s.from && n.to === s.to) break;
+    }
     return { request: index, response: null, responseLater: later };
   }
-  if (hasResponse(s)) {
-    for (let j = index - 1; j >= 0; j--) {
-      const r = steps[j];
-      if (!r.response && r.from === s.to && r.to === s.from && hasRequest(r)) {
-        return { request: j, response: index, responseLater: null };
-      }
+  for (let j = index - 1; j >= 0; j--) {
+    const r = steps[j];
+    if (!r.response && r.from === s.to && r.to === s.from) {
+      return { request: j, response: index, responseLater: null };
     }
-    return { request: null, response: index, responseLater: null };
   }
-  return { request: null, response: null, responseLater: null };
+  return { request: null, response: index, responseLater: null };
 }
 
 // scenarioOrder lists scenarios as the selector shows them: main scenarios,

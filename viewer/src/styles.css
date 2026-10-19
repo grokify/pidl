@@ -719,3 +719,16 @@ body,
 .step-buttons .step-count strong {
   color: var(--text);
 }
+
+.no-example p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.no-example-label {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 6px 10px;
+}

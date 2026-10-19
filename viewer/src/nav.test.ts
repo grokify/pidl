@@ -46,13 +46,36 @@ describe("exchangeFor", () => {
   it("pairs a pending response with the poll, not the first request", () => {
     expect(exchangeFor(scenario, 4)).toEqual({ request: 3, response: 4, responseLater: null });
   });
-  it("shows nothing for a step without an example", () => {
-    expect(exchangeFor(scenario, 2)).toEqual({ request: null, response: null, responseLater: null });
+  it("keeps a request without an example in its pane", () => {
+    expect(exchangeFor(scenario, 2)).toEqual({ request: 2, response: null, responseLater: null });
   });
-  it("shows a tokens-only response in the response pane", () => {
+  it("pairs a response with a request that has no example", () => {
     const tokensOnly = { source: "x", kind: "derived" as const, tokens: [{ token: "agent_token" }] };
     const sc: Scenario = { ...scenario, steps: [step(1, "agent", "ap"), step(2, "ap", "agent", { response: true, example: tokensOnly })] };
-    expect(exchangeFor(sc, 1)).toEqual({ request: null, response: 1, responseLater: null });
+    expect(exchangeFor(sc, 0)).toEqual({ request: 0, response: null, responseLater: 1 });
+    expect(exchangeFor(sc, 1)).toEqual({ request: 0, response: 1, responseLater: null });
+  });
+  it("leaves the request empty when a response has none in the scenario", () => {
+    const sc: Scenario = { ...scenario, steps: [step(1, "ps", "agent", { response: true, example: res })] };
+    expect(exchangeFor(sc, 0)).toEqual({ request: null, response: 0, responseLater: null });
+  });
+  it("finds a response that arrives after other parties act", () => {
+    const sc: Scenario = {
+      ...scenario,
+      steps: [
+        step(1, "agent", "ps", { example: req }), // poll
+        step(2, "ps", "as", { example: req }), // federate
+        step(3, "as", "ps", { response: true, example: res }),
+        step(4, "ps", "agent", { response: true, example: res }), // answers the poll
+      ],
+    };
+    expect(exchangeFor(sc, 0)).toEqual({ request: 0, response: null, responseLater: 3 });
+    expect(exchangeFor(sc, 3)).toEqual({ request: 0, response: 3, responseLater: null });
+  });
+  it("stops at a new request between the same roles", () => {
+    const sc: Scenario = { ...scenario, steps: [step(1, "agent", "ps"), step(2, "agent", "ps"), step(3, "ps", "agent", { response: true })] };
+    expect(exchangeFor(sc, 0).responseLater).toBeNull();
+    expect(exchangeFor(sc, 1).responseLater).toBe(2);
   });
   it("handles out of range", () => {
     expect(exchangeFor(scenario, 9)).toEqual({ request: null, response: null, responseLater: null });
