@@ -1,0 +1,430 @@
+<svg viewBox="0 0 700 750" xmlns="http://www.w3.org/2000/svg" class="theme-light">
+  <style>
+
+    /* Light theme (default) */
+    :root, .theme-light {
+      --color-primary: #1a365d;
+      --color-secondary: #2c5282;
+      --color-accent: #3182ce;
+      --color-bg: #ffffff;
+      --color-text: #1a202c;
+      --color-text-muted: #718096;
+      --color-line: #3182ce;
+      --color-line-response: #a0aec0;
+      --color-lifeline: #cbd5e0;
+      --color-participant-bg: #1a365d;
+      --color-participant-text: #ffffff;
+      --color-dot: #3182ce;
+    }
+
+    /* Dark theme */
+    .theme-dark {
+      --color-primary: #63b3ed;
+      --color-secondary: #90cdf4;
+      --color-accent: #4299e1;
+      --color-bg: #1a202c;
+      --color-text: #e2e8f0;
+      --color-text-muted: #a0aec0;
+      --color-line: #63b3ed;
+      --color-line-response: #4a5568;
+      --color-lifeline: #4a5568;
+      --color-participant-bg: #4299e1;
+      --color-participant-text: #ffffff;
+      --color-dot: #63b3ed;
+    }
+
+    /* Element styles */
+    .participant-box {
+      fill: var(--color-participant-bg);
+    }
+
+    .participant-text {
+      fill: var(--color-participant-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .lifeline {
+      stroke: var(--color-lifeline);
+      stroke-width: 1;
+      stroke-dasharray: 4,4;
+    }
+
+    .message-line {
+      fill: none;
+      stroke: var(--color-line);
+      stroke-width: 1.5;
+    }
+
+    .message-line-response {
+      fill: none;
+      stroke: var(--color-line-response);
+      stroke-width: 1.5;
+      stroke-dasharray: 6,3;
+    }
+
+    .message-arrow {
+      fill: var(--color-line);
+    }
+
+    .message-arrow-response {
+      fill: var(--color-line-response);
+    }
+
+    .message-text {
+      fill: var(--color-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 11px;
+    }
+
+    .step-circle {
+      fill: var(--color-accent);
+    }
+
+    .step-number {
+      fill: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 9px;
+      font-weight: bold;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    /* Phase box styles */
+    .phase-box {
+      stroke: var(--color-lifeline);
+      stroke-width: 1;
+      stroke-dasharray: 4, 2;
+    }
+
+    .phase-label {
+      fill: var(--color-text-muted);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Alternative badge styles */
+    .alt-badge-bg {
+      fill: var(--color-accent);
+      opacity: 0.9;
+    }
+
+    .alt-badge-text {
+      fill: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 8px;
+      font-weight: 600;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .alt-badge {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .alt-badge:hover {
+      transform: scale(1.1);
+    }
+
+    /* Note styles */
+    .message-note {
+      fill: var(--color-text-muted);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 9px;
+      font-style: italic;
+    }
+
+    /* Interactive hover states */
+    .participant-box {
+      transition: filter 0.2s ease, transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    .participant-box:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .message-line, .message-line-response {
+      transition: stroke-width 0.2s ease, filter 0.2s ease;
+      cursor: pointer;
+    }
+
+    .message-line:hover, .message-line-response:hover {
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 2px var(--color-line));
+    }
+
+    .message-text {
+      transition: font-weight 0.2s ease;
+      cursor: pointer;
+    }
+
+    .message-text:hover {
+      font-weight: 600;
+    }
+
+    .flow-dot {
+      transition: r 0.15s ease;
+    }
+
+    .flow-dot:hover {
+      r: 6;
+    }
+
+    .step-circle {
+      transition: transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    .step-circle:hover {
+      transform: scale(1.2);
+    }
+
+    /* Print styles */
+    @media print {
+      .flow-dot {
+        display: none;
+      }
+      /* Disable hover effects in print */
+      .participant-box:hover,
+      .message-line:hover,
+      .message-line-response:hover {
+        filter: none;
+        transform: none;
+      }
+    }
+
+    /* Animation keyframes */
+    @keyframes flow {
+      0% { offset-distance: 0%; }
+      100% { offset-distance: 100%; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.3); }
+    }
+
+    @keyframes glow {
+      0%, 100% { filter: drop-shadow(0 0 2px currentColor); }
+      50% { filter: drop-shadow(0 0 8px currentColor) drop-shadow(0 0 12px currentColor); }
+    }
+
+    .flow-dot {
+      offset-rotate: 0deg;
+    }
+
+    .flow-dot-0 {
+      fill: var(--color-dot);
+      r: 4;
+      animation: flow 2s linear infinite;
+      animation-delay: calc(0 * 0.3s);
+    }
+
+    .flow-dot-1 {
+      fill: #a0aec0;
+      r: 4;
+      animation: flow 2s linear infinite;
+      animation-delay: calc(1 * 0.3s);
+    }
+
+    .flow-dot-2 {
+      fill: #68d391;
+      r: 4;
+      animation: flow 2s linear infinite;
+      animation-delay: calc(2 * 0.3s);
+    }
+
+    .flow-dot-3 {
+      fill: #fc8181;
+      r: 4;
+      animation: flow 2s linear infinite, pulse 0.5s ease-in-out infinite;
+      animation-delay: calc(3 * 0.3s);
+    }
+
+    .flow-dot-4 {
+      fill: #f6ad55;
+      r: 4;
+      animation: flow 2s linear infinite, pulse 0.5s ease-in-out infinite;
+      animation-delay: calc(4 * 0.3s);
+    }
+
+    .flow-dot-5 {
+      fill: #faf089;
+      r: 6;
+      animation: flow 2s linear infinite, glow 1s ease-in-out infinite;
+      animation-delay: calc(5 * 0.3s);
+      filter: drop-shadow(0 0 4px currentColor);
+    }
+
+    .flow-dot-7 {
+      fill: #ff6600;
+      r: 6;
+      animation: flow 1s ease-in-out infinite, pulse 0.5s ease-in-out infinite;
+      animation-delay: 0.25s;
+    }
+
+    .flow-dot-9 {
+      fill: #68d391;
+      r: 4;
+      animation: flow 2s linear infinite;
+      animation-delay: calc(9 * 0.3s);
+    }
+
+    .flow-dot-10 {
+      fill: #fc8181;
+      r: 4;
+      animation: flow 2s linear infinite, pulse 0.5s ease-in-out infinite;
+      animation-delay: calc(10 * 0.3s);
+    }
+
+    .flow-dot-11 {
+      fill: #f6ad55;
+      r: 4;
+      animation: flow 2s linear infinite, pulse 0.5s ease-in-out infinite;
+      animation-delay: calc(11 * 0.3s);
+    }
+
+    .flow-dot-12 {
+      fill: #faf089;
+      r: 6;
+      animation: flow 2s linear infinite, glow 1s ease-in-out infinite;
+      animation-delay: calc(12 * 0.3s);
+      filter: drop-shadow(0 0 4px currentColor);
+    }
+  </style>
+
+  <defs>
+    <!-- Arrow markers -->
+    <marker id="arrow-message-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" class="message-arrow"/>
+    </marker>
+    <marker id="arrow-message-arrow-reverse" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M9,0 L9,6 L0,3 z" class="message-arrow"/>
+    </marker>
+    <marker id="arrow-message-arrow-response" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" class="message-arrow-response"/>
+    </marker>
+    <marker id="arrow-message-arrow-response-reverse" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M9,0 L9,6 L0,3 z" class="message-arrow-response"/>
+    </marker>
+  </defs>
+
+  <text x="350" y="12" class="message-text" style="font-size:14px;font-weight:600;text-anchor:middle;">A2A Agent Delegation Flow</text>
+
+  <!-- Phase boxes -->
+  <g class="phase-boxes">
+    <rect class="phase-box" x="40" y="40" width="200" height="100" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="48" y="54">Task Initiation</text>
+    <rect class="phase-box" x="180" y="130" width="340" height="190" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="188" y="144">Agent Discovery</text>
+    <rect class="phase-box" x="180" y="310" width="340" height="100" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="188" y="324">Task Delegation</text>
+    <rect class="phase-box" x="180" y="400" width="480" height="190" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="188" y="414">Task Execution</text>
+    <rect class="phase-box" x="40" y="580" width="200" height="100" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="48" y="594">Result Aggregation</text>
+  </g>
+
+  <!-- Lifelines -->
+  <g class="lifelines">
+    <line class="lifeline" x1="70" y1="56" x2="70" y2="730"/>
+    <line class="lifeline" x1="210" y1="56" x2="210" y2="730"/>
+    <line class="lifeline" x1="350" y1="56" x2="350" y2="730"/>
+    <line class="lifeline" x1="490" y1="56" x2="490" y2="730"/>
+    <line class="lifeline" x1="630" y1="56" x2="630" y2="730"/>
+  </g>
+
+  <!-- Participants -->
+  <g class="participants">
+    <rect class="participant-box" x="20" y="20" width="100" height="36" rx="4"/>
+    <text class="participant-text" x="70" y="38">User</text>
+    <rect class="participant-box" x="160" y="20" width="100" height="36" rx="4"/>
+    <text class="participant-text" x="210" y="38">Primary Agent</text>
+    <rect class="participant-box" x="300" y="20" width="100" height="36" rx="4"/>
+    <text class="participant-text" x="350" y="38">Agent Registry</text>
+    <rect class="participant-box" x="440" y="20" width="100" height="36" rx="4"/>
+    <text class="participant-text" x="490" y="38">Specialist Agent</text>
+    <rect class="participant-box" x="580" y="20" width="100" height="36" rx="4"/>
+    <text class="participant-text" x="630" y="38">Tool Server</text>
+  </g>
+
+  <!-- Messages -->
+  <g class="messages">
+    <path id="msg-path-0" class="message-line" d="M70,70 L210,70" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="80" cy="70" r="8"/>
+    <text class="step-number" x="80" y="70">1</text>
+    <text class="message-text" x="140" y="62" text-anchor="middle">Complex Task Request</text>
+    <circle class="flow-dot flow-dot-0" r="4" style="offset-path: path('M70,70 L210,70');"/>
+    <path id="msg-path-1" class="message-line" d="M210,115 L210,115" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="220" cy="115" r="8"/>
+    <text class="step-number" x="220" y="115">2</text>
+    <text class="message-text" x="210" y="107" text-anchor="middle">Analyze Task + Identify Subtasks</text>
+    <circle class="flow-dot flow-dot-1" r="4" style="offset-path: path('M210,115 L210,115');"/>
+    <path id="msg-path-2" class="message-line" d="M210,160 L350,160" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="220" cy="160" r="8"/>
+    <text class="step-number" x="220" y="160">3</text>
+    <text class="message-text" x="280" y="152" text-anchor="middle">Query Available Agents</text>
+    <circle class="flow-dot flow-dot-2" r="4" style="offset-path: path('M210,160 L350,160');"/>
+    <path id="msg-path-3" class="message-line-response" d="M350,205 L210,205" marker-end="url(#arrow-message-arrow-response-reverse)"/>
+    <circle class="step-circle" cx="340" cy="205" r="8"/>
+    <text class="step-number" x="340" y="205">4</text>
+    <text class="message-text" x="280" y="197" text-anchor="middle">Agent Capabilities + Endpoints</text>
+    <circle class="flow-dot flow-dot-3" r="4" style="offset-path: path('M350,205 L210,205');"/>
+    <path id="msg-path-4" class="message-line" d="M210,250 L490,250" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="220" cy="250" r="8"/>
+    <text class="step-number" x="220" y="250">5</text>
+    <text class="message-text" x="350" y="242" text-anchor="middle">GET /.well-known/agent.json</text>
+    <circle class="flow-dot flow-dot-4" r="4" style="offset-path: path('M210,250 L490,250');"/>
+    <path id="msg-path-5" class="message-line-response" d="M490,295 L210,295" marker-end="url(#arrow-message-arrow-response-reverse)"/>
+    <circle class="step-circle" cx="480" cy="295" r="8"/>
+    <text class="step-number" x="480" y="295">6</text>
+    <text class="message-text" x="350" y="287" text-anchor="middle">Agent Card (skills, auth requirements)</text>
+    <circle class="flow-dot flow-dot-5" r="6" style="offset-path: path('M490,295 L210,295');"/>
+    <path id="msg-path-6" class="message-line" d="M210,340 L490,340" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="220" cy="340" r="8"/>
+    <text class="step-number" x="220" y="340">7</text>
+    <text class="message-text" x="350" y="332" text-anchor="middle">POST /tasks (subtask + context)</text>
+    <path id="msg-path-7" class="message-line-response" d="M490,385 L210,385" marker-end="url(#arrow-message-arrow-response-reverse)"/>
+    <circle class="step-circle" cx="480" cy="385" r="8"/>
+    <text class="step-number" x="480" y="385">8</text>
+    <text class="message-text" x="350" y="377" text-anchor="middle">Task Accepted (task_id)</text>
+    <circle class="flow-dot flow-dot-7" r="6" style="offset-path: path('M490,385 L210,385');"/>
+    <path id="msg-path-8" class="message-line" d="M490,430 L630,430" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="500" cy="430" r="8"/>
+    <text class="step-number" x="500" y="430">9</text>
+    <text class="message-text" x="560" y="422" text-anchor="middle">Tool Invocation</text>
+    <path id="msg-path-9" class="message-line-response" d="M630,475 L490,475" marker-end="url(#arrow-message-arrow-response-reverse)"/>
+    <circle class="step-circle" cx="620" cy="475" r="8"/>
+    <text class="step-number" x="620" y="475">10</text>
+    <text class="message-text" x="560" y="467" text-anchor="middle">Tool Result</text>
+    <circle class="flow-dot flow-dot-9" r="4" style="offset-path: path('M630,475 L490,475');"/>
+    <path id="msg-path-10" class="message-line" d="M490,520 L490,520" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="500" cy="520" r="8"/>
+    <text class="step-number" x="500" y="520">11</text>
+    <text class="message-text" x="490" y="512" text-anchor="middle">Process Tool Result</text>
+    <circle class="flow-dot flow-dot-10" r="4" style="offset-path: path('M490,520 L490,520');"/>
+    <path id="msg-path-11" class="message-line" d="M490,565 L210,565" marker-end="url(#arrow-message-arrow-reverse)"/>
+    <circle class="step-circle" cx="480" cy="565" r="8"/>
+    <text class="step-number" x="480" y="565">12</text>
+    <text class="message-text" x="350" y="557" text-anchor="middle">Task Result (artifact + status)</text>
+    <circle class="flow-dot flow-dot-11" r="4" style="offset-path: path('M490,565 L210,565');"/>
+    <path id="msg-path-12" class="message-line" d="M210,610 L210,610" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="220" cy="610" r="8"/>
+    <text class="step-number" x="220" y="610">13</text>
+    <text class="message-text" x="210" y="602" text-anchor="middle">Aggregate Subtask Results</text>
+    <circle class="flow-dot flow-dot-12" r="6" style="offset-path: path('M210,610 L210,610');"/>
+    <path id="msg-path-13" class="message-line-response" d="M210,655 L70,655" marker-end="url(#arrow-message-arrow-response-reverse)"/>
+    <circle class="step-circle" cx="200" cy="655" r="8"/>
+    <text class="step-number" x="200" y="655">14</text>
+    <text class="message-text" x="140" y="647" text-anchor="middle">Complete Task Response</text>
+  </g>
+</svg>

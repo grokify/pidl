@@ -86,31 +86,77 @@ func (pe *ProcessExecutor) buildDependencyGraph() {
 		toEntity := pe.Protocol.EntityByID(flow.To)
 
 		if fromEntity != nil && toEntity != nil {
-			// Match outputs to inputs based on flow label or port names
-			for _, output := range fromEntity.Outputs {
-				outputKey := flow.From + "." + output.Name
-
-				// Check if this output matches any input on the target
-				for _, input := range toEntity.Inputs {
-					// Match by name, flow label, or if only one output/input pair exists
-					matched := false
-					if output.Name == input.Name {
-						matched = true
-					} else if flow.Label != "" && (flow.Label == output.Name || flow.Label == input.Name) {
-						matched = true
-					} else if len(fromEntity.Outputs) == 1 && len(toEntity.Inputs) == 1 {
-						// If there's only one output and one input, they connect
-						matched = true
-					}
-
-					if matched {
-						inputKey := flow.To + "." + input.Name
-						pe.DataFlowGraph[outputKey] = appendUnique(pe.DataFlowGraph[outputKey], inputKey)
-					}
-				}
+			for _, pc := range portConnections(flow, fromEntity, toEntity) {
+				outputKey := flow.From + "." + pc.output
+				inputKey := flow.To + "." + pc.input
+				pe.DataFlowGraph[outputKey] = appendUnique(pe.DataFlowGraph[outputKey], inputKey)
 			}
 		}
 	}
+}
+
+// portConnection is one output-to-input link across a flow.
+type portConnection struct {
+	output string
+	input  string
+}
+
+// portConnections returns the output->input links a flow establishes between
+// two entities, in the same precedence the lineage analyzer uses:
+//
+//  1. Explicit flow.DataMappings, used exclusively when present.
+//  2. An output and an input with the same name.
+//  3. A flow label that names one port: that output connects to the input of
+//     the same name, or to the sole input when the target has only one (and
+//     symmetrically for a label naming an input).
+//  4. A single output to a single input.
+//
+// A label never acts as a wildcard: it links at most one output to one input.
+func portConnections(flow Flow, from, to *Entity) []portConnection {
+	if len(flow.DataMappings) > 0 {
+		conns := make([]portConnection, 0, len(flow.DataMappings))
+		for _, m := range flow.DataMappings {
+			conns = append(conns, portConnection{output: m.OutputPort, input: m.InputPort})
+		}
+		return conns
+	}
+
+	var conns []portConnection
+	seen := make(map[portConnection]bool)
+	add := func(output, input string) {
+		c := portConnection{output: output, input: input}
+		if !seen[c] {
+			seen[c] = true
+			conns = append(conns, c)
+		}
+	}
+
+	for _, output := range from.Outputs {
+		if to.InputByName(output.Name) != nil {
+			add(output.Name, output.Name)
+		}
+	}
+
+	if flow.Label != "" {
+		switch {
+		case from.OutputByName(flow.Label) != nil:
+			if to.InputByName(flow.Label) != nil {
+				add(flow.Label, flow.Label)
+			} else if len(to.Inputs) == 1 {
+				add(flow.Label, to.Inputs[0].Name)
+			}
+		case to.InputByName(flow.Label) != nil:
+			if len(from.Outputs) == 1 {
+				add(from.Outputs[0].Name, flow.Label)
+			}
+		}
+	}
+
+	if len(conns) == 0 && len(from.Outputs) == 1 && len(to.Inputs) == 1 {
+		add(from.Outputs[0].Name, to.Inputs[0].Name)
+	}
+
+	return conns
 }
 
 // NewProcessContext creates a fresh process execution context.

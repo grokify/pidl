@@ -504,3 +504,101 @@ func TestLatencyVarianceClass(t *testing.T) {
 		}
 	}
 }
+
+func TestFillMissingLatencyValues(t *testing.T) {
+	detDefaults := StepTypeLatencyDefaults[StepTypeDeterministic]
+	llmDefaults := StepTypeLatencyDefaults[StepTypeLLM]
+
+	tests := []struct {
+		name     string
+		stepType StepType
+		in       LatencyEstimate
+		want     LatencyEstimate
+	}{
+		{
+			name:     "all empty uses step defaults",
+			stepType: StepTypeLLM,
+			want: LatencyEstimate{
+				P50:           llmDefaults.P50,
+				Expected:      llmDefaults.P50,
+				P95:           llmDefaults.P50 * 3,
+				P99:           llmDefaults.P50 * 3 * 15 / 10,
+				Max:           llmDefaults.P50 * 3 * 15 / 10 * 2,
+				VarianceClass: llmDefaults.Variance,
+			},
+		},
+		{
+			name:     "unknown step type falls back to deterministic defaults",
+			stepType: StepType("mystery"),
+			want: LatencyEstimate{
+				P50:           detDefaults.P50,
+				Expected:      detDefaults.P50,
+				P95:           detDefaults.P50 * 3,
+				P99:           detDefaults.P50 * 3 * 15 / 10,
+				Max:           detDefaults.P50 * 3 * 15 / 10 * 2,
+				VarianceClass: detDefaults.Variance,
+			},
+		},
+		{
+			name:     "p50 derived from expected",
+			stepType: StepTypeDeterministic,
+			in:       LatencyEstimate{Expected: 40 * time.Millisecond},
+			want: LatencyEstimate{
+				P50:           40 * time.Millisecond,
+				Expected:      40 * time.Millisecond,
+				P95:           120 * time.Millisecond,
+				P99:           180 * time.Millisecond,
+				Max:           360 * time.Millisecond,
+				VarianceClass: detDefaults.Variance,
+			},
+		},
+		{
+			name:     "p50 derived from p95 and p99 from p95",
+			stepType: StepTypeDeterministic,
+			in:       LatencyEstimate{P95: 200 * time.Millisecond},
+			want: LatencyEstimate{
+				P50:           100 * time.Millisecond,
+				Expected:      100 * time.Millisecond,
+				P95:           200 * time.Millisecond,
+				P99:           300 * time.Millisecond,
+				Max:           600 * time.Millisecond,
+				VarianceClass: detDefaults.Variance,
+			},
+		},
+		{
+			name:     "p95 derived from p99",
+			stepType: StepTypeDeterministic,
+			in:       LatencyEstimate{P50: 10 * time.Millisecond, P99: 100 * time.Millisecond},
+			want: LatencyEstimate{
+				P50:           10 * time.Millisecond,
+				Expected:      10 * time.Millisecond,
+				P95:           80 * time.Millisecond,
+				P99:           100 * time.Millisecond,
+				Max:           200 * time.Millisecond,
+				VarianceClass: detDefaults.Variance,
+			},
+		},
+		{
+			name:     "fully specified is untouched",
+			stepType: StepTypeLLM,
+			in: LatencyEstimate{
+				P50: time.Second, P95: 2 * time.Second, P99: 3 * time.Second, Max: 4 * time.Second,
+				Expected: 1500 * time.Millisecond, VarianceClass: LatencyVarianceLow,
+			},
+			want: LatencyEstimate{
+				P50: time.Second, P95: 2 * time.Second, P99: 3 * time.Second, Max: 4 * time.Second,
+				Expected: 1500 * time.Millisecond, VarianceClass: LatencyVarianceLow,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.in
+			fillMissingLatencyValues(&got, tt.stepType)
+			if got != tt.want {
+				t.Errorf("fillMissingLatencyValues() = %+v, want %+v", got, tt.want)
+			}
+		})
+	}
+}

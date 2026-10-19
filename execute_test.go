@@ -1,6 +1,8 @@
 package pidl
 
 import (
+	"encoding/json"
+	"strings"
 	"testing"
 )
 
@@ -503,5 +505,46 @@ func TestExecutor_EmptyProtocol(t *testing.T) {
 
 	if ctx.Progress() != 100 {
 		t.Errorf("Progress = %v, want 100", ctx.Progress())
+	}
+}
+
+func TestExecutionTrace_ToJSON(t *testing.T) {
+	tests := []struct {
+		name     string
+		trace    *ExecutionTrace
+		contains []string
+	}{
+		{
+			name:     "empty trace",
+			trace:    &ExecutionTrace{ProtocolID: "p", ProtocolName: "P"},
+			contains: []string{`"protocol_id": "p"`, `"protocol_name": "P"`, `"steps": null`, `"completed": false`},
+		},
+		{
+			name: "trace with steps and error",
+			trace: &ExecutionTrace{
+				ProtocolID: "p",
+				Steps:      []ExecutionStep{{FlowIndex: 0}, {FlowIndex: 1, Skipped: true}},
+				Error:      "boom",
+				Completed:  true,
+			},
+			contains: []string{`"flow_index": 1`, `"skipped": true`, `"error": "boom"`, `"completed": true`},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := tt.trace.ToJSON()
+			if err != nil {
+				t.Fatalf("ToJSON() error: %v", err)
+			}
+			if !json.Valid(data) {
+				t.Fatalf("ToJSON() produced invalid JSON: %s", data)
+			}
+			for _, want := range tt.contains {
+				if !strings.Contains(string(data), want) {
+					t.Errorf("ToJSON() missing %q in:\n%s", want, data)
+				}
+			}
+		})
 	}
 }

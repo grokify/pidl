@@ -60,19 +60,21 @@ func (r *SVGTrustRenderer) RenderString(p *pidl.Protocol) (string, error) {
 	}
 	relations := p.Metadata.TrustRelations
 
-	// Collect all unique nodes (entities and components)
-	nodeSet := make(map[string]bool)
-	for _, rel := range relations {
-		nodeSet[rel.From] = true
-		nodeSet[rel.To] = true
-	}
-
-	// Convert to slice and create index map
+	// Collect all unique nodes (entities and components) in first-appearance
+	// order so node placement is deterministic rather than following map
+	// iteration order.
 	var nodes []string
 	nodeIndex := make(map[string]int)
-	for node := range nodeSet {
-		nodeIndex[node] = len(nodes)
-		nodes = append(nodes, node)
+	addNode := func(id string) {
+		if _, ok := nodeIndex[id]; ok {
+			return
+		}
+		nodeIndex[id] = len(nodes)
+		nodes = append(nodes, id)
+	}
+	for _, rel := range relations {
+		addNode(rel.From)
+		addNode(rel.To)
 	}
 
 	// Layout configuration

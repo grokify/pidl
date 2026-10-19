@@ -1,0 +1,329 @@
+<svg viewBox="0 0 1540 615" xmlns="http://www.w3.org/2000/svg" class="theme-light">
+  <style>
+
+    /* Light theme (default) */
+    :root, .theme-light {
+      --color-primary: #1a365d;
+      --color-secondary: #2c5282;
+      --color-accent: #3182ce;
+      --color-bg: #ffffff;
+      --color-text: #1a202c;
+      --color-text-muted: #718096;
+      --color-line: #3182ce;
+      --color-line-response: #a0aec0;
+      --color-lifeline: #cbd5e0;
+      --color-participant-bg: #1a365d;
+      --color-participant-text: #ffffff;
+      --color-dot: #3182ce;
+    }
+
+    /* Dark theme */
+    .theme-dark {
+      --color-primary: #63b3ed;
+      --color-secondary: #90cdf4;
+      --color-accent: #4299e1;
+      --color-bg: #1a202c;
+      --color-text: #e2e8f0;
+      --color-text-muted: #a0aec0;
+      --color-line: #63b3ed;
+      --color-line-response: #4a5568;
+      --color-lifeline: #4a5568;
+      --color-participant-bg: #4299e1;
+      --color-participant-text: #ffffff;
+      --color-dot: #63b3ed;
+    }
+
+    /* Element styles */
+    .participant-box {
+      fill: var(--color-participant-bg);
+    }
+
+    .participant-text {
+      fill: var(--color-participant-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .lifeline {
+      stroke: var(--color-lifeline);
+      stroke-width: 1;
+      stroke-dasharray: 4,4;
+    }
+
+    .message-line {
+      fill: none;
+      stroke: var(--color-line);
+      stroke-width: 1.5;
+    }
+
+    .message-line-response {
+      fill: none;
+      stroke: var(--color-line-response);
+      stroke-width: 1.5;
+      stroke-dasharray: 6,3;
+    }
+
+    .message-arrow {
+      fill: var(--color-line);
+    }
+
+    .message-arrow-response {
+      fill: var(--color-line-response);
+    }
+
+    .message-text {
+      fill: var(--color-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 11px;
+    }
+
+    .step-circle {
+      fill: var(--color-accent);
+    }
+
+    .step-number {
+      fill: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 9px;
+      font-weight: bold;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    /* Phase box styles */
+    .phase-box {
+      stroke: var(--color-lifeline);
+      stroke-width: 1;
+      stroke-dasharray: 4, 2;
+    }
+
+    .phase-label {
+      fill: var(--color-text-muted);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Alternative badge styles */
+    .alt-badge-bg {
+      fill: var(--color-accent);
+      opacity: 0.9;
+    }
+
+    .alt-badge-text {
+      fill: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 8px;
+      font-weight: 600;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .alt-badge {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .alt-badge:hover {
+      transform: scale(1.1);
+    }
+
+    /* Note styles */
+    .message-note {
+      fill: var(--color-text-muted);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 9px;
+      font-style: italic;
+    }
+
+    /* Interactive hover states */
+    .participant-box {
+      transition: filter 0.2s ease, transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    .participant-box:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .message-line, .message-line-response {
+      transition: stroke-width 0.2s ease, filter 0.2s ease;
+      cursor: pointer;
+    }
+
+    .message-line:hover, .message-line-response:hover {
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 2px var(--color-line));
+    }
+
+    .message-text {
+      transition: font-weight 0.2s ease;
+      cursor: pointer;
+    }
+
+    .message-text:hover {
+      font-weight: 600;
+    }
+
+    .flow-dot {
+      transition: r 0.15s ease;
+    }
+
+    .flow-dot:hover {
+      r: 6;
+    }
+
+    .step-circle {
+      transition: transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    .step-circle:hover {
+      transform: scale(1.2);
+    }
+
+    /* Print styles */
+    @media print {
+      .flow-dot {
+        display: none;
+      }
+      /* Disable hover effects in print */
+      .participant-box:hover,
+      .message-line:hover,
+      .message-line-response:hover {
+        filter: none;
+        transform: none;
+      }
+    }
+  </style>
+
+  <defs>
+    <!-- Arrow markers -->
+    <marker id="arrow-message-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" class="message-arrow"/>
+    </marker>
+    <marker id="arrow-message-arrow-reverse" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M9,0 L9,6 L0,3 z" class="message-arrow"/>
+    </marker>
+    <marker id="arrow-message-arrow-response" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" class="message-arrow-response"/>
+    </marker>
+    <marker id="arrow-message-arrow-response-reverse" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M9,0 L9,6 L0,3 z" class="message-arrow-response"/>
+    </marker>
+  </defs>
+
+  <text x="770" y="12" class="message-text" style="font-size:14px;font-weight:600;text-anchor:middle;">CI/CD Pipeline</text>
+
+  <!-- Phase boxes -->
+  <g class="phase-boxes">
+    <rect class="phase-box" x="40" y="40" width="480" height="145" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="48" y="54">Source</text>
+    <rect class="phase-box" x="180" y="85" width="480" height="145" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="188" y="99">Build</text>
+    <rect class="phase-box" x="320" y="220" width="480" height="55" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="328" y="234">Test</text>
+    <rect class="phase-box" x="740" y="265" width="340" height="100" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="748" y="279">Package</text>
+    <rect class="phase-box" x="1020" y="355" width="340" height="100" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="1028" y="369">Staging</text>
+    <rect class="phase-box" x="40" y="445" width="1460" height="100" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="48" y="459">Production</text>
+  </g>
+
+  <!-- Lifelines -->
+  <g class="lifelines">
+    <line class="lifeline" x1="70" y1="56" x2="70" y2="595"/>
+    <line class="lifeline" x1="210" y1="56" x2="210" y2="595"/>
+    <line class="lifeline" x1="350" y1="56" x2="350" y2="595"/>
+    <line class="lifeline" x1="490" y1="56" x2="490" y2="595"/>
+    <line class="lifeline" x1="630" y1="56" x2="630" y2="595"/>
+    <line class="lifeline" x1="770" y1="56" x2="770" y2="595"/>
+    <line class="lifeline" x1="910" y1="56" x2="910" y2="595"/>
+    <line class="lifeline" x1="1050" y1="56" x2="1050" y2="595"/>
+    <line class="lifeline" x1="1190" y1="56" x2="1190" y2="595"/>
+    <line class="lifeline" x1="1330" y1="56" x2="1330" y2="595"/>
+    <line class="lifeline" x1="1470" y1="56" x2="1470" y2="595"/>
+  </g>
+
+  <!-- Participants -->
+  <g class="participants">
+    <rect class="participant-box" x="20" y="20" width="100" height="36" rx="4" style="fill:#E3F2FD;stroke:#1976D2;"/>
+    <text class="participant-text" x="70" y="38">⚙️ Code Checkout</text>
+    <rect class="participant-box" x="160" y="20" width="100" height="36" rx="4" style="fill:#E3F2FD;stroke:#1976D2;"/>
+    <text class="participant-text" x="210" y="38">⚙️ Build</text>
+    <rect class="participant-box" x="300" y="20" width="100" height="36" rx="4" style="fill:#E3F2FD;stroke:#1976D2;"/>
+    <text class="participant-text" x="350" y="38">⚙️ Unit Tests</text>
+    <rect class="participant-box" x="440" y="20" width="100" height="36" rx="4" style="fill:#ECEFF1;stroke:#607D8B;"/>
+    <text class="participant-text" x="490" y="38">🔧 Linting</text>
+    <rect class="participant-box" x="580" y="20" width="100" height="36" rx="4" style="fill:#FFF3E0;stroke:#F57C00;"/>
+    <text class="participant-text" x="630" y="38">☁️ Security Scan</text>
+    <rect class="participant-box" x="720" y="20" width="100" height="36" rx="4" style="fill:#E3F2FD;stroke:#1976D2;"/>
+    <text class="participant-text" x="770" y="38">⚙️ Container Build</text>
+    <rect class="participant-box" x="860" y="20" width="100" height="36" rx="4" style="fill:#FFF3E0;stroke:#F57C00;"/>
+    <text class="participant-text" x="910" y="38">☁️ Push Image</text>
+    <rect class="participant-box" x="1000" y="20" width="100" height="36" rx="4" style="fill:#FFF3E0;stroke:#F57C00;"/>
+    <text class="participant-text" x="1050" y="38">☁️ Deploy to Staging</text>
+    <rect class="participant-box" x="1140" y="20" width="100" height="36" rx="4" style="fill:#E3F2FD;stroke:#1976D2;"/>
+    <text class="participant-text" x="1190" y="38">⚙️ Integration Tests</text>
+    <rect class="participant-box" x="1280" y="20" width="100" height="36" rx="4" style="fill:#E8F5E9;stroke:#388E3C;"/>
+    <text class="participant-text" x="1330" y="38">👤 Production Approval</text>
+    <rect class="participant-box" x="1420" y="20" width="100" height="36" rx="4" style="fill:#FFF3E0;stroke:#F57C00;"/>
+    <text class="participant-text" x="1470" y="38">☁️ Deploy to Production</text>
+  </g>
+
+  <!-- Messages -->
+  <g class="messages">
+    <path id="msg-path-0" class="message-line" d="M70,70 L210,70" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="80" cy="70" r="8"/>
+    <text class="step-number" x="80" y="70">1</text>
+    <text class="message-text" x="140" y="62" text-anchor="middle">source_code</text>
+    <path id="msg-path-1" class="message-line" d="M210,115 L350,115" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="220" cy="115" r="8"/>
+    <text class="step-number" x="220" y="115">2</text>
+    <text class="message-text" x="280" y="107" text-anchor="middle">build_artifacts</text>
+    <path id="msg-path-2" class="message-line" d="M70,160 L490,160" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="80" cy="160" r="8"/>
+    <text class="step-number" x="80" y="160">3</text>
+    <text class="message-text" x="280" y="152" text-anchor="middle">source_code</text>
+    <text class="message-note" x="280" y="174" text-anchor="middle">📝 Runs in parallel with build</text>
+    <path id="msg-path-3" class="message-line" d="M210,205 L630,205" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="220" cy="205" r="8"/>
+    <text class="step-number" x="220" y="205">4</text>
+    <text class="message-text" x="420" y="197" text-anchor="middle">artifacts</text>
+    <path id="msg-path-4" class="message-line" d="M350,250 L770,250" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="360" cy="250" r="8"/>
+    <text class="step-number" x="360" y="250">5</text>
+    <text class="message-text" x="560" y="242" text-anchor="middle">test_passed</text>
+    <path id="msg-path-5" class="message-line" d="M770,295 L910,295" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="780" cy="295" r="8"/>
+    <text class="step-number" x="780" y="295">6</text>
+    <text class="message-text" x="840" y="287" text-anchor="middle">container_image</text>
+    <path id="msg-path-6" class="message-line" d="M910,340 L1050,340" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="920" cy="340" r="8"/>
+    <text class="step-number" x="920" y="340">7</text>
+    <text class="message-text" x="980" y="332" text-anchor="middle">image_digest</text>
+    <path id="msg-path-7" class="message-line" d="M1050,385 L1190,385" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="1060" cy="385" r="8"/>
+    <text class="step-number" x="1060" y="385">8</text>
+    <text class="message-text" x="1120" y="377" text-anchor="middle">staging_endpoint</text>
+    <path id="msg-path-8" class="message-line" d="M1190,430 L1330,430" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="1200" cy="430" r="8"/>
+    <text class="step-number" x="1200" y="430">9</text>
+    <text class="message-text" x="1260" y="422" text-anchor="middle">test_results</text>
+    <path id="msg-path-9" class="message-line" d="M1330,475 L1470,475" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="1340" cy="475" r="8"/>
+    <text class="step-number" x="1340" y="475">10</text>
+    <text class="message-text" x="1400" y="467" text-anchor="middle">approved</text>
+    <path id="msg-path-10" class="message-line-response" d="M1330,520 L70,520" marker-end="url(#arrow-message-arrow-response-reverse)"/>
+    <circle class="step-circle" cx="1320" cy="520" r="8"/>
+    <text class="step-number" x="1320" y="520">11</text>
+    <text class="message-text" x="700" y="512" text-anchor="middle">rejected</text>
+  </g>
+</svg>

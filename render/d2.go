@@ -111,16 +111,16 @@ func (r *D2Renderer) renderSequence(p *pidl.Protocol) string {
 
 	// Title as a label
 	if r.Title && p.ProtocolMeta.Name != "" {
-		fmt.Fprintf(&sb, "title: %s {\n  shape: text\n  near: top-center\n  style.font-size: 24\n}\n\n", p.ProtocolMeta.Name)
+		fmt.Fprintf(&sb, "title: %s {\n  shape: text\n  near: top-center\n  style.font-size: 24\n}\n\n", d2Label(p.ProtocolMeta.Name))
 	}
 
 	// Declare the sequence diagram shape
-	sb.WriteString("sequence: {\n")
+	sb.WriteString("sequence: \"\" {\n")
 	sb.WriteString("  shape: sequence_diagram\n\n")
 
 	// Declare actors
 	for _, e := range p.Entities {
-		fmt.Fprintf(&sb, "  %s: %s\n", r.sanitizeID(e.ID), e.Name)
+		fmt.Fprintf(&sb, "  %s: %s\n", r.sanitizeID(e.ID), d2Label(e.Name))
 	}
 
 	sb.WriteString("\n")
@@ -190,7 +190,7 @@ func (r *D2Renderer) openPhaseGroups(sb *strings.Builder, p *pidl.Protocol, phas
 		for j := 0; j < i; j++ {
 			indent += "  "
 		}
-		fmt.Fprintf(sb, "%s%s: %s {\n", indent, r.sanitizeID(ph.ID), ph.Name)
+		fmt.Fprintf(sb, "%s%s: %s {\n", indent, r.sanitizeID(ph.ID), d2Label(ph.Name))
 		stack = append(stack, ph.ID)
 	}
 
@@ -198,6 +198,11 @@ func (r *D2Renderer) openPhaseGroups(sb *strings.Builder, p *pidl.Protocol, phas
 }
 
 // renderSequenceFlow renders a single flow in a D2 sequence diagram.
+//
+// Messages are emitted as plain D2 edges (`from -> to: "label"`): a keyed form
+// such as `seq1: from -> to: label` is a labelled shape in D2, not an edge, and
+// renders as a note. Responses keep the from -> to direction of the flow and are
+// drawn dashed. Annotations become D2 notes on the receiving actor.
 func (r *D2Renderer) renderSequenceFlow(sb *strings.Builder, _ *pidl.Protocol, f pidl.Flow, indent string, seq int) int {
 	from := r.sanitizeID(f.From)
 	to := r.sanitizeID(f.To)
@@ -213,23 +218,30 @@ func (r *D2Renderer) renderSequenceFlow(sb *strings.Builder, _ *pidl.Protocol, f
 		label = fmt.Sprintf("%s (%s)", label, ann)
 	}
 
-	// D2 sequence diagram message syntax
-	arrow := r.modeToArrow(f.EffectiveMode())
-	fmt.Fprintf(sb, "%sseq%d: %s %s %s: %s", indent, seq, from, arrow, to, label)
-
-	// Add note as tooltip if present
+	var attrs []string
+	if dash := r.modeStrokeDash(f.EffectiveMode()); dash != "" {
+		attrs = append(attrs, "style.stroke-dash: "+dash)
+	}
 	if r.ShowNotes && f.HasNote() {
-		fmt.Fprintf(sb, " {\n%s  tooltip: %s\n%s}", indent, f.Note, indent)
+		attrs = append(attrs, "tooltip: "+d2Label(f.Note))
 	}
 
+	fmt.Fprintf(sb, "%s%s -> %s: %s", indent, from, to, d2Label(label))
+	if len(attrs) > 0 {
+		fmt.Fprintf(sb, " {\n")
+		for _, a := range attrs {
+			fmt.Fprintf(sb, "%s  %s\n", indent, a)
+		}
+		fmt.Fprintf(sb, "%s}", indent)
+	}
 	sb.WriteString("\n")
 	seq++
 
-	// Render annotations as separate note messages
+	// Render annotations as notes on the receiving actor
 	if r.ShowAnnotations && f.HasAnnotations() {
 		for _, ann := range f.Annotations {
 			prefix := r.annotationPrefix(ann.Type)
-			fmt.Fprintf(sb, "%snote%d: %s -> %s: %s%s\n", indent, seq, to, to, prefix, ann.Text)
+			fmt.Fprintf(sb, "%s%s.%s\n", indent, to, d2Label(prefix+ann.Text))
 			seq++
 		}
 	}
@@ -237,14 +249,14 @@ func (r *D2Renderer) renderSequenceFlow(sb *strings.Builder, _ *pidl.Protocol, f
 	// Render verification provenance as a compact note
 	if r.ShowVerification && f.HasVerification() {
 		badge := verificationBadge(f.Verification)
-		fmt.Fprintf(sb, "%snote%d: %s -> %s: %s\n", indent, seq, to, to, badge)
+		fmt.Fprintf(sb, "%s%s.%s\n", indent, to, d2Label(badge))
 		seq++
 	}
 
-	// Render alternatives as additional flows
+	// Render alternatives as nested groups
 	if r.ShowAlternatives && f.HasAlternatives() {
 		for _, alt := range f.Alternatives {
-			fmt.Fprintf(sb, "%salt%d: [%s] {\n", indent, seq, alt.Condition)
+			fmt.Fprintf(sb, "%salt%d: %s {\n", indent, seq, d2Label("["+alt.Condition+"]"))
 			altIndent := indent + "  "
 			for _, altFlow := range alt.Flows {
 				seq = r.renderSequenceFlow(sb, nil, altFlow, altIndent, seq)
@@ -286,7 +298,7 @@ func (r *D2Renderer) renderFlow(p *pidl.Protocol) string {
 
 	// Title
 	if r.Title && p.ProtocolMeta.Name != "" {
-		fmt.Fprintf(&sb, "title: %s {\n  shape: text\n  near: top-center\n  style.font-size: 24\n}\n\n", p.ProtocolMeta.Name)
+		fmt.Fprintf(&sb, "title: %s {\n  shape: text\n  near: top-center\n  style.font-size: 24\n}\n\n", d2Label(p.ProtocolMeta.Name))
 	}
 
 	// Render data ports for process specs
@@ -299,9 +311,9 @@ func (r *D2Renderer) renderFlow(p *pidl.Protocol) string {
 	for _, e := range p.Entities {
 		id := r.sanitizeID(e.ID)
 		shape := r.entityTypeToShape(e.Type)
-		fmt.Fprintf(&sb, "%s: %s {\n  shape: %s\n", id, e.Name, shape)
+		fmt.Fprintf(&sb, "%s: %s {\n  shape: %s\n", id, d2Label(e.Name), shape)
 		if e.Description != "" && r.ShowDescriptions {
-			fmt.Fprintf(&sb, "  tooltip: %s\n", e.Description)
+			fmt.Fprintf(&sb, "  tooltip: %s\n", d2Label(e.Description))
 		}
 		// Add step type styling for process specs
 		if r.ShowStepTypes && isProcessSpec && e.IsProcessStep() {
@@ -331,8 +343,7 @@ func (r *D2Renderer) renderFlow(p *pidl.Protocol) string {
 		}
 
 		// Connection with label
-		arrow := r.modeToD2Arrow(f.EffectiveMode())
-		fmt.Fprintf(&sb, "%s %s %s: %d. %s\n", from, arrow, to, i+1, label)
+		fmt.Fprintf(&sb, "%s -> %s: %s%s\n", from, to, d2Label(fmt.Sprintf("%d. %s", i+1, label)), r.edgeStyle(f.EffectiveMode()))
 	}
 
 	return sb.String()
@@ -363,12 +374,12 @@ func (r *D2Renderer) renderDataPorts(sb *strings.Builder, p *pidl.Protocol) {
 			icon := r.dataPortIcon(port.Kind)
 
 			label := fmt.Sprintf("%s %s", icon, port.Name)
-			fmt.Fprintf(sb, "%s: %s {\n", portID, label)
+			fmt.Fprintf(sb, "%s: %s {\n", portID, d2Label(label))
 			fmt.Fprintf(sb, "  shape: %s\n", shape)
 			fmt.Fprintf(sb, "  style.fill: \"%s\"\n", fill)
 			fmt.Fprintf(sb, "  style.stroke: \"%s\"\n", stroke)
 			if port.Description != "" {
-				fmt.Fprintf(sb, "  tooltip: %s\n", port.Description)
+				fmt.Fprintf(sb, "  tooltip: %s\n", d2Label(port.Description))
 			}
 			sb.WriteString("}\n")
 		}
@@ -386,12 +397,12 @@ func (r *D2Renderer) renderDataPorts(sb *strings.Builder, p *pidl.Protocol) {
 			icon := r.dataPortIcon(port.Kind)
 
 			label := fmt.Sprintf("%s %s", icon, port.Name)
-			fmt.Fprintf(sb, "%s: %s {\n", portID, label)
+			fmt.Fprintf(sb, "%s: %s {\n", portID, d2Label(label))
 			fmt.Fprintf(sb, "  shape: %s\n", shape)
 			fmt.Fprintf(sb, "  style.fill: \"%s\"\n", fill)
 			fmt.Fprintf(sb, "  style.stroke: \"%s\"\n", stroke)
 			if port.Description != "" {
-				fmt.Fprintf(sb, "  tooltip: %s\n", port.Description)
+				fmt.Fprintf(sb, "  tooltip: %s\n", d2Label(port.Description))
 			}
 			sb.WriteString("}\n")
 		}
@@ -448,7 +459,7 @@ func (r *D2Renderer) renderArch(p *pidl.Protocol) string {
 
 	// Title
 	if r.Title && p.ProtocolMeta.Name != "" {
-		fmt.Fprintf(&sb, "title: %s {\n  shape: text\n  near: top-center\n  style.font-size: 24\n}\n\n", p.ProtocolMeta.Name)
+		fmt.Fprintf(&sb, "title: %s {\n  shape: text\n  near: top-center\n  style.font-size: 24\n}\n\n", d2Label(p.ProtocolMeta.Name))
 	}
 
 	isProcessSpec := p.IsProcessSpec()
@@ -468,11 +479,11 @@ func (r *D2Renderer) renderArch(p *pidl.Protocol) string {
 	// Render grouped entities
 	for group, entities := range entityGroups {
 		if group != "" {
-			fmt.Fprintf(&sb, "%s: %s {\n", r.sanitizeID(group), group)
+			fmt.Fprintf(&sb, "%s: %s {\n", r.sanitizeID(group), d2Label(group))
 			for _, e := range entities {
 				id := r.sanitizeID(e.ID)
 				shape := r.entityTypeToShape(e.Type)
-				fmt.Fprintf(&sb, "  %s: %s {\n    shape: %s\n", id, e.Name, shape)
+				fmt.Fprintf(&sb, "  %s: %s {\n    shape: %s\n", id, d2Label(e.Name), shape)
 				// Add step type styling for process specs
 				if r.ShowStepTypes && isProcessSpec && e.IsProcessStep() {
 					fill, stroke := r.stepTypeColors(e.StepType)
@@ -487,7 +498,7 @@ func (r *D2Renderer) renderArch(p *pidl.Protocol) string {
 			for _, e := range entities {
 				id := r.sanitizeID(e.ID)
 				shape := r.entityTypeToShape(e.Type)
-				fmt.Fprintf(&sb, "%s: %s {\n  shape: %s\n", id, e.Name, shape)
+				fmt.Fprintf(&sb, "%s: %s {\n  shape: %s\n", id, d2Label(e.Name), shape)
 				// Add step type styling for process specs
 				if r.ShowStepTypes && isProcessSpec && e.IsProcessStep() {
 					fill, stroke := r.stepTypeColors(e.StepType)
@@ -515,8 +526,7 @@ func (r *D2Renderer) renderArch(p *pidl.Protocol) string {
 			label = fmt.Sprintf("%s (%s)", label, ann)
 		}
 
-		arrow := r.modeToD2Arrow(f.EffectiveMode())
-		fmt.Fprintf(&sb, "%s %s %s: %d. %s\n", from, arrow, to, i+1, label)
+		fmt.Fprintf(&sb, "%s -> %s: %s%s\n", from, to, d2Label(fmt.Sprintf("%d. %s", i+1, label)), r.edgeStyle(f.EffectiveMode()))
 	}
 
 	return sb.String()
@@ -566,7 +576,7 @@ func (r *D2Renderer) renderDataPortsGrouped(sb *strings.Builder, p *pidl.Protoco
 		groupID := r.sanitizeID(groupName)
 		fill, stroke := r.dataPortKindToColor(kind)
 
-		fmt.Fprintf(sb, "%s: %s {\n", groupID, groupName)
+		fmt.Fprintf(sb, "%s: %s {\n", groupID, d2Label(groupName))
 		fmt.Fprintf(sb, "  style.fill: \"%s\"\n", fill)
 		fmt.Fprintf(sb, "  style.stroke: \"%s\"\n", stroke)
 
@@ -576,10 +586,10 @@ func (r *D2Renderer) renderDataPortsGrouped(sb *strings.Builder, p *pidl.Protoco
 			icon := r.dataPortIcon(kind)
 			label := fmt.Sprintf("%s %s", icon, port.Name)
 
-			fmt.Fprintf(sb, "  %s: %s {\n", portID, label)
+			fmt.Fprintf(sb, "  %s: %s {\n", portID, d2Label(label))
 			fmt.Fprintf(sb, "    shape: %s\n", shape)
 			if port.Description != "" {
-				fmt.Fprintf(sb, "    tooltip: %s\n", port.Description)
+				fmt.Fprintf(sb, "    tooltip: %s\n", d2Label(port.Description))
 			}
 			sb.WriteString("  }\n")
 		}
@@ -647,24 +657,36 @@ func (r *D2Renderer) sanitizeID(id string) string {
 	return result
 }
 
-func (r *D2Renderer) modeToArrow(mode pidl.FlowMode) string {
+// modeStrokeDash returns the D2 stroke-dash value for a flow mode, or "" for a
+// solid line. Responses and tool results are dashed; events are dotted.
+func (r *D2Renderer) modeStrokeDash(mode pidl.FlowMode) string {
 	switch mode {
-	case pidl.FlowModeResponse, pidl.FlowModeToolResult, pidl.FlowModeEvent:
-		return "<-"
+	case pidl.FlowModeResponse, pidl.FlowModeToolResult:
+		return "3"
+	case pidl.FlowModeEvent:
+		return "5"
 	default:
-		return "->"
+		return ""
 	}
 }
 
-func (r *D2Renderer) modeToD2Arrow(mode pidl.FlowMode) string {
-	switch mode {
-	case pidl.FlowModeResponse, pidl.FlowModeToolResult:
-		return "<--"
-	case pidl.FlowModeEvent:
-		return "<-"
-	default:
-		return "->"
+// edgeStyle returns an inline D2 style block for a flow mode, or "".
+func (r *D2Renderer) edgeStyle(mode pidl.FlowMode) string {
+	dash := r.modeStrokeDash(mode)
+	if dash == "" {
+		return ""
 	}
+	return " { style.stroke-dash: " + dash + " }"
+}
+
+// d2Label returns s as a double-quoted D2 string. Unquoted D2 strings cannot
+// hold ':' , ';', '#', '{', '}', '[' or ']' without changing meaning, and labels
+// written by people routinely do.
+func d2Label(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `"`, `\"`)
+	s = strings.ReplaceAll(s, "\n", `\n`)
+	return `"` + s + `"`
 }
 
 func (r *D2Renderer) modeAnnotation(mode pidl.FlowMode) string {

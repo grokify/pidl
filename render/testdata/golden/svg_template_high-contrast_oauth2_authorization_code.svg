@@ -1,0 +1,446 @@
+<svg viewBox="0 0 760 675" xmlns="http://www.w3.org/2000/svg" class="theme-light">
+  <style>
+
+    /* Light theme (default) */
+    :root, .theme-light {
+      --color-primary: #1a365d;
+      --color-secondary: #2c5282;
+      --color-accent: #3182ce;
+      --color-bg: #ffffff;
+      --color-text: #1a202c;
+      --color-text-muted: #718096;
+      --color-line: #3182ce;
+      --color-line-response: #a0aec0;
+      --color-lifeline: #cbd5e0;
+      --color-participant-bg: #1a365d;
+      --color-participant-text: #ffffff;
+      --color-dot: #3182ce;
+    }
+
+    /* Dark theme */
+    .theme-dark {
+      --color-primary: #63b3ed;
+      --color-secondary: #90cdf4;
+      --color-accent: #4299e1;
+      --color-bg: #1a202c;
+      --color-text: #e2e8f0;
+      --color-text-muted: #a0aec0;
+      --color-line: #63b3ed;
+      --color-line-response: #4a5568;
+      --color-lifeline: #4a5568;
+      --color-participant-bg: #4299e1;
+      --color-participant-text: #ffffff;
+      --color-dot: #63b3ed;
+    }
+
+    /* Element styles */
+    .participant-box {
+      fill: var(--color-participant-bg);
+    }
+
+    .participant-text {
+      fill: var(--color-participant-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .lifeline {
+      stroke: var(--color-lifeline);
+      stroke-width: 1;
+      stroke-dasharray: 4,4;
+    }
+
+    .message-line {
+      fill: none;
+      stroke: var(--color-line);
+      stroke-width: 1.5;
+    }
+
+    .message-line-response {
+      fill: none;
+      stroke: var(--color-line-response);
+      stroke-width: 1.5;
+      stroke-dasharray: 6,3;
+    }
+
+    .message-arrow {
+      fill: var(--color-line);
+    }
+
+    .message-arrow-response {
+      fill: var(--color-line-response);
+    }
+
+    .message-text {
+      fill: var(--color-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 11px;
+    }
+
+    .step-circle {
+      fill: var(--color-accent);
+    }
+
+    .step-number {
+      fill: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 9px;
+      font-weight: bold;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    /* Phase box styles */
+    .phase-box {
+      stroke: var(--color-lifeline);
+      stroke-width: 1;
+      stroke-dasharray: 4, 2;
+    }
+
+    .phase-label {
+      fill: var(--color-text-muted);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Alternative badge styles */
+    .alt-badge-bg {
+      fill: var(--color-accent);
+      opacity: 0.9;
+    }
+
+    .alt-badge-text {
+      fill: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 8px;
+      font-weight: 600;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .alt-badge {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .alt-badge:hover {
+      transform: scale(1.1);
+    }
+
+    /* Note styles */
+    .message-note {
+      fill: var(--color-text-muted);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 9px;
+      font-style: italic;
+    }
+
+    /* Interactive hover states */
+    .participant-box {
+      transition: filter 0.2s ease, transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    .participant-box:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .message-line, .message-line-response {
+      transition: stroke-width 0.2s ease, filter 0.2s ease;
+      cursor: pointer;
+    }
+
+    .message-line:hover, .message-line-response:hover {
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 2px var(--color-line));
+    }
+
+    .message-text {
+      transition: font-weight 0.2s ease;
+      cursor: pointer;
+    }
+
+    .message-text:hover {
+      font-weight: 600;
+    }
+
+    .flow-dot {
+      transition: r 0.15s ease;
+    }
+
+    .flow-dot:hover {
+      r: 6;
+    }
+
+    .step-circle {
+      transition: transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    .step-circle:hover {
+      transform: scale(1.2);
+    }
+
+    /* Print styles */
+    @media print {
+      .flow-dot {
+        display: none;
+      }
+      /* Disable hover effects in print */
+      .participant-box:hover,
+      .message-line:hover,
+      .message-line-response:hover {
+        filter: none;
+        transform: none;
+      }
+    }
+
+    /* Template color overrides */
+    :root {
+      --color-primary: #000000;
+      --color-secondary: #000000;
+      --color-accent: #0000EE;
+      --color-bg: #FFFFFF;
+      --color-text: #000000;
+      --color-line: #000000;
+      --color-lifeline: #666666;
+      --color-participant-bg: #000000;
+      --color-participant-text: #FFFFFF;
+    }
+
+    .participant-text, .message-text { font-family: Arial, Helvetica, sans-serif; }
+
+    .message-line, .message-line-response { stroke-width: 2.5; }
+
+    /* Template custom CSS */
+/* High-Contrast Template - WCAG AA Compliant */
+
+/* Override theme colors for maximum contrast */
+:root, .theme-light, .theme-dark, .theme-auto {
+  --color-primary: #000000;
+  --color-secondary: #000000;
+  --color-accent: #0000EE;
+  --color-bg: #FFFFFF;
+  --color-text: #000000;
+  --color-text-muted: #333333;
+  --color-line: #000000;
+  --color-line-response: #333333;
+  --color-lifeline: #666666;
+  --color-participant-bg: #000000;
+  --color-participant-text: #FFFFFF;
+  --color-dot: #0000EE;
+}
+
+/* Thicker lines for visibility */
+.message-line {
+  stroke-width: 2.5px;
+}
+
+.lifeline {
+  stroke-width: 2px;
+  stroke-dasharray: 8, 4;
+}
+
+/* High contrast participant boxes */
+.participant-box {
+  stroke: #000000;
+  stroke-width: 3px;
+  fill: #000000;
+}
+
+.participant-text {
+  fill: #FFFFFF;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* Message text with better readability */
+.message-text {
+  fill: #000000;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Animation presets with high contrast colors */
+.flow-dot {
+  fill: #0000EE;
+  stroke: #000000;
+  stroke-width: 1px;
+}
+
+.flow-dot-success {
+  fill: #006600;
+}
+
+.flow-dot-error {
+  fill: #CC0000;
+}
+
+.flow-dot-warning {
+  fill: #CC6600;
+}
+
+.flow-dot-highlight {
+  fill: #0000EE;
+  stroke: #000000;
+  stroke-width: 2px;
+}
+
+/* Phase boxes with clear borders */
+.phase-box {
+  fill: #F0F0F0;
+  stroke: #000000;
+  stroke-width: 2px;
+}
+
+.phase-label {
+  fill: #000000;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* Alternative paths */
+.alt-box {
+  fill: #FFFFD0;
+  stroke: #000000;
+  stroke-width: 2px;
+}
+
+.alt-label {
+  fill: #000000;
+  font-weight: 700;
+}
+
+/* Underline links for accessibility */
+text[data-link] {
+  text-decoration: underline;
+}
+
+/* Print styles - ensure visibility */
+@media print {
+  .flow-dot {
+    display: none;
+  }
+
+  .message-line {
+    stroke: #000000 !important;
+    stroke-width: 2px;
+  }
+
+  .participant-box {
+    fill: #FFFFFF !important;
+    stroke: #000000 !important;
+  }
+
+  .participant-text {
+    fill: #000000 !important;
+  }
+}
+  </style>
+
+  <defs>
+    <!-- Arrow markers -->
+    <marker id="arrow-message-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" class="message-arrow"/>
+    </marker>
+    <marker id="arrow-message-arrow-reverse" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M9,0 L9,6 L0,3 z" class="message-arrow"/>
+    </marker>
+    <marker id="arrow-message-arrow-response" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" class="message-arrow-response"/>
+    </marker>
+    <marker id="arrow-message-arrow-response-reverse" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M9,0 L9,6 L0,3 z" class="message-arrow-response"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="12" class="message-text" style="font-size:14px;font-weight:600;text-anchor:middle;">OAuth 2.0 Authorization Code Flow</text>
+
+  <!-- Phase boxes -->
+  <g class="phase-boxes">
+    <rect class="phase-box" x="50" y="40" width="510" height="355" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="58" y="54">Authorization</text>
+    <rect class="phase-box" x="350" y="390" width="210" height="105" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="358" y="404">Token Exchange</text>
+    <rect class="phase-box" x="350" y="490" width="360" height="105" rx="4" style="fill: rgba(49, 130, 206, 0.08);"/>
+    <text class="phase-label" x="358" y="504">Resource Access</text>
+  </g>
+
+  <!-- Lifelines -->
+  <g class="lifelines">
+    <line class="lifeline" x1="80" y1="65" x2="80" y2="650"/>
+    <line class="lifeline" x1="230" y1="65" x2="230" y2="650"/>
+    <line class="lifeline" x1="380" y1="65" x2="380" y2="650"/>
+    <line class="lifeline" x1="530" y1="65" x2="530" y2="650"/>
+    <line class="lifeline" x1="680" y1="65" x2="680" y2="650"/>
+  </g>
+
+  <!-- Participants -->
+  <g class="participants">
+    <rect class="participant-box" x="25" y="25" width="110" height="40" rx="0"/>
+    <text class="participant-text" x="80" y="45">Resource Owner</text>
+    <rect class="participant-box" x="175" y="25" width="110" height="40" rx="0"/>
+    <text class="participant-text" x="230" y="45">User Agent</text>
+    <rect class="participant-box" x="325" y="25" width="110" height="40" rx="0"/>
+    <text class="participant-text" x="380" y="45">Client Application</text>
+    <rect class="participant-box" x="475" y="25" width="110" height="40" rx="0"/>
+    <text class="participant-text" x="530" y="45">Authorization Server</text>
+    <rect class="participant-box" x="625" y="25" width="110" height="40" rx="0"/>
+    <text class="participant-text" x="680" y="45">Resource Server</text>
+  </g>
+
+  <!-- Messages -->
+  <g class="messages">
+    <path id="msg-path-0" class="message-line" d="M80,70 L380,70" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="90" cy="70" r="8"/>
+    <text class="step-number" x="90" y="70">1</text>
+    <text class="message-text" x="230" y="62" text-anchor="middle">Click Login</text>
+    <path id="msg-path-1" class="message-line" d="M380,120 L230,120" marker-end="url(#arrow-message-arrow-reverse)"/>
+    <circle class="step-circle" cx="370" cy="120" r="8"/>
+    <text class="step-number" x="370" y="120">2</text>
+    <text class="message-text" x="305" y="112" text-anchor="middle">Redirect to Authorization Server</text>
+    <path id="msg-path-2" class="message-line" d="M230,170 L530,170" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="240" cy="170" r="8"/>
+    <text class="step-number" x="240" y="170">3</text>
+    <text class="message-text" x="380" y="162" text-anchor="middle">GET /authorize?response_type=code&amp;client_id=...&amp;redirect_uri=...&amp;scope=...</text>
+    <path id="msg-path-3" class="message-line" d="M530,220 L80,220" marker-end="url(#arrow-message-arrow-reverse)"/>
+    <circle class="step-circle" cx="520" cy="220" r="8"/>
+    <text class="step-number" x="520" y="220">4</text>
+    <text class="message-text" x="305" y="212" text-anchor="middle">Login + Consent Form</text>
+    <path id="msg-path-4" class="message-line" d="M80,270 L530,270" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="90" cy="270" r="8"/>
+    <text class="step-number" x="90" y="270">5</text>
+    <text class="message-text" x="305" y="262" text-anchor="middle">Submit Credentials + Grant Consent</text>
+    <path id="msg-path-5" class="message-line" d="M530,320 L230,320" marker-end="url(#arrow-message-arrow-reverse)"/>
+    <circle class="step-circle" cx="520" cy="320" r="8"/>
+    <text class="step-number" x="520" y="320">6</text>
+    <text class="message-text" x="380" y="312" text-anchor="middle">Redirect to redirect_uri?code=...&amp;state=...</text>
+    <path id="msg-path-6" class="message-line" d="M230,370 L380,370" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="240" cy="370" r="8"/>
+    <text class="step-number" x="240" y="370">7</text>
+    <text class="message-text" x="305" y="362" text-anchor="middle">Callback with Authorization Code</text>
+    <path id="msg-path-7" class="message-line" d="M380,420 L530,420" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="390" cy="420" r="8"/>
+    <text class="step-number" x="390" y="420">8</text>
+    <text class="message-text" x="455" y="412" text-anchor="middle">POST /token (grant_type=authorization_code&amp;code=...)</text>
+    <path id="msg-path-8" class="message-line-response" d="M530,470 L380,470" marker-end="url(#arrow-message-arrow-response-reverse)"/>
+    <circle class="step-circle" cx="520" cy="470" r="8"/>
+    <text class="step-number" x="520" y="470">9</text>
+    <text class="message-text" x="455" y="462" text-anchor="middle">Access Token + Refresh Token</text>
+    <path id="msg-path-9" class="message-line" d="M380,520 L680,520" marker-end="url(#arrow-message-arrow)"/>
+    <circle class="step-circle" cx="390" cy="520" r="8"/>
+    <text class="step-number" x="390" y="520">10</text>
+    <text class="message-text" x="530" y="512" text-anchor="middle">API Request (Authorization: Bearer &lt;token&gt;)</text>
+    <path id="msg-path-10" class="message-line-response" d="M680,570 L380,570" marker-end="url(#arrow-message-arrow-response-reverse)"/>
+    <circle class="step-circle" cx="670" cy="570" r="8"/>
+    <text class="step-number" x="670" y="570">11</text>
+    <text class="message-text" x="530" y="562" text-anchor="middle">Protected Resource</text>
+  </g>
+</svg>

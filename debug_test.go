@@ -542,3 +542,33 @@ func TestDebugSession_Trace(t *testing.T) {
 		t.Errorf("expected 2 steps in trace, got %d", trace.StepCount())
 	}
 }
+
+func TestDebugSession_EvaluateCondition(t *testing.T) {
+	tests := []struct {
+		name      string
+		condition string
+		want      bool
+	}{
+		{name: "empty condition is true", condition: "", want: true},
+		{name: "whitespace only is true", condition: "   ", want: true},
+		{name: "equality match with double quotes", condition: `client.state == "idle"`, want: true},
+		{name: "equality match with single quotes", condition: `client.state == 'idle'`, want: true},
+		{name: "equality mismatch", condition: `client.state == "done"`, want: false},
+		{name: "equality against bare entity id", condition: `client == "idle"`, want: true},
+		{name: "equality on entity without states", condition: `server.state == ""`, want: true},
+		{name: "equality on unknown entity", condition: `ghost.state == "idle"`, want: false},
+		{name: "inequality match", condition: `client.state != "done"`, want: true},
+		{name: "inequality mismatch", condition: `client.state != "idle"`, want: false},
+		{name: "no operator is truthy", condition: "client.state", want: true},
+		{name: "equality checked before inequality", condition: `client.state == "a != b"`, want: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			session := NewDebugSession(createDebugTestProtocol())
+			if got := session.evaluateCondition(tt.condition); got != tt.want {
+				t.Errorf("evaluateCondition(%q) = %v, want %v", tt.condition, got, tt.want)
+			}
+		})
+	}
+}

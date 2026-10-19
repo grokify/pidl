@@ -391,3 +391,84 @@ func TestCompare_SecurityChange(t *testing.T) {
 		t.Error("expected security change")
 	}
 }
+
+func TestCompareMetadata(t *testing.T) {
+	withTokens := &ProtocolMetadata{Tokens: []TokenDefinition{{ID: "jwt", Type: "jwt"}}}
+
+	tests := []struct {
+		name      string
+		base      *ProtocolMetadata
+		new       *ProtocolMetadata
+		wantPaths []string
+		wantTypes []DiffType
+	}{
+		{name: "both nil"},
+		{name: "identical", base: withTokens, new: &ProtocolMetadata{Tokens: []TokenDefinition{{ID: "jwt", Type: "jwt"}}}},
+		{name: "metadata added", new: withTokens, wantPaths: []string{"metadata"}, wantTypes: []DiffType{DiffTypeAdded}},
+		{name: "metadata removed", base: withTokens, wantPaths: []string{"metadata"}, wantTypes: []DiffType{DiffTypeRemoved}},
+		{
+			name:      "tokens changed",
+			base:      withTokens,
+			new:       &ProtocolMetadata{Tokens: []TokenDefinition{{ID: "opaque", Type: "opaque"}}},
+			wantPaths: []string{"metadata.tokens"},
+			wantTypes: []DiffType{DiffTypeModified},
+		},
+		{
+			name:      "components changed",
+			base:      &ProtocolMetadata{Components: []DeploymentComponent{{ID: "idp", Name: "IdP", Type: "idp"}}},
+			new:       &ProtocolMetadata{Components: []DeploymentComponent{{ID: "idp", Name: "Identity Provider", Type: "idp"}}},
+			wantPaths: []string{"metadata.components"},
+			wantTypes: []DiffType{DiffTypeModified},
+		},
+		{
+			name:      "trust relations changed",
+			base:      &ProtocolMetadata{TrustRelations: []TrustRelationship{{From: "a", To: "b"}}},
+			new:       &ProtocolMetadata{},
+			wantPaths: []string{"metadata.trust_relations"},
+			wantTypes: []DiffType{DiffTypeModified},
+		},
+		{
+			name:      "networks changed",
+			base:      &ProtocolMetadata{Networks: map[string]*NetworkConfig{"dmz": {Name: "DMZ"}}},
+			new:       &ProtocolMetadata{Networks: map[string]*NetworkConfig{"dmz": {Name: "DMZ", Style: "dmz"}}},
+			wantPaths: []string{"metadata.networks"},
+			wantTypes: []DiffType{DiffTypeModified},
+		},
+		{
+			name: "several sections changed",
+			base: &ProtocolMetadata{
+				Tokens:     []TokenDefinition{{ID: "jwt"}},
+				Components: []DeploymentComponent{{ID: "gw"}},
+			},
+			new: &ProtocolMetadata{
+				Tokens:         []TokenDefinition{{ID: "jwt"}, {ID: "api_key"}},
+				Components:     []DeploymentComponent{{ID: "gw"}},
+				TrustRelations: []TrustRelationship{{From: "gw", To: "idp"}},
+			},
+			wantPaths: []string{"metadata.tokens", "metadata.trust_relations"},
+			wantTypes: []DiffType{DiffTypeModified, DiffTypeModified},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			diff := &ProtocolDiff{}
+			compareMetadata(diff, tt.base, tt.new, DefaultDiffOptions())
+
+			if len(diff.Items) != len(tt.wantPaths) {
+				t.Fatalf("got %d diff items, want %d: %+v", len(diff.Items), len(tt.wantPaths), diff.Items)
+			}
+			for i, item := range diff.Items {
+				if item.Path != tt.wantPaths[i] {
+					t.Errorf("Items[%d].Path = %q, want %q", i, item.Path, tt.wantPaths[i])
+				}
+				if item.Type != tt.wantTypes[i] {
+					t.Errorf("Items[%d].Type = %q, want %q", i, item.Type, tt.wantTypes[i])
+				}
+				if item.Category != DiffCategoryMetadata {
+					t.Errorf("Items[%d].Category = %q, want %q", i, item.Category, DiffCategoryMetadata)
+				}
+			}
+		})
+	}
+}
