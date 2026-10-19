@@ -167,7 +167,7 @@ func TestProtocolToJSONCompact(t *testing.T) {
 		{
 			name: "minimal protocol",
 			p:    &Protocol{ProtocolMeta: ProtocolMeta{ID: "c", Name: "Compact"}},
-			want: `{"protocol":{"id":"c","name":"Compact"},"entities":null,"flows":null}`,
+			want: `{"protocol":{"id":"c","name":"Compact"},"entities":null}`,
 		},
 		{
 			name: "protocol with entity",
@@ -175,7 +175,7 @@ func TestProtocolToJSONCompact(t *testing.T) {
 				ProtocolMeta: ProtocolMeta{ID: "c", Name: "Compact"},
 				Entities:     []Entity{{ID: "e", Name: "E", Type: EntityTypeClient}},
 			},
-			want: `{"protocol":{"id":"c","name":"Compact"},"entities":[{"id":"e","name":"E","type":"client"}],"flows":null}`,
+			want: `{"protocol":{"id":"c","name":"Compact"},"entities":[{"id":"e","name":"E","type":"client"}]}`,
 		},
 	}
 

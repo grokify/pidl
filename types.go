@@ -19,8 +19,13 @@ type Protocol struct {
 	// Phases provide optional logical grouping of flows.
 	Phases []Phase `json:"phases,omitempty"`
 
-	// Flows are the interactions between entities.
-	Flows []Flow `json:"flows"`
+	// Flows are the interactions between entities. A document has either
+	// Flows (a single unnamed scenario) or Scenarios, not both.
+	Flows []Flow `json:"flows,omitempty"`
+
+	// Scenarios are named, ordered sequences of flows. Array position is
+	// the scenario order.
+	Scenarios []Scenario `json:"scenarios,omitempty"`
 
 	// Metadata contains additional protocol-level configuration.
 	Metadata *ProtocolMetadata `json:"metadata,omitempty"`
@@ -659,6 +664,31 @@ const (
 	EntityTypeOther               EntityType = "other"
 )
 
+// Scenario is a named, ordered sequence of flows within a protocol, such
+// as one access mode or user journey. A fragment scenario is a reusable
+// sub-flow that other scenarios include.
+type Scenario struct {
+	// ID is the unique identifier, used by include steps and CLI selection.
+	ID string `json:"id"`
+
+	// Name is the human-readable display name.
+	Name string `json:"name"`
+
+	// Description of the scenario.
+	Description string `json:"description,omitempty"`
+
+	// Participants selects the entities shown for this scenario. It must
+	// list entity IDs in entities order. When empty, participants are the
+	// entities used by the scenario's flows and includes.
+	Participants []string `json:"participants,omitempty"`
+
+	// Fragment marks a reusable sub-flow that other scenarios include.
+	Fragment bool `json:"fragment,omitempty"`
+
+	// Flows are the scenario's steps, in order.
+	Flows []Flow `json:"flows"`
+}
+
 // Phase represents a logical grouping of flows.
 type Phase struct {
 	// ID is the unique identifier.
@@ -762,13 +792,17 @@ type FlowVerification struct {
 // Flow represents an interaction between two entities.
 type Flow struct {
 	// From is the source entity ID.
-	From string `json:"from"`
+	From string `json:"from,omitempty"`
 
 	// To is the target entity ID.
-	To string `json:"to"`
+	To string `json:"to,omitempty"`
 
 	// Action identifies the action being performed.
-	Action string `json:"action"`
+	Action string `json:"action,omitempty"`
+
+	// Include is the ID of a fragment scenario whose flows take this
+	// step's place. An include step has no From, To or Action.
+	Include string `json:"include,omitempty"`
 
 	// Label is the display label (defaults to Action).
 	Label string `json:"label,omitempty"`
