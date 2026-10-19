@@ -63,6 +63,7 @@ nav:
     - Phases: guide/phases.md
     - Scenarios: guide/scenarios.md
     - Walkthrough Viewer: guide/viewer.md
+    - Postman Collections: guide/postman.md
     - Annotations: guide/annotations.md
     - Alternatives: guide/alternatives.md
     - Process Specifications: guide/process.md
