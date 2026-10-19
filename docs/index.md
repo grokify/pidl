@@ -134,7 +134,6 @@ Components group entities into logical deployment units:
 | Component Type | Description | Example Products |
 |----------------|-------------|------------------|
 | `idp` | Identity Provider | Okta, Entra ID, Auth0 |
-| `iga` | Identity Governance | SailPoint |
 | `agent_provider` | AI Agent Platform | Claude, ChatGPT, Gemini |
 | `person_server` | AAuth Person Server | Identity verification service |
 | `access_server` | AAuth Access Server | Token issuance service |
