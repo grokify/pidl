@@ -1,0 +1,38 @@
+name: Viewer
+permissions:
+  contents: read
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'viewer/**'
+      - 'render/viewer/**'
+      - '.github/workflows/viewer.yaml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'viewer/**'
+      - 'render/viewer/**'
+      - '.github/workflows/viewer.yaml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: viewer
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: viewer/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build:embed
+      - name: Committed viewer build is current
+        run: git diff --exit-code -- ../render/viewer/viewer.html || (echo "render/viewer/viewer.html is out of date; run go generate ./render and commit it" && exit 1)

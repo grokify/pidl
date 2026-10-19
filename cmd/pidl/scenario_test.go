@@ -88,6 +88,8 @@ func TestRunScenarios(t *testing.T) {
 			wantStdout: []string{`"include_position": 3`}},
 		{name: "walkthrough json covers the whole file", args: []string{"generate", "-f", "walkthrough-json", demo}, wantCode: 0,
 			wantStdout: []string{`"fragments": [`, `"Consent"`, `"location": "scenarios[1].flows[0] (consent)"`}},
+		{name: "viewer writes a self-contained page", args: []string{"generate", "-f", "viewer", demo}, wantCode: 0,
+			wantStdout: []string{"<title>Demo walkthrough</title>", `id="pidl-walkthrough">{`}},
 		{name: "scenarios table", args: []string{"scenarios", demo}, wantCode: 0,
 			wantStdout: []string{"Scenarios in Demo", "1   agent-identity", "2   three-party", "3   consent", "fragment", "person, ps"}},
 		{name: "scenarios json", args: []string{"scenarios", "-f", "json", demo}, wantCode: 0,
