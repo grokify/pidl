@@ -34,15 +34,15 @@ A generic PIDL viewer that walks through each scenario step by step, with exampl
 
 **Theme:** Step through a scenario in a 16:9 layout
 
-- [ ] `RMI-PIDL-030` Viewer scaffold: Vite, React, TypeScript, Vitest, data loading
+- [x] `RMI-PIDL-030` Viewer scaffold: Vite, React, TypeScript, Vitest, data loading
   - Depends on: `RMI-PIDL-025`
-- [ ] `RMI-PIDL-031` Sequence diagram with fragment bands and active-step highlighting
+- [x] `RMI-PIDL-031` Sequence diagram with fragment bands and active-step highlighting
   - Depends on: `RMI-PIDL-030`
-- [ ] `RMI-PIDL-032` Stepping: buttons, keyboard, URL hash, scenario selector
+- [x] `RMI-PIDL-032` Stepping: buttons, keyboard, URL hash, scenario selector
   - Depends on: `RMI-PIDL-031`
-- [ ] `RMI-PIDL-033` Request, response and token panels with provenance badges, notes and findings
+- [x] `RMI-PIDL-033` Request, response and token panels with provenance badges, notes and findings
   - Depends on: `RMI-PIDL-032`
-- [ ] `RMI-PIDL-034` 16:9 stage scaling, light and dark themes
+- [x] `RMI-PIDL-034` 16:9 stage scaling, light and dark themes
   - Depends on: `RMI-PIDL-033`
 
 ## Phase 4 — Single-File Output and Release
