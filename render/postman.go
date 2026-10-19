@@ -175,6 +175,7 @@ type capture struct {
 	name    string
 	value   string
 	header  string // header name, or "" for a body member
+	param   string // a string parameter within the header, such as resource-token
 	pointer string // JSON pointer into the body
 }
 
@@ -416,6 +417,13 @@ func collectCaptures(steps []postmanStep) map[int][]capture {
 		for _, h := range st.Example.Response.Headers {
 			if strings.EqualFold(h.Name, "Location") || (len(h.Value) >= 16 && !volatileHeader(h.Name)) {
 				cs = append(cs, capture{name: strings.ToLower(h.Name), value: h.Value, header: h.Name})
+			}
+			// String parameters of a structured header, such as the
+			// resource token in AAuth-Requirement.
+			for _, m := range headerParamPattern.FindAllStringSubmatch(h.Value, -1) {
+				if len(m[2]) >= 16 {
+					cs = append(cs, capture{name: m[1], value: m[2], header: h.Name, param: m[1]})
+				}
 			}
 		}
 		var body any
@@ -841,14 +849,35 @@ func (c capture) source(st *pidl.WalkthroughStep) bool {
 	if st == nil || st.Example == nil || st.Example.Response == nil {
 		return false
 	}
+	if c.param != "" {
+		return headerParam(headerValue(st, c.header), c.param) == c.value
+	}
 	if c.header != "" {
 		return headerValue(st, c.header) == c.value
 	}
 	return bytes.Contains(st.Example.Response.Body, []byte(c.value))
 }
 
+// headerParamPattern matches the string parameters of a structured header
+// field value (RFC 9651): name="value".
+var headerParamPattern = regexp.MustCompile(`(?:^|;)\s*([a-z*][a-z0-9_.*-]*)="((?:[^"\\]|\\.)*)"`)
+
+// headerParam returns the string parameter name of a header value.
+func headerParam(v, name string) string {
+	for _, m := range headerParamPattern.FindAllStringSubmatch(v, -1) {
+		if m[1] == name {
+			return m[2]
+		}
+	}
+	return ""
+}
+
 // script stores the captured value in a collection variable.
 func (c capture) script() string {
+	if c.param != "" {
+		re := `(?:^|;)\s*` + regexp.QuoteMeta(c.param) + `="([^"]*)"`
+		return fmt.Sprintf("pm.collectionVariables.set(%q, ((pm.response.headers.get(%q) || \"\").match(/%s/) || [])[1]);", c.name, c.header, re)
+	}
 	if c.header != "" {
 		return fmt.Sprintf("pm.collectionVariables.set(%q, pm.response.headers.get(%q));", c.name, c.header)
 	}
