@@ -24,8 +24,10 @@ Protocol-neutral extensions that make PIDL a source for developer education. Com
 - [ ] `RMI-PIDL-043` Samples: inline code or source references to tested files, with region extraction and `pidl samples resolve` and `check`
   - Depends on: `RMI-PIDL-040`
 - [ ] `RMI-PIDL-044` Generated cURL for example requests
+- [ ] `RMI-PIDL-090` Narration keyed by language, and narration and tours per representation
+  - Depends on: `RMI-PIDL-042`
 - [ ] `RMI-PIDL-045` Walkthrough data carries groups, variants, IDs, narration, samples, cURL and token lifecycle events
-  - Depends on: `RMI-PIDL-042`, `RMI-PIDL-043`, `RMI-PIDL-044`
+  - Depends on: `RMI-PIDL-042`, `RMI-PIDL-043`, `RMI-PIDL-044`, `RMI-PIDL-090`
 
 ## Phase 3 — Example Checks
 

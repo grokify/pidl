@@ -75,9 +75,27 @@ A Marp deck per scenario with `marp: true`, a 16:9 size, and one slide per brief
 
 Files are written only when their content changes, so unchanged scenarios keep their videoascode audio caches warm.
 
+### 5. Narration audio in the viewer
+
+- **Export** (`render/narration.go`): walks every selected scenario's walkthrough and emits videoascode's narration set (`version`, `defaultLanguage` from `protocol.language`, `pronunciations`, `units`). Unit IDs use flow IDs, never positions, so reordering steps keeps clips.
+- **Manifest lookup**: the viewer indexes clips by `(id, variant, language)`, falling back from the selected representation to no variant and from the selected language to `protocol.language`. It computes SHA-256 of the narration text with `crypto.subtle` and compares it with `textSha256`; a mismatch is treated as missing.
+- **Playback** (`hooks/useNarrationAudio.ts`): one `HTMLAudioElement`; each navigation increments a token so a late `ended` event from an earlier clip cannot advance the walkthrough; `playbackRate` follows the speed control with `preservesPitch`. The first press of the speaker or play button is the user gesture browsers require before audio can play.
+- **Video mode** never plays audio; videoascode records audio separately.
+- **Packaging**: `generate -f viewer --audio audio/audio-manifest.json -o site/` embeds the manifest as JSON in the page and copies referenced clips to `site/audio/clips/`.
+- **Multi-language video configurations**: steps keep `voiceover` in the source language; the segment's `transcripts` carry one segment per voiced step and beat for each language, in step order, as videoascode expects.
+
+The round trip:
+
+```
+pidl generate -f narration -o narration.json aauth.json
+vac narration tts --input narration.json --output site/audio --lang en-US,fr-FR,zh-Hans
+pidl generate -f viewer --audio site/audio/audio-manifest.json -o site aauth.json
+pidl generate -f vac --lang en-US,fr-FR,zh-Hans -o video aauth.json   # videos reuse the cached clips
+```
+
 ## Sequencing
 
-Requires `INIT-PIDL-003` narration, briefings and pronunciations. Video mode and the navigation hook come first, then configurations, then decks.
+Requires `INIT-PIDL-003` narration, briefings and pronunciations. Viewer audio requires videoascode's narration export and audio manifest (`INIT-VAC-001`); the viewer is built against a fixture manifest until then. Video mode and the navigation hook come first, then configurations, then decks.
 
 ## Risks
 

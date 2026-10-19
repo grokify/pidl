@@ -17,14 +17,24 @@ type Group struct {
 // (term -> language -> spoken form), matching videoascode's pronunciations,
 // e.g. {"agent_jkt": {"en-US": "agent J K T"}}. A map is right here: entries
 // are looked up by term, never listed in order.
-// ProtocolMeta gains: Language string (BCP 47, default "en-US")
-// Scenario gains: Group, VariantOf, VariantLabel, Narration string; Briefing *Briefing
+// ProtocolMeta gains: Language string (BCP 47, default "en-US"), the source
+// language and fallback for narration.
+
+// Narration is spoken text keyed by BCP 47 language. Always an object, never a
+// bare string, so the schema has no union type.
+type Narration map[string]string
+
+// Scenario gains: Group, VariantOf, VariantLabel, Narration Narration; Briefing *Briefing
 type Briefing struct {
-    Why       string   `json:"why,omitempty"`       // why the scenario exists, as prose
-    Points    []string `json:"points,omitempty"`    // key points, in display order
-    Narration string   `json:"narration,omitempty"` // spoken over the briefing slides
+    Why       string    `json:"why,omitempty"`       // why the scenario exists, as prose
+    Points    []string  `json:"points,omitempty"`    // key points, in display order
+    Narration Narration `json:"narration,omitempty"` // spoken over the briefing slides
 }
-// Flow gains: ID, Narration string
+// Flow gains: ID, Narration Narration, Representations map[string]RepresentationNarration
+type RepresentationNarration struct { // keyed by "http", "curl", or a sample language
+    Narration Narration  `json:"narration,omitempty"`
+    Tour      []TourBeat `json:"tour,omitempty"`
+}
 // FlowExample and Scenario gain: Samples []Sample
 type Sample struct {
     Language string        `json:"language"`         // curl is generated, not stored
@@ -127,14 +137,16 @@ type Page struct {
 ```go
 type TourBeat struct {
     Focus     string `json:"focus"`
-    Narration string `json:"narration,omitempty"`
-    Hold      int    `json:"hold,omitempty"` // minimum milliseconds on screen
+    Narration Narration `json:"narration,omitempty"`
+    Hold      int       `json:"hold,omitempty"` // minimum milliseconds on screen
 }
 // Flow gains Tour []TourBeat
 ```
 
 - **Regions** resolve against the walkthrough step: header names case-insensitively, JSON pointers per RFC 6901 into bodies, token claims by token definition ID and claim name, artifacts by ID.
 - **Viewer** elements carry `data-pidl-region` attributes. `window.pidl.focus` selects the HTTP or Tokens tab as needed, expands collapsed values, scrolls the panel with `behavior: "instant"` in video mode, applies a highlight ring, and resolves after two animation frames.
+- **Representation regions**: `curl.line.<n>`, `sample.<language>.line.<n>` and `sample.<language>#<region>` (a `pidl:begin`/`pidl:end` region) resolve against the generated cURL and resolved samples.
+- **Validation** reports narration that has no text in the source language, and a representation key that is not `http`, `curl` or a sample language present on the flow.
 - **`pidl tour draft`** emits beats for the step's notable regions (signature headers, challenge headers, body fields, claims the receiver checks) with narration drafted from glossary descriptions; values are not read aloud.
 
 ## Sequencing

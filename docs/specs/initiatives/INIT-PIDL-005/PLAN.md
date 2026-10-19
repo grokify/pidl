@@ -13,6 +13,7 @@
 2. **Per-scenario videoascode configurations** with `evaluate` steps, plus the combined configuration.
 3. **Briefing decks** with network diagrams.
 4. **Compatibility test, guide and release**, with an end-to-end AAuth render.
+5. **Narration audio**: narration export, then viewer playback against a fixture manifest, then packaging once videoascode writes manifests, then multi-language and per-representation video configurations.
 
 ## Risks and Mitigations
 
@@ -24,4 +25,4 @@
 
 ## Follow-On
 
-Chapter markers from segment timings; translated narration and briefings; outro slides with links.
+Chapter markers from segment timings; captions highlighted from word timings; outro slides with links.
