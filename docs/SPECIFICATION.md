@@ -348,7 +348,10 @@ Order in PIDL comes from one source: the position of an item in its JSON array. 
 3. **Phases** follow the order of `phases`.
 4. **Messages** follow the order of `flows` (top-level or within a scenario). An include step expands in place.
 5. **Derived lists keep the order of the array they come from.** A subset of entities (such as a scenario's participants or a token's checkers) is listed in `entities` order, never in the order written.
-6. **Collections keyed by name are arrays of objects with an `id`.** The one exception is `metadata.networks`, a map kept for compatibility. Tools order it by `metadata.network_layout.order` when set, and otherwise by the first appearance of each network's entities in `entities`, never by map iteration.
+6. **Collections keyed by name are arrays of objects with an `id`.** The one exception is `metadata.networks`, a map kept for compatibility, which tools never read in map iteration order:
+   - Network boundaries are ordered by `metadata.network_layout.order` first. Boundaries it does not list follow by style (external, dmz, trusted, cloud, default) and then by ID.
+   - An entity listed in more than one network belongs to the network whose ID sorts last.
+   - Network boundary diagrams list the entities inside each boundary by ID. This is the one place entities do not follow `entities` order.
 
 Numeric ordering fields are not used. The `sequence` field on a flow is deprecated: it is a display-only step number, and tools must not sort by it.
 

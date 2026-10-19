@@ -146,18 +146,20 @@ func ResolveBoundaries(p *pidl.Protocol, cliOverrides map[string][]string) []Bou
 		}
 	}
 
-	// 2. Apply metadata.networks explicit entities (overrides inference)
+	// 2. Apply metadata.networks explicit entities (overrides inference).
+	// Networks are applied in sorted ID order so an entity listed in two
+	// networks always lands in the same one.
 	if p.Metadata != nil && p.Metadata.Networks != nil {
-		for boundaryID, config := range p.Metadata.Networks {
-			for _, entityID := range config.Entities {
+		for _, boundaryID := range sortedKeys(p.Metadata.Networks) {
+			for _, entityID := range p.Metadata.Networks[boundaryID].Entities {
 				entityToBoundary[entityID] = boundaryID
 			}
 		}
 	}
 
-	// 3. Apply CLI overrides (highest priority)
-	for boundaryID, entities := range cliOverrides {
-		for _, entityID := range entities {
+	// 3. Apply CLI overrides (highest priority), in sorted ID order
+	for _, boundaryID := range sortedKeys(cliOverrides) {
+		for _, entityID := range cliOverrides[boundaryID] {
 			entityToBoundary[entityID] = boundaryID
 		}
 	}
@@ -217,20 +219,27 @@ func ResolveBoundaries(p *pidl.Protocol, cliOverrides map[string][]string) []Bou
 func getBoundaryOrder(p *pidl.Protocol, boundaryEntities map[string][]string) []string {
 	// If explicit order is specified in metadata, use it
 	if p.Metadata != nil && p.Metadata.NetworkLayout != nil && len(p.Metadata.NetworkLayout.Order) > 0 {
-		order := p.Metadata.NetworkLayout.Order
-		// Add any boundaries not in the explicit order
+		order := append([]string{}, p.Metadata.NetworkLayout.Order...)
+		// Add any boundaries not in the explicit order, in the default order
 		orderSet := make(map[string]bool)
 		for _, id := range order {
 			orderSet[id] = true
 		}
-		for id := range boundaryEntities {
+		rest := make(map[string][]string)
+		for id, entities := range boundaryEntities {
 			if !orderSet[id] {
-				order = append(order, id)
+				rest[id] = entities
 			}
 		}
-		return order
+		return append(order, defaultBoundaryOrder(p, rest)...)
 	}
 
+	return defaultBoundaryOrder(p, boundaryEntities)
+}
+
+// defaultBoundaryOrder orders boundaries external, dmz, trusted, cloud,
+// default, then by ID.
+func defaultBoundaryOrder(p *pidl.Protocol, boundaryEntities map[string][]string) []string {
 	// Default order: external, dmz, trusted, cloud, default, then alphabetical
 	styleOrder := map[string]int{
 		"external": 0,
@@ -257,6 +266,16 @@ func getBoundaryOrder(p *pidl.Protocol, boundaryEntities map[string][]string) []
 	})
 
 	return ids
+}
+
+// sortedKeys returns the keys of m in sorted order.
+func sortedKeys[V any](m map[string]V) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 // getBoundaryName returns the display name for a boundary.
