@@ -52,8 +52,8 @@ func (p *Protocol) validateNarration() ValidationErrors {
 			sort.Strings(reps)
 			for _, rep := range reps {
 				rf := fmt.Sprintf("%s.representations[%q]", field, rep)
-				if !validRepresentation(rep) {
-					errs = append(errs, ValidationError{Field: rf, Message: fmt.Sprintf("unknown representation %q; use %q or %q", rep, RepresentationHTTP, RepresentationCurl)})
+				if !validRepresentation(rep) && !sampleLanguages(f)[rep] {
+					errs = append(errs, ValidationError{Field: rf, Message: fmt.Sprintf("unknown representation %q; use %q, %q or a sample language on this step", rep, RepresentationHTTP, RepresentationCurl)})
 				}
 				errs = append(errs, validateNarrationText(rf+".narration", f.Representations[rep].Narration, source)...)
 			}
@@ -62,8 +62,9 @@ func (p *Protocol) validateNarration() ValidationErrors {
 	return errs
 }
 
-// validRepresentation reports whether rep names a representation that can
-// carry narration.
+// validRepresentation reports whether rep is a representation every step
+// with an example has. Sample languages on the step are representations
+// too.
 func validRepresentation(rep string) bool {
 	return rep == RepresentationHTTP || rep == RepresentationCurl
 }
@@ -96,6 +97,26 @@ func validateLanguageMap(field string, m map[string]string) ValidationErrors {
 		}
 		if m[l] == "" {
 			errs = append(errs, ValidationError{Field: lf, Message: "must not be empty"})
+		}
+	}
+	return errs
+}
+
+// validateAllSamples checks scenario samples and example samples.
+func (p *Protocol) validateAllSamples() ValidationErrors {
+	entityIDs := make(map[string]bool, len(p.Entities))
+	for _, e := range p.Entities {
+		entityIDs[e.ID] = true
+	}
+	var errs ValidationErrors
+	for i, sc := range p.Scenarios {
+		errs = append(errs, validateSamples(fmt.Sprintf("scenarios[%d].samples", i), sc.Samples, entityIDs)...)
+	}
+	for _, list := range p.flowLists() {
+		for j, f := range list.flows {
+			if f.Example != nil {
+				errs = append(errs, validateSamples(fmt.Sprintf("%s[%d].example.samples", list.field, j), f.Example.Samples, entityIDs)...)
+			}
 		}
 	}
 	return errs

@@ -34,6 +34,7 @@ export interface Scenario {
   variant_label?: string;
   narration?: Narration;
   briefing?: Briefing;
+  samples?: Sample[];
   participants: string[];
   steps: Step[];
 }
@@ -45,6 +46,15 @@ export interface Briefing {
   why?: string;
   points?: string[];
   narration?: Narration;
+}
+
+export interface Sample {
+  language: string;
+  label?: string;
+  role?: string;
+  // code is inline or resolved from source through the sample lock.
+  code?: string;
+  source?: { repo: string; ref?: string; path: string; region: string };
 }
 
 export interface Group {
@@ -84,6 +94,7 @@ export interface Example {
   response?: HttpResponse;
   tokens?: ExampleToken[];
   note?: string;
+  samples?: Sample[];
 }
 
 export interface Header {

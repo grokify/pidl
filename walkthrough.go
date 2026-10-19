@@ -38,6 +38,7 @@ type WalkthroughScenario struct {
 	VariantLabel string            `json:"variant_label,omitempty"`
 	Narration    Narration         `json:"narration,omitempty"`
 	Briefing     *Briefing         `json:"briefing,omitempty"`
+	Samples      []Sample          `json:"samples,omitempty"`
 	Participants []string          `json:"participants"`
 	Steps        []WalkthroughStep `json:"steps"`
 }
@@ -132,7 +133,7 @@ func (p *Protocol) Walkthrough(findings []Finding) Walkthrough {
 			w.Scenarios = append(w.Scenarios, WalkthroughScenario{
 				Position: s.Position, ID: s.ID, Name: s.Name, Description: sc.Description,
 				Fragment: s.Fragment, Group: s.Group, VariantOf: s.VariantOf, VariantLabel: s.VariantLabel,
-				Narration: sc.Narration, Briefing: sc.Briefing,
+				Narration: sc.Narration, Briefing: sc.Briefing, Samples: sc.Samples,
 				Participants: s.Participants,
 				Steps:        p.walkthroughSteps(sc.Flows, scenarioLocation(i, sc.ID), "", nil, []string{sc.ID}, byPath),
 			})

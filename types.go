@@ -739,6 +739,10 @@ type Scenario struct {
 	// and what is spoken over them.
 	Briefing *Briefing `json:"briefing,omitempty"`
 
+	// Samples are code for the scenario as a whole, such as the setup a
+	// role needs before the first step.
+	Samples []Sample `json:"samples,omitempty"`
+
 	// Flows are the scenario's steps, in order.
 	Flows []Flow `json:"flows"`
 }
