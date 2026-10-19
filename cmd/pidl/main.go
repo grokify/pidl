@@ -188,8 +188,13 @@ Options:
 func cmdGenerate(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
 	fs.SetOutput(stderr)
-	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table, outline, outline-json, walkthrough-json, viewer")
+	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table, outline, outline-json, walkthrough-json, viewer, postman, postman-environment")
 	output := fs.String("o", "", "Output file (default: stdout)")
+	postmanClient := fs.String("client", "", "Postman: role whose requests are sent (default: the first agent or client entity)")
+	postmanSigner := fs.String("signer", "", "Postman: signer profile for signed protocols (aauth-sandbox)")
+	postmanMock := fs.Bool("mock", false, "Postman: save example responses for a mock server and check only status codes")
+	postmanTargets := fs.String("targets", "", "Postman environments: targets file (JSON) naming each target's role URLs and signer")
+	postmanTarget := fs.String("target", "", "Postman environments: target to write from --targets")
 	samplesLock := fs.String("samples", "", "Sample lock file for walkthrough-json and viewer (default: <file without .json>.samples.json, when present)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
 	templateDir := fs.String("template-dir", "", "Path to custom SVG template directory")
@@ -243,6 +248,8 @@ Formats:
   outline            Markdown outline of roles, scenarios and tokens for guides and decks
   outline-json       The same outline as JSON
   walkthrough-json   Expanded scenarios with examples and findings, for viewers
+  postman            Postman collection: a folder per scenario, chained requests and checks
+  postman-environment  Postman environment for one target in a --targets file
   viewer             Self-contained HTML walkthrough viewer (whole file)
 
 SVG Templates:
@@ -345,6 +352,32 @@ Infographic Examples:
 	renderOne := func(p *pidl.Protocol) (string, error) {
 		var diagram string
 		var err error
+		if format == render.FormatPostmanEnvironment {
+			if *postmanTargets == "" {
+				return (&render.PostmanEnvironmentRenderer{}).RenderString(p)
+			}
+			if *postmanTarget == "" {
+				return "", fmt.Errorf("--targets needs --target <name>")
+			}
+			targets, err := render.ReadPostmanTargets(*postmanTargets)
+			if err != nil {
+				return "", err
+			}
+			t, ok := targets[*postmanTarget]
+			if !ok {
+				return "", fmt.Errorf("target %q not in %s", *postmanTarget, *postmanTargets)
+			}
+			return (&render.PostmanEnvironmentRenderer{Name: *postmanTarget, Target: &t}).RenderString(p)
+		}
+		if format == render.FormatPostman {
+			if *postmanSigner != render.SignerNone && *postmanSigner != render.SignerAAuthSandbox {
+				return "", fmt.Errorf("unknown signer profile %q (want aauth-sandbox)", *postmanSigner)
+			}
+			if *postmanMock && *postmanSigner != render.SignerNone {
+				return "", fmt.Errorf("--mock and --signer cannot be combined")
+			}
+			return render.NewPostman(render.PostmanOptions{Client: *postmanClient, Signer: *postmanSigner, Mock: *postmanMock}).RenderString(p)
+		}
 		if format == render.FormatMermaidState {
 			renderer := render.NewMermaidState()
 			if *entity != "" {
