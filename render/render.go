@@ -30,6 +30,7 @@ const (
 	FormatSVGTrust         Format = "svg-trust"
 	FormatInfographic      Format = "infographic"
 	FormatScenarioMatrix   Format = "scenario-matrix"
+	FormatTokenTable       Format = "token-table"
 )
 
 // String returns the format as a string.
@@ -44,7 +45,7 @@ func (f Format) FileExtension() string {
 		return ".puml"
 	case FormatMermaid, FormatMermaidState, FormatMermaidComponent, FormatMermaidTrust:
 		return ".mmd"
-	case FormatMarkdownMatrix, FormatScenarioMatrix:
+	case FormatMarkdownMatrix, FormatScenarioMatrix, FormatTokenTable:
 		return ".md"
 	case FormatDOT:
 		return ".dot"
@@ -94,8 +95,10 @@ func ParseFormat(s string) (Format, error) {
 		return FormatInfographic, nil
 	case "scenario-matrix", "scenarios-matrix":
 		return FormatScenarioMatrix, nil
+	case "token-table", "tokens":
+		return FormatTokenTable, nil
 	default:
-		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix", s)
+		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table", s)
 	}
 }
 
@@ -210,6 +213,8 @@ func New(format Format) (Renderer, error) {
 		return NewSVGTrust(), nil
 	case FormatScenarioMatrix:
 		return NewScenarioMatrix(), nil
+	case FormatTokenTable:
+		return NewTokenTable(), nil
 	default:
 		return nil, fmt.Errorf("unknown format: %s", format)
 	}
@@ -253,6 +258,7 @@ func SupportedFormats() []Format {
 		FormatSVGTrust,
 		FormatInfographic,
 		FormatScenarioMatrix,
+		FormatTokenTable,
 	}
 }
 
@@ -273,7 +279,7 @@ func SupportsIncludes(format Format) bool {
 // a single scenario before rendering it.
 func IsDocumentFormat(format Format) bool {
 	switch format {
-	case FormatScenarioMatrix:
+	case FormatScenarioMatrix, FormatTokenTable:
 		return true
 	default:
 		return false

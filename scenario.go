@@ -326,3 +326,27 @@ func (p *Protocol) DirectParticipants(id string) []string {
 	}
 	return p.OrderEntities(ids)
 }
+
+// TokenUsage returns the scenarios whose own flows issue and verify token
+// id (through FlowSecurity.Issues and Verifies), each in output order:
+// main scenarios first, then fragments.
+func (p *Protocol) TokenUsage(id string) (issuedIn, verifiedIn []string) {
+	for _, s := range p.ScenarioSummaries() {
+		sc := p.ScenarioByID(s.ID)
+		issued, verified := false, false
+		for _, f := range sc.Flows {
+			if f.Security == nil {
+				continue
+			}
+			issued = issued || slices.Contains(f.Security.Issues, id)
+			verified = verified || slices.Contains(f.Security.Verifies, id)
+		}
+		if issued {
+			issuedIn = append(issuedIn, s.ID)
+		}
+		if verified {
+			verifiedIn = append(verifiedIn, s.ID)
+		}
+	}
+	return issuedIn, verifiedIn
+}

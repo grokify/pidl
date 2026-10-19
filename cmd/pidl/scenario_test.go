@@ -80,6 +80,8 @@ func TestRunScenarios(t *testing.T) {
 			wantStdout: []string{"Roles by Scenario", "1. Agent identity", "2. PS authorization", "3. Consent (fragment)"}},
 		{name: "scenario matrix rejects --scenario", args: []string{"generate", "-f", "scenario-matrix", "--scenario", "three-party", demo}, wantCode: 1,
 			wantStderr: []string{"covers every scenario"}},
+		{name: "token table covers the whole file", args: []string{"generate", "-f", "token-table", demo}, wantCode: 0,
+			wantStdout: []string{"Demo - Tokens", "*No tokens defined.*"}},
 		{name: "scenarios table", args: []string{"scenarios", demo}, wantCode: 0,
 			wantStdout: []string{"Scenarios in Demo", "1   agent-identity", "2   three-party", "3   consent", "fragment", "person, ps"}},
 		{name: "scenarios json", args: []string{"scenarios", "-f", "json", demo}, wantCode: 0,

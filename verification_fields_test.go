@@ -1,6 +1,7 @@
 package pidl
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -83,5 +84,18 @@ func TestVerificationFieldsRoundTrip(t *testing.T) {
 	}
 	if errs := back.Validate(); len(errs) > 0 {
 		t.Fatalf("round-tripped protocol does not validate: %v", errs)
+	}
+}
+
+func TestTokenUsage(t *testing.T) {
+	p := verificationProtocol()
+	p.Scenarios[0].Flows[0].Security = &FlowSecurity{Verifies: []string{"auth_token"}}
+	issued, verified := p.TokenUsage("auth_token")
+	if !reflect.DeepEqual(issued, []string{"three-party"}) || !reflect.DeepEqual(verified, []string{"agent-identity"}) {
+		t.Fatalf("TokenUsage(auth_token) = %v, %v", issued, verified)
+	}
+	issued, verified = p.TokenUsage("resource_token")
+	if issued != nil || !reflect.DeepEqual(verified, []string{"three-party"}) {
+		t.Fatalf("TokenUsage(resource_token) = %v, %v", issued, verified)
 	}
 }
