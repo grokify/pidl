@@ -210,6 +210,7 @@ Flows are the core semantic unit: directed interactions between entities.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
+| `id` | string | No | Step identifier, unique within its scenario and matching `^[a-z][a-z0-9_-]*$` (see [Step IDs](#step-ids)) |
 | `from` | string | Yes¹ | Source entity ID |
 | `to` | string | Yes¹ | Target entity ID |
 | `action` | string | Yes¹ | Action identifier |
@@ -392,7 +393,37 @@ A document has either `flows` or `scenarios`. A document with `flows` behaves as
 | `description` | string | No | Description of the scenario |
 | `participants` | array | No | Entity IDs to show, in `entities` order. Defaults to the entities the scenario uses, including those of included fragments |
 | `fragment` | boolean | No | Marks a reusable sub-flow that other scenarios include |
+| `group` | string | No | ID of the [group](#groups) the scenario is listed under. Fragments have no group |
+| `variant_of` | string | No | ID of the main scenario this one is a [variant](#variants) of |
+| `variant_label` | string | With `variant_of` | Label for the variant in a toggle, such as "With user approval" |
 | `flows` | array | Yes | The scenario's steps, in order |
+
+### Groups
+
+A document MAY declare `groups`, an ordered array of navigation sections, each with an `id`, a `name` and an optional `description`. A scenario names its section with `group`:
+
+```json
+{
+  "groups": [
+    {"id": "identity", "name": "Agent identity"},
+    {"id": "access", "name": "Access modes"}
+  ],
+  "scenarios": [
+    {"id": "agent-identity", "name": "Agent identity", "group": "identity", "flows": [ ... ]},
+    {"id": "ps-authorization", "name": "PS authorization", "group": "access", "flows": [ ... ]}
+  ]
+}
+```
+
+Groups set output order: scenarios in group order, then main scenarios without a group, then fragments (see [Ordering](#ordering)).
+
+### Variants
+
+A variant is another form of the same journey, such as an autonomous flow and the same flow with user approval. It names its base with `variant_of` and a short `variant_label`. A variant shares its base's navigation entry, follows it directly in output order, and sits in the same group. A base cannot itself be a variant or a fragment.
+
+### Step IDs
+
+A flow MAY have an `id`, unique within its scenario. IDs give samples, narration and links a stable target that survives steps being added or moved, unlike step numbers. Inside an expanded scenario, a step from an included fragment is addressed as `<include>.<id>`, where `<include>` is the include step's `id` or, without one, the fragment's ID. A scenario that includes the same fragment twice gives those include steps distinct IDs. Viewers accept `#<scenario>/<step-id>` as well as `#<scenario>/<n>`.
 
 ### Include Steps and Fragments
 
@@ -400,7 +431,7 @@ A step `{"include": "<scenario-id>"}` inserts a fragment's flows at that point. 
 
 Diagram formats draw an include step as a labeled box spanning the fragment's participants (PlantUML `ref over`, a shaded Mermaid `rect`, a D2 group, an SVG box), or inline the fragment's flows when expanded.
 
-Fragments are listed after main scenarios wherever scenarios are numbered, so a deck or file listing shows the journeys first and the shared pieces after them.
+Fragments are listed after main scenarios wherever scenarios are numbered or listed, so a deck or file listing shows the journeys first and the shared pieces after them.
 
 ### Working with One Scenario
 
@@ -465,7 +496,7 @@ Headers are a list so they keep their order. Include steps cannot carry examples
 Order in PIDL comes from one source: the position of an item in its JSON array. Every output generated from a document (diagrams, tables, outlines, file listings) uses the same order, so presentations, guides and diagrams built from one file agree.
 
 1. **Roles** follow the order of `entities`. Diagram columns, role tables and any other list of entities use this order.
-2. **Scenarios** follow the order of `scenarios`.
+2. **Scenarios** follow the order of `scenarios`, arranged by `groups` when present: grouped scenarios in group order, then main scenarios without a group, with each variant directly after its base, then fragments. Within each section, the order of `scenarios` applies.
 3. **Phases** follow the order of `phases`.
 4. **Messages** follow the order of `flows` (top-level or within a scenario). An include step expands in place.
 5. **Derived lists keep the order of the array they come from.** A subset of entities (such as a scenario's participants or a token's checkers) is listed in `entities` order, never in the order written.
@@ -489,6 +520,9 @@ Numeric ordering fields are not used. The `sequence` field on a flow is deprecat
 9. An include must name a fragment scenario, and includes must not form a cycle
 10. A scenario's `participants` must name known entities, once each, in `entities` order, and must cover every entity the scenario uses
 11. Token and entity references in `verified_by`, `claims`, `signed_by`, `issues` and `verifies` must resolve
+12. Group IDs are unique and match `^[a-z][a-z0-9_-]*$`; a scenario's `group` names a declared group, and fragments have no group
+13. `variant_of` names a main scenario that is not itself a variant, in the same group, and `variant_label` is set exactly when `variant_of` is
+14. Flow IDs match `^[a-z][a-z0-9_-]*$` and are unique within their flow list, and step IDs stay unique once fragments are expanded
 
 ## Schema
 

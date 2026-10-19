@@ -31,6 +31,13 @@
         "$ref": "#/$defs/flow"
       }
     },
+    "groups": {
+      "type": "array",
+      "description": "Ordered navigation sections that scenarios name in their group. Group order, then scenario order within a group, sets the output order.",
+      "items": {
+        "$ref": "#/$defs/group"
+      }
+    },
     "scenarios": {
       "type": "array",
       "description": "Named, ordered sequences of flows. Array position is the scenario order.",
@@ -310,11 +317,50 @@
           "type": "boolean",
           "description": "Marks a reusable sub-flow that other scenarios include"
         },
+        "group": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "description": "ID of the group this scenario is listed under. Fragments have no group."
+        },
+        "variant_of": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "description": "ID of the main scenario this one is a variant of, in the same group. A variant follows its base in output order."
+        },
+        "variant_label": {
+          "type": "string",
+          "description": "Label for the variant in a toggle, such as \"With user approval\". Required with variant_of."
+        },
         "flows": {
           "type": "array",
           "items": { "$ref": "#/$defs/flow" },
           "minItems": 1,
           "description": "The scenario's steps, in order"
+        }
+      },
+      "dependentRequired": {
+        "variant_of": ["variant_label"],
+        "variant_label": ["variant_of"]
+      },
+      "additionalProperties": false
+    },
+    "group": {
+      "type": "object",
+      "description": "A navigation section that scenarios are listed under",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "description": "Unique group identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the group"
         }
       },
       "additionalProperties": false
@@ -330,6 +376,11 @@
         }
       ],
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "description": "Step identifier, unique within its scenario, for deep links, samples and narration. Steps inside an included fragment are addressed as <include>.<id>."
+        },
         "from": {
           "type": "string",
           "description": "Entity ID of the sender/initiator"
