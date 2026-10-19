@@ -1,7 +1,174 @@
 :root {
   font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bg: #ffffff;
+  --panel: #f6f7f9;
+  --text: #1d2433;
+  --muted: #667085;
+  --line: #98a2b3;
+  --accent: #2563eb;
+  --accent-soft: #dbe7ff;
+  --receiver: #0e9384;
+  --receiver-soft: #d3f5ef;
+  --band: rgba(99, 112, 133, 0.09);
+  --band-text: #475467;
+  --warn: #dc6803;
+  --warn-soft: #fef0c7;
+  --draft: #067647;
+  --derived: #6941c6;
+  --code-bg: #f2f4f7;
+  color: var(--text);
+  background: var(--bg);
 }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1420;
+    --panel: #161d2c;
+    --text: #e4e7ec;
+    --muted: #98a2b3;
+    --line: #667085;
+    --accent: #6ea8fe;
+    --accent-soft: #1c2f55;
+    --receiver: #3cc8b4;
+    --receiver-soft: #10302c;
+    --band: rgba(152, 162, 179, 0.1);
+    --band-text: #b9c0cc;
+    --warn: #fdb022;
+    --warn-soft: #3a2a0c;
+    --draft: #47cd89;
+    --derived: #b692f6;
+    --code-bg: #1d2638;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
 .load-error {
   padding: 2rem;
   color: #b42318;
+}
+
+/* Sequence diagram */
+.diagram {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+.diagram-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.role rect {
+  fill: var(--panel);
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+.role text {
+  font-size: 15px;
+  font-weight: 600;
+  fill: var(--text);
+}
+.role.idle {
+  opacity: 0.55;
+}
+.role.sender rect {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+.role.receiver rect {
+  fill: var(--receiver-soft);
+  stroke: var(--receiver);
+  stroke-width: 2.5;
+}
+.lifeline {
+  stroke: var(--line);
+  stroke-dasharray: 4 5;
+  opacity: 0.6;
+}
+.lifeline.active {
+  opacity: 1;
+  stroke-dasharray: none;
+}
+.band rect {
+  fill: var(--band);
+  stroke: var(--line);
+  stroke-opacity: 0.35;
+}
+.band text {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--band-text);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.row {
+  cursor: pointer;
+}
+.row .hit {
+  fill: transparent;
+}
+.row:hover .hit {
+  fill: var(--band);
+}
+.row .message {
+  stroke: var(--line);
+  stroke-width: 1.6;
+  fill: none;
+}
+.row.response .message {
+  stroke-dasharray: 6 4;
+}
+.row .label {
+  font-size: 14px;
+  fill: var(--text);
+}
+.arrowhead {
+  fill: var(--line);
+}
+.arrowhead.active {
+  fill: var(--accent);
+}
+.row .badge circle {
+  fill: var(--panel);
+  stroke: var(--line);
+}
+.row .badge text {
+  font-size: 11px;
+  fill: var(--muted);
+}
+.row.past {
+  opacity: 0.45;
+}
+.row.future {
+  opacity: 0.16;
+}
+.row.active .message {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.row.active .label {
+  font-weight: 700;
+  fill: var(--accent);
+}
+.row.active .badge circle {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+.row.active .badge text {
+  fill: #fff;
+  font-weight: 700;
+}
+.finding-mark circle {
+  fill: var(--warn);
+}
+.finding-mark text {
+  font-size: 11px;
+  font-weight: 800;
+  fill: #fff;
 }
