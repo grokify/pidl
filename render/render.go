@@ -33,6 +33,7 @@ const (
 	FormatTokenTable       Format = "token-table"
 	FormatOutline          Format = "outline"
 	FormatOutlineJSON      Format = "outline-json"
+	FormatWalkthroughJSON  Format = "walkthrough-json"
 )
 
 // String returns the format as a string.
@@ -49,7 +50,7 @@ func (f Format) FileExtension() string {
 		return ".mmd"
 	case FormatMarkdownMatrix, FormatScenarioMatrix, FormatTokenTable, FormatOutline:
 		return ".md"
-	case FormatOutlineJSON:
+	case FormatOutlineJSON, FormatWalkthroughJSON:
 		return ".json"
 	case FormatDOT:
 		return ".dot"
@@ -105,8 +106,10 @@ func ParseFormat(s string) (Format, error) {
 		return FormatOutline, nil
 	case "outline-json":
 		return FormatOutlineJSON, nil
+	case "walkthrough-json", "walkthrough":
+		return FormatWalkthroughJSON, nil
 	default:
-		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table, outline, outline-json", s)
+		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table, outline, outline-json, walkthrough-json", s)
 	}
 }
 
@@ -227,6 +230,8 @@ func New(format Format) (Renderer, error) {
 		return NewOutline(), nil
 	case FormatOutlineJSON:
 		return NewOutlineJSON(), nil
+	case FormatWalkthroughJSON:
+		return NewWalkthroughJSON(), nil
 	default:
 		return nil, fmt.Errorf("unknown format: %s", format)
 	}
@@ -273,6 +278,7 @@ func SupportedFormats() []Format {
 		FormatTokenTable,
 		FormatOutline,
 		FormatOutlineJSON,
+		FormatWalkthroughJSON,
 	}
 }
 
@@ -293,7 +299,7 @@ func SupportsIncludes(format Format) bool {
 // a single scenario before rendering it.
 func IsDocumentFormat(format Format) bool {
 	switch format {
-	case FormatScenarioMatrix, FormatTokenTable, FormatOutline, FormatOutlineJSON:
+	case FormatScenarioMatrix, FormatTokenTable, FormatOutline, FormatOutlineJSON, FormatWalkthroughJSON:
 		return true
 	default:
 		return false

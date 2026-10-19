@@ -1,0 +1,310 @@
+{
+  "id": "tokens-demo",
+  "name": "Tokens Demo",
+  "roles": [
+    {
+      "position": 1,
+      "id": "agent",
+      "name": "Agent",
+      "type": "agent"
+    },
+    {
+      "position": 2,
+      "id": "resource",
+      "name": "Resource",
+      "type": "resource_server"
+    },
+    {
+      "position": 3,
+      "id": "ps",
+      "name": "Person Server",
+      "type": "authorization_server"
+    },
+    {
+      "position": 4,
+      "id": "as",
+      "name": "Access Server",
+      "type": "authorization_server"
+    }
+  ],
+  "scenarios": [
+    {
+      "position": 1,
+      "id": "four-party",
+      "name": "Federated authorization",
+      "participants": [
+        "agent",
+        "resource",
+        "ps",
+        "as"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "from": "agent",
+          "to": "resource",
+          "label": "request",
+          "location": "scenarios[0].flows[0] (four-party)",
+          "findings": [
+            {
+              "id": "SEC004",
+              "severity": "medium",
+              "title": "Flow to server without authentication",
+              "description": "Flow from agent to Resource (resource_server) lacks authentication requirement",
+              "location": "scenarios[0].flows[0] (four-party)"
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "from": "resource",
+          "to": "agent",
+          "label": "challenge",
+          "response": true,
+          "issues": [
+            "resource_token"
+          ],
+          "location": "scenarios[0].flows[1] (four-party)"
+        },
+        {
+          "number": 3,
+          "from": "agent",
+          "to": "ps",
+          "label": "token_request",
+          "verifies": [
+            "resource_token"
+          ],
+          "location": "scenarios[0].flows[2] (four-party)",
+          "findings": [
+            {
+              "id": "SEC004",
+              "severity": "medium",
+              "title": "Flow to server without authentication",
+              "description": "Flow from agent to Person Server (authorization_server) lacks authentication requirement",
+              "location": "scenarios[0].flows[2] (four-party)"
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "from": "ps",
+          "to": "as",
+          "label": "exchange",
+          "fragments": [
+            "PS to AS"
+          ],
+          "signed_by": "ps",
+          "verifies": [
+            "resource_token"
+          ],
+          "location": "scenarios[1].flows[0] (federate)",
+          "findings": [
+            {
+              "id": "SEC004",
+              "severity": "medium",
+              "title": "Flow to server without authentication",
+              "description": "Flow from ps to Access Server (authorization_server) lacks authentication requirement",
+              "location": "scenarios[1].flows[0] (federate)"
+            },
+            {
+              "id": "SEC007",
+              "severity": "info",
+              "title": "Service communication without mTLS",
+              "description": "Service-to-service flow from Person Server to Access Server lacks mTLS",
+              "location": "scenarios[1].flows[0] (federate)"
+            },
+            {
+              "id": "SEC019",
+              "severity": "low",
+              "title": "Request signed by someone other than the sender or token holder",
+              "description": "Token \"resource_token\" was delivered to agent, but ps signs the request that presents it; a check binding the token to the signing key (such as a key thumbprint claim) will compare against ps's key",
+              "location": "scenarios[1].flows[0] (federate)"
+            }
+          ]
+        },
+        {
+          "number": 5,
+          "from": "as",
+          "to": "ps",
+          "label": "auth_token",
+          "response": true,
+          "fragments": [
+            "PS to AS"
+          ],
+          "issues": [
+            "auth_token"
+          ],
+          "location": "scenarios[1].flows[1] (federate)",
+          "findings": [
+            {
+              "id": "SEC007",
+              "severity": "info",
+              "title": "Service communication without mTLS",
+              "description": "Service-to-service flow from Access Server to Person Server lacks mTLS",
+              "location": "scenarios[1].flows[1] (federate)"
+            }
+          ]
+        },
+        {
+          "number": 6,
+          "from": "agent",
+          "to": "resource",
+          "label": "retry",
+          "verifies": [
+            "auth_token"
+          ],
+          "location": "scenarios[0].flows[4] (four-party)",
+          "findings": [
+            {
+              "id": "SEC004",
+              "severity": "medium",
+              "title": "Flow to server without authentication",
+              "description": "Flow from agent to Resource (resource_server) lacks authentication requirement",
+              "location": "scenarios[0].flows[4] (four-party)"
+            },
+            {
+              "id": "SEC019",
+              "severity": "low",
+              "title": "Request signed by someone other than the sender or token holder",
+              "description": "Token \"auth_token\" was delivered to ps, but agent signs the request that presents it; a check binding the token to the signing key (such as a key thumbprint claim) will compare against agent's key",
+              "location": "scenarios[0].flows[4] (four-party)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "position": 2,
+      "id": "federate",
+      "name": "PS to AS",
+      "fragment": true,
+      "participants": [
+        "ps",
+        "as"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "from": "ps",
+          "to": "as",
+          "label": "exchange",
+          "signed_by": "ps",
+          "verifies": [
+            "resource_token"
+          ],
+          "location": "scenarios[1].flows[0] (federate)",
+          "findings": [
+            {
+              "id": "SEC004",
+              "severity": "medium",
+              "title": "Flow to server without authentication",
+              "description": "Flow from ps to Access Server (authorization_server) lacks authentication requirement",
+              "location": "scenarios[1].flows[0] (federate)"
+            },
+            {
+              "id": "SEC007",
+              "severity": "info",
+              "title": "Service communication without mTLS",
+              "description": "Service-to-service flow from Person Server to Access Server lacks mTLS",
+              "location": "scenarios[1].flows[0] (federate)"
+            },
+            {
+              "id": "SEC019",
+              "severity": "low",
+              "title": "Request signed by someone other than the sender or token holder",
+              "description": "Token \"resource_token\" was delivered to agent, but ps signs the request that presents it; a check binding the token to the signing key (such as a key thumbprint claim) will compare against ps's key",
+              "location": "scenarios[1].flows[0] (federate)"
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "from": "as",
+          "to": "ps",
+          "label": "auth_token",
+          "response": true,
+          "issues": [
+            "auth_token"
+          ],
+          "location": "scenarios[1].flows[1] (federate)",
+          "findings": [
+            {
+              "id": "SEC007",
+              "severity": "info",
+              "title": "Service communication without mTLS",
+              "description": "Service-to-service flow from Access Server to Person Server lacks mTLS",
+              "location": "scenarios[1].flows[1] (federate)"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tokens": [
+    {
+      "id": "resource_token",
+      "name": "Resource token",
+      "type": "jwt",
+      "issuer": "resource",
+      "audience": "ps",
+      "verified_by": [
+        "ps",
+        "as"
+      ],
+      "claims": [
+        {
+          "name": "aud",
+          "checked_by": [
+            "ps"
+          ]
+        },
+        {
+          "name": "agent_jkt",
+          "checked_by": [
+            "ps",
+            "as"
+          ],
+          "description": "Must match the key that signed the request | thumbprint"
+        }
+      ]
+    },
+    {
+      "id": "auth_token",
+      "name": "Auth token",
+      "type": "jwt",
+      "issuer": "as",
+      "audience": "resource",
+      "verified_by": [
+        "resource"
+      ],
+      "claims": [
+        {
+          "name": "iss",
+          "checked_by": [
+            "resource"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "session",
+      "name": "Session token"
+    }
+  ],
+  "findings": [
+    {
+      "id": "SEC003",
+      "severity": "medium",
+      "title": "Bearer token without binding",
+      "description": "Token 'session' uses bearer binding which is susceptible to theft",
+      "location": "metadata.tokens[session]"
+    },
+    {
+      "id": "SEC008",
+      "severity": "low",
+      "title": "Entity without trust level",
+      "description": "Entity 'Agent' (agent) has no explicit trust level",
+      "location": "entities[agent]"
+    }
+  ]
+}

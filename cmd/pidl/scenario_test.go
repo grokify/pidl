@@ -86,6 +86,8 @@ func TestRunScenarios(t *testing.T) {
 			wantStdout: []string{"## Roles", "### 2. PS authorization", "2. See *Consent* (scenario 3)", "### 3. Consent (fragment)"}},
 		{name: "outline json", args: []string{"generate", "-f", "outline-json", demo}, wantCode: 0,
 			wantStdout: []string{`"include_position": 3`}},
+		{name: "walkthrough json covers the whole file", args: []string{"generate", "-f", "walkthrough-json", demo}, wantCode: 0,
+			wantStdout: []string{`"fragments": [`, `"Consent"`, `"location": "scenarios[1].flows[0] (consent)"`}},
 		{name: "scenarios table", args: []string{"scenarios", demo}, wantCode: 0,
 			wantStdout: []string{"Scenarios in Demo", "1   agent-identity", "2   three-party", "3   consent", "fragment", "person, ps"}},
 		{name: "scenarios json", args: []string{"scenarios", "-f", "json", demo}, wantCode: 0,
