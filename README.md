@@ -32,6 +32,9 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 ## Features
 
 - 📋 **JSON-based DSL** for describing protocol flows
+- 🗂️ **Scenarios**: one file holds a protocol's roles and an ordered list of journeys, with shared fragments drawn as labeled boxes
+- 🔢 **Consistent ordering**: roles, scenarios and steps follow the file's order in every diagram, table and outline
+- 📑 **Overview outputs**: roles-by-scenario matrix, token table, and an ordered outline for guides and slide decks
 - 🎨 **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT, D2, SVG
 - 🎬 **Animated SVG** with CSS flow visualizations and moving dots
 - 🌐 **Network boundary diagrams** for trust zone visualization
@@ -599,6 +602,10 @@ Protocols can define token types used in flows:
 | `issuer` | Entity ID that issues this token |
 | `audience` | Entity ID that consumes this token |
 | `binding` | Token binding: `bearer`, `mtls`, `dpop` |
+| `verified_by` | Entity IDs that check this token |
+| `claims` | Claims checkers rely on, each with `name`, `checked_by` and `description` |
+
+Flow `security` can also record `signed_by` (who signs the request), `issues` (tokens the flow delivers) and `verifies` (tokens the receiver checks), so `pidl analyze` can follow each token through a scenario.
 
 ## CLI Reference
 
@@ -643,6 +650,10 @@ Options:
   --entity          Entity ID to filter (for mermaid-state format)
   --show-security   Show security annotations on flows (default true)
   --show-trust      Show trust levels and infer boundaries from trust (default true)
+  --scenario        Scenario to render (files with scenarios)
+  --expand          Show included fragments step by step instead of as boxes
+  --all-scenarios   Render every main scenario to NN-<id><ext> in the -o directory
+  --include-fragments  With --all-scenarios, also render fragments
 ```
 
 Formats:
@@ -660,6 +671,10 @@ Formats:
 | `svg-animated` | Animated SVG with flow dots |
 | `svg-network` | Network boundary diagram |
 | `infographic` | Compact infographic with animated data flow |
+| `scenario-matrix` | Markdown table of roles by scenario (whole file) |
+| `token-table` | Markdown table of tokens, checkers and claims (whole file) |
+| `outline` | Markdown outline of roles, scenarios and tokens (whole file) |
+| `outline-json` | The outline as JSON (whole file) |
 
 ### examples
 
@@ -838,6 +853,7 @@ xml, _ := bpmn.Export(p)
 
 | Example | Protocol |
 |---------|----------|
+| `aauth_protocol` | AAuth (draft-11): five access modes as scenarios |
 | `oauth2_authorization_code` | OAuth 2.0 Authorization Code Flow |
 | `oauth2_pkce` | OAuth 2.0 with PKCE |
 | `oauth2_with_states` | OAuth 2.0 with State Tracking |
@@ -864,7 +880,7 @@ PIDL is designed for describing:
 
 - **Authentication/Authorization**: OAuth 2.0, OpenID Connect, SAML 2.0, WebAuthn/FIDO2
 - **Identity Management**: SCIM provisioning, user lifecycle
-- **Agent Protocols**: MCP (Model Context Protocol), A2A (Agent-to-Agent)
+- **Agent Protocols**: AAuth, MCP (Model Context Protocol), A2A (Agent-to-Agent)
 - **API Flows**: Multi-party API choreography
 
 ## Documentation

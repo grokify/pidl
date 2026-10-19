@@ -10,6 +10,18 @@
   "unreleased": {
     "highlights": [
       {
+        "description": "Scenarios: one PIDL file holds a protocol's roles and an ordered list of journeys, with shared fragments drawn as labeled boxes in every sequence format"
+      },
+      {
+        "description": "Consistent ordering: roles, scenarios and steps follow the file's order in every diagram, table and outline, so decks and guides built from one file agree"
+      },
+      {
+        "description": "Overview outputs: roles-by-scenario matrix, token table, and an ordered outline (Markdown and JSON) for guides and slide decks"
+      },
+      {
+        "description": "Token verification fields and analyzer rules that follow each token through a scenario, demonstrated on a new AAuth draft-11 example"
+      },
+      {
         "description": "D2 sequence diagrams now render as sequence diagrams: messages are edges, responses are dashed in the flow direction, and labels are quoted so punctuation cannot break compilation"
       },
       {
@@ -60,6 +72,14 @@
       {
         "description": "Windows checkouts converted text files to CRLF, so binaries built there embedded CRLF in the SVG template CSS and the SVG golden tests failed; text files now check out with LF everywhere",
         "commit": "e8ff19c"
+      },
+      {
+        "description": "An entity listed in two networks, or a boundary missing from `network_layout.order`, was placed by Go map iteration order",
+        "commit": "d6abc70"
+      },
+      {
+        "description": "`pidl diff` listed entity and phase changes in map iteration order",
+        "commit": "e8e6896"
       }
     ],
     "changed": [
@@ -78,6 +98,14 @@
       {
         "description": "CLI entry point extracted to run(args, stdout, stderr) int; subcommands return exit codes and a flag parse error exits 2",
         "commit": "560d07b"
+      },
+      {
+        "description": "Network boundary diagrams list entities in `entities` order instead of alphabetically; sort the `entities` array to keep the previous layout",
+        "commit": "3b2309a"
+      },
+      {
+        "description": "`Flow.sequence` is deprecated: it is a display-only step number and never affects order",
+        "commit": "8012335"
       }
     ],
     "tests": [
@@ -100,6 +128,78 @@
       {
         "description": "Table-driven tests for Entity and FlowAnimation accessors, executors, analyzer rules and the Step Functions exporter",
         "commit": "b316228"
+      }
+    ],
+    "added": [
+      {
+        "description": "Scenario type, include steps and fragments, with ordering helpers (`HasScenarios`, `ScenarioByID`, `ScenarioIDs`, `EntityIndex`, `OrderEntities`)",
+        "commit": "0eed0b9"
+      },
+      {
+        "description": "Scenario validation: unique IDs, participants in entity order and covering used entities, include targets that are fragments, no include cycles, and scenario paths in error messages",
+        "commit": "88cef72"
+      },
+      {
+        "description": "`Protocol.Scenario(id, ProjectOptions)` projects one scenario into a single-flow protocol, with fragments collapsed or expanded",
+        "commit": "b7c9902"
+      },
+      {
+        "description": "JSON Schema support for scenarios and include steps",
+        "commit": "8e6e63d"
+      },
+      {
+        "description": "`--scenario` on `generate`, `simulate`, `debug` and `analyze`, and `Protocol.Flatten`",
+        "commit": "46ca05e"
+      },
+      {
+        "description": "PlantUML, Mermaid, D2 and SVG draw include steps as labeled boxes across the fragment's participants; `--expand` inlines them",
+        "commit": "851dbb7"
+      },
+      {
+        "description": "`generate --all-scenarios -o <dir>` writes `NN-<id><ext>` per scenario in file order; `--include-fragments` adds fragments",
+        "commit": "3ba2c56"
+      },
+      {
+        "description": "`pidl scenarios` lists scenarios in output order as a table or JSON",
+        "commit": "fae3af7"
+      },
+      {
+        "description": "`scenario-matrix` format: roles by scenario, marking direct and fragment-only participation",
+        "commit": "7e39963"
+      },
+      {
+        "description": "Token `verified_by` and `claims`, and flow security `signed_by`, `issues` and `verifies`",
+        "commit": "c9fedb5"
+      },
+      {
+        "description": "`token-table` format: issuer, audience, binding, checkers, claims, and the scenarios that issue and verify each token",
+        "commit": "f888015"
+      },
+      {
+        "description": "`outline` and `outline-json` formats and `Protocol.Outline` for guides and slide decks",
+        "commit": "3784338"
+      },
+      {
+        "description": "Analyzer rules SEC017 to SEC021: unused role, token checked before issued, signer differs from sender or token holder, verifier mismatch, unused fragment",
+        "commit": "d2af3c2"
+      },
+      {
+        "description": "`extends` and `imports` merge scenarios; `exclude_scenarios` and an import `scenarios` selector",
+        "commit": "5427595"
+      },
+      {
+        "description": "`pidl diff` compares scenarios by ID and reports order changes and include changes",
+        "commit": "e8e6896"
+      },
+      {
+        "description": "AAuth draft-11 example (`aauth_protocol`) with the five access modes as scenarios",
+        "commit": "88acd69"
+      }
+    ],
+    "documentation": [
+      {
+        "description": "Specification sections for ordering and scenarios, a Scenarios guide, and CLI reference updates",
+        "commit": "eaf2617"
       }
     ]
   },

@@ -117,6 +117,9 @@ func (p *Protocol) resolveExtends(opts ResolveOptions, chain []string, depth int
 	if len(p.Extends.ExcludeFlows) > 0 {
 		resolved = excludeFlows(resolved, p.Extends.ExcludeFlows)
 	}
+	if len(p.Extends.ExcludeScenarios) > 0 {
+		resolved = excludeScenarios(resolved, p.Extends.ExcludeScenarios)
+	}
 
 	return resolved, nil
 }
@@ -235,12 +238,69 @@ func mergeBase(base, derived *Protocol) *Protocol {
 	result.Phases = append(basePhases, derived.Phases...)
 
 	// Merge flows: base flows first, then derived flows
-	result.Flows = append(base.Flows, derived.Flows...)
+	result.Flows = append(append([]Flow{}, base.Flows...), derived.Flows...)
+
+	// Merge scenarios: base order, a derived scenario with the same ID
+	// replacing the base one in place, then new derived scenarios
+	result.Scenarios = mergeScenarios(base.Scenarios, derived.Scenarios)
 
 	// Merge metadata
 	result.Metadata = mergeMetadata(base.Metadata, derived.Metadata)
 
-	return result
+	return normalizeScenarios(result)
+}
+
+// mergeScenarios keeps base order, replaces base scenarios that derived
+// redefines in their base position, and appends derived scenarios that
+// are new.
+func mergeScenarios(base, derived []Scenario) []Scenario {
+	if len(base) == 0 && len(derived) == 0 {
+		return nil
+	}
+	byID := make(map[string]Scenario, len(derived))
+	for _, sc := range derived {
+		byID[sc.ID] = sc
+	}
+	out := make([]Scenario, 0, len(base)+len(derived))
+	used := make(map[string]bool, len(derived))
+	for _, sc := range base {
+		if d, ok := byID[sc.ID]; ok {
+			out = append(out, d)
+			used[sc.ID] = true
+			continue
+		}
+		out = append(out, sc)
+	}
+	for _, sc := range derived {
+		if !used[sc.ID] {
+			out = append(out, sc)
+		}
+	}
+	return out
+}
+
+// normalizeScenarios turns top-level flows into the first scenario when
+// composition leaves a protocol with both flows and scenarios. The new
+// scenario takes the protocol's ID and name (with a "-flows" suffix when
+// that ID is taken).
+func normalizeScenarios(p *Protocol) *Protocol {
+	if len(p.Flows) == 0 || len(p.Scenarios) == 0 {
+		return p
+	}
+	id := p.ProtocolMeta.ID
+	if id == "" {
+		id = "flows"
+	}
+	if p.ScenarioByID(id) != nil {
+		id += "-flows"
+	}
+	name := p.ProtocolMeta.Name
+	if name == "" {
+		name = id
+	}
+	p.Scenarios = append([]Scenario{{ID: id, Name: name, Flows: p.Flows}}, p.Scenarios...)
+	p.Flows = nil
+	return p
 }
 
 // mergeImport merges an imported protocol into the target.
@@ -310,6 +370,11 @@ func mergeImport(target, imported *Protocol, imp ProtocolImport) *Protocol {
 		}
 	}
 
+	// Import selected scenarios, with the fragments they include
+	if len(imp.Scenarios) > 0 {
+		result.Scenarios = append(result.Scenarios, importScenarios(imported, imp)...)
+	}
+
 	// Import flows if requested
 	if imp.IncludeFlows {
 		for _, f := range imported.Flows {
@@ -332,7 +397,63 @@ func mergeImport(target, imported *Protocol, imp ProtocolImport) *Protocol {
 		}
 	}
 
-	return result
+	return normalizeScenarios(result)
+}
+
+// importScenarios returns the scenarios imp selects from imported, plus
+// every fragment they include (transitively), in imported document order,
+// with the alias prefix applied.
+func importScenarios(imported *Protocol, imp ProtocolImport) []Scenario {
+	want := make(map[string]bool)
+	var mark func(id string)
+	mark = func(id string) {
+		if want[id] {
+			return
+		}
+		sc := imported.ScenarioByID(id)
+		if sc == nil {
+			return
+		}
+		want[id] = true
+		for _, f := range sc.Flows {
+			if f.IsInclude() {
+				mark(f.Include)
+			}
+		}
+	}
+	for _, id := range imp.Scenarios {
+		mark(id)
+	}
+
+	prefix := func(id string) string {
+		if id == "" || imp.Alias == "" {
+			return id
+		}
+		return imp.Alias + id
+	}
+	var out []Scenario
+	for _, sc := range imported.Scenarios {
+		if !want[sc.ID] {
+			continue
+		}
+		ns := sc
+		ns.ID = prefix(sc.ID)
+		ns.Participants = make([]string, len(sc.Participants))
+		for i, id := range sc.Participants {
+			ns.Participants[i] = prefix(id)
+		}
+		if len(sc.Participants) == 0 {
+			ns.Participants = nil
+		}
+		ns.Flows = make([]Flow, len(sc.Flows))
+		for i, f := range sc.Flows {
+			nf := f
+			nf.From, nf.To, nf.Include, nf.Phase = prefix(f.From), prefix(f.To), prefix(f.Include), prefix(f.Phase)
+			ns.Flows[i] = nf
+		}
+		out = append(out, ns)
+	}
+	return out
 }
 
 // mergeMetadata merges metadata from base and derived protocols.
@@ -413,13 +534,28 @@ func excludeEntities(p *Protocol, ids []string) *Protocol {
 	result.Entities = filtered
 
 	// Filter flows referencing excluded entities
-	filteredFlows := make([]Flow, 0, len(result.Flows))
-	for _, f := range result.Flows {
-		if !excludeSet[f.From] && !excludeSet[f.To] {
-			filteredFlows = append(filteredFlows, f)
+	keep := func(flows []Flow) []Flow {
+		filtered := make([]Flow, 0, len(flows))
+		for _, f := range flows {
+			if !excludeSet[f.From] && !excludeSet[f.To] {
+				filtered = append(filtered, f)
+			}
+		}
+		return filtered
+	}
+	result.Flows = keep(result.Flows)
+	for i, sc := range result.Scenarios {
+		result.Scenarios[i].Flows = keep(sc.Flows)
+		if len(sc.Participants) > 0 {
+			var parts []string
+			for _, id := range sc.Participants {
+				if !excludeSet[id] {
+					parts = append(parts, id)
+				}
+			}
+			result.Scenarios[i].Participants = parts
 		}
 	}
-	result.Flows = filteredFlows
 
 	return result
 }
@@ -447,7 +583,34 @@ func excludePhases(p *Protocol, ids []string) *Protocol {
 			result.Flows[i].Phase = ""
 		}
 	}
+	for i, sc := range result.Scenarios {
+		flows := make([]Flow, len(sc.Flows))
+		copy(flows, sc.Flows)
+		for j, f := range flows {
+			if excludeSet[f.Phase] {
+				flows[j].Phase = ""
+			}
+		}
+		result.Scenarios[i].Flows = flows
+	}
 
+	return result
+}
+
+// excludeScenarios removes the scenarios with the given IDs.
+func excludeScenarios(p *Protocol, ids []string) *Protocol {
+	result := p.clone()
+	excludeSet := make(map[string]bool, len(ids))
+	for _, id := range ids {
+		excludeSet[id] = true
+	}
+	var kept []Scenario
+	for _, sc := range result.Scenarios {
+		if !excludeSet[sc.ID] {
+			kept = append(kept, sc)
+		}
+	}
+	result.Scenarios = kept
 	return result
 }
 

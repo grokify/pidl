@@ -56,13 +56,13 @@ implementing an item carry `Refs: RMI-PIDL-<NNN>`.
 
 **Theme:** Scenario-aware composition and an end-to-end AAuth example
 
-- [ ] `RMI-PIDL-017` Scenario-aware `extends` and `imports`: merge by ID with base first, `exclude_scenarios`, import selection with alias prefixing
+- [x] `RMI-PIDL-017` Scenario-aware `extends` and `imports`: merge by ID with base first, `exclude_scenarios`, import selection with alias prefixing
   - Depends on: `RMI-PIDL-004`
-- [ ] `RMI-PIDL-018` Scenario-aware `diff`: added, removed and renamed scenarios, per-scenario flow changes, entity and scenario order changes
+- [x] `RMI-PIDL-018` Scenario-aware `diff`: added, removed and renamed scenarios, per-scenario flow changes, entity and scenario order changes
   - Depends on: `RMI-PIDL-005`
-- [ ] `RMI-PIDL-019` AAuth example (draft -11): seven roles, five main scenarios and shared fragments, with verification annotations
+- [x] `RMI-PIDL-019` AAuth example (draft -11): seven roles, five main scenarios and shared fragments, with verification annotations
   - Depends on: `RMI-PIDL-008`, `RMI-PIDL-013`
-- [ ] `RMI-PIDL-020` Documentation: Scenarios section in the specification, user guide page, README feature list and main roadmap entry
+- [x] `RMI-PIDL-020` Documentation: Scenarios section in the specification, user guide page, README feature list and main roadmap entry
   - Depends on: `RMI-PIDL-019`
-- [ ] `RMI-PIDL-021` v0.7.0 changelog and release notes, covering scenarios and the pending fixes
+- [x] `RMI-PIDL-021` v0.7.0 changelog and release notes, covering scenarios and the pending fixes
   - Depends on: `RMI-PIDL-020`

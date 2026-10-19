@@ -1,0 +1,264 @@
+{
+  "protocol": {
+    "id": "aauth-protocol",
+    "name": "AAuth",
+    "version": "draft-11",
+    "description": "AAuth agent authorization (draft-hardt-oauth-aauth-protocol-11): five resource access modes, from agent identity to federated authorization, with shared fragments for obtaining agent and person tokens and for user consent.",
+    "category": "agent",
+    "references": [
+      {
+        "name": "draft-hardt-oauth-aauth-protocol-11",
+        "url": "https://datatracker.ietf.org/doc/draft-hardt-oauth-aauth-protocol/11/"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "person",
+      "name": "Person",
+      "type": "user",
+      "description": "The human the agent acts for; approves missions and consents to access",
+      "trust_level": "untrusted"
+    },
+    {
+      "id": "ap",
+      "name": "Agent Provider",
+      "type": "server",
+      "description": "Issues agent tokens that bind the agent's signing key to its identifier",
+      "trust_level": "authoritative",
+      "protocol_roles": [{"protocol": "aauth", "role": "agent_provider"}]
+    },
+    {
+      "id": "agent",
+      "name": "Agent",
+      "type": "agent",
+      "description": "Holds a signing key and signs every request; identified as aauth:local@domain",
+      "trust_level": "semi_trusted",
+      "protocol_roles": [{"protocol": "aauth", "role": "agent"}]
+    },
+    {
+      "id": "resource",
+      "name": "Resource",
+      "type": "resource_server",
+      "description": "Verifies signed requests, issues resource tokens and enforces auth tokens",
+      "trust_level": "trusted",
+      "protocol_roles": [{"protocol": "aauth", "role": "resource"}]
+    },
+    {
+      "id": "ps",
+      "name": "Person Server",
+      "type": "authorization_server",
+      "description": "Issues person tokens and auth tokens; obtains the person's consent",
+      "trust_level": "authoritative",
+      "protocol_roles": [{"protocol": "aauth", "role": "person_server"}]
+    },
+    {
+      "id": "as",
+      "name": "Access Server",
+      "type": "authorization_server",
+      "description": "The resource's own policy server; issues auth tokens in federated access",
+      "trust_level": "authoritative",
+      "protocol_roles": [{"protocol": "aauth", "role": "access_server"}]
+    }
+  ],
+  "metadata": {
+    "tokens": [
+      {
+        "id": "agent_token",
+        "name": "Agent token",
+        "type": "jwt",
+        "issuer": "ap",
+        "binding": "http_signature",
+        "description": "aa-agent+jwt, lifetime of at most 24 hours",
+        "verified_by": ["resource", "ps"],
+        "claims": [
+          {"name": "sub", "checked_by": ["resource", "ps"], "description": "Agent identifier, aauth:local@domain"},
+          {"name": "cnf", "checked_by": ["resource", "ps"], "description": "The agent's public key; must match the key that signed the request"}
+        ]
+      },
+      {
+        "id": "person_token",
+        "name": "Person token",
+        "type": "jwt",
+        "issuer": "ps",
+        "audience": "resource",
+        "binding": "http_signature",
+        "description": "aa-person+jwt, lifetime of at most 1 hour",
+        "verified_by": ["resource"],
+        "claims": [
+          {"name": "aud", "checked_by": ["resource"], "description": "The resource the token identifies the person to"},
+          {"name": "sub", "checked_by": ["resource"], "description": "Directed user identifier for this resource"},
+          {"name": "cnf", "checked_by": ["resource"], "description": "The agent's public key"}
+        ]
+      },
+      {
+        "id": "resource_token",
+        "name": "Resource token",
+        "type": "jwt",
+        "issuer": "resource",
+        "binding": "http_signature",
+        "description": "aa-resource+jwt; aud is the PS in three-party access and the AS in federated access",
+        "verified_by": ["ps", "as"],
+        "claims": [
+          {"name": "aud", "checked_by": ["ps", "as"], "description": "The PS URL or the AS URL"},
+          {"name": "agent_jkt", "checked_by": ["ps", "as"], "description": "JWK thumbprint of the agent's key, compared with the key that signed the request"},
+          {"name": "presented_jti", "checked_by": ["ps", "as"], "description": "jti of the token the agent presented to the resource"},
+          {"name": "sub", "checked_by": ["ps", "as"], "description": "sub of the token the request carried"}
+        ]
+      },
+      {
+        "id": "auth_token",
+        "name": "Auth token",
+        "type": "jwt",
+        "issuer": "as",
+        "audience": "resource",
+        "binding": "http_signature",
+        "description": "aa-auth+jwt issued by the AS, or by the PS in three-party access; lifetime of at most 1 hour",
+        "verified_by": ["resource"],
+        "claims": [
+          {"name": "aud", "checked_by": ["resource"], "description": "The resource the agent may access"},
+          {"name": "sub", "checked_by": ["resource"], "description": "Directed user identifier"},
+          {"name": "scope", "checked_by": ["resource"], "description": "Authorized scopes"},
+          {"name": "cnf", "checked_by": ["resource"], "description": "The agent's public key"}
+        ]
+      },
+      {
+        "id": "session_token",
+        "name": "Session token",
+        "type": "opaque",
+        "issuer": "resource",
+        "audience": "resource",
+        "binding": "http_signature",
+        "description": "Returned in the AAuth-Access header; sent back in Authorization: AAuth, which the signature must cover",
+        "verified_by": ["resource"]
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "agent-identity",
+      "name": "Agent identity",
+      "description": "The resource learns which agent is calling and applies its own access control. Replaces API keys with cryptographic identity.",
+      "flows": [
+        {"include": "agent-token"},
+        {"from": "agent", "to": "resource", "action": "signed_request", "label": "HTTP Sig w/ agent_token",
+          "security": {"requires": ["signature"], "token": "agent_token", "verifies": ["agent_token"]}},
+        {"from": "resource", "to": "agent", "action": "ok", "label": "200 OK", "mode": "response"}
+      ]
+    },
+    {
+      "id": "resource-managed",
+      "name": "Resource-managed access (two-party)",
+      "description": "The resource runs its own authorization, then returns a session token in the AAuth-Access header.",
+      "flows": [
+        {"include": "agent-token"},
+        {"from": "agent", "to": "resource", "action": "signed_request", "label": "HTTP Sig w/ agent_token",
+          "security": {"requires": ["signature"], "token": "agent_token", "verifies": ["agent_token"]}},
+        {"from": "resource", "to": "agent", "action": "interaction_required", "label": "202 interaction required", "mode": "response"},
+        {"from": "person", "to": "resource", "action": "complete_interaction", "label": "Completes the resource's own login and consent"},
+        {"from": "agent", "to": "resource", "action": "poll", "label": "GET pending URL",
+          "security": {"requires": ["signature"], "verifies": ["agent_token"]}},
+        {"from": "resource", "to": "agent", "action": "session_token", "label": "200 OK + AAuth-Access: session token", "mode": "response",
+          "security": {"issues": ["session_token"]}},
+        {"from": "agent", "to": "resource", "action": "session_request", "label": "HTTP Sig w/ agent_token + Authorization: AAuth",
+          "security": {"requires": ["signature"], "token": "session_token", "verifies": ["agent_token", "session_token"]}},
+        {"from": "resource", "to": "agent", "action": "ok", "label": "200 OK", "mode": "response"}
+      ]
+    },
+    {
+      "id": "person-identity",
+      "name": "Person identity",
+      "description": "Federated login for agents: the resource learns which person the agent acts for from a person token. The PS is not in the path of any call.",
+      "flows": [
+        {"include": "agent-token"},
+        {"include": "person-token"},
+        {"from": "agent", "to": "resource", "action": "signed_request", "label": "HTTP Sig w/ person_token",
+          "security": {"requires": ["signature"], "token": "person_token", "verifies": ["person_token"]}},
+        {"from": "resource", "to": "agent", "action": "ok", "label": "200 OK", "mode": "response"}
+      ]
+    },
+    {
+      "id": "ps-authorization",
+      "name": "PS authorization (three-party)",
+      "description": "The resource has no access server. It accepts identity and consent from the PS that issued the person token.",
+      "flows": [
+        {"include": "agent-token"},
+        {"include": "person-token"},
+        {"from": "agent", "to": "resource", "action": "authorize", "label": "POST authorization_endpoint (HTTP Sig w/ person_token)",
+          "security": {"requires": ["signature"], "token": "person_token", "verifies": ["person_token"]}},
+        {"from": "resource", "to": "agent", "action": "resource_token", "label": "resource_token (aud = PS)", "mode": "response",
+          "security": {"issues": ["resource_token"]}},
+        {"from": "agent", "to": "ps", "action": "auth_token_request", "label": "POST auth_token_endpoint w/ resource_token + presented_token",
+          "security": {"requires": ["signature"], "token": "agent_token", "verifies": ["agent_token", "resource_token"]}},
+        {"include": "consent"},
+        {"from": "ps", "to": "agent", "action": "auth_token", "label": "auth_token", "mode": "response",
+          "security": {"issues": ["auth_token"]}},
+        {"from": "agent", "to": "resource", "action": "api_request", "label": "GET /api/documents (HTTP Sig w/ auth_token)",
+          "security": {"requires": ["signature"], "token": "auth_token", "verifies": ["auth_token"]}},
+        {"from": "resource", "to": "agent", "action": "ok", "label": "200 OK", "mode": "response"}
+      ]
+    },
+    {
+      "id": "federated-authorization",
+      "name": "Federated authorization (four-party)",
+      "description": "The resource has its own access server. The PS federates with the AS named by the resource token's aud.",
+      "flows": [
+        {"include": "agent-token"},
+        {"include": "person-token"},
+        {"from": "agent", "to": "resource", "action": "authorize", "label": "POST authorization_endpoint (HTTP Sig w/ person_token)",
+          "security": {"requires": ["signature"], "token": "person_token", "verifies": ["person_token"]}},
+        {"from": "resource", "to": "agent", "action": "resource_token", "label": "resource_token (aud = AS)", "mode": "response",
+          "security": {"issues": ["resource_token"]}},
+        {"from": "agent", "to": "ps", "action": "auth_token_request", "label": "POST auth_token_endpoint w/ resource_token + presented_token",
+          "security": {"requires": ["signature"], "token": "agent_token", "verifies": ["agent_token", "resource_token"]}},
+        {"include": "consent"},
+        {"from": "ps", "to": "as", "action": "federate", "label": "POST auth_token_endpoint w/ resource_token (HTTP Sig w/ jwks_uri)",
+          "note": "The PS signs with its own key, while the resource token's agent_jkt names the agent's key",
+          "security": {"requires": ["signature"], "token": "resource_token", "verifies": ["resource_token"]}},
+        {"from": "as", "to": "ps", "action": "auth_token", "label": "auth_token", "mode": "response",
+          "security": {"issues": ["auth_token"]}},
+        {"from": "ps", "to": "agent", "action": "auth_token", "label": "auth_token", "mode": "response",
+          "security": {"issues": ["auth_token"]}},
+        {"from": "agent", "to": "resource", "action": "api_request", "label": "GET /api/documents (HTTP Sig w/ auth_token)",
+          "security": {"requires": ["signature"], "token": "auth_token", "verifies": ["auth_token"]}},
+        {"from": "resource", "to": "agent", "action": "ok", "label": "200 OK", "mode": "response"}
+      ]
+    },
+    {
+      "id": "agent-token",
+      "name": "Obtain agent token",
+      "fragment": true,
+      "description": "The agent proves its identity to its agent provider through a platform-specific mechanism and receives an agent token for its key.",
+      "flows": [
+        {"from": "agent", "to": "ap", "action": "attest", "label": "Prove identity (platform-specific)"},
+        {"from": "ap", "to": "agent", "action": "agent_token", "label": "agent_token", "mode": "response",
+          "security": {"issues": ["agent_token"]}}
+      ]
+    },
+    {
+      "id": "person-token",
+      "name": "Obtain person token",
+      "fragment": true,
+      "description": "The agent asks its PS for a person token addressed to the resource.",
+      "flows": [
+        {"from": "agent", "to": "ps", "action": "person_token_request", "label": "POST person_token_endpoint (HTTP Sig w/ agent_token)",
+          "security": {"requires": ["signature"], "token": "agent_token", "verifies": ["agent_token"]}},
+        {"from": "ps", "to": "agent", "action": "person_token", "label": "person_token (aud = resource)", "mode": "response",
+          "security": {"issues": ["person_token"]}}
+      ]
+    },
+    {
+      "id": "consent",
+      "name": "User consent",
+      "fragment": true,
+      "description": "The PS needs the person: it returns 202 with an interaction URL and code, the person approves, and the agent polls the pending URL.",
+      "flows": [
+        {"from": "ps", "to": "agent", "action": "interaction_required", "label": "202 interaction required (url, code)", "mode": "response"},
+        {"from": "agent", "to": "person", "action": "direct_user", "label": "Open interaction URL with code"},
+        {"from": "person", "to": "ps", "action": "approve", "label": "Review and approve"},
+        {"from": "agent", "to": "ps", "action": "poll", "label": "GET pending URL (Prefer: wait)",
+          "security": {"requires": ["signature"], "verifies": ["agent_token"]}}
+      ]
+    }
+  ]
+}
