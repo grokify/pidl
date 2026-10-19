@@ -1,0 +1,7 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.load-error {
+  padding: 2rem;
+  color: #b42318;
+}
