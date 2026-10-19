@@ -492,8 +492,41 @@
         "description": {
           "type": "string",
           "description": "Additional context about the token"
+        },
+        "verified_by": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true,
+          "description": "Entity IDs that check this token"
+        },
+        "claims": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/tokenClaim" },
+          "description": "Claims that checkers rely on, in display order"
         }
       }
+    },
+    "tokenClaim": {
+      "type": "object",
+      "description": "A claim in a token and the entities that check it",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Claim name, such as aud or agent_jkt"
+        },
+        "checked_by": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true,
+          "description": "Entity IDs that check this claim"
+        },
+        "description": {
+          "type": "string",
+          "description": "What the claim carries or how it is checked"
+        }
+      },
+      "additionalProperties": false
     },
     "flowSecurity": {
       "type": "object",
@@ -518,6 +551,20 @@
         "description": {
           "type": "string",
           "description": "Additional security context"
+        },
+        "signed_by": {
+          "type": "string",
+          "description": "Entity ID that signs the request; defaults to the flow's from entity"
+        },
+        "issues": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Token definition IDs this flow delivers"
+        },
+        "verifies": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Token definition IDs the receiver checks"
         }
       }
     },

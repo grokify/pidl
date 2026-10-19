@@ -55,6 +55,21 @@ func (p *Protocol) validateTokenDefinitions() ValidationErrors {
 				Message: fmt.Sprintf("unknown entity %q", t.Audience),
 			})
 		}
+
+		errs = append(errs, validateEntityRefs(field+".verified_by", t.VerifiedBy, entityIDs)...)
+
+		claimNames := make(map[string]bool, len(t.Claims))
+		for j, c := range t.Claims {
+			cf := fmt.Sprintf("%s.claims[%d]", field, j)
+			switch {
+			case c.Name == "":
+				errs = append(errs, ValidationError{Field: cf + ".name", Message: "required"})
+			case claimNames[c.Name]:
+				errs = append(errs, ValidationError{Field: cf + ".name", Message: fmt.Sprintf("duplicate claim %q", c.Name)})
+			}
+			claimNames[c.Name] = true
+			errs = append(errs, validateEntityRefs(cf+".checked_by", c.CheckedBy, entityIDs)...)
+		}
 	}
 
 	return errs
@@ -71,14 +86,51 @@ func (p *Protocol) validateFlowSecurity() ValidationErrors {
 		}
 	}
 
+	entityIDs := make(map[string]bool, len(p.Entities))
+	for _, e := range p.Entities {
+		entityIDs[e.ID] = true
+	}
+
 	for _, list := range p.flowLists() {
-		errs = append(errs, validateFlowListSecurity(list, tokenIDs)...)
+		errs = append(errs, validateFlowListSecurity(list, tokenIDs, entityIDs)...)
 	}
 
 	return errs
 }
 
-func validateFlowListSecurity(list flowList, tokenIDs map[string]bool) ValidationErrors {
+// validateEntityRefs checks that every ID in ids is a known entity, listed
+// once.
+func validateEntityRefs(field string, ids []string, entityIDs map[string]bool) ValidationErrors {
+	var errs ValidationErrors
+	seen := make(map[string]bool, len(ids))
+	for i, id := range ids {
+		f := fmt.Sprintf("%s[%d]", field, i)
+		switch {
+		case !entityIDs[id]:
+			errs = append(errs, ValidationError{Field: f, Message: fmt.Sprintf("unknown entity %q", id)})
+		case seen[id]:
+			errs = append(errs, ValidationError{Field: f, Message: fmt.Sprintf("duplicate entity %q", id)})
+		}
+		seen[id] = true
+	}
+	return errs
+}
+
+// validateTokenRefs checks that every ID in ids is a known token definition.
+func validateTokenRefs(field string, ids []string, tokenIDs map[string]bool) ValidationErrors {
+	var errs ValidationErrors
+	for i, id := range ids {
+		if !tokenIDs[id] {
+			errs = append(errs, ValidationError{
+				Field:   fmt.Sprintf("%s[%d]", field, i),
+				Message: fmt.Sprintf("unknown token definition %q", id),
+			})
+		}
+	}
+	return errs
+}
+
+func validateFlowListSecurity(list flowList, tokenIDs, entityIDs map[string]bool) ValidationErrors {
 	var errs ValidationErrors
 
 	for i, f := range list.flows {
@@ -105,6 +157,15 @@ func validateFlowListSecurity(list flowList, tokenIDs map[string]bool) Validatio
 				Message: fmt.Sprintf("unknown token definition %q", f.Security.Token),
 			})
 		}
+
+		if f.Security.SignedBy != "" && !entityIDs[f.Security.SignedBy] {
+			errs = append(errs, ValidationError{
+				Field:   field + ".signed_by",
+				Message: fmt.Sprintf("unknown entity %q", f.Security.SignedBy),
+			})
+		}
+		errs = append(errs, validateTokenRefs(field+".issues", f.Security.Issues, tokenIDs)...)
+		errs = append(errs, validateTokenRefs(field+".verifies", f.Security.Verifies, tokenIDs)...)
 	}
 
 	return errs

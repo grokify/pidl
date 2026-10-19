@@ -102,6 +102,13 @@ type TokenDefinition struct {
 	Binding string `json:"binding,omitempty"`
 	// Description provides additional context.
 	Description string `json:"description,omitempty"`
+
+	// VerifiedBy lists the entities that check this token. Outputs list
+	// them in entities order.
+	VerifiedBy []string `json:"verified_by,omitempty"`
+
+	// Claims lists the claims checkers rely on, in display order.
+	Claims []TokenClaim `json:"claims,omitempty"`
 }
 
 // NetworkConfig defines a network boundary.
@@ -761,6 +768,18 @@ const (
 	SecurityRequirementMAC SecurityRequirement = "mac"
 )
 
+// TokenClaim is one claim in a token and the entities that check it.
+type TokenClaim struct {
+	// Name is the claim name, such as "aud" or "agent_jkt".
+	Name string `json:"name"`
+
+	// CheckedBy lists the entities that check this claim.
+	CheckedBy []string `json:"checked_by,omitempty"`
+
+	// Description explains what the claim carries or how it is checked.
+	Description string `json:"description,omitempty"`
+}
+
 // FlowSecurity describes security requirements for a flow.
 type FlowSecurity struct {
 	// Requires lists security mechanisms required for this flow.
@@ -771,6 +790,14 @@ type FlowSecurity struct {
 	Confidential bool `json:"confidential,omitempty"`
 	// Description provides additional security context.
 	Description string `json:"description,omitempty"`
+	// SignedBy is the entity that signs the request. It defaults to the
+	// flow's From entity; set it when someone else signs, for example an
+	// intermediary signing on an agent's behalf.
+	SignedBy string `json:"signed_by,omitempty"`
+	// Issues lists token definition IDs this flow delivers.
+	Issues []string `json:"issues,omitempty"`
+	// Verifies lists token definition IDs the receiver checks.
+	Verifies []string `json:"verifies,omitempty"`
 }
 
 // VerificationTier records how well-substantiated a flow is. Values match the
