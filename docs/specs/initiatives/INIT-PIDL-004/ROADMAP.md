@@ -54,8 +54,10 @@ Every area of AAuth draft-11 and its companion drafts in PIDL, with draft-source
 
 - [ ] `RMI-PIDL-066` Rich Resource Requests: vocabulary-based access, per-call operations, content addressing and consent
   - Depends on: `RMI-PIDL-056`
-- [ ] `RMI-PIDL-067` Go samples from aauth-go for agent, resource, PS and AS roles
-  - Depends on: `RMI-PIDL-056`
+- [ ] `RMI-PIDL-067` Go samples from aauth-go's walkthrough regions for every scenario step, pinned to aauth-go v0.3.0
+  - Depends on: `RMI-PIDL-056`, `RMI-AAUTHGO-014`, `RMI-AAUTHGO-015`
+- [ ] `RMI-PIDL-095` Check AAuth HTTP examples against aauth-go's end-to-end JSON trace
+  - Depends on: `RMI-PIDL-046`, `RMI-AAUTHGO-016`
 
 ## Phase 6 — Explorer-Parity Content and Tours
 
@@ -75,4 +77,4 @@ Every area of AAuth draft-11 and its companion drafts in PIDL, with draft-source
 **Theme:** Coverage table and release
 
 - [ ] `RMI-PIDL-068` Coverage table, documentation and release notes
-  - Depends on: `RMI-PIDL-057`, `RMI-PIDL-059`, `RMI-PIDL-061`, `RMI-PIDL-062`, `RMI-PIDL-063`, `RMI-PIDL-065`, `RMI-PIDL-066`, `RMI-PIDL-067`, `RMI-PIDL-086`, `RMI-PIDL-087`, `RMI-PIDL-088`, `RMI-PIDL-089`
+  - Depends on: `RMI-PIDL-057`, `RMI-PIDL-059`, `RMI-PIDL-061`, `RMI-PIDL-062`, `RMI-PIDL-063`, `RMI-PIDL-065`, `RMI-PIDL-066`, `RMI-PIDL-067`, `RMI-PIDL-095`, `RMI-PIDL-086`, `RMI-PIDL-087`, `RMI-PIDL-088`, `RMI-PIDL-089`

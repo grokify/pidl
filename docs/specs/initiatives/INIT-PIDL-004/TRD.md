@@ -24,7 +24,11 @@ Each scenario cites draft sections in its introduction; each example cites its s
 
 ### 4. Go samples
 
-Samples reference `aauth-go` regions (`pidl:begin`/`pidl:end` comments added to its example tests in a PR to that repository): agent transport, resource handler, PS and AS configuration, mission proposal, permission requests. `samples resolve` records hashes; CI runs `samples check` against a pinned `aauth-go` version.
+Samples reference regions in aauth-go's `examples/walkthrough` tests (`INIT-AAUTHGO-001`), named `<scenario>.<step>` (for example `federated.ps-to-as`). Each step uses the SDK's lower-level calls, so a sample shows one protocol message rather than the whole `Transport` round trip. `samples resolve` records hashes; CI runs `samples check` against aauth-go v0.3.0.
+
+### 5. Examples checked against real traffic
+
+aauth-go's end-to-end tests export a JSON trace (role-named hosts, ordered headers, bodies, and pointers to per-run values). An example check compares each AAuth example with the matching exchange: method, path, status, header names and order, body members and token claim names. Per-run values (signatures, keys, timestamps, nonces) are not compared.
 
 ## Sequencing
 
