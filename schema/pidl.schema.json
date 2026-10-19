@@ -401,6 +401,9 @@
         },
         "verification": {
           "$ref": "#/$defs/flowVerification"
+        },
+        "example": {
+          "$ref": "#/$defs/flowExample"
         }
       }
     },
@@ -566,6 +569,70 @@
           "items": { "type": "string" },
           "description": "Token definition IDs the receiver checks"
         }
+      }
+    },
+    "flowExample": {
+      "type": "object",
+      "description": "Illustrative request, response and decoded tokens for one step",
+      "required": ["source", "kind"],
+      "anyOf": [
+        { "required": ["request"] },
+        { "required": ["response"] },
+        { "required": ["tokens"] }
+      ],
+      "properties": {
+        "source": { "type": "string", "minLength": 1, "description": "Citation, such as draft-11 §7.2.1" },
+        "kind": { "type": "string", "enum": ["draft", "derived"], "description": "draft: taken from the source with values aligned; derived: written from its normative text" },
+        "request": {
+          "type": "object",
+          "required": ["method", "url"],
+          "properties": {
+            "method": { "type": "string", "minLength": 1 },
+            "url": { "type": "string", "minLength": 1 },
+            "headers": { "$ref": "#/$defs/exampleHeaders" },
+            "body": { "description": "Request body as JSON" }
+          },
+          "additionalProperties": false
+        },
+        "response": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": { "type": "integer", "minimum": 100, "maximum": 599 },
+            "headers": { "$ref": "#/$defs/exampleHeaders" },
+            "body": { "description": "Response body as JSON" }
+          },
+          "additionalProperties": false
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["token"],
+            "properties": {
+              "token": { "type": "string", "description": "Token definition ID" },
+              "label": { "type": "string", "description": "Where the token travels" },
+              "header": { "type": "object", "description": "Decoded JWT header" },
+              "payload": { "type": "object", "description": "Decoded JWT claims" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "note": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "exampleHeaders": {
+      "type": "array",
+      "description": "HTTP headers in display order",
+      "items": {
+        "type": "object",
+        "required": ["name", "value"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "value": { "type": "string" }
+        },
+        "additionalProperties": false
       }
     },
     "flowVerification": {
