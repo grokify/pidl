@@ -170,6 +170,10 @@ func (p *Protocol) clone() *Protocol {
 	copy(result.Entities, p.Entities)
 	copy(result.Phases, p.Phases)
 	copy(result.Flows, p.Flows)
+	if len(p.Scenarios) > 0 {
+		result.Scenarios = make([]Scenario, len(p.Scenarios))
+		copy(result.Scenarios, p.Scenarios)
+	}
 
 	if p.Metadata != nil {
 		result.Metadata = &ProtocolMetadata{
