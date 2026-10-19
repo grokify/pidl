@@ -52,6 +52,9 @@ type ProtocolExtends struct {
 
 	// ExcludeFlows lists flow indices from the base to exclude.
 	ExcludeFlows []int `json:"exclude_flows,omitempty"`
+
+	// ExcludeScenarios lists scenario IDs from the base to remove.
+	ExcludeScenarios []string `json:"exclude_scenarios,omitempty"`
 }
 
 // ProtocolImport specifies another protocol file to import from.
@@ -70,6 +73,11 @@ type ProtocolImport struct {
 
 	// IncludeFlows imports flows between the specified entities.
 	IncludeFlows bool `json:"include_flows,omitempty"`
+
+	// Scenarios lists scenario IDs to import. Fragments they include are
+	// imported with them. With Alias set, scenario IDs, include targets,
+	// entity references and phases get the alias prefix.
+	Scenarios []string `json:"scenarios,omitempty"`
 }
 
 // ProtocolMetadata contains additional protocol-level configuration.

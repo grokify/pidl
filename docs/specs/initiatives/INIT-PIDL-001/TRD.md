@@ -226,16 +226,23 @@ receive the protocol as written and report scenario paths such as
 
 ### 8. Composition (`resolve.go`)
 
-- `mergeBase`: the base scenarios come first, then derived scenarios.
-  A derived scenario with the same `id` replaces the base one in its
-  base position.
-- `ExcludeScenarios` runs before the merge.
+- `mergeBase`: base scenarios come first. A derived scenario with the
+  same `id` replaces the base one in its base position, so an override
+  never reorders scenarios. New derived scenarios follow.
+- `ExcludeScenarios` runs before the merge. `ExcludeEntities` also drops
+  scenario flows that reference an excluded entity and removes it from
+  `participants`. `ExcludePhases` also clears phase references in
+  scenario flows.
 - `mergeImport`: `ProtocolImport.Scenarios []string` selects scenarios
-  to import, which get the alias prefix on IDs and include targets.
-  Selected fragments come with them.
-- Mixing a legacy `flows` file with a scenarios file: when the target
-  has scenarios, imported legacy flows become a scenario whose id is
-  the import alias (or the imported protocol id).
+  to import. Fragments they include come with them, in the imported
+  document's order. The alias prefix applies to scenario IDs, include
+  targets, entity references, participants and phases.
+- Mixing documents with and without scenarios: when composition leaves
+  both top-level flows and scenarios, the flows become the first
+  scenario, with the resolved protocol's ID and name (plus a `-flows`
+  suffix if that ID is taken).
+- The JSON Schema does not yet describe `extends` or `imports`; that gap
+  predates this initiative.
 
 ### 9. Diff (`compare.go`)
 
