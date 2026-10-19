@@ -1,4 +1,5 @@
 import { scenarioGroups } from "../nav";
+import type { Theme } from "../hooks/usePrefs";
 import type { Scenario, Walkthrough } from "../types";
 
 interface Props {
@@ -7,9 +8,15 @@ interface Props {
   step: number;
   onScenario: (id: string) => void;
   onStep: (step: number) => void;
+  theme: Theme;
+  onTheme: () => void;
+  present: boolean;
+  onPresent: () => void;
 }
 
-export function TopBar({ walkthrough, scenario, step, onScenario, onStep }: Props) {
+const THEME_LABEL: Record<Theme, string> = { auto: "Auto", light: "Light", dark: "Dark" };
+
+export function TopBar({ walkthrough, scenario, step, onScenario, onStep, theme, onTheme, present, onPresent }: Props) {
   const { main, fragments } = scenarioGroups(walkthrough);
   const total = scenario.steps.length;
   return (
@@ -53,6 +60,14 @@ export function TopBar({ walkthrough, scenario, step, onScenario, onStep }: Prop
           →
         </button>
       </nav>
+      <div className="view-controls">
+        <button onClick={onTheme} title="Theme: auto, light or dark">
+          Theme: {THEME_LABEL[theme]}
+        </button>
+        <button onClick={onPresent} className={present ? "on" : ""} title="Present on a 16:9 stage (P)">
+          {present ? "Exit present" : "Present"}
+        </button>
+      </div>
     </header>
   );
 }

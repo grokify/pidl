@@ -22,7 +22,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0f1420;
     --panel: #161d2c;
     --text: #e4e7ec;
@@ -41,6 +41,25 @@
     --code-bg: #1d2638;
     --border: #283246;
   }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1420;
+  --panel: #161d2c;
+  --text: #e4e7ec;
+  --muted: #98a2b3;
+  --line: #667085;
+  --accent: #6ea8fe;
+  --accent-soft: #1c2f55;
+  --receiver: #3cc8b4;
+  --receiver-soft: #10302c;
+  --band: rgba(152, 162, 179, 0.1);
+  --band-text: #b9c0cc;
+  --warn: #fdb022;
+  --warn-soft: #3a2a0c;
+  --draft: #47cd89;
+  --derived: #b692f6;
+  --code-bg: #1d2638;
+  --border: #283246;
 }
 
 body {
@@ -569,4 +588,46 @@ body,
   background: var(--code-bg);
   border-radius: 6px;
   padding: 8px 10px;
+}
+
+/* View controls and presentation stage */
+.stepper {
+  margin-left: auto;
+}
+.view-controls {
+  display: flex;
+  gap: 8px;
+}
+.view-controls button {
+  font: inherit;
+  font-size: 13px;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.view-controls button:hover,
+.view-controls button.on {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.stage-viewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #000;
+}
+.stage {
+  flex: none;
+  transform-origin: center center;
+  background: var(--bg);
+  overflow: hidden;
+}
+.stage .app {
+  height: 100%;
 }

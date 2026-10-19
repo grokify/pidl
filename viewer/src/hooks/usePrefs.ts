@@ -1,0 +1,53 @@
+import { useCallback, useEffect, useState } from "react";
+
+export type Theme = "auto" | "light" | "dark";
+const THEMES: Theme[] = ["auto", "light", "dark"];
+
+// Preferences are a per-viewer convenience; storage can be unavailable
+// (private windows, file:// pages), so every access is guarded.
+function load<T extends string>(key: string, allowed: readonly T[], fallback: T): T {
+  try {
+    const v = window.localStorage.getItem(key) as T | null;
+    return v && allowed.includes(v) ? v : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function save(key: string, value: string) {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Storage is optional; the preference simply is not remembered.
+  }
+}
+
+export function usePrefs() {
+  const [theme, setTheme] = useState<Theme>(() => load("pidl.theme", THEMES, "auto"));
+  const [present, setPresent] = useState<boolean>(() => load("pidl.present", ["on", "off"] as const, "off") === "on");
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "auto") delete root.dataset.theme;
+    else root.dataset.theme = theme;
+    save("pidl.theme", theme);
+  }, [theme]);
+
+  useEffect(() => save("pidl.present", present ? "on" : "off"), [present]);
+
+  const cycleTheme = useCallback(() => setTheme((t) => THEMES[(THEMES.indexOf(t) + 1) % THEMES.length]), []);
+  const togglePresent = useCallback(() => setPresent((p) => !p), []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "SELECT" || t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === "p" || e.key === "P") togglePresent();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [togglePresent]);
+
+  return { theme, cycleTheme, present, togglePresent };
+}

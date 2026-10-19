@@ -1,9 +1,11 @@
 import { Card } from "./components/Card";
+import { Stage } from "./components/Stage";
 import { MessagePanel } from "./components/MessagePanel";
 import { SequenceDiagram } from "./components/SequenceDiagram";
 import { StepCaption } from "./components/StepCaption";
 import { TopBar } from "./components/TopBar";
 import { usePosition } from "./hooks/usePosition";
+import { usePrefs } from "./hooks/usePrefs";
 import { useWidth } from "./hooks/useWidth";
 import { exchangeFor } from "./nav";
 import type { Walkthrough } from "./types";
@@ -11,13 +13,25 @@ import type { Walkthrough } from "./types";
 export default function App({ walkthrough }: { walkthrough: Walkthrough }) {
   const { scenario, step, goTo, selectScenario } = usePosition(walkthrough);
   const { ref, width } = useWidth<HTMLDivElement>(900);
+  const prefs = usePrefs();
   const ex = step > 0 ? exchangeFor(scenario, step - 1) : null;
   const req = ex?.request != null ? scenario.steps[ex.request] : undefined;
   const res = ex?.response != null ? scenario.steps[ex.response] : undefined;
 
   return (
+    <Stage on={prefs.present}>
     <div className="app">
-      <TopBar walkthrough={walkthrough} scenario={scenario} step={step} onScenario={selectScenario} onStep={goTo} />
+      <TopBar
+        walkthrough={walkthrough}
+        scenario={scenario}
+        step={step}
+        onScenario={selectScenario}
+        onStep={goTo}
+        theme={prefs.theme}
+        onTheme={prefs.cycleTheme}
+        present={prefs.present}
+        onPresent={prefs.togglePresent}
+      />
       <main className="content">
         <Card title="Sequence" meta={scenario.fragment ? "Shared steps" : `${scenario.participants.length} roles`} className="diagram-card">
           <div className="diagram-wrap" ref={ref}>
@@ -45,5 +59,6 @@ export default function App({ walkthrough }: { walkthrough: Walkthrough }) {
         </div>
       </main>
     </div>
+    </Stage>
   );
 }
