@@ -31,6 +31,8 @@ const (
 	FormatInfographic      Format = "infographic"
 	FormatScenarioMatrix   Format = "scenario-matrix"
 	FormatTokenTable       Format = "token-table"
+	FormatOutline          Format = "outline"
+	FormatOutlineJSON      Format = "outline-json"
 )
 
 // String returns the format as a string.
@@ -45,8 +47,10 @@ func (f Format) FileExtension() string {
 		return ".puml"
 	case FormatMermaid, FormatMermaidState, FormatMermaidComponent, FormatMermaidTrust:
 		return ".mmd"
-	case FormatMarkdownMatrix, FormatScenarioMatrix, FormatTokenTable:
+	case FormatMarkdownMatrix, FormatScenarioMatrix, FormatTokenTable, FormatOutline:
 		return ".md"
+	case FormatOutlineJSON:
+		return ".json"
 	case FormatDOT:
 		return ".dot"
 	case FormatD2, FormatD2Flow, FormatD2Arch:
@@ -97,8 +101,12 @@ func ParseFormat(s string) (Format, error) {
 		return FormatScenarioMatrix, nil
 	case "token-table", "tokens":
 		return FormatTokenTable, nil
+	case "outline", "outline-md":
+		return FormatOutline, nil
+	case "outline-json":
+		return FormatOutlineJSON, nil
 	default:
-		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table", s)
+		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table, outline, outline-json", s)
 	}
 }
 
@@ -215,6 +223,10 @@ func New(format Format) (Renderer, error) {
 		return NewScenarioMatrix(), nil
 	case FormatTokenTable:
 		return NewTokenTable(), nil
+	case FormatOutline:
+		return NewOutline(), nil
+	case FormatOutlineJSON:
+		return NewOutlineJSON(), nil
 	default:
 		return nil, fmt.Errorf("unknown format: %s", format)
 	}
@@ -259,6 +271,8 @@ func SupportedFormats() []Format {
 		FormatInfographic,
 		FormatScenarioMatrix,
 		FormatTokenTable,
+		FormatOutline,
+		FormatOutlineJSON,
 	}
 }
 
@@ -279,7 +293,7 @@ func SupportsIncludes(format Format) bool {
 // a single scenario before rendering it.
 func IsDocumentFormat(format Format) bool {
 	switch format {
-	case FormatScenarioMatrix, FormatTokenTable:
+	case FormatScenarioMatrix, FormatTokenTable, FormatOutline, FormatOutlineJSON:
 		return true
 	default:
 		return false

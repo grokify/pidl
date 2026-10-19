@@ -185,7 +185,7 @@ Options:
 func cmdGenerate(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
 	fs.SetOutput(stderr)
-	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table")
+	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table, outline, outline-json")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
 	templateDir := fs.String("template-dir", "", "Path to custom SVG template directory")
@@ -236,6 +236,8 @@ Formats:
   infographic        Compact SVG for LinkedIn/datasheets with animated dots
   scenario-matrix    Markdown table of roles by scenario (whole file)
   token-table        Markdown table of tokens, checkers and claims (whole file)
+  outline            Markdown outline of roles, scenarios and tokens for guides and decks
+  outline-json       The same outline as JSON
 
 SVG Templates:
   default          Clean, professional styling

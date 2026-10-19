@@ -1,0 +1,126 @@
+{
+  "id": "tokens-demo",
+  "name": "Tokens Demo",
+  "roles": [
+    {
+      "position": 1,
+      "id": "agent",
+      "name": "Agent",
+      "type": "agent"
+    },
+    {
+      "position": 2,
+      "id": "resource",
+      "name": "Resource",
+      "type": "resource_server"
+    },
+    {
+      "position": 3,
+      "id": "ps",
+      "name": "Person Server",
+      "type": "authorization_server"
+    },
+    {
+      "position": 4,
+      "id": "as",
+      "name": "Access Server",
+      "type": "authorization_server"
+    }
+  ],
+  "scenarios": [
+    {
+      "position": 1,
+      "id": "four-party",
+      "name": "Federated authorization",
+      "participants": [
+        "agent",
+        "resource",
+        "ps",
+        "as"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "from": "agent",
+          "to": "resource",
+          "label": "request"
+        },
+        {
+          "number": 2,
+          "from": "resource",
+          "to": "agent",
+          "label": "challenge",
+          "response": true
+        },
+        {
+          "number": 3,
+          "from": "agent",
+          "to": "ps",
+          "label": "token_request"
+        },
+        {
+          "number": 4,
+          "label": "PS to AS",
+          "include": "federate",
+          "include_position": 2
+        },
+        {
+          "number": 5,
+          "from": "agent",
+          "to": "resource",
+          "label": "retry"
+        }
+      ]
+    },
+    {
+      "position": 2,
+      "id": "federate",
+      "name": "PS to AS",
+      "fragment": true,
+      "participants": [
+        "ps",
+        "as"
+      ],
+      "steps": [
+        {
+          "number": 1,
+          "from": "ps",
+          "to": "as",
+          "label": "exchange"
+        },
+        {
+          "number": 2,
+          "from": "as",
+          "to": "ps",
+          "label": "auth_token",
+          "response": true
+        }
+      ]
+    }
+  ],
+  "tokens": [
+    {
+      "id": "resource_token",
+      "name": "Resource token",
+      "issuer": "resource",
+      "audience": "ps",
+      "verified_by": [
+        "ps",
+        "as"
+      ]
+    },
+    {
+      "id": "auth_token",
+      "name": "Auth token",
+      "issuer": "as",
+      "audience": "resource",
+      "verified_by": [
+        "resource"
+      ]
+    },
+    {
+      "id": "session",
+      "name": "Session token"
+    }
+  ]
+}
