@@ -7,7 +7,7 @@ export async function loadWalkthrough(doc: Document = document): Promise<Walkthr
   if (embedded) {
     return parseWalkthrough(embedded);
   }
-  const res = await fetch("./walkthrough.json");
+  const res = await fetch("./walkthrough.json", { cache: "no-store" });
   if (!res.ok) {
     throw new Error(`No embedded walkthrough and ./walkthrough.json returned ${res.status}`);
   }
