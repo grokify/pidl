@@ -208,3 +208,24 @@ func TestScenarioProjectionDoesNotMutate(t *testing.T) {
 		t.Fatal("Scenario mutated the source protocol")
 	}
 }
+
+func TestFlatten(t *testing.T) {
+	p := scenarioProtocol()
+	got := p.Flatten()
+	want := []string{"signed_request", "response", "consent_prompt", "approve", "request", "auth_token_request", "auth_token"}
+	if acts := flowActions(got.Flows); !reflect.DeepEqual(acts, want) {
+		t.Fatalf("Flatten flows = %v, want %v", acts, want)
+	}
+	if got.HasScenarios() || !reflect.DeepEqual(got.Entities, p.Entities) {
+		t.Fatal("Flatten should drop scenarios and keep all entities")
+	}
+	if errs := got.Validate(); len(errs) > 0 {
+		t.Fatalf("flattened protocol does not validate: %v", errs)
+	}
+
+	legacy := scenarioProtocol()
+	legacy.Flows, legacy.Scenarios = legacy.Scenarios[0].Flows, nil
+	if !reflect.DeepEqual(legacy.Flatten().Flows, legacy.Flows) {
+		t.Fatal("Flatten of a legacy document should copy its flows")
+	}
+}

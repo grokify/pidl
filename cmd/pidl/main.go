@@ -190,6 +190,8 @@ func cmdGenerate(args []string, stdout, stderr io.Writer) int {
 	showSecurity := fs.Bool("show-security", true, "Show security annotations on flows")
 	showTrust := fs.Bool("show-trust", true, "Show trust levels and infer boundaries from trust")
 	resolveImports := fs.Bool("resolve", false, "Resolve imports and extends before generating")
+	scenario := fs.String("scenario", "", "Scenario ID to render (required for files with scenarios)")
+	expand := fs.Bool("expand", false, "Inline included fragments instead of drawing them as boxes")
 	var boundaries boundaryFlags
 	fs.Var(&boundaries, "boundary", "Network boundary assignment (format: boundary_id:entity1,entity2). Can be repeated.")
 
@@ -237,6 +239,10 @@ SVG Templates:
 Network Boundary Examples:
   --boundary="dmz:auth,gateway"      Assign entities to DMZ boundary
   --boundary="internal:api,db"       Assign entities to internal boundary
+
+Scenario Examples:
+  pidl generate -f mermaid --scenario=three-party aauth.json           One scenario
+  pidl generate -f mermaid --scenario=three-party --expand aauth.json  Inline fragments
 
 State Diagram Examples:
   pidl generate -f mermaid-state example.json              All entities with states
@@ -299,6 +305,12 @@ Infographic Examples:
 
 	if errs := p.Validate(); errs.HasErrors() {
 		fmt.Fprintf(stderr, "Validation errors in %s:\n%s", filename, errs)
+		return 1
+	}
+
+	p, err = selectScenario(p, *scenario, *expand || !render.SupportsIncludes(format))
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
 		return 1
 	}
 
@@ -530,6 +542,7 @@ func cmdSimulate(args []string, stdout, stderr io.Writer) int {
 	traceOutput := fs.String("trace-output", "", "Output file for trace (default: stdout)")
 	showStates := fs.Bool("show-states", true, "Show entity state changes in trace")
 	showTimings := fs.Bool("show-timings", false, "Show timing information in trace")
+	scenario := fs.String("scenario", "", "Scenario ID to simulate (required for files with scenarios)")
 	fs.Usage = func() {
 		fmt.Fprint(stdout, `Usage: pidl simulate [options] <file>
 
@@ -551,6 +564,7 @@ Examples:
   pidl simulate --trace-format=svg -o trace.svg example.json  Output SVG trace
   pidl simulate --trace-format=mermaid example.json    Output Mermaid sequence
   pidl simulate --show-states --show-timings example.json
+  pidl simulate --scenario=three-party aauth.json      Simulate one scenario
 `)
 	}
 
@@ -579,6 +593,12 @@ Examples:
 			fmt.Fprintf(stderr, "Error resolving: %v\n", err)
 			return 1
 		}
+	}
+
+	p, err = selectScenario(p, *scenario, true)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
 
 	exec := pidl.NewExecutor(p)
@@ -1253,8 +1273,9 @@ Examples:
 func cmdDebug(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("debug", flag.ContinueOnError)
 	fs.SetOutput(stderr)
+	scenario := fs.String("scenario", "", "Scenario ID to debug (required for files with scenarios)")
 	fs.Usage = func() {
-		fmt.Fprint(stdout, `Usage: pidl debug <file>
+		fmt.Fprint(stdout, `Usage: pidl debug [--scenario <id>] <file>
 
 Interactive protocol debugger. Step through protocol execution,
 set breakpoints, and inspect entity states.
@@ -1303,6 +1324,12 @@ Commands:
 			fmt.Fprintf(stderr, "Error resolving: %v\n", err)
 			return 1
 		}
+	}
+
+	p, err = selectScenario(p, *scenario, true)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
 
 	session := pidl.NewDebugSession(p)
@@ -1598,6 +1625,7 @@ func cmdAnalyze(args []string, stdout, stderr io.Writer) int {
 	minSeverity := fs.String("min-severity", "info", "Minimum severity: critical, high, medium, low, info")
 	failOn := fs.String("fail-on", "", "Exit with error if risks at this severity or above found")
 	quiet := fs.Bool("q", false, "Quiet mode (summary only)")
+	scenario := fs.String("scenario", "", "Scenario ID to analyze (default: every scenario's flows once)")
 	var categories categoryFlags
 	fs.Var(&categories, "category", "Filter by category (repeatable): trust_boundary, authentication, data_protection, token_security, communication, configuration")
 	fs.Usage = func() {
@@ -1624,6 +1652,7 @@ Examples:
   pidl analyze --fail-on high protocol.json
   pidl analyze --category authentication protocol.json
   pidl analyze -q protocol.json
+  pidl analyze --scenario=three-party aauth.json
 `)
 	}
 
@@ -1652,6 +1681,17 @@ Examples:
 			fmt.Fprintf(stderr, "Error resolving: %v\n", err)
 			return 1
 		}
+	}
+
+	// Analyze one scenario, or every scenario's flows once.
+	if *scenario != "" {
+		p, err = selectScenario(p, *scenario, true)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error: %v\n", err)
+			return 1
+		}
+	} else {
+		p = p.Flatten()
 	}
 
 	// Build analysis options
@@ -1744,6 +1784,21 @@ func (c *categoryFlags) String() string {
 func (c *categoryFlags) Set(value string) error {
 	*c = append(*c, value)
 	return nil
+}
+
+// selectScenario returns the protocol to work on. For a file with
+// scenarios it projects the chosen scenario, expanding included fragments
+// when expand is true; an empty id is an error that lists the scenario IDs.
+// For a file without scenarios it returns p, and a non-empty id is an error.
+func selectScenario(p *pidl.Protocol, id string, expand bool) (*pidl.Protocol, error) {
+	if !p.HasScenarios() && id == "" {
+		return p, nil
+	}
+	if p.HasScenarios() && id == "" {
+		return nil, fmt.Errorf("%s has scenarios; choose one with --scenario: %s",
+			p.ProtocolMeta.ID, strings.Join(p.ScenarioIDs(true), ", "))
+	}
+	return p.Scenario(id, pidl.ProjectOptions{Expand: expand})
 }
 
 // loadProtocol loads a protocol from a file or example name.

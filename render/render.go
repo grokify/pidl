@@ -249,3 +249,10 @@ func SupportedFormats() []Format {
 		FormatInfographic,
 	}
 }
+
+// SupportsIncludes reports whether the format draws a scenario include step
+// itself (as a labeled box). For other formats, callers expand includes
+// before rendering.
+func SupportsIncludes(format Format) bool {
+	return false
+}

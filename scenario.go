@@ -204,3 +204,26 @@ func (p *Protocol) phasesFor(flows []Flow) []Phase {
 	}
 	return out
 }
+
+// Flatten returns a single-flow Protocol holding every scenario's message
+// flows exactly once, in document order. Include steps are dropped, since
+// each fragment contributes its own flows. Use it for whole-document checks
+// such as security analysis, where expanding fragments into every scenario
+// that includes them would repeat their findings. For a document without
+// scenarios it returns a copy of p.
+func (p *Protocol) Flatten() *Protocol {
+	result := p.clone()
+	if !p.HasScenarios() {
+		return result
+	}
+	result.Scenarios = nil
+	result.Flows = nil
+	for _, sc := range p.Scenarios {
+		for _, f := range sc.Flows {
+			if !f.IsInclude() {
+				result.Flows = append(result.Flows, f)
+			}
+		}
+	}
+	return result
+}
