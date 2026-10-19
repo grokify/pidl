@@ -74,7 +74,7 @@ export default function App({ walkthrough }: { walkthrough: Walkthrough }) {
                   : step === 0
                     ? "Responses appear as you step through."
                     : involvesPerson
-                    ? "The person acts in a browser here; there is no AAuth response to show."
+                    ? "The person acts in a browser here; there is no protocol response to show."
                     : "This step is not answered directly; the scenario continues with the next step."}
               </p>
             )}

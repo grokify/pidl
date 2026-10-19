@@ -6,7 +6,7 @@ export function NoExample({ step, roles }: { step: Step; roles: Role[] }) {
   const name = (id: string) => roles.find((r) => r.id === id)?.name ?? id;
   const isPerson = (id: string) => roles.find((r) => r.id === id)?.type === "user";
   const why = isPerson(step.from) || isPerson(step.to)
-    ? "The person acts in a browser here, outside the AAuth messages."
+    ? "The person acts in a browser here, outside the protocol messages."
     : "No example message for this step.";
   return (
     <div className="no-example">
