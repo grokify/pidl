@@ -6,6 +6,7 @@ Release notes for each PIDL version.
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| [v0.7.0](v0.7.0.md) | 2026-10-19 | Scenarios and fragments, consistent ordering, overview outputs, token verification, AAuth example; D2, determinism and Windows fixes |
 | [v0.6.0](v0.6.0.md) | 2026-09-13 | Flow verification provenance (tiers, renderer badges, analyzer rule); AIDLC workflow example |
 | [v0.5.0](v0.5.0.md) | 2026-07-12 | Data lineage, parallel execution, cost tracking, workflow exports, integrations |
 | [v0.4.0](v0.4.0.md) | 2026-06-28 | Protocol composition, execution engine, diff, debugger, security analysis |
@@ -15,10 +16,10 @@ Release notes for each PIDL version.
 
 ## Latest Release
 
-The current stable release is **v0.6.0**.
+The current stable release is **v0.7.0**.
 
 ```bash
-go install github.com/grokify/pidl/cmd/pidl@v0.6.0
+go install github.com/grokify/pidl/cmd/pidl@v0.7.0
 ```
 
 ## Changelog
