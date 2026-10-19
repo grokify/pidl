@@ -64,5 +64,5 @@ implementing an item carry `Refs: RMI-PIDL-<NNN>`.
   - Depends on: `RMI-PIDL-008`, `RMI-PIDL-013`
 - [ ] `RMI-PIDL-020` Documentation: Scenarios section in the specification, user guide page, README feature list and main roadmap entry
   - Depends on: `RMI-PIDL-019`
-- [ ] `RMI-PIDL-021` v0.9.0 changelog and release notes
+- [ ] `RMI-PIDL-021` v0.7.0 changelog and release notes, covering scenarios and the pending fixes
   - Depends on: `RMI-PIDL-020`

@@ -38,7 +38,7 @@ scenarios can be documented in one consistent order.
 
 Make `extends`, `imports` and `diff` scenario-aware. Add the AAuth
 example as the end-to-end test. Update the schema, specification, guide
-and changelog, and release v0.9.0.
+and changelog, and release v0.7.0 together with the pending D2, determinism and line-ending fixes.
 
 ## Risks and Mitigations
 
