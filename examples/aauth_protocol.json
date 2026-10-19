@@ -1256,6 +1256,64 @@
             "verifies": [
               "person_token"
             ]
+          },
+          "example": {
+            "source": "draft-11 §6.6",
+            "kind": "draft",
+            "request": {
+              "method": "POST",
+              "url": "https://resource.example/authorize",
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "name": "Signature-Input",
+                  "value": "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\");created=1730217650"
+                },
+                {
+                  "name": "Signature",
+                  "value": "sig=:SIGNATURE-PLACEHOLDER:"
+                },
+                {
+                  "name": "Signature-Key",
+                  "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtcGVyc29uK2p3dCIsImtpZCI6InBzLWtleS0xIn0.eyJpc3MiOi…\""
+                }
+              ],
+              "body": {
+                "scope": "data.read data.write"
+              }
+            },
+            "tokens": [
+              {
+                "token": "person_token",
+                "label": "Signature-Key header",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-person+jwt",
+                  "kid": "ps-key-1"
+                },
+                "payload": {
+                  "iss": "https://ps.example",
+                  "dwk": "aauth-person.json",
+                  "aud": "https://resource.example",
+                  "sub": "8f14e45fceea167a5a36dedd4bea2543",
+                  "cnf": {
+                    "jwk": {
+                      "kty": "OKP",
+                      "crv": "Ed25519",
+                      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+                      "alg": "Ed25519"
+                    }
+                  },
+                  "jti": "pt-3ab910",
+                  "iat": 1730217600,
+                  "exp": 1730221200
+                }
+              }
+            ],
+            "note": "The signature does not cover this body: Content-Digest is required only toward PS and AS endpoints, unless the resource asks for it through additional_signature_components."
           }
         },
         {
@@ -1268,6 +1326,47 @@
             "issues": [
               "resource_token"
             ]
+          },
+          "example": {
+            "source": "draft-11 §6.6.2, §6.7.1",
+            "kind": "derived",
+            "response": {
+              "status": 200,
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "resource_token": "eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtcmVzb3VyY2Urand0Iiwia2lkIjoicmVzb3VyY2Uta2V5LTEifQ.eyJpc3MiOiJodHRwczovL3Jlc291cmNlLmV4YW1wbGUiLCJkd2siOiJhYXV0aC1yZXNvdXJjZS5qc29uIiwiYXVkIjoiaHR0cHM6Ly9hcy5yZXNvdXJjZS5leGFtcGxlIiwicHMiOiJodHRwczovL3BzLmV4YW1wbGUiLCJzdWIiOiI4ZjE0ZTQ1ZmNlZWExNjdhNWEzNmRlZGQ0YmVhMjU0MyIsInByZXNlbnRlZF9qdGkiOiJwdC0zYWI5MTAiLCJhZ2VudF9qa3QiOiJrUHJLX3FteFZXYVlWQTl3d0JGNkl1bzN2Vnp6N1R4SENUd1hCeWdyUzRrIiwic2NvcGUiOiJkYXRhLnJlYWQgZGF0YS53cml0ZSIsImp0aSI6InJ0LThiOWMwZCIsImlhdCI6MTczMDIxNzY2MCwiZXhwIjoxNzMwMjE3OTYwfQ.SIGNATURE"
+              }
+            },
+            "tokens": [
+              {
+                "token": "resource_token",
+                "label": "response body",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-resource+jwt",
+                  "kid": "resource-key-1"
+                },
+                "payload": {
+                  "iss": "https://resource.example",
+                  "dwk": "aauth-resource.json",
+                  "aud": "https://as.resource.example",
+                  "ps": "https://ps.example",
+                  "sub": "8f14e45fceea167a5a36dedd4bea2543",
+                  "presented_jti": "pt-3ab910",
+                  "agent_jkt": "kPrK_qmxVWaYVA9wwBF6Iuo3vVzz7TxHCTwXBygrS4k",
+                  "scope": "data.read data.write",
+                  "jti": "rt-8b9c0d",
+                  "iat": 1730217660,
+                  "exp": 1730217960
+                }
+              }
+            ],
+            "note": "aud is the resource's access server (four-party). presented_jti names the person token the agent presented, and agent_jkt is the thumbprint of the agent's key."
           }
         },
         {
@@ -1284,6 +1383,122 @@
               "agent_token",
               "resource_token"
             ]
+          },
+          "example": {
+            "source": "draft-11 §7.2.1, §11.3.3.1",
+            "kind": "draft",
+            "request": {
+              "method": "POST",
+              "url": "https://ps.example/token",
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "name": "Content-Digest",
+                  "value": "sha-256=:8xrtGtKmxm1tBg3UyNxAUjO6LiAhynzJ1pMPjbW3N4k=:"
+                },
+                {
+                  "name": "Prefer",
+                  "value": "wait=45"
+                },
+                {
+                  "name": "Signature-Input",
+                  "value": "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\" \"content-digest\" \"content-type\");created=1730217700"
+                },
+                {
+                  "name": "Signature",
+                  "value": "sig=:SIGNATURE-PLACEHOLDER:"
+                },
+                {
+                  "name": "Signature-Key",
+                  "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtYWdlbnQrand0Iiwia2lkIjoiYXAta2V5LTEifQ.eyJpc3MiOi…\""
+                }
+              ],
+              "body": {
+                "resource_token": "eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtcmVzb3VyY2Urand0Iiwia2lkIjoicmVzb3VyY2Uta2V5LTEifQ.eyJpc3MiOiJodHRwczovL3Jlc291cmNlLmV4YW1wbGUiLCJkd2siOiJhYXV0aC1yZXNvdXJjZS5qc29uIiwiYXVkIjoiaHR0cHM6Ly9hcy5yZXNvdXJjZS5leGFtcGxlIiwicHMiOiJodHRwczovL3BzLmV4YW1wbGUiLCJzdWIiOiI4ZjE0ZTQ1ZmNlZWExNjdhNWEzNmRlZGQ0YmVhMjU0MyIsInByZXNlbnRlZF9qdGkiOiJwdC0zYWI5MTAiLCJhZ2VudF9qa3QiOiJrUHJLX3FteFZXYVlWQTl3d0JGNkl1bzN2Vnp6N1R4SENUd1hCeWdyUzRrIiwic2NvcGUiOiJkYXRhLnJlYWQgZGF0YS53cml0ZSIsImp0aSI6InJ0LThiOWMwZCIsImlhdCI6MTczMDIxNzY2MCwiZXhwIjoxNzMwMjE3OTYwfQ.SIGNATURE",
+                "presented_token": "eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtcGVyc29uK2p3dCIsImtpZCI6InBzLWtleS0xIn0.eyJpc3MiOiJodHRwczovL3BzLmV4YW1wbGUiLCJkd2siOiJhYXV0aC1wZXJzb24uanNvbiIsImF1ZCI6Imh0dHBzOi8vcmVzb3VyY2UuZXhhbXBsZSIsInN1YiI6IjhmMTRlNDVmY2VlYTE2N2E1YTM2ZGVkZDRiZWEyNTQzIiwiY25mIjp7Imp3ayI6eyJrdHkiOiJPS1AiLCJjcnYiOiJFZDI1NTE5IiwieCI6IjExcVlBWUt4Q3JmVlNfN1R5V1FIT2c3aGN2UGFwaU1scndJYWFQY0hVUm8iLCJhbGciOiJFZDI1NTE5In19LCJqdGkiOiJwdC0zYWI5MTAiLCJpYXQiOjE3MzAyMTc2MDAsImV4cCI6MTczMDIyMTIwMH0.SIGNATURE",
+                "justification": "Summarize this quarter's planning documents"
+              }
+            },
+            "tokens": [
+              {
+                "token": "agent_token",
+                "label": "Signature-Key header",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-agent+jwt",
+                  "kid": "ap-key-1"
+                },
+                "payload": {
+                  "iss": "https://agent.example",
+                  "dwk": "aauth-agent.json",
+                  "sub": "aauth:assistant@agent.example",
+                  "ps": "https://ps.example",
+                  "cnf": {
+                    "jwk": {
+                      "kty": "OKP",
+                      "crv": "Ed25519",
+                      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+                      "alg": "Ed25519"
+                    }
+                  },
+                  "jti": "at-1c2d3e",
+                  "iat": 1730217000,
+                  "exp": 1730303400
+                }
+              },
+              {
+                "token": "resource_token",
+                "label": "request body",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-resource+jwt",
+                  "kid": "resource-key-1"
+                },
+                "payload": {
+                  "iss": "https://resource.example",
+                  "dwk": "aauth-resource.json",
+                  "aud": "https://as.resource.example",
+                  "ps": "https://ps.example",
+                  "sub": "8f14e45fceea167a5a36dedd4bea2543",
+                  "presented_jti": "pt-3ab910",
+                  "agent_jkt": "kPrK_qmxVWaYVA9wwBF6Iuo3vVzz7TxHCTwXBygrS4k",
+                  "scope": "data.read data.write",
+                  "jti": "rt-8b9c0d",
+                  "iat": 1730217660,
+                  "exp": 1730217960
+                }
+              },
+              {
+                "token": "person_token",
+                "label": "request body, as presented_token",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-person+jwt",
+                  "kid": "ps-key-1"
+                },
+                "payload": {
+                  "iss": "https://ps.example",
+                  "dwk": "aauth-person.json",
+                  "aud": "https://resource.example",
+                  "sub": "8f14e45fceea167a5a36dedd4bea2543",
+                  "cnf": {
+                    "jwk": {
+                      "kty": "OKP",
+                      "crv": "Ed25519",
+                      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+                      "alg": "Ed25519"
+                    }
+                  },
+                  "jti": "pt-3ab910",
+                  "iat": 1730217600,
+                  "exp": 1730221200
+                }
+              }
+            ],
+            "note": "The PS checks agent_jkt against the key that signed this request (the agent's), and checks presented_token against the resource token's presented_jti, ps and sub."
           }
         },
         {
@@ -1303,6 +1518,118 @@
             "verifies": [
               "resource_token"
             ]
+          },
+          "example": {
+            "source": "draft-11 §9.1.1, §11.3.3.1",
+            "kind": "draft",
+            "request": {
+              "method": "POST",
+              "url": "https://as.resource.example/token",
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "name": "Content-Digest",
+                  "value": "sha-256=:1tfEZRlyOa5nDPIue3Dk6SC+CD0tIDLisJC9Q2v3JeU=:"
+                },
+                {
+                  "name": "Signature-Input",
+                  "value": "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\" \"content-digest\" \"content-type\");created=1730217715"
+                },
+                {
+                  "name": "Signature",
+                  "value": "sig=:SIGNATURE-PLACEHOLDER:"
+                },
+                {
+                  "name": "Signature-Key",
+                  "value": "sig=jwks_uri;id=\"https://ps.example\";dwk=\"aauth-person.json\";kid=\"ps-key-1\""
+                }
+              ],
+              "body": {
+                "resource_token": "eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtcmVzb3VyY2Urand0Iiwia2lkIjoicmVzb3VyY2Uta2V5LTEifQ.eyJpc3MiOiJodHRwczovL3Jlc291cmNlLmV4YW1wbGUiLCJkd2siOiJhYXV0aC1yZXNvdXJjZS5qc29uIiwiYXVkIjoiaHR0cHM6Ly9hcy5yZXNvdXJjZS5leGFtcGxlIiwicHMiOiJodHRwczovL3BzLmV4YW1wbGUiLCJzdWIiOiI4ZjE0ZTQ1ZmNlZWExNjdhNWEzNmRlZGQ0YmVhMjU0MyIsInByZXNlbnRlZF9qdGkiOiJwdC0zYWI5MTAiLCJhZ2VudF9qa3QiOiJrUHJLX3FteFZXYVlWQTl3d0JGNkl1bzN2Vnp6N1R4SENUd1hCeWdyUzRrIiwic2NvcGUiOiJkYXRhLnJlYWQgZGF0YS53cml0ZSIsImp0aSI6InJ0LThiOWMwZCIsImlhdCI6MTczMDIxNzY2MCwiZXhwIjoxNzMwMjE3OTYwfQ.SIGNATURE",
+                "agent_token": "eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtYWdlbnQrand0Iiwia2lkIjoiYXAta2V5LTEifQ.eyJpc3MiOiJodHRwczovL2FnZW50LmV4YW1wbGUiLCJkd2siOiJhYXV0aC1hZ2VudC5qc29uIiwic3ViIjoiYWF1dGg6YXNzaXN0YW50QGFnZW50LmV4YW1wbGUiLCJwcyI6Imh0dHBzOi8vcHMuZXhhbXBsZSIsImNuZiI6eyJqd2siOnsia3R5IjoiT0tQIiwiY3J2IjoiRWQyNTUxOSIsIngiOiIxMXFZQVlLeENyZlZTXzdUeVdRSE9nN2hjdlBhcGlNbHJ3SWFhUGNIVVJvIiwiYWxnIjoiRWQyNTUxOSJ9fSwianRpIjoiYXQtMWMyZDNlIiwiaWF0IjoxNzMwMjE3MDAwLCJleHAiOjE3MzAzMDM0MDB9.SIGNATURE",
+                "presented_token": "eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtcGVyc29uK2p3dCIsImtpZCI6InBzLWtleS0xIn0.eyJpc3MiOiJodHRwczovL3BzLmV4YW1wbGUiLCJkd2siOiJhYXV0aC1wZXJzb24uanNvbiIsImF1ZCI6Imh0dHBzOi8vcmVzb3VyY2UuZXhhbXBsZSIsInN1YiI6IjhmMTRlNDVmY2VlYTE2N2E1YTM2ZGVkZDRiZWEyNTQzIiwiY25mIjp7Imp3ayI6eyJrdHkiOiJPS1AiLCJjcnYiOiJFZDI1NTE5IiwieCI6IjExcVlBWUt4Q3JmVlNfN1R5V1FIT2c3aGN2UGFwaU1scndJYWFQY0hVUm8iLCJhbGciOiJFZDI1NTE5In19LCJqdGkiOiJwdC0zYWI5MTAiLCJpYXQiOjE3MzAyMTc2MDAsImV4cCI6MTczMDIyMTIwMH0.SIGNATURE"
+              }
+            },
+            "tokens": [
+              {
+                "token": "resource_token",
+                "label": "request body",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-resource+jwt",
+                  "kid": "resource-key-1"
+                },
+                "payload": {
+                  "iss": "https://resource.example",
+                  "dwk": "aauth-resource.json",
+                  "aud": "https://as.resource.example",
+                  "ps": "https://ps.example",
+                  "sub": "8f14e45fceea167a5a36dedd4bea2543",
+                  "presented_jti": "pt-3ab910",
+                  "agent_jkt": "kPrK_qmxVWaYVA9wwBF6Iuo3vVzz7TxHCTwXBygrS4k",
+                  "scope": "data.read data.write",
+                  "jti": "rt-8b9c0d",
+                  "iat": 1730217660,
+                  "exp": 1730217960
+                }
+              },
+              {
+                "token": "agent_token",
+                "label": "request body",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-agent+jwt",
+                  "kid": "ap-key-1"
+                },
+                "payload": {
+                  "iss": "https://agent.example",
+                  "dwk": "aauth-agent.json",
+                  "sub": "aauth:assistant@agent.example",
+                  "ps": "https://ps.example",
+                  "cnf": {
+                    "jwk": {
+                      "kty": "OKP",
+                      "crv": "Ed25519",
+                      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+                      "alg": "Ed25519"
+                    }
+                  },
+                  "jti": "at-1c2d3e",
+                  "iat": 1730217000,
+                  "exp": 1730303400
+                }
+              },
+              {
+                "token": "person_token",
+                "label": "request body, as presented_token",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-person+jwt",
+                  "kid": "ps-key-1"
+                },
+                "payload": {
+                  "iss": "https://ps.example",
+                  "dwk": "aauth-person.json",
+                  "aud": "https://resource.example",
+                  "sub": "8f14e45fceea167a5a36dedd4bea2543",
+                  "cnf": {
+                    "jwk": {
+                      "kty": "OKP",
+                      "crv": "Ed25519",
+                      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+                      "alg": "Ed25519"
+                    }
+                  },
+                  "jti": "pt-3ab910",
+                  "iat": 1730217600,
+                  "exp": 1730221200
+                }
+              }
+            ],
+            "note": "The PS signs this request with its own key (jwks_uri scheme), but the resource token's agent_jkt is the agent's key thumbprint. §6.7.2 step 2 asks the AS to compare agent_jkt with the key that signed the request, which here is the PS's key, so the check as written fails. The AS can only compare against the agent token's cnf instead."
           }
         },
         {
@@ -1315,6 +1642,54 @@
             "issues": [
               "auth_token"
             ]
+          },
+          "example": {
+            "source": "draft-11 §9.1.2, §9.4.1",
+            "kind": "draft",
+            "response": {
+              "status": 200,
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "auth_token": "eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtYXV0aCtqd3QiLCJraWQiOiJhcy1rZXktMSJ9.eyJpc3MiOiJodHRwczovL2FzLnJlc291cmNlLmV4YW1wbGUiLCJkd2siOiJhYXV0aC1hY2Nlc3MuanNvbiIsImF1ZCI6Imh0dHBzOi8vcmVzb3VyY2UuZXhhbXBsZSIsInBzIjoiaHR0cHM6Ly9wcy5leGFtcGxlIiwic3ViIjoiOGYxNGU0NWZjZWVhMTY3YTVhMzZkZWRkNGJlYTI1NDMiLCJzY29wZSI6ImRhdGEucmVhZCBkYXRhLndyaXRlIiwiY25mIjp7Imp3ayI6eyJrdHkiOiJPS1AiLCJjcnYiOiJFZDI1NTE5IiwieCI6IjExcVlBWUt4Q3JmVlNfN1R5V1FIT2c3aGN2UGFwaU1scndJYWFQY0hVUm8iLCJhbGciOiJFZDI1NTE5In19LCJqdGkiOiJhdXRoLTJlNGY2YSIsImlhdCI6MTczMDIxNzcyMCwiZXhwIjoxNzMwMjIxMjAwfQ.SIGNATURE",
+                "expires_in": 3480
+              }
+            },
+            "tokens": [
+              {
+                "token": "auth_token",
+                "label": "response body",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-auth+jwt",
+                  "kid": "as-key-1"
+                },
+                "payload": {
+                  "iss": "https://as.resource.example",
+                  "dwk": "aauth-access.json",
+                  "aud": "https://resource.example",
+                  "ps": "https://ps.example",
+                  "sub": "8f14e45fceea167a5a36dedd4bea2543",
+                  "scope": "data.read data.write",
+                  "cnf": {
+                    "jwk": {
+                      "kty": "OKP",
+                      "crv": "Ed25519",
+                      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+                      "alg": "Ed25519"
+                    }
+                  },
+                  "jti": "auth-2e4f6a",
+                  "iat": 1730217720,
+                  "exp": 1730221200
+                }
+              }
+            ],
+            "note": "Issued by the access server (dwk aauth-access.json). The PS verifies it (§9.1.3) before returning it to the agent."
           }
         },
         {
@@ -1327,6 +1702,54 @@
             "issues": [
               "auth_token"
             ]
+          },
+          "example": {
+            "source": "draft-11 §9.1.3",
+            "kind": "derived",
+            "response": {
+              "status": 200,
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "auth_token": "eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtYXV0aCtqd3QiLCJraWQiOiJhcy1rZXktMSJ9.eyJpc3MiOiJodHRwczovL2FzLnJlc291cmNlLmV4YW1wbGUiLCJkd2siOiJhYXV0aC1hY2Nlc3MuanNvbiIsImF1ZCI6Imh0dHBzOi8vcmVzb3VyY2UuZXhhbXBsZSIsInBzIjoiaHR0cHM6Ly9wcy5leGFtcGxlIiwic3ViIjoiOGYxNGU0NWZjZWVhMTY3YTVhMzZkZWRkNGJlYTI1NDMiLCJzY29wZSI6ImRhdGEucmVhZCBkYXRhLndyaXRlIiwiY25mIjp7Imp3ayI6eyJrdHkiOiJPS1AiLCJjcnYiOiJFZDI1NTE5IiwieCI6IjExcVlBWUt4Q3JmVlNfN1R5V1FIT2c3aGN2UGFwaU1scndJYWFQY0hVUm8iLCJhbGciOiJFZDI1NTE5In19LCJqdGkiOiJhdXRoLTJlNGY2YSIsImlhdCI6MTczMDIxNzcyMCwiZXhwIjoxNzMwMjIxMjAwfQ.SIGNATURE",
+                "expires_in": 3480
+              }
+            },
+            "tokens": [
+              {
+                "token": "auth_token",
+                "label": "response body",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-auth+jwt",
+                  "kid": "as-key-1"
+                },
+                "payload": {
+                  "iss": "https://as.resource.example",
+                  "dwk": "aauth-access.json",
+                  "aud": "https://resource.example",
+                  "ps": "https://ps.example",
+                  "sub": "8f14e45fceea167a5a36dedd4bea2543",
+                  "scope": "data.read data.write",
+                  "cnf": {
+                    "jwk": {
+                      "kty": "OKP",
+                      "crv": "Ed25519",
+                      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+                      "alg": "Ed25519"
+                    }
+                  },
+                  "jti": "auth-2e4f6a",
+                  "iat": 1730217720,
+                  "exp": 1730221200
+                }
+              }
+            ],
+            "note": "The PS returns the AS-issued auth token to the agent on its pending request."
           }
         },
         {
@@ -1342,6 +1765,58 @@
             "verifies": [
               "auth_token"
             ]
+          },
+          "example": {
+            "source": "draft-11 §9.4.2",
+            "kind": "derived",
+            "request": {
+              "method": "GET",
+              "url": "https://resource.example/api/documents",
+              "headers": [
+                {
+                  "name": "Signature-Input",
+                  "value": "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\");created=1730217730"
+                },
+                {
+                  "name": "Signature",
+                  "value": "sig=:SIGNATURE-PLACEHOLDER:"
+                },
+                {
+                  "name": "Signature-Key",
+                  "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtYXV0aCtqd3QiLCJraWQiOiJhcy1rZXktMSJ9.eyJpc3MiOi…\""
+                }
+              ]
+            },
+            "tokens": [
+              {
+                "token": "auth_token",
+                "label": "Signature-Key header",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-auth+jwt",
+                  "kid": "as-key-1"
+                },
+                "payload": {
+                  "iss": "https://as.resource.example",
+                  "dwk": "aauth-access.json",
+                  "aud": "https://resource.example",
+                  "ps": "https://ps.example",
+                  "sub": "8f14e45fceea167a5a36dedd4bea2543",
+                  "scope": "data.read data.write",
+                  "cnf": {
+                    "jwk": {
+                      "kty": "OKP",
+                      "crv": "Ed25519",
+                      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+                      "alg": "Ed25519"
+                    }
+                  },
+                  "jti": "auth-2e4f6a",
+                  "iat": 1730217720,
+                  "exp": 1730221200
+                }
+              }
+            ]
           }
         },
         {
@@ -1349,7 +1824,32 @@
           "to": "agent",
           "action": "ok",
           "label": "200 OK",
-          "mode": "response"
+          "mode": "response",
+          "example": {
+            "source": "draft-11 §4.2.5",
+            "kind": "derived",
+            "response": {
+              "status": 200,
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "documents": [
+                  {
+                    "id": "doc-1",
+                    "title": "Q3 planning"
+                  },
+                  {
+                    "id": "doc-2",
+                    "title": "Team offsite"
+                  }
+                ]
+              }
+            }
+          }
         }
       ]
     },
