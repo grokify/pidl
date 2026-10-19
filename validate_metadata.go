@@ -71,12 +71,22 @@ func (p *Protocol) validateFlowSecurity() ValidationErrors {
 		}
 	}
 
-	for i, f := range p.Flows {
+	for _, list := range p.flowLists() {
+		errs = append(errs, validateFlowListSecurity(list, tokenIDs)...)
+	}
+
+	return errs
+}
+
+func validateFlowListSecurity(list flowList, tokenIDs map[string]bool) ValidationErrors {
+	var errs ValidationErrors
+
+	for i, f := range list.flows {
 		if f.Security == nil {
 			continue
 		}
 
-		field := fmt.Sprintf("flows[%d].security", i)
+		field := fmt.Sprintf("%s[%d].security", list.field, i)
 
 		// Validate security requirements
 		for j, req := range f.Security.Requires {

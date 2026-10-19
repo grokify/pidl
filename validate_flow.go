@@ -89,10 +89,35 @@ func (p *Protocol) validatePhaseHierarchy() ValidationErrors {
 	return errs
 }
 
+// flowList is one ordered list of flows with the field path used in
+// validation messages.
+type flowList struct {
+	field     string // e.g. "flows" or "scenarios[2].flows"
+	flows     []Flow
+	scenarios bool // true when the list belongs to a scenario
+}
+
+// flowLists returns every flow list in the document: the top-level flows
+// for a legacy document, or each scenario's flows, in document order.
+func (p *Protocol) flowLists() []flowList {
+	if !p.HasScenarios() {
+		return []flowList{{field: "flows", flows: p.Flows}}
+	}
+	lists := make([]flowList, 0, len(p.Scenarios))
+	for i, sc := range p.Scenarios {
+		lists = append(lists, flowList{
+			field:     fmt.Sprintf("scenarios[%d].flows", i),
+			flows:     sc.Flows,
+			scenarios: true,
+		})
+	}
+	return lists
+}
+
 func (p *Protocol) validateFlows() ValidationErrors {
 	var errs ValidationErrors
 
-	if len(p.Flows) < 1 {
+	if !p.HasScenarios() && len(p.Flows) < 1 {
 		errs = append(errs, ValidationError{
 			Field:   "flows",
 			Message: "must have at least 1 flow",
@@ -109,8 +134,35 @@ func (p *Protocol) validateFlows() ValidationErrors {
 		phaseIDs[ph.ID] = true
 	}
 
-	for i, f := range p.Flows {
-		field := fmt.Sprintf("flows[%d]", i)
+	for _, list := range p.flowLists() {
+		errs = append(errs, validateFlowList(list, entityIDs, phaseIDs)...)
+	}
+
+	return errs
+}
+
+func validateFlowList(list flowList, entityIDs, phaseIDs map[string]bool) ValidationErrors {
+	var errs ValidationErrors
+
+	for i, f := range list.flows {
+		field := fmt.Sprintf("%s[%d]", list.field, i)
+
+		if f.IsInclude() {
+			if !list.scenarios {
+				errs = append(errs, ValidationError{
+					Field:   field + ".include",
+					Message: "include steps are only allowed in scenarios",
+				})
+			}
+			errs = append(errs, validateIncludeStep(field, f)...)
+			if f.Phase != "" && !phaseIDs[f.Phase] {
+				errs = append(errs, ValidationError{
+					Field:   field + ".phase",
+					Message: fmt.Sprintf("unknown phase %q", f.Phase),
+				})
+			}
+			continue
+		}
 
 		if f.From == "" {
 			errs = append(errs, ValidationError{
@@ -238,9 +290,19 @@ func (p *Protocol) validateStateMutations() ValidationErrors {
 		entityMap[p.Entities[i].ID] = &p.Entities[i]
 	}
 
-	for i, f := range p.Flows {
+	for _, list := range p.flowLists() {
+		errs = append(errs, validateFlowListStateMutations(list, entityMap)...)
+	}
+
+	return errs
+}
+
+func validateFlowListStateMutations(list flowList, entityMap map[string]*Entity) ValidationErrors {
+	var errs ValidationErrors
+
+	for i, f := range list.flows {
 		for j, m := range f.Sets {
-			field := fmt.Sprintf("flows[%d].sets[%d]", i, j)
+			field := fmt.Sprintf("%s[%d].sets[%d]", list.field, i, j)
 
 			if m.Entity == "" {
 				errs = append(errs, ValidationError{
