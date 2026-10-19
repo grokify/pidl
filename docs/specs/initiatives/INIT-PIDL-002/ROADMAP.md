@@ -9,12 +9,12 @@ A generic PIDL viewer that walks through each scenario step by step, with exampl
 
 **Theme:** Message content in PIDL and a ready-to-render walkthrough
 
-- [ ] `RMI-PIDL-022` Flow `example` type: source, kind, request, response and decoded tokens, with validation
-- [ ] `RMI-PIDL-023` JSON Schema for flow examples
+- [x] `RMI-PIDL-022` Flow `example` type: source, kind, request, response and decoded tokens, with validation
+- [x] `RMI-PIDL-023` JSON Schema for flow examples
   - Depends on: `RMI-PIDL-022`
-- [ ] `RMI-PIDL-024` Walkthrough model: expanded steps with fragment trail, written locations and attached findings
+- [x] `RMI-PIDL-024` Walkthrough model: expanded steps with fragment trail, written locations and attached findings
   - Depends on: `RMI-PIDL-022`
-- [ ] `RMI-PIDL-025` `walkthrough-json` format with golden tests
+- [x] `RMI-PIDL-025` `walkthrough-json` format with golden tests
   - Depends on: `RMI-PIDL-024`
 
 ## Phase 2 — AAuth Examples
