@@ -259,7 +259,7 @@
     {
       "id": "agent-identity",
       "name": "Agent identity",
-      "description": "The resource learns which agent is calling and applies its own access control. Replaces API keys with cryptographic identity.",
+      "description": "The simplest mode: the resource only needs to know which agent is calling. The agent signs every request with its own key and presents its agent token, which binds that key to the agent's identifier. The resource checks the signature and decides on the agent's identity alone. It replaces API keys with cryptographic identity, with no person and no further tokens involved.",
       "flows": [
         {
           "include": "agent-token"
@@ -269,6 +269,7 @@
           "to": "resource",
           "action": "signed_request",
           "label": "HTTP Sig w/ agent_token",
+          "description": "The agent calls the resource. The request carries an HTTP message signature made with the agent's key, and the agent token travels in the Signature-Key header.",
           "security": {
             "requires": [
               "signature"
@@ -336,6 +337,7 @@
           "action": "ok",
           "label": "200 OK",
           "mode": "response",
+          "description": "The resource verifies the agent token and checks that its key signed the request. Knowing exactly which agent is calling, it applies its own policy and answers.",
           "example": {
             "source": "draft-11 §4.2.1",
             "kind": "derived",
@@ -368,7 +370,7 @@
     {
       "id": "resource-managed",
       "name": "Resource-managed access (two-party)",
-      "description": "The resource runs its own authorization, then returns a session token in the AAuth-Access header.",
+      "description": "The resource runs its own authorization: its own login, consent screen or existing OAuth flow. It answers the agent's first request with a 202 asking for user interaction, the person completes the resource's own flow, and the resource hands the agent a session token. The agent sends that token back on later calls, always under its own signature, so the token is useless to anyone else.",
       "flows": [
         {
           "include": "agent-token"
@@ -378,6 +380,7 @@
           "to": "resource",
           "action": "signed_request",
           "label": "HTTP Sig w/ agent_token",
+          "description": "The agent calls the resource, signed with its key and presenting its agent token.",
           "security": {
             "requires": [
               "signature"
@@ -444,6 +447,7 @@
           "action": "interaction_required",
           "label": "202 interaction required",
           "mode": "response",
+          "description": "The resource wants to authorize this itself. It answers 202 with requirement=interaction, its own interaction URL and code, and a pending URL.",
           "example": {
             "source": "draft-11 §6.2",
             "kind": "draft",
@@ -481,13 +485,15 @@
           "from": "person",
           "to": "resource",
           "action": "complete_interaction",
-          "label": "Completes the resource's own login and consent"
+          "label": "Completes the resource's own login and consent",
+          "description": "The person completes the resource's own login and consent, with no person server involved."
         },
         {
           "from": "agent",
           "to": "resource",
           "action": "poll",
           "label": "GET pending URL",
+          "description": "The agent polls the pending URL, still signing every request with its key.",
           "security": {
             "requires": [
               "signature"
@@ -553,6 +559,7 @@
           "action": "session_token",
           "label": "200 OK + AAuth-Access: session token",
           "mode": "response",
+          "description": "The resource completes the original request and returns a session token in the AAuth-Access header. The token is opaque to the agent and wraps the resource's own authorization state.",
           "security": {
             "issues": [
               "session_token"
@@ -590,6 +597,7 @@
           "to": "resource",
           "action": "session_request",
           "label": "HTTP Sig w/ agent_token + Authorization: AAuth",
+          "description": "On later calls the agent returns the session token in Authorization: AAuth and includes that header in its signature, so a stolen session token alone is worthless.",
           "security": {
             "requires": [
               "signature"
@@ -662,6 +670,7 @@
           "action": "ok",
           "label": "200 OK",
           "mode": "response",
+          "description": "The resource unwraps its session state, checks the agent's signature, and serves the request.",
           "example": {
             "source": "draft-11 §6.3",
             "kind": "derived",
@@ -689,7 +698,7 @@
     {
       "id": "person-identity",
       "name": "Person identity",
-      "description": "Federated login for agents: the resource learns which person the agent acts for from a person token. The PS is not in the path of any call.",
+      "description": "Federated login for agents. The agent asks its person server for a person token addressed to this resource and presents it instead of its agent token. The resource learns which person the agent acts for, as a directed identifier unique to this resource, and applies its own access control. The person server issues the token but is not in the path of any call.",
       "flows": [
         {
           "include": "agent-token"
@@ -702,6 +711,7 @@
           "to": "resource",
           "action": "signed_request",
           "label": "HTTP Sig w/ person_token",
+          "description": "The agent calls the resource presenting the person token in place of its agent token. The token's cnf is the same key that signs the request.",
           "security": {
             "requires": [
               "signature"
@@ -769,6 +779,7 @@
           "action": "ok",
           "label": "200 OK",
           "mode": "response",
+          "description": "The resource verifies the person token and now knows which person the agent acts for, as the pair (iss, sub). It decides on that identity alone.",
           "example": {
             "source": "draft-11 §4.2.3",
             "kind": "derived",
@@ -801,7 +812,7 @@
     {
       "id": "ps-authorization",
       "name": "PS authorization (three-party)",
-      "description": "The resource has no access server. It accepts identity and consent from the PS that issued the person token.",
+      "description": "Three-party authorization. The resource has no access server of its own, so it trusts the person server that vouched for the person. The agent asks the resource for access and receives a resource token addressed to its PS. The PS obtains the person's consent and issues an auth token that the resource enforces against the person's identifier and the granted scope.",
       "flows": [
         {
           "include": "agent-token"
@@ -814,6 +825,7 @@
           "to": "resource",
           "action": "authorize",
           "label": "POST authorization_endpoint (HTTP Sig w/ person_token)",
+          "description": "The agent asks the resource's authorization endpoint for the scope it needs, presenting the person token so the resource knows who the access is for.",
           "security": {
             "requires": [
               "signature"
@@ -888,6 +900,7 @@
           "action": "resource_token",
           "label": "resource_token (aud = PS)",
           "mode": "response",
+          "description": "The resource answers with a resource token addressed to the PS that issued the person token. It records what was asked (scope), for whom (ps and sub), by which key (agent_jkt), and which token the agent presented (presented_jti).",
           "security": {
             "issues": [
               "resource_token"
@@ -940,6 +953,7 @@
           "to": "ps",
           "action": "auth_token_request",
           "label": "POST auth_token_endpoint w/ resource_token + presented_token",
+          "description": "The agent brings the resource token to its PS, along with the person token it presented to the resource and a short justification. The PS checks that agent_jkt matches the key that signed this request and that the presented token matches the resource token.",
           "security": {
             "requires": [
               "signature"
@@ -1076,6 +1090,7 @@
           "action": "auth_token",
           "label": "auth_token",
           "mode": "response",
+          "description": "With consent given, the PS issues the auth token itself: audience the resource, the person's identifier, the granted scope, and the agent's key. It cannot outlive the person token it was issued against.",
           "security": {
             "issues": [
               "auth_token"
@@ -1135,6 +1150,7 @@
           "to": "resource",
           "action": "api_request",
           "label": "GET /api/documents (HTTP Sig w/ auth_token)",
+          "description": "The agent calls the API presenting the auth token, signed with the same key.",
           "security": {
             "requires": [
               "signature"
@@ -1204,6 +1220,7 @@
           "action": "ok",
           "label": "200 OK",
           "mode": "response",
+          "description": "The resource verifies the auth token: issuer, audience, the key binding against the request signature, the person's identifier and the scope. Then it serves the request.",
           "example": {
             "source": "draft-11 §4.2.4",
             "kind": "derived",
@@ -1235,7 +1252,7 @@
     {
       "id": "federated-authorization",
       "name": "Federated authorization (four-party)",
-      "description": "The resource has its own access server. The PS federates with the AS named by the resource token's aud.",
+      "description": "Four-party authorization. The resource has its own access server that evaluates resource policy. The resource token names that access server, so the person server, after obtaining consent, federates with it, presenting the resource token, the agent token and the person token. The access server issues the auth token, which travels back through the PS to the agent.",
       "flows": [
         {
           "include": "agent-token"
@@ -1248,6 +1265,7 @@
           "to": "resource",
           "action": "authorize",
           "label": "POST authorization_endpoint (HTTP Sig w/ person_token)",
+          "description": "The agent asks the resource's authorization endpoint for the scope it needs, presenting the person token.",
           "security": {
             "requires": [
               "signature"
@@ -1322,6 +1340,7 @@
           "action": "resource_token",
           "label": "resource_token (aud = AS)",
           "mode": "response",
+          "description": "This resource has its own access server, so the resource token is addressed to the AS rather than the PS. It still names the PS, the person, the agent's key and the presented token.",
           "security": {
             "issues": [
               "resource_token"
@@ -1374,6 +1393,7 @@
           "to": "ps",
           "action": "auth_token_request",
           "label": "POST auth_token_endpoint w/ resource_token + presented_token",
+          "description": "The agent sends the resource token and the presented person token to its PS, exactly as in three-party access. The aud tells the PS it must federate.",
           "security": {
             "requires": [
               "signature"
@@ -1509,6 +1529,7 @@
           "to": "as",
           "action": "federate",
           "label": "POST auth_token_endpoint w/ resource_token (HTTP Sig w/ jwks_uri)",
+          "description": "The PS calls the access server's token endpoint with the resource token, the agent token and the person token. It signs this request with its own key. That is the subtle point: the resource token's agent_jkt names the agent's key, but the draft tells the AS to compare it with the key that signed the request, which here is the PS's.",
           "note": "The PS signs with its own key, while the resource token's agent_jkt names the agent's key",
           "security": {
             "requires": [
@@ -1638,6 +1659,7 @@
           "action": "auth_token",
           "label": "auth_token",
           "mode": "response",
+          "description": "The access server evaluates the resource's policy and issues the auth token. The PS verifies it before passing it on: issuer, audience, key binding, identifier, scope and expiry.",
           "security": {
             "issues": [
               "auth_token"
@@ -1698,6 +1720,7 @@
           "action": "auth_token",
           "label": "auth_token",
           "mode": "response",
+          "description": "The PS returns the access server's auth token to the agent, answering the agent's pending poll.",
           "security": {
             "issues": [
               "auth_token"
@@ -1757,6 +1780,7 @@
           "to": "resource",
           "action": "api_request",
           "label": "GET /api/documents (HTTP Sig w/ auth_token)",
+          "description": "The agent calls the API presenting the auth token, signed with its key.",
           "security": {
             "requires": [
               "signature"
@@ -1825,6 +1849,7 @@
           "action": "ok",
           "label": "200 OK",
           "mode": "response",
+          "description": "The resource verifies the auth token against its access server's keys and serves the request.",
           "example": {
             "source": "draft-11 §4.2.5",
             "kind": "derived",
@@ -1857,13 +1882,14 @@
       "id": "agent-token",
       "name": "Obtain agent token",
       "fragment": true,
-      "description": "The agent proves its identity to its agent provider through a platform-specific mechanism and receives an agent token for its key.",
+      "description": "Before anything else, the agent needs an agent token from its agent provider. The token binds the agent's public key to a stable identifier such as aauth:assistant@agent.example and lives at most 24 hours.",
       "flows": [
         {
           "from": "agent",
           "to": "ap",
           "action": "attest",
-          "label": "Prove identity (platform-specific)"
+          "label": "Prove identity (platform-specific)",
+          "description": "The agent generates a key pair and proves to its agent provider that it is what it claims to be. How it does so is platform-specific: device attestation, a workload identity, or a signed-in app."
         },
         {
           "from": "ap",
@@ -1871,6 +1897,7 @@
           "action": "agent_token",
           "label": "agent_token",
           "mode": "response",
+          "description": "The agent provider issues an agent token: a JWT naming the agent (sub), its person server (ps) and the agent's public key (cnf). Every later request is signed with the matching private key.",
           "security": {
             "issues": [
               "agent_token"
@@ -1916,13 +1943,14 @@
       "id": "person-token",
       "name": "Obtain person token",
       "fragment": true,
-      "description": "The agent asks its PS for a person token addressed to the resource.",
+      "description": "The agent asks its person server for a person token for one resource. The token tells that resource which person the agent acts for, using an identifier unique to the resource, and is bound to the agent's key.",
       "flows": [
         {
           "from": "agent",
           "to": "ps",
           "action": "person_token_request",
           "label": "POST person_token_endpoint (HTTP Sig w/ agent_token)",
+          "description": "The agent asks its person server for a person token for the resource it wants to call. The request is signed with the agent's key and presents the agent token, and the signature covers the body through Content-Digest.",
           "security": {
             "requires": [
               "signature"
@@ -2004,6 +2032,7 @@
           "action": "person_token",
           "label": "person_token (aud = resource)",
           "mode": "response",
+          "description": "The person server returns a person token: the resource as its audience, a directed identifier for the person at that resource, and the agent's key. It carries no scope; it says who, not what is allowed.",
           "security": {
             "issues": [
               "person_token"
@@ -2062,7 +2091,7 @@
       "id": "consent",
       "name": "User consent",
       "fragment": true,
-      "description": "The PS needs the person: it returns 202 with an interaction URL and code, the person approves, and the agent polls the pending URL.",
+      "description": "When the person server needs the person, it pauses the request with a 202 and an interaction code. The agent sends the person to the PS's consent page, the person approves, and the agent collects the result by polling.",
       "flows": [
         {
           "from": "ps",
@@ -2070,6 +2099,7 @@
           "action": "interaction_required",
           "label": "202 interaction required (url, code)",
           "mode": "response",
+          "description": "The person server needs the person's consent before it can answer. It replies 202 Accepted with an interaction URL and a short code, and a pending URL the agent can poll.",
           "example": {
             "source": "draft-11 §7.2.2, §11.6.3, §11.8.2",
             "kind": "draft",
@@ -2108,19 +2138,22 @@
           "from": "agent",
           "to": "person",
           "action": "direct_user",
-          "label": "Open interaction URL with code"
+          "label": "Open interaction URL with code",
+          "description": "The agent sends the person to the PS's interaction page with the code, opening a browser or showing a link or QR code."
         },
         {
           "from": "person",
           "to": "ps",
           "action": "approve",
-          "label": "Review and approve"
+          "label": "Review and approve",
+          "description": "The person reviews what is being asked: which agent, which resource, what access, and the agent's stated reason, shown as the agent's claim rather than the PS's. They approve."
         },
         {
           "from": "agent",
           "to": "ps",
           "action": "poll",
           "label": "GET pending URL (Prefer: wait)",
+          "description": "Meanwhile the agent polls the pending URL with a signed GET, asking the PS to wait up to 45 seconds for an answer. Once the person approves, the response to this poll carries the result.",
           "security": {
             "requires": [
               "signature"
