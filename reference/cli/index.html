@@ -721,6 +721,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guide/scenarios/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scenarios
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guide/annotations/" class="md-nav__link">
         
   
@@ -1113,15 +1141,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#examples_2" class="md-nav__link">
+  <a href="#scenarios" class="md-nav__link">
     <span class="md-ellipsis">
       
-        examples
+        scenarios
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="examples">
+    <nav class="md-nav" aria-label="scenarios">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1136,7 +1164,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#examples_3" class="md-nav__link">
+  <a href="#examples_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Examples
@@ -1152,15 +1180,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#init" class="md-nav__link">
+  <a href="#examples_3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        init
+        examples
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="init">
+    <nav class="md-nav" aria-label="examples">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1191,15 +1219,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#simulate" class="md-nav__link">
+  <a href="#init" class="md-nav__link">
     <span class="md-ellipsis">
       
-        simulate
+        init
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="simulate">
+    <nav class="md-nav" aria-label="init">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1230,15 +1258,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#diff" class="md-nav__link">
+  <a href="#simulate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        diff
+        simulate
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="diff">
+    <nav class="md-nav" aria-label="simulate">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1254,6 +1282,45 @@
         
           <li class="md-nav__item">
   <a href="#examples_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        diff
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="diff">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#options_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_7" class="md-nav__link">
     <span class="md-ellipsis">
       
         Examples
@@ -1292,7 +1359,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#examples_7" class="md-nav__link">
+  <a href="#examples_8" class="md-nav__link">
     <span class="md-ellipsis">
       
         Examples
@@ -1320,7 +1387,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#options_6" class="md-nav__link">
+  <a href="#options_7" class="md-nav__link">
     <span class="md-ellipsis">
       
         Options
@@ -1342,7 +1409,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#examples_8" class="md-nav__link">
+  <a href="#examples_9" class="md-nav__link">
     <span class="md-ellipsis">
       
         Examples
@@ -1370,7 +1437,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#examples_9" class="md-nav__link">
+  <a href="#examples_10" class="md-nav__link">
     <span class="md-ellipsis">
       
         Examples
@@ -1741,6 +1808,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.7.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.7.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.6.0/" class="md-nav__link">
         
   
@@ -1977,6 +2072,10 @@
 <td>Generate diagrams from PIDL files</td>
 </tr>
 <tr>
+<td><code>scenarios</code></td>
+<td>List the scenarios in a PIDL file</td>
+</tr>
+<tr>
 <td><code>examples</code></td>
 <td>List or show built-in examples</td>
 </tr>
@@ -2064,8 +2163,28 @@
 </tr>
 <tr>
 <td><code>-o</code></td>
-<td>Output file</td>
+<td>Output file, or directory with <code>--all-scenarios</code></td>
 <td>stdout</td>
+</tr>
+<tr>
+<td><code>--scenario</code></td>
+<td>Scenario to render (required for files with scenarios, except whole-file formats)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--expand</code></td>
+<td>Show included fragments step by step instead of as boxes</td>
+<td>false</td>
+</tr>
+<tr>
+<td><code>--all-scenarios</code></td>
+<td>Render every main scenario to <code>NN-&lt;id&gt;&lt;ext&gt;</code> in the <code>-o</code> directory</td>
+<td>false</td>
+</tr>
+<tr>
+<td><code>--include-fragments</code></td>
+<td>With <code>--all-scenarios</code>, also render fragments after the main scenarios</td>
+<td>false</td>
 </tr>
 </tbody>
 </table>
@@ -2102,29 +2221,77 @@
 <td><code>d2-arch</code></td>
 <td>D2 architecture diagram</td>
 </tr>
+<tr>
+<td><code>scenario-matrix</code></td>
+<td>Markdown table of roles by scenario (whole file)</td>
+</tr>
+<tr>
+<td><code>token-table</code></td>
+<td>Markdown table of tokens, checkers and claims (whole file)</td>
+</tr>
+<tr>
+<td><code>outline</code></td>
+<td>Markdown outline of roles, scenarios and tokens (whole file)</td>
+</tr>
+<tr>
+<td><code>outline-json</code></td>
+<td>The outline as JSON (whole file)</td>
+</tr>
 </tbody>
 </table>
 <h3 id="examples_1">Examples<a class="headerlink" href="#examples_1" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># PlantUML to stdout</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>pidl<span class="w"> </span>generate<span class="w"> </span>protocol.json
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># One scenario of a multi-scenario file</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>pidl<span class="w"> </span>generate<span class="w"> </span>-f<span class="w"> </span>mermaid<span class="w"> </span>--scenario<span class="w"> </span>ps-authorization<span class="w"> </span>aauth_protocol
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Mermaid to file</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>pidl<span class="w"> </span>generate<span class="w"> </span>-f<span class="w"> </span>mermaid<span class="w"> </span>-o<span class="w"> </span>diagram.mmd<span class="w"> </span>protocol.json
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Every scenario, numbered in file order</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>pidl<span class="w"> </span>generate<span class="w"> </span>-f<span class="w"> </span>svg<span class="w"> </span>--all-scenarios<span class="w"> </span>-o<span class="w"> </span>diagrams/<span class="w"> </span>aauth_protocol
 </span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># D2 sequence diagram</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>pidl<span class="w"> </span>generate<span class="w"> </span>-f<span class="w"> </span>d2<span class="w"> </span>protocol.json
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># PlantUML to stdout</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>pidl<span class="w"> </span>generate<span class="w"> </span>protocol.json
 </span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="c1"># D2 architecture diagram</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>pidl<span class="w"> </span>generate<span class="w"> </span>-f<span class="w"> </span>d2-arch<span class="w"> </span>protocol.json
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="c1"># Mermaid to file</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>pidl<span class="w"> </span>generate<span class="w"> </span>-f<span class="w"> </span>mermaid<span class="w"> </span>-o<span class="w"> </span>diagram.mmd<span class="w"> </span>protocol.json
 </span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="c1"># From built-in example</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>pidl<span class="w"> </span>generate<span class="w"> </span>oauth2_authorization_code
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="c1"># D2 sequence diagram</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>pidl<span class="w"> </span>generate<span class="w"> </span>-f<span class="w"> </span>d2<span class="w"> </span>protocol.json
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="c1"># D2 architecture diagram</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>pidl<span class="w"> </span>generate<span class="w"> </span>-f<span class="w"> </span>d2-arch<span class="w"> </span>protocol.json
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="c1"># From built-in example</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>pidl<span class="w"> </span>generate<span class="w"> </span>oauth2_authorization_code
 </span></code></pre></div>
-<h2 id="examples_2">examples<a class="headerlink" href="#examples_2" title="Permanent link">&para;</a></h2>
-<p>List or show built-in protocol examples.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pidl<span class="w"> </span>examples<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span><span class="o">[</span>name<span class="o">]</span>
+<h2 id="scenarios">scenarios<a class="headerlink" href="#scenarios" title="Permanent link">&para;</a></h2>
+<p>List the scenarios in a PIDL file: main scenarios in file order, then fragments. The <code>#</code> column matches the file numbers written by <code>generate --all-scenarios --include-fragments</code>.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pidl<span class="w"> </span>scenarios<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>&lt;file&gt;
 </span></code></pre></div>
 <h3 id="options_2">Options<a class="headerlink" href="#options_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f</code></td>
+<td>Output format: table, json</td>
+<td><code>table</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="examples_2">Examples<a class="headerlink" href="#examples_2" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pidl<span class="w"> </span>scenarios<span class="w"> </span>aauth_protocol
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>pidl<span class="w"> </span>scenarios<span class="w"> </span>-f<span class="w"> </span>json<span class="w"> </span>aauth_protocol
+</span></code></pre></div>
+<p>See the <a href="../../guide/scenarios/">Scenarios guide</a>.</p>
+<h2 id="examples_3">examples<a class="headerlink" href="#examples_3" title="Permanent link">&para;</a></h2>
+<p>List or show built-in protocol examples.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pidl<span class="w"> </span>examples<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span><span class="o">[</span>name<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="options_3">Options<a class="headerlink" href="#options_3" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -2139,18 +2306,18 @@
 </tr>
 </tbody>
 </table>
-<h3 id="examples_3">Examples<a class="headerlink" href="#examples_3" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># List all examples</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>pidl<span class="w"> </span>examples
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Show example JSON</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>pidl<span class="w"> </span>examples<span class="w"> </span>-json<span class="w"> </span>oauth2_authorization_code
+<h3 id="examples_4">Examples<a class="headerlink" href="#examples_4" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># List all examples</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>pidl<span class="w"> </span>examples
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Show example JSON</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>pidl<span class="w"> </span>examples<span class="w"> </span>-json<span class="w"> </span>oauth2_authorization_code
 </span></code></pre></div>
 <h2 id="init">init<a class="headerlink" href="#init" title="Permanent link">&para;</a></h2>
 <p>Create a new PIDL file from template or example.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pidl<span class="w"> </span>init<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>&lt;filename&gt;
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pidl<span class="w"> </span>init<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>&lt;filename&gt;
 </span></code></pre></div>
-<h3 id="options_3">Options<a class="headerlink" href="#options_3" title="Permanent link">&para;</a></h3>
+<h3 id="options_4">Options<a class="headerlink" href="#options_4" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -2169,21 +2336,21 @@
 </tr>
 </tbody>
 </table>
-<h3 id="examples_4">Examples<a class="headerlink" href="#examples_4" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Create minimal protocol</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>pidl<span class="w"> </span>init<span class="w"> </span>my-protocol.json
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Create with name</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>pidl<span class="w"> </span>init<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;My Protocol&quot;</span><span class="w"> </span>my-protocol.json
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="c1"># Copy from example</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>pidl<span class="w"> </span>init<span class="w"> </span>-from<span class="w"> </span>oauth2_authorization_code<span class="w"> </span>my-oauth.json
+<h3 id="examples_5">Examples<a class="headerlink" href="#examples_5" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Create minimal protocol</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>pidl<span class="w"> </span>init<span class="w"> </span>my-protocol.json
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Create with name</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>pidl<span class="w"> </span>init<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;My Protocol&quot;</span><span class="w"> </span>my-protocol.json
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Copy from example</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>pidl<span class="w"> </span>init<span class="w"> </span>-from<span class="w"> </span>oauth2_authorization_code<span class="w"> </span>my-oauth.json
 </span></code></pre></div>
 <h2 id="simulate">simulate<a class="headerlink" href="#simulate" title="Permanent link">&para;</a></h2>
 <p>Run protocol simulation with state tracking.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pidl<span class="w"> </span>simulate<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>&lt;file&gt;
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>pidl<span class="w"> </span>simulate<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>&lt;file&gt;
 </span></code></pre></div>
-<h3 id="options_4">Options<a class="headerlink" href="#options_4" title="Permanent link">&para;</a></h3>
+<h3 id="options_5">Options<a class="headerlink" href="#options_5" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -2222,24 +2389,24 @@
 </tr>
 </tbody>
 </table>
-<h3 id="examples_5">Examples<a class="headerlink" href="#examples_5" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Run full simulation</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>pidl<span class="w"> </span>simulate<span class="w"> </span>protocol.json
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Verbose with step-by-step output</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>pidl<span class="w"> </span>simulate<span class="w"> </span>-v<span class="w"> </span>protocol.json
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Output trace as SVG</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>pidl<span class="w"> </span>simulate<span class="w"> </span>--trace-format<span class="o">=</span>svg<span class="w"> </span>--trace-output<span class="o">=</span>trace.svg<span class="w"> </span>protocol.json
-</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
-</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="c1"># Run only 5 steps</span>
-</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>pidl<span class="w"> </span>simulate<span class="w"> </span>-steps<span class="o">=</span><span class="m">5</span><span class="w"> </span>protocol.json
+<h3 id="examples_6">Examples<a class="headerlink" href="#examples_6" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Run full simulation</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>pidl<span class="w"> </span>simulate<span class="w"> </span>protocol.json
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Verbose with step-by-step output</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>pidl<span class="w"> </span>simulate<span class="w"> </span>-v<span class="w"> </span>protocol.json
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1"># Output trace as SVG</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>pidl<span class="w"> </span>simulate<span class="w"> </span>--trace-format<span class="o">=</span>svg<span class="w"> </span>--trace-output<span class="o">=</span>trace.svg<span class="w"> </span>protocol.json
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="c1"># Run only 5 steps</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>pidl<span class="w"> </span>simulate<span class="w"> </span>-steps<span class="o">=</span><span class="m">5</span><span class="w"> </span>protocol.json
 </span></code></pre></div>
 <h2 id="diff">diff<a class="headerlink" href="#diff" title="Permanent link">&para;</a></h2>
 <p>Compare two protocols and show differences.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>pidl<span class="w"> </span>diff<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>&lt;base-file&gt;<span class="w"> </span>&lt;new-file&gt;
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>pidl<span class="w"> </span>diff<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>&lt;base-file&gt;<span class="w"> </span>&lt;new-file&gt;
 </span></code></pre></div>
-<h3 id="options_5">Options<a class="headerlink" href="#options_5" title="Permanent link">&para;</a></h3>
+<h3 id="options_6">Options<a class="headerlink" href="#options_6" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -2266,19 +2433,19 @@
 </tr>
 </tbody>
 </table>
-<h3 id="examples_6">Examples<a class="headerlink" href="#examples_6" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Compare two protocols</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>pidl<span class="w"> </span>diff<span class="w"> </span>base.json<span class="w"> </span>updated.json
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
-</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Output as markdown</span>
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>pidl<span class="w"> </span>diff<span class="w"> </span>-f<span class="w"> </span>markdown<span class="w"> </span>base.json<span class="w"> </span>updated.json
-</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
-</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1"># Summary only</span>
-</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>pidl<span class="w"> </span>diff<span class="w"> </span>-q<span class="w"> </span>base.json<span class="w"> </span>updated.json
+<h3 id="examples_7">Examples<a class="headerlink" href="#examples_7" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Compare two protocols</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>pidl<span class="w"> </span>diff<span class="w"> </span>base.json<span class="w"> </span>updated.json
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Output as markdown</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>pidl<span class="w"> </span>diff<span class="w"> </span>-f<span class="w"> </span>markdown<span class="w"> </span>base.json<span class="w"> </span>updated.json
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="c1"># Summary only</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>pidl<span class="w"> </span>diff<span class="w"> </span>-q<span class="w"> </span>base.json<span class="w"> </span>updated.json
 </span></code></pre></div>
 <h2 id="debug">debug<a class="headerlink" href="#debug" title="Permanent link">&para;</a></h2>
 <p>Interactive step-through protocol debugger.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>pidl<span class="w"> </span>debug<span class="w"> </span>&lt;file&gt;
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>pidl<span class="w"> </span>debug<span class="w"> </span>&lt;file&gt;
 </span></code></pre></div>
 <h3 id="interactive-commands">Interactive Commands<a class="headerlink" href="#interactive-commands" title="Permanent link">&para;</a></h3>
 <table>
@@ -2339,22 +2506,22 @@
 </tr>
 </tbody>
 </table>
-<h3 id="examples_7">Examples<a class="headerlink" href="#examples_7" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Start debugger</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>pidl<span class="w"> </span>debug<span class="w"> </span>protocol.json
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># In debugger:</span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>&gt;<span class="w"> </span><span class="k">break</span><span class="w"> </span><span class="m">3</span><span class="w">              </span><span class="c1"># Set breakpoint at flow 3</span>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>&gt;<span class="w"> </span><span class="k">continue</span><span class="w">             </span><span class="c1"># Run until breakpoint</span>
-</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>&gt;<span class="w"> </span>inspect<span class="w">              </span><span class="c1"># Show current state</span>
-</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>&gt;<span class="w"> </span>step<span class="w">                 </span><span class="c1"># Execute next flow</span>
-</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>&gt;<span class="w"> </span>quit<span class="w">                 </span><span class="c1"># Exit</span>
+<h3 id="examples_8">Examples<a class="headerlink" href="#examples_8" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Start debugger</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>pidl<span class="w"> </span>debug<span class="w"> </span>protocol.json
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># In debugger:</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>&gt;<span class="w"> </span><span class="k">break</span><span class="w"> </span><span class="m">3</span><span class="w">              </span><span class="c1"># Set breakpoint at flow 3</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>&gt;<span class="w"> </span><span class="k">continue</span><span class="w">             </span><span class="c1"># Run until breakpoint</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>&gt;<span class="w"> </span>inspect<span class="w">              </span><span class="c1"># Show current state</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>&gt;<span class="w"> </span>step<span class="w">                 </span><span class="c1"># Execute next flow</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>&gt;<span class="w"> </span>quit<span class="w">                 </span><span class="c1"># Exit</span>
 </span></code></pre></div>
 <h2 id="analyze">analyze<a class="headerlink" href="#analyze" title="Permanent link">&para;</a></h2>
 <p>Security analysis with attack surface detection.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>pidl<span class="w"> </span>analyze<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>&lt;file&gt;
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>pidl<span class="w"> </span>analyze<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>&lt;file&gt;
 </span></code></pre></div>
-<h3 id="options_6">Options<a class="headerlink" href="#options_6" title="Permanent link">&para;</a></h3>
+<h3 id="options_7">Options<a class="headerlink" href="#options_7" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -2386,6 +2553,10 @@
 <tr>
 <td><code>-q, --quiet</code></td>
 <td>Summary only</td>
+</tr>
+<tr>
+<td><code>--scenario</code></td>
+<td>Analyze one scenario (default: the whole file)</td>
 </tr>
 </tbody>
 </table>
@@ -2449,40 +2620,65 @@
 <td>Medium</td>
 <td>Weak authentication method</td>
 </tr>
+<tr>
+<td>SEC017</td>
+<td>Low</td>
+<td>Role that no flow uses</td>
+</tr>
+<tr>
+<td>SEC018</td>
+<td>Medium</td>
+<td>Token checked before any earlier step issues it</td>
+</tr>
+<tr>
+<td>SEC019</td>
+<td>Low</td>
+<td>Request signed by someone other than its sender or the token holder</td>
+</tr>
+<tr>
+<td>SEC020</td>
+<td>Low</td>
+<td>Token checked by an entity not in its <code>verified_by</code></td>
+</tr>
+<tr>
+<td>SEC021</td>
+<td>Info</td>
+<td>Fragment that no scenario includes</td>
+</tr>
 </tbody>
 </table>
-<h3 id="examples_8">Examples<a class="headerlink" href="#examples_8" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Run security analysis</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>pidl<span class="w"> </span>analyze<span class="w"> </span>protocol.json
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># Output as markdown</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>pidl<span class="w"> </span>analyze<span class="w"> </span>-f<span class="w"> </span>markdown<span class="w"> </span>-o<span class="w"> </span>security-report.md<span class="w"> </span>protocol.json
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
-</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># Fail if high-severity risks found (for CI)</span>
-</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>pidl<span class="w"> </span>analyze<span class="w"> </span>--fail-on<span class="o">=</span>high<span class="w"> </span>protocol.json
-</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
-</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="c1"># Only show critical and high</span>
-</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>pidl<span class="w"> </span>analyze<span class="w"> </span>--min-severity<span class="o">=</span>high<span class="w"> </span>protocol.json
+<h3 id="examples_9">Examples<a class="headerlink" href="#examples_9" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Run security analysis</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>pidl<span class="w"> </span>analyze<span class="w"> </span>protocol.json
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># Output as markdown</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>pidl<span class="w"> </span>analyze<span class="w"> </span>-f<span class="w"> </span>markdown<span class="w"> </span>-o<span class="w"> </span>security-report.md<span class="w"> </span>protocol.json
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="c1"># Fail if high-severity risks found (for CI)</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>pidl<span class="w"> </span>analyze<span class="w"> </span>--fail-on<span class="o">=</span>high<span class="w"> </span>protocol.json
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="c1"># Only show critical and high</span>
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>pidl<span class="w"> </span>analyze<span class="w"> </span>--min-severity<span class="o">=</span>high<span class="w"> </span>protocol.json
 </span></code></pre></div>
 <h2 id="resolve">resolve<a class="headerlink" href="#resolve" title="Permanent link">&para;</a></h2>
 <p>Resolve protocol imports and inheritance.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>pidl<span class="w"> </span>resolve<span class="w"> </span>&lt;file&gt;
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>pidl<span class="w"> </span>resolve<span class="w"> </span>&lt;file&gt;
 </span></code></pre></div>
-<h3 id="examples_9">Examples<a class="headerlink" href="#examples_9" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Resolve and output merged protocol</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>pidl<span class="w"> </span>resolve<span class="w"> </span>protocol-with-imports.json
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
-</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># Save resolved protocol</span>
-</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>pidl<span class="w"> </span>resolve<span class="w"> </span>protocol.json<span class="w"> </span>&gt;<span class="w"> </span>resolved.json
+<h3 id="examples_10">Examples<a class="headerlink" href="#examples_10" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># Resolve and output merged protocol</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>pidl<span class="w"> </span>resolve<span class="w"> </span>protocol-with-imports.json
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># Save resolved protocol</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>pidl<span class="w"> </span>resolve<span class="w"> </span>protocol.json<span class="w"> </span>&gt;<span class="w"> </span>resolved.json
 </span></code></pre></div>
 <h2 id="version">version<a class="headerlink" href="#version" title="Permanent link">&para;</a></h2>
 <p>Print version information.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>pidl<span class="w"> </span>version
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>pidl<span class="w"> </span>version
 </span></code></pre></div>
 <h2 id="help">help<a class="headerlink" href="#help" title="Permanent link">&para;</a></h2>
 <p>Show help message.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>pidl<span class="w"> </span><span class="nb">help</span>
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>pidl<span class="w"> </span><span class="nb">help</span><span class="w"> </span>&lt;command&gt;
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>pidl<span class="w"> </span><span class="nb">help</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>pidl<span class="w"> </span><span class="nb">help</span><span class="w"> </span>&lt;command&gt;
 </span></code></pre></div>
 
 
