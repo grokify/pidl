@@ -351,7 +351,7 @@ Order in PIDL comes from one source: the position of an item in its JSON array. 
 6. **Collections keyed by name are arrays of objects with an `id`.** The one exception is `metadata.networks`, a map kept for compatibility, which tools never read in map iteration order:
    - Network boundaries are ordered by `metadata.network_layout.order` first. Boundaries it does not list follow by style (external, dmz, trusted, cloud, default) and then by ID.
    - An entity listed in more than one network belongs to the network whose ID sorts last.
-   - Network boundary diagrams list the entities inside each boundary by ID. This is the one place entities do not follow `entities` order.
+   - Entities inside each boundary follow `entities` order, like every other list of entities. To list them alphabetically, sort the `entities` array.
 
 Numeric ordering fields are not used. The `sequence` field on a flow is deprecated: it is a display-only step number, and tools must not sort by it.
 

@@ -187,8 +187,10 @@ func ResolveBoundaries(p *pidl.Protocol, cliOverrides map[string][]string) []Bou
 			continue
 		}
 
-		// Sort entities for consistent ordering
-		sort.Strings(entities)
+		// List entities in document (entities array) order
+		sort.SliceStable(entities, func(i, j int) bool {
+			return p.EntityIndex(entities[i]) < p.EntityIndex(entities[j])
+		})
 
 		boundary := Boundary{
 			ID:       boundaryID,

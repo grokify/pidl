@@ -289,30 +289,30 @@
   <!-- Entities -->
   <g class="entities">
     <rect class="entity-box" x="50" y="50" width="100" height="50" rx="4"/>
-    <text class="entity-text" x="100" y="75">User Agent</text>
+    <text class="entity-text" x="100" y="75">User</text>
     <rect class="entity-box" x="50" y="130" width="100" height="50" rx="4"/>
-    <text class="entity-text" x="100" y="155">Service Provider</text>
+    <text class="entity-text" x="100" y="155">User Agent</text>
     <rect class="entity-box" x="50" y="210" width="100" height="50" rx="4"/>
-    <text class="entity-text" x="100" y="235">User</text>
+    <text class="entity-text" x="100" y="235">Service Provider</text>
     <rect class="entity-box" x="230" y="50" width="100" height="50" rx="4"/>
     <text class="entity-text" x="280" y="75">Identity Provider</text>
   </g>
 
   <!-- Connections -->
   <g class="connections">
-    <path class="connection" d="M100,235 Q100,235 100,75" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="150" text-anchor="middle">Access Protected Resource, Enter Credentials</text>
     <path class="connection" d="M100,75 Q100,75 100,155" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="110" text-anchor="middle">GET /protected, POST /acs (SAMLResponse), GET /protected (with session)</text>
-    <path class="connection" d="M100,155 Q100,155 100,75" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="110" text-anchor="middle">302 Redirect to IdP, Set Session Cookie + Redirect, 200 OK (Protected Content)</text>
-    <path class="connection connection-cross-boundary" d="M100,75 Q190,75 190,75" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="190" y="70" text-anchor="middle">GET /sso?SAMLRequest=..., POST /authenticate</text>
-    <path class="connection connection-cross-boundary" d="M280,75 Q190,75 190,75" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="190" y="70" text-anchor="middle">Present Login Form, HTML Form with SAMLResponse</text>
+    <text class="connection-label" x="100" y="110" text-anchor="middle">Access Protected Resource, Enter Credentials</text>
+    <path class="connection" d="M100,155 Q100,155 100,235" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="190" text-anchor="middle">GET /protected, POST /acs (SAMLResponse), GET /protected (with session)</text>
+    <path class="connection" d="M100,235 Q100,235 100,155" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="190" text-anchor="middle">302 Redirect to IdP, Set Session Cookie + Redirect, 200 OK (Protected Content)</text>
+    <path class="connection connection-cross-boundary" d="M100,155 Q190,155 190,75" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="190" y="110" text-anchor="middle">GET /sso?SAMLRequest=..., POST /authenticate</text>
+    <path class="connection connection-cross-boundary" d="M280,75 Q190,75 190,155" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="190" y="110" text-anchor="middle">Present Login Form, HTML Form with SAMLResponse</text>
     <path class="connection" d="M280,75 Q280,75 280,75" marker-end="url(#arrow-connection)"/>
     <text class="connection-label" x="280" y="70" text-anchor="middle">Verify User Credentials, Create SAML Assertion</text>
-    <path class="connection" d="M100,155 Q100,155 100,155" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="150" text-anchor="middle">Validate SAML Response, Create User Session</text>
+    <path class="connection" d="M100,235 Q100,235 100,235" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="230" text-anchor="middle">Validate SAML Response, Create User Session</text>
   </g>
 </svg>

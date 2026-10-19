@@ -293,9 +293,9 @@
   <!-- Entities -->
   <g class="entities">
     <rect class="entity-box" x="50" y="50" width="100" height="50" rx="4"/>
-    <text class="entity-text" x="100" y="75">User Agent</text>
+    <text class="entity-text" x="100" y="75">Resource Owner</text>
     <rect class="entity-box" x="180" y="50" width="100" height="50" rx="4"/>
-    <text class="entity-text" x="230" y="75">Resource Owner</text>
+    <text class="entity-text" x="230" y="75">User Agent</text>
     <rect class="entity-box" x="50" y="180" width="100" height="50" rx="4"/>
     <text class="entity-text" x="100" y="205">Client Application</text>
     <rect class="entity-box" x="50" y="310" width="100" height="50" rx="4"/>
@@ -306,20 +306,20 @@
 
   <!-- Connections -->
   <g class="connections">
-    <path class="connection connection-cross-boundary" d="M230,75 Q165,140 100,205" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="165" y="135" text-anchor="middle">Click Login</text>
-    <path class="connection connection-cross-boundary" d="M100,205 Q100,140 100,75" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="135" text-anchor="middle">Redirect to Authorization Server</text>
-    <path class="connection connection-cross-boundary" d="M100,75 Q100,270 100,465" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="265" text-anchor="middle">GET /authorize?response_type=code&amp;client_id=...&amp;redirect_uri=...&amp;scope=...</text>
-    <path class="connection connection-cross-boundary" d="M100,465 Q165,270 230,75" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="165" y="265" text-anchor="middle">Login + Consent Form</text>
-    <path class="connection connection-cross-boundary" d="M230,75 Q165,270 100,465" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="165" y="265" text-anchor="middle">Submit Credentials + Grant Consent</text>
-    <path class="connection connection-cross-boundary" d="M100,465 Q100,270 100,75" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="265" text-anchor="middle">Redirect to redirect_uri?code=...&amp;state=...</text>
     <path class="connection connection-cross-boundary" d="M100,75 Q100,140 100,205" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="135" text-anchor="middle">Callback with Authorization Code</text>
+    <text class="connection-label" x="100" y="135" text-anchor="middle">Click Login</text>
+    <path class="connection connection-cross-boundary" d="M100,205 Q165,140 230,75" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="165" y="135" text-anchor="middle">Redirect to Authorization Server</text>
+    <path class="connection connection-cross-boundary" d="M230,75 Q165,270 100,465" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="165" y="265" text-anchor="middle">GET /authorize?response_type=code&amp;client_id=...&amp;redirect_uri=...&amp;scope=...</text>
+    <path class="connection connection-cross-boundary" d="M100,465 Q100,270 100,75" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="265" text-anchor="middle">Login + Consent Form</text>
+    <path class="connection connection-cross-boundary" d="M100,75 Q100,270 100,465" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="265" text-anchor="middle">Submit Credentials + Grant Consent</text>
+    <path class="connection connection-cross-boundary" d="M100,465 Q165,270 230,75" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="165" y="265" text-anchor="middle">Redirect to redirect_uri?code=...&amp;state=...</text>
+    <path class="connection connection-cross-boundary" d="M230,75 Q165,140 100,205" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="165" y="135" text-anchor="middle">Callback with Authorization Code</text>
     <path class="connection connection-cross-boundary" d="M100,205 Q100,335 100,465" marker-end="url(#arrow-connection)"/>
     <text class="connection-label" x="100" y="330" text-anchor="middle">POST /token (grant_type=authorization_code&amp;code=...)</text>
     <path class="connection connection-cross-boundary" d="M100,465 Q100,335 100,205" marker-end="url(#arrow-connection)"/>
