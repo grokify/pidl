@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { coveredComponents, splitURL, statusLine } from "../http";
-import type { Example, Header, Role, Step, TokenDef } from "../types";
+import { CURL, HTTP, hasRep, repName } from "../reps";
+import type { Example, Header, Role, Sample, Step, TokenDef } from "../types";
+import { CodeView } from "./CodeView";
 import { JsonView } from "./JsonView";
 import { Truncated } from "./Truncated";
 
@@ -9,16 +11,24 @@ interface Props {
   step: Step;
   roles: Role[];
   tokens: TokenDef[];
+  // reps are the representations offered as tabs; rep is the reader's
+  // choice, kept across steps and panels.
+  reps: string[];
+  rep: string;
+  onRep: (rep: string) => void;
 }
 
-// MessagePanel shows one side of an exchange: the HTTP message and the
-// decoded tokens it carries.
-export function MessagePanel({ kind, step, roles, tokens }: Props) {
+// MessagePanel shows one side of an exchange in the chosen representation
+// (HTTP, curl or code), and the decoded tokens it carries.
+export function MessagePanel({ kind, step, roles, tokens, reps, rep, onRep }: Props) {
   const ex = step.example as Example;
-  const hasHttp = kind === "request" ? Boolean(ex.request) : Boolean(ex.response);
+  const hasHttp = hasRep(step, kind, HTTP);
   const tokenCount = ex.tokens?.length ?? 0;
-  const [tab, setTab] = useState<"http" | "tokens">(hasHttp ? "http" : "tokens");
-  useEffect(() => setTab(hasHttp ? "http" : "tokens"), [step, hasHttp]);
+  // The chosen representation, or HTTP when this step lacks it.
+  const shown = hasRep(step, kind, rep) ? rep : hasHttp ? HTTP : null;
+  const [tokensOpen, setTokensOpen] = useState(shown === null);
+  useEffect(() => setTokensOpen(shown === null), [step, shown]);
+  const tab = tokensOpen || shown === null ? "tokens" : shown;
   const name = (id: string) => roles.find((r) => r.id === id)?.name ?? id;
 
   return (
@@ -33,16 +43,36 @@ export function MessagePanel({ kind, step, roles, tokens }: Props) {
         <span className="source">{ex.source}</span>
       </div>
       <div className="tabs" role="tablist">
-        <button role="tab" aria-selected={tab === "http"} className={tab === "http" ? "on" : ""} disabled={!hasHttp} onClick={() => setTab("http")}>
-          HTTP
-        </button>
-        <button role="tab" aria-selected={tab === "tokens"} className={tab === "tokens" ? "on" : ""} disabled={tokenCount === 0} onClick={() => setTab("tokens")}>
+        {reps.map((r) => {
+          const available = hasRep(step, kind, r);
+          return (
+            <button
+              key={r}
+              role="tab"
+              aria-selected={tab === r}
+              className={tab === r ? "on" : ""}
+              disabled={!available}
+              title={available ? undefined : `No ${repName(r)} form for this ${kind}`}
+              onClick={() => {
+                onRep(r);
+                setTokensOpen(false);
+              }}
+            >
+              {repName(r)}
+            </button>
+          );
+        })}
+        <button role="tab" aria-selected={tab === "tokens"} className={`tokens-tab${tab === "tokens" ? " on" : ""}`} disabled={tokenCount === 0} onClick={() => setTokensOpen(true)}>
           Tokens{tokenCount > 0 ? ` (${tokenCount})` : ""}
         </button>
       </div>
       <div className="message-body">
-        {tab === "http" && kind === "request" && ex.request && <RequestView req={ex.request} />}
-        {tab === "http" && kind === "response" && ex.response && <ResponseView res={ex.response} />}
+        {tab === HTTP && kind === "request" && ex.request && <RequestView req={ex.request} />}
+        {tab === HTTP && kind === "response" && ex.response && <ResponseView res={ex.response} />}
+        {tab === CURL && step.curl && <CodeView code={step.curl} lang="curl" />}
+        {tab !== HTTP && tab !== CURL && tab !== "tokens" && (
+          <Samples samples={(ex.samples ?? []).filter((s) => s.language === tab && s.code)} name={name} />
+        )}
         {tab === "tokens" &&
           ex.tokens?.map((t, i) => {
             const def = tokens.find((d) => d.id === t.token);
@@ -76,6 +106,19 @@ export function MessagePanel({ kind, step, roles, tokens }: Props) {
           })}
       </div>
       {ex.note && <p className="message-note">{ex.note}</p>}
+    </div>
+  );
+}
+
+// Samples shows each code sample in one language, titled by its label and
+// the role whose developer writes it.
+function Samples({ samples, name }: { samples: Sample[]; name: (id: string) => string }) {
+  return (
+    <div className="samples">
+      {samples.map((s, i) => {
+        const parts = [s.label, s.role && name(s.role) !== s.label ? name(s.role) : undefined].filter(Boolean);
+        return <CodeView key={i} code={s.code ?? ""} lang={s.language} title={parts.join(" · ") || undefined} />;
+      })}
     </div>
   );
 }
