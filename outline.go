@@ -10,6 +10,7 @@ type Outline struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description,omitempty"`
 	Roles       []OutlineRole     `json:"roles"`
+	Groups      []Group           `json:"groups,omitempty"`
 	Scenarios   []OutlineScenario `json:"scenarios"`
 	Tokens      []OutlineToken    `json:"tokens,omitempty"`
 }
@@ -30,6 +31,9 @@ type OutlineScenario struct {
 	Name         string        `json:"name"`
 	Description  string        `json:"description,omitempty"`
 	Fragment     bool          `json:"fragment,omitempty"`
+	Group        string        `json:"group,omitempty"`
+	VariantOf    string        `json:"variant_of,omitempty"`
+	VariantLabel string        `json:"variant_label,omitempty"`
 	Participants []string      `json:"participants"`
 	Steps        []OutlineStep `json:"steps"`
 }
@@ -66,6 +70,7 @@ func (p *Protocol) Outline() Outline {
 		Name:        p.ProtocolMeta.Name,
 		Description: p.ProtocolMeta.Description,
 		Roles:       []OutlineRole{},
+		Groups:      p.Groups,
 		Scenarios:   []OutlineScenario{},
 	}
 	for i, e := range p.Entities {
@@ -96,6 +101,9 @@ func (p *Protocol) Outline() Outline {
 				Name:         s.Name,
 				Description:  sc.Description,
 				Fragment:     s.Fragment,
+				Group:        s.Group,
+				VariantOf:    s.VariantOf,
+				VariantLabel: s.VariantLabel,
 				Participants: s.Participants,
 				Steps:        outlineSteps(sc.Flows, func(id string) (string, int) { return p.scenarioName(id), positions[id] }),
 			})

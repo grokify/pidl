@@ -144,8 +144,19 @@ func (p *Protocol) validateFlows() ValidationErrors {
 func validateFlowList(list flowList, entityIDs, phaseIDs map[string]bool) ValidationErrors {
 	var errs ValidationErrors
 
+	ids := make(map[string]bool, len(list.flows))
 	for i, f := range list.flows {
 		field := fmt.Sprintf("%s[%d]", list.field, i)
+
+		if f.ID != "" {
+			switch {
+			case !protocolIDPattern.MatchString(f.ID):
+				errs = append(errs, ValidationError{Field: field + ".id", Message: "must match pattern ^[a-z][a-z0-9_-]*$"})
+			case ids[f.ID]:
+				errs = append(errs, ValidationError{Field: field + ".id", Message: fmt.Sprintf("duplicate flow ID %q", f.ID)})
+			}
+			ids[f.ID] = true
+		}
 
 		if f.IsInclude() {
 			if !list.scenarios {

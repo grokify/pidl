@@ -53,7 +53,7 @@ func TestRunScenarios(t *testing.T) {
 
 	cases := []runCase{
 		{name: "generate requires scenario", args: []string{"generate", "-f", "mermaid", demo}, wantCode: 1,
-			wantStderr: []string{"demo has scenarios; choose one with --scenario: agent-identity, consent, three-party"}},
+			wantStderr: []string{"demo has scenarios; choose one with --scenario: agent-identity, three-party, consent"}},
 		{name: "generate unknown scenario", args: []string{"generate", "-f", "mermaid", "--scenario", "nope", demo}, wantCode: 1,
 			wantStderr: []string{`unknown scenario "nope"`}},
 		{name: "generate one scenario", args: []string{"generate", "-f", "mermaid", "--scenario", "agent-identity", demo}, wantCode: 0,
@@ -223,5 +223,55 @@ func TestRunAllScenarios(t *testing.T) {
 	if code := run([]string{"generate", "--all-scenarios", "-o", filepath.Join(dir, "legacy"), legacy}, &stdout, &stderr); code != 1 ||
 		!strings.Contains(stderr.String(), "has no scenarios") {
 		t.Fatalf("legacy --all-scenarios: code %d, stderr %q", code, stderr.String())
+	}
+}
+
+// groupedFixture adds groups and a variant, with document order that
+// differs from output order.
+const groupedFixture = `{
+  "protocol": {"id": "demo", "name": "Demo"},
+  "entities": [
+    {"id": "agent", "name": "Agent", "type": "agent"},
+    {"id": "resource", "name": "Resource", "type": "resource_server"}
+  ],
+  "groups": [
+    {"id": "access", "name": "Access modes"},
+    {"id": "identity", "name": "Identity"}
+  ],
+  "scenarios": [
+    {"id": "agent-identity", "name": "Agent identity", "group": "identity", "flows": [
+      {"id": "sign", "from": "agent", "to": "resource", "action": "signed_request"}
+    ]},
+    {"id": "resource-managed", "name": "Resource managed", "group": "access", "flows": [
+      {"from": "agent", "to": "resource", "action": "request"}
+    ]},
+    {"id": "agent-identity-approval", "name": "With approval", "group": "identity",
+     "variant_of": "agent-identity", "variant_label": "With user approval", "flows": [
+      {"from": "agent", "to": "resource", "action": "signed_request"}
+    ]}
+  ]
+}`
+
+func TestRunScenariosGrouped(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "grouped.json")
+	if err := os.WriteFile(path, []byte(groupedFixture), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var out, errOut bytes.Buffer
+	if code := run([]string{"scenarios", path}, &out, &errOut); code != 0 {
+		t.Fatalf("scenarios = %d\nstderr:\n%s", code, errOut.String())
+	}
+	got := out.String()
+	order := []string{"Access modes", "1   resource-managed", "Identity", "2   agent-identity ", "3   agent-identity-approval"}
+	last := -1
+	for _, want := range order {
+		i := strings.Index(got, want)
+		if i < 0 || i < last {
+			t.Fatalf("output missing %q in order %q\n%s", want, order, got)
+		}
+		last = i
+	}
+	if !strings.Contains(got, "variant") {
+		t.Errorf("variant kind missing\n%s", got)
 	}
 }

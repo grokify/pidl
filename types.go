@@ -23,6 +23,11 @@ type Protocol struct {
 	// Flows (a single unnamed scenario) or Scenarios, not both.
 	Flows []Flow `json:"flows,omitempty"`
 
+	// Groups are ordered sections for navigation, such as "Signing" or
+	// "Access modes". Scenarios name their group; group order, then
+	// scenario order within a group, sets the output order.
+	Groups []Group `json:"groups,omitempty"`
+
 	// Scenarios are named, ordered sequences of flows. Array position is
 	// the scenario order.
 	Scenarios []Scenario `json:"scenarios,omitempty"`
@@ -705,8 +710,32 @@ type Scenario struct {
 	// Fragment marks a reusable sub-flow that other scenarios include.
 	Fragment bool `json:"fragment,omitempty"`
 
+	// Group is the ID of the group this scenario is listed under.
+	Group string `json:"group,omitempty"`
+
+	// VariantOf is the ID of the scenario this one is a variant of, such
+	// as a with-approval form of an autonomous flow. A variant shares its
+	// base's navigation entry and follows it in output order.
+	VariantOf string `json:"variant_of,omitempty"`
+
+	// VariantLabel names the variant in a toggle, such as "With user
+	// approval". It is required with VariantOf.
+	VariantLabel string `json:"variant_label,omitempty"`
+
 	// Flows are the scenario's steps, in order.
 	Flows []Flow `json:"flows"`
+}
+
+// Group is a navigation section that scenarios are listed under.
+type Group struct {
+	// ID is the unique identifier scenarios refer to.
+	ID string `json:"id"`
+
+	// Name is the display name.
+	Name string `json:"name"`
+
+	// Description of the group.
+	Description string `json:"description,omitempty"`
 }
 
 // Phase represents a logical grouping of flows.
@@ -831,6 +860,11 @@ type FlowVerification struct {
 
 // Flow represents an interaction between two entities.
 type Flow struct {
+	// ID identifies the step within its scenario, for deep links, samples
+	// and narration. It is optional, unique within the scenario, and
+	// stable when steps are added or moved.
+	ID string `json:"id,omitempty"`
+
 	// From is the source entity ID.
 	From string `json:"from,omitempty"`
 

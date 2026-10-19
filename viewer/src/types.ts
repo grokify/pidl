@@ -6,6 +6,7 @@ export interface Walkthrough {
   name: string;
   description?: string;
   roles: Role[];
+  groups?: Group[];
   scenarios: Scenario[];
   tokens?: TokenDef[];
   findings?: Finding[];
@@ -25,12 +26,23 @@ export interface Scenario {
   name: string;
   description?: string;
   fragment?: boolean;
+  group?: string;
+  variant_of?: string;
+  variant_label?: string;
   participants: string[];
   steps: Step[];
 }
 
+export interface Group {
+  id: string;
+  name: string;
+  description?: string;
+}
+
 export interface Step {
   number: number;
+  // id is the step's flow ID, "<include>.<id>" inside a fragment.
+  id?: string;
   from: string;
   to: string;
   label: string;

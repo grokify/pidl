@@ -9,11 +9,11 @@ export function usePosition(w: Walkthrough) {
   const scenario = w.scenarios.find((s) => s.id === pos.scenarioId) ?? w.scenarios[0];
 
   useEffect(() => {
-    const target = formatHash(pos);
+    const target = formatHash(pos, w);
     if (window.location.hash !== target) {
       window.history.replaceState(null, "", target);
     }
-  }, [pos]);
+  }, [pos, w]);
 
   useEffect(() => {
     const onHash = () => setPos(parseHash(window.location.hash, w));

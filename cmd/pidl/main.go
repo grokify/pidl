@@ -1119,15 +1119,38 @@ Examples:
 	fmt.Fprintf(stdout, "Scenarios in %s\n\n", p.ProtocolMeta.Name)
 	fmt.Fprintf(stdout, "%-3s %-24s %-30s %-9s %5s  %s\n", "#", "ID", "NAME", "KIND", "STEPS", "PARTICIPANTS")
 	fmt.Fprintln(stdout, strings.Repeat("-", 100))
+	section := "\x00"
 	for _, s := range summaries {
 		kind := "main"
-		if s.Fragment {
+		switch {
+		case s.Fragment:
 			kind = "fragment"
+		case s.VariantOf != "":
+			kind = "variant"
+		}
+		if len(p.Groups) > 0 {
+			if h := scenarioSection(p, s); h != section {
+				fmt.Fprintf(stdout, "%s\n", h)
+				section = h
+			}
 		}
 		fmt.Fprintf(stdout, "%-3d %-24s %-30s %-9s %5d  %s\n",
 			s.Position, truncate(s.ID, 24), truncate(s.Name, 30), kind, s.Steps, strings.Join(s.Participants, ", "))
 	}
 	return 0
+}
+
+// scenarioSection returns the heading a scenario is listed under when the
+// file declares groups: its group's name, "Other" for main scenarios
+// without a group, or "Fragments".
+func scenarioSection(p *pidl.Protocol, s pidl.ScenarioSummary) string {
+	if s.Fragment {
+		return "Fragments"
+	}
+	if g := p.GroupByID(s.Group); g != nil {
+		return g.Name
+	}
+	return "Other"
 }
 
 func cmdComponents(args []string, stdout, stderr io.Writer) int {

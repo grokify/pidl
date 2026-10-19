@@ -15,6 +15,7 @@ type Walkthrough struct {
 	Name        string                `json:"name"`
 	Description string                `json:"description,omitempty"`
 	Roles       []OutlineRole         `json:"roles"`
+	Groups      []Group               `json:"groups,omitempty"`
 	Scenarios   []WalkthroughScenario `json:"scenarios"`
 	Tokens      []WalkthroughToken    `json:"tokens,omitempty"`
 	// Findings holds findings that do not locate a single flow, such as an
@@ -29,6 +30,9 @@ type WalkthroughScenario struct {
 	Name         string            `json:"name"`
 	Description  string            `json:"description,omitempty"`
 	Fragment     bool              `json:"fragment,omitempty"`
+	Group        string            `json:"group,omitempty"`
+	VariantOf    string            `json:"variant_of,omitempty"`
+	VariantLabel string            `json:"variant_label,omitempty"`
 	Participants []string          `json:"participants"`
 	Steps        []WalkthroughStep `json:"steps"`
 }
@@ -36,7 +40,10 @@ type WalkthroughScenario struct {
 // WalkthroughStep is one message of an expanded scenario.
 type WalkthroughStep struct {
 	// Number is the 1-based position within the expanded scenario.
-	Number   int    `json:"number"`
+	Number int `json:"number"`
+	// ID is the step's flow ID, qualified as "<include>.<id>" for a step
+	// inside an included fragment; empty when the flow has no ID.
+	ID       string `json:"id,omitempty"`
 	From     string `json:"from"`
 	To       string `json:"to"`
 	Label    string `json:"label"`
@@ -94,10 +101,10 @@ func (p *Protocol) Walkthrough(findings []Finding) Walkthrough {
 	}
 
 	o := p.Outline()
-	w := Walkthrough{ID: o.ID, Name: o.Name, Description: o.Description, Roles: o.Roles, Scenarios: []WalkthroughScenario{}, Findings: general}
+	w := Walkthrough{ID: o.ID, Name: o.Name, Description: o.Description, Roles: o.Roles, Groups: p.Groups, Scenarios: []WalkthroughScenario{}, Findings: general}
 
 	if !p.HasScenarios() {
-		steps := p.walkthroughSteps(p.Flows, func(i int) string { return fmt.Sprintf("flows[%d]", i) }, nil, nil, byPath)
+		steps := p.walkthroughSteps(p.Flows, func(i int) string { return fmt.Sprintf("flows[%d]", i) }, "", nil, nil, byPath)
 		w.Scenarios = append(w.Scenarios, WalkthroughScenario{
 			Position: 1, ID: o.ID, Name: o.Name,
 			Participants: p.OrderEntities(flowsEntities(p.Flows)),
@@ -113,8 +120,9 @@ func (p *Protocol) Walkthrough(findings []Finding) Walkthrough {
 			sc := p.Scenarios[i]
 			w.Scenarios = append(w.Scenarios, WalkthroughScenario{
 				Position: s.Position, ID: s.ID, Name: s.Name, Description: sc.Description,
-				Fragment: s.Fragment, Participants: s.Participants,
-				Steps: p.walkthroughSteps(sc.Flows, scenarioLocation(i, sc.ID), nil, []string{sc.ID}, byPath),
+				Fragment: s.Fragment, Group: s.Group, VariantOf: s.VariantOf, VariantLabel: s.VariantLabel,
+				Participants: s.Participants,
+				Steps:        p.walkthroughSteps(sc.Flows, scenarioLocation(i, sc.ID), "", nil, []string{sc.ID}, byPath),
 			})
 		}
 	}
@@ -152,10 +160,11 @@ func scenarioLocation(i int, id string) func(int) string {
 	return func(j int) string { return fmt.Sprintf("scenarios[%d].flows[%d] (%s)", i, j, id) }
 }
 
-// walkthroughSteps expands flows in order. trail holds the names of the
-// enclosing fragments; seen holds scenario IDs being expanded, to stop at
-// an include cycle (which validation reports).
-func (p *Protocol) walkthroughSteps(flows []Flow, location func(int) string, trail, seen []string, byPath map[string][]Finding) []WalkthroughStep {
+// walkthroughSteps expands flows in order. prefix qualifies step IDs inside
+// included fragments; trail holds the names of the enclosing fragments;
+// seen holds scenario IDs being expanded, to stop at an include cycle
+// (which validation reports).
+func (p *Protocol) walkthroughSteps(flows []Flow, location func(int) string, prefix string, trail, seen []string, byPath map[string][]Finding) []WalkthroughStep {
 	var steps []WalkthroughStep
 	for j, f := range flows {
 		if f.IsInclude() {
@@ -176,7 +185,7 @@ func (p *Protocol) walkthroughSteps(flows []Flow, location func(int) string, tra
 			if f.Label != "" {
 				name = f.Label
 			}
-			inner := p.walkthroughSteps(frag.Flows, scenarioLocation(idx, frag.ID),
+			inner := p.walkthroughSteps(frag.Flows, scenarioLocation(idx, frag.ID), includePrefix(prefix, f),
 				append(slices.Clone(trail), name), append(slices.Clone(seen), frag.ID), byPath)
 			for k := range inner {
 				if inner[k].Phase == "" {
@@ -188,6 +197,7 @@ func (p *Protocol) walkthroughSteps(flows []Flow, location func(int) string, tra
 		}
 		loc := location(j)
 		step := WalkthroughStep{
+			ID:   qualifyStepID(prefix, f.ID),
 			From: f.From, To: f.To, Label: f.DisplayLabel(),
 			Response:    f.EffectiveMode() == FlowModeResponse,
 			Phase:       f.Phase,

@@ -69,6 +69,12 @@ func (r *OutlineRenderer) RenderString(p *pidl.Protocol) (string, error) {
 		if sc.Description != "" {
 			fmt.Fprintf(&sb, "%s\n\n", sc.Description)
 		}
+		if g := groupName(o.Groups, sc.Group); g != "" {
+			fmt.Fprintf(&sb, "Group: %s\n\n", g)
+		}
+		if sc.VariantOf != "" {
+			fmt.Fprintf(&sb, "Variant of %s: %s\n\n", scenarioName(o.Scenarios, sc.VariantOf), sc.VariantLabel)
+		}
 		names := make([]string, len(sc.Participants))
 		for i, id := range sc.Participants {
 			names[i] = name(id)
@@ -149,4 +155,25 @@ func (r *OutlineJSONRenderer) RenderString(p *pidl.Protocol) (string, error) {
 		return "", err
 	}
 	return string(data) + "\n", nil
+}
+
+// groupName returns the display name of group id, or "" when id is empty
+// or unknown.
+func groupName(groups []pidl.Group, id string) string {
+	for _, g := range groups {
+		if g.ID == id {
+			return g.Name
+		}
+	}
+	return ""
+}
+
+// scenarioName returns the name of scenario id, or id when it is unknown.
+func scenarioName(scenarios []pidl.OutlineScenario, id string) string {
+	for _, sc := range scenarios {
+		if sc.ID == id {
+			return sc.Name
+		}
+	}
+	return id
 }
