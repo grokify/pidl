@@ -12,14 +12,14 @@ implementing an item carry `Refs: RMI-PIDL-<NNN>`.
 
 **Theme:** Scenarios, includes and a single ordering rule
 
-- [ ] `RMI-PIDL-002` Specification: "Ordering" section (array position is the only order) and deprecation of `Flow.sequence` as display-only
-- [ ] `RMI-PIDL-003` `Scenario` type, `Protocol.Scenarios`, `Flow.Include`, and ordering helpers (`EntityIndex`, `OrderEntities`, `ScenarioIDs`)
+- [x] `RMI-PIDL-002` Specification: "Ordering" section (array position is the only order) and deprecation of `Flow.sequence` as display-only
+- [x] `RMI-PIDL-003` `Scenario` type, `Protocol.Scenarios`, `Flow.Include`, and ordering helpers (`EntityIndex`, `OrderEntities`, `ScenarioIDs`)
   - Depends on: `RMI-PIDL-002`
-- [ ] `RMI-PIDL-004` Scenario validation: unique IDs, flows-or-scenarios, participants in entity order, include targets are fragments, no include cycles, scenario-scoped flow indices
+- [x] `RMI-PIDL-004` Scenario validation: unique IDs, flows-or-scenarios, participants in entity order, include targets are fragments, no include cycles, scenario-scoped flow indices
   - Depends on: `RMI-PIDL-003`
-- [ ] `RMI-PIDL-005` Single-scenario projection `Protocol.Scenario(id, ProjectOptions)` with collapsed and expanded includes
+- [x] `RMI-PIDL-005` Single-scenario projection `Protocol.Scenario(id, ProjectOptions)` with collapsed and expanded includes
   - Depends on: `RMI-PIDL-004`
-- [ ] `RMI-PIDL-006` JSON Schema update for scenarios and include steps, with every example validating
+- [x] `RMI-PIDL-006` JSON Schema update for scenarios and include steps, with every example validating
   - Depends on: `RMI-PIDL-003`
 
 ## Phase 2 — Rendering and CLI
