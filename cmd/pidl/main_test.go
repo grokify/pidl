@@ -72,8 +72,8 @@ func TestRun(t *testing.T) {
 	cases := []runCase{
 		// Dispatch
 		{name: "no args", args: nil, wantCode: 1, wantStderr: []string{"Usage:"}},
-		{name: "version", args: []string{"version"}, wantCode: 0, wantStdout: []string{"pidl version 0.6.1"}},
-		{name: "version short flag", args: []string{"-v"}, wantCode: 0, wantStdout: []string{"pidl version 0.6.1"}},
+		{name: "version", args: []string{"version"}, wantCode: 0, wantStdout: []string{"pidl version 0.7.0-dev"}},
+		{name: "version short flag", args: []string{"-v"}, wantCode: 0, wantStdout: []string{"pidl version 0.7.0-dev"}},
 		{name: "help", args: []string{"help"}, wantCode: 0, wantStdout: []string{"Usage:", "pidl <command>"}},
 		{name: "unknown command", args: []string{"bogus"}, wantCode: 1, wantStderr: []string{"Unknown command: bogus", "Usage:"}},
 

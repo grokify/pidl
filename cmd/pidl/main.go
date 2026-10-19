@@ -31,7 +31,7 @@ func (b *boundaryFlags) Set(value string) error {
 	return nil
 }
 
-const version = "0.6.1"
+const version = "0.7.0-dev"
 
 // stdin is the reader used by interactive commands (the debug REPL). It is a
 // package-level variable so tests can substitute scripted input.
