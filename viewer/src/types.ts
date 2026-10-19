@@ -59,6 +59,8 @@ export interface Step {
   id?: string;
   narration?: Narration;
   representations?: Record<string, { narration?: Narration }>;
+  // curl is a curl command equivalent to the example request.
+  curl?: string;
   from: string;
   to: string;
   label: string;

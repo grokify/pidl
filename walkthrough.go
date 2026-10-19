@@ -65,8 +65,10 @@ type WalkthroughStep struct {
 	Issues          []string                           `json:"issues,omitempty"`
 	Verifies        []string                           `json:"verifies,omitempty"`
 	Example         *FlowExample                       `json:"example,omitempty"`
-	Location        string                             `json:"location"`
-	Findings        []Finding                          `json:"findings,omitempty"`
+	// Curl is a curl command equivalent to the example request.
+	Curl     string    `json:"curl,omitempty"`
+	Location string    `json:"location"`
+	Findings []Finding `json:"findings,omitempty"`
 }
 
 // WalkthroughToken is a token definition with the claims its checkers use.
@@ -219,6 +221,16 @@ func (p *Protocol) walkthroughSteps(flows []Flow, location func(int) string, pre
 			Example:         f.Example,
 			Location:        loc,
 			Findings:        byPath[flowPathPattern.FindString(loc)],
+		}
+		if f.Example != nil && f.Example.Request != nil {
+			cmd, err := f.Example.Request.Curl()
+			if err != nil {
+				step.Findings = append(step.Findings, Finding{
+					ID: "EXAMPLE", Severity: "medium", Title: "Example request body is not valid JSON",
+					Description: err.Error(), Location: loc + ".example.request.body",
+				})
+			}
+			step.Curl = cmd
 		}
 		if f.Security != nil {
 			step.SignedBy = f.Security.SignedBy
