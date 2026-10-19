@@ -782,7 +782,10 @@ type Flow struct {
 	// Description provides additional details.
 	Description string `json:"description,omitempty"`
 
-	// Sequence provides explicit ordering.
+	// Sequence is a display-only step number. It never affects order:
+	// flows run in array order.
+	//
+	// Deprecated: move the flow within the flows array to change its order.
 	Sequence int `json:"sequence,omitempty"`
 
 	// Condition specifies when this flow is executed (e.g., "token_valid", "error").

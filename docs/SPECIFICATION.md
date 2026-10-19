@@ -214,7 +214,7 @@ Flows are the core semantic unit: directed interactions between entities.
 | `mode` | enum | No | Interaction mode (defaults to `request`) |
 | `phase` | string | No | Phase ID this flow belongs to |
 | `description` | string | No | Detailed description |
-| `sequence` | integer | No | Explicit ordering (default: array order) |
+| `sequence` | integer | No | Deprecated. Display-only step number; never affects order (see [Ordering](#ordering)) |
 | `condition` | string | No | Conditional execution clause |
 | `note` | string | No | Visible note displayed on diagram |
 | `annotations` | array | No | Typed annotations for tooling |
@@ -341,7 +341,16 @@ The `alternatives` field defines branching paths from a flow. They are rendered 
 
 ## Ordering
 
-Flows are processed in array order by default. The optional `sequence` field provides explicit ordering when needed.
+Order in PIDL comes from one source: the position of an item in its JSON array. Every output generated from a document (diagrams, tables, outlines, file listings) uses the same order, so presentations, guides and diagrams built from one file agree.
+
+1. **Roles** follow the order of `entities`. Diagram columns, role tables and any other list of entities use this order.
+2. **Scenarios** follow the order of `scenarios`.
+3. **Phases** follow the order of `phases`.
+4. **Messages** follow the order of `flows` (top-level or within a scenario). An include step expands in place.
+5. **Derived lists keep the order of the array they come from.** A subset of entities (such as a scenario's participants or a token's checkers) is listed in `entities` order, never in the order written.
+6. **Collections keyed by name are arrays of objects with an `id`.** The one exception is `metadata.networks`, a map kept for compatibility. Tools order it by `metadata.network_layout.order` when set, and otherwise by the first appearance of each network's entities in `entities`, never by map iteration.
+
+Numeric ordering fields are not used. The `sequence` field on a flow is deprecated: it is a display-only step number, and tools must not sort by it.
 
 ## Validation Rules
 

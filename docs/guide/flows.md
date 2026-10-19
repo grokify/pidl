@@ -36,7 +36,7 @@ Flows are the core semantic unit: directed interactions between entities.
 | `mode` | enum | No | Interaction mode (defaults to `request`) |
 | `phase` | string | No | Phase ID this flow belongs to |
 | `description` | string | No | Detailed description |
-| `sequence` | integer | No | Explicit ordering (default: array order) |
+| `sequence` | integer | No | Deprecated. Display-only step number; never affects order |
 | `condition` | string | No | Conditional execution clause |
 | `note` | string | No | Visible note on diagram |
 | `annotations` | array | No | Typed annotations |
@@ -58,17 +58,9 @@ Flows are the core semantic unit: directed interactions between entities.
 
 ## Ordering
 
-Flows are processed in array order by default. Use the `sequence` field for explicit ordering:
+Flows run in array order. To change the order, move the flow in the array.
 
-```json
-{
-  "flows": [
-    {"from": "a", "to": "b", "action": "first", "sequence": 1},
-    {"from": "b", "to": "c", "action": "second", "sequence": 2},
-    {"from": "c", "to": "a", "action": "third", "sequence": 3}
-  ]
-}
-```
+The `sequence` field is deprecated. It is a display-only step number and does not reorder flows. See [Ordering](../SPECIFICATION.md#ordering) in the specification for the rules that apply to entities, phases and scenarios.
 
 ## Conditional Flows
 

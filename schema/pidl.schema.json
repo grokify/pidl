@@ -302,7 +302,8 @@
         },
         "sequence": {
           "type": "integer",
-          "description": "Optional explicit ordering (flows are ordered by array position by default)",
+          "description": "Deprecated. Display-only step number; flows are ordered by array position only",
+          "deprecated": true,
           "minimum": 1
         },
         "condition": {
