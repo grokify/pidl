@@ -24,8 +24,9 @@ export function MessagePanel({ kind, step, roles, tokens, reps, rep, onRep }: Pr
   const ex = step.example as Example;
   const hasHttp = hasRep(step, kind, HTTP);
   const tokenCount = ex.tokens?.length ?? 0;
-  // The chosen representation, or HTTP when this step lacks it.
-  const shown = hasRep(step, kind, rep) ? rep : hasHttp ? HTTP : null;
+  // The chosen representation; otherwise HTTP, or the first form this step
+  // has, such as code for a step with no HTTP message.
+  const shown = hasRep(step, kind, rep) ? rep : hasHttp ? HTTP : (reps.find((r) => hasRep(step, kind, r)) ?? null);
   const [tokensOpen, setTokensOpen] = useState(shown === null);
   useEffect(() => setTokensOpen(shown === null), [step, shown]);
   const tab = tokensOpen || shown === null ? "tokens" : shown;

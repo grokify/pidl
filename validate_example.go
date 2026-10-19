@@ -37,8 +37,8 @@ func validateExample(field string, ex *FlowExample, tokenIDs map[string]bool) Va
 	case !IsValidExampleKind(ex.Kind):
 		add(".kind", fmt.Sprintf("invalid example kind %q (want draft or derived)", ex.Kind))
 	}
-	if ex.Request == nil && ex.Response == nil && len(ex.Tokens) == 0 {
-		add("", "needs a request, a response or tokens")
+	if ex.Request == nil && ex.Response == nil && len(ex.Tokens) == 0 && len(ex.Samples) == 0 {
+		add("", "needs a request, a response, tokens or samples")
 	}
 	if r := ex.Request; r != nil {
 		if r.Method == "" {

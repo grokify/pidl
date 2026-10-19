@@ -703,7 +703,8 @@
       "anyOf": [
         { "required": ["request"] },
         { "required": ["response"] },
-        { "required": ["tokens"] }
+        { "required": ["tokens"] },
+        { "required": ["samples"] }
       ],
       "properties": {
         "source": { "type": "string", "minLength": 1, "description": "Citation, such as draft-11 §7.2.1" },

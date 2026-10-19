@@ -528,11 +528,11 @@ A flow can carry an illustrative message for walkthrough viewers. Examples expla
 |-------|----------|-------------|
 | `source` | Yes | Citation, such as a specification section |
 | `kind` | Yes | `draft`: taken from the source, values aligned to the scenario; `derived`: written from the source's normative text |
-| `request` | One of `request`, `response`, `tokens` | `method`, `url`, ordered `headers` (`name`, `value`) and a JSON `body` |
-| `response` | One of `request`, `response`, `tokens` | `status`, ordered `headers` and a JSON `body` |
-| `tokens` | One of `request`, `response`, `tokens` | Decoded tokens: `token` (a token definition ID), `label`, `header` and `payload` |
+| `request` | One of `request`, `response`, `tokens`, `samples` | `method`, `url`, ordered `headers` (`name`, `value`) and a JSON `body` |
+| `response` | One of `request`, `response`, `tokens`, `samples` | `status`, ordered `headers` and a JSON `body` |
+| `tokens` | One of `request`, `response`, `tokens`, `samples` | Decoded tokens: `token` (a token definition ID), `label`, `header` and `payload` |
 | `note` | No | What the reader should notice |
-| `samples` | No | Code that sends or handles the message (see [Samples](#samples)) |
+| `samples` | One of `request`, `response`, `tokens`, `samples` | Code that sends or handles the message (see [Samples](#samples)). A step with no HTTP message, such as a person approving in a browser, can carry samples alone |
 
 Headers are a list so they keep their order. Include steps cannot carry examples.
 

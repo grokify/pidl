@@ -109,3 +109,21 @@ func TestCompareReportsExampleChange(t *testing.T) {
 	}
 	t.Fatal("example change not reported")
 }
+
+func TestExampleWithOnlySamples(t *testing.T) {
+	p := sampledProtocol()
+	p.Scenarios[0].Flows[0].Example.Request = nil
+	if errs := p.Validate(); len(errs) > 0 {
+		t.Fatalf("a samples-only example should validate: %v", errs)
+	}
+	p.Scenarios[0].Flows[0].Example.Samples = nil
+	found := false
+	for _, e := range p.Validate() {
+		if strings.Contains(e.Message, "needs a request, a response, tokens or samples") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("an empty example was accepted")
+	}
+}
