@@ -245,3 +245,53 @@ func TestPostmanHelpers(t *testing.T) {
 		t.Errorf("nextRequest(\"\") = %q", got)
 	}
 }
+
+func TestPostmanPetstoreChallenges(t *testing.T) {
+	p, err := examples.GetProtocol("aauth_petstore")
+	if err != nil {
+		t.Fatal(err)
+	}
+	c, err := NewPostman(PostmanOptions{Signer: SignerAAuthSandbox}).Collection(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(c.Item) != 2 {
+		t.Fatalf("folders = %d, want browse and order", len(c.Item))
+	}
+	order := folder(t, c, "Order a pet")
+
+	// The resource token arrives as a parameter of AAuth-Requirement.
+	asPerson := request(t, order, "order-as-person")
+	if header(asPerson, "X-Sandbox-Present") != "person" || header(asPerson, "X-Sandbox-Token") != "{{person_token}}" {
+		t.Errorf("order as person presents %q %q", header(asPerson, "X-Sandbox-Present"), header(asPerson, "X-Sandbox-Token"))
+	}
+	if s := script(asPerson); !strings.Contains(s, `pm.collectionVariables.set("resource_token", ((pm.response.headers.get("AAuth-Requirement") || "").match(/(?:^|;)\s*resource-token="([^"]*)"/) || [])[1]);`) {
+		t.Errorf("challenge does not capture the resource token:\n%s", s)
+	}
+	token := request(t, order, "auth-token-request")
+	if !strings.Contains(token.Request.Body.Raw, `"resource_token": "{{resource_token}}"`) {
+		t.Errorf("token request does not use the captured resource token:\n%s", token.Request.Body.Raw)
+	}
+	withAuth := request(t, order, "order-with-auth")
+	if header(withAuth, "X-Sandbox-Present") != "auth" || header(withAuth, "X-Sandbox-Token") != "{{auth_token}}" {
+		t.Errorf("order with auth presents %q %q", header(withAuth, "X-Sandbox-Present"), header(withAuth, "X-Sandbox-Token"))
+	}
+	// The person token is requested for the Petstore, by role URL.
+	person := request(t, order, "person-token.request")
+	if !strings.Contains(person.Request.Body.Raw, `"resource": "{{resource_url}}"`) {
+		t.Errorf("person token request body:\n%s", person.Request.Body.Raw)
+	}
+}
+
+func TestHeaderParam(t *testing.T) {
+	v := `requirement=auth-token; resource-token="eyJ.a\"b"; code="X"`
+	if got := headerParam(v, "resource-token"); got != `eyJ.a\"b` {
+		t.Errorf("resource-token = %q", got)
+	}
+	if got := headerParam(v, "code"); got != "X" {
+		t.Errorf("code = %q", got)
+	}
+	if got := headerParam(v, "url"); got != "" {
+		t.Errorf("url = %q", got)
+	}
+}
