@@ -26,15 +26,15 @@ implementing an item carry `Refs: RMI-PIDL-<NNN>`.
 
 **Theme:** One diagram per scenario, in file order
 
-- [ ] `RMI-PIDL-007` `--scenario` on `generate`, `simulate`, `debug` and `analyze`, running on projections
+- [x] `RMI-PIDL-007` `--scenario` on `generate`, `simulate`, `debug` and `analyze`, running on projections
   - Depends on: `RMI-PIDL-005`
-- [ ] `RMI-PIDL-008` Collapsed include rendering: PlantUML `ref over`, Mermaid `rect` with note, D2 group, SVG box, with golden files
+- [x] `RMI-PIDL-008` Collapsed include rendering: PlantUML `ref over`, Mermaid `rect` with note, D2 group, SVG box, with golden files
   - Depends on: `RMI-PIDL-005`
-- [ ] `RMI-PIDL-009` `generate --all-scenarios -o <dir>` with zero-padded ordered file names, `--include-fragments` and `--expand`
+- [x] `RMI-PIDL-009` `generate --all-scenarios -o <dir>` with zero-padded ordered file names, `--include-fragments` and `--expand`
   - Depends on: `RMI-PIDL-007`
-- [ ] `RMI-PIDL-010` `pidl scenarios` command listing scenarios in order (table and JSON)
+- [x] `RMI-PIDL-010` `pidl scenarios` command listing scenarios in order (table and JSON)
   - Depends on: `RMI-PIDL-005`
-- [ ] `RMI-PIDL-011` Deterministic ordering for map-backed metadata (`networks`) in every renderer, with a determinism test
+- [x] `RMI-PIDL-011` Deterministic ordering for map-backed metadata (`networks`) in every renderer, with a determinism test
   - Depends on: `RMI-PIDL-002`
 
 ## Phase 3 — Overview Outputs and Verification
