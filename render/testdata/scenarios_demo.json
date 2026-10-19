@@ -1,0 +1,35 @@
+{
+  "protocol": {"id": "scenarios-demo", "name": "Scenarios Demo"},
+  "entities": [
+    {"id": "person", "name": "Person", "type": "user"},
+    {"id": "agent", "name": "Agent", "type": "agent"},
+    {"id": "resource", "name": "Resource", "type": "resource_server"},
+    {"id": "ps", "name": "Person Server", "type": "authorization_server"}
+  ],
+  "phases": [
+    {"id": "authorize", "name": "Authorize"}
+  ],
+  "scenarios": [
+    {
+      "id": "consent",
+      "name": "Consent",
+      "fragment": true,
+      "flows": [
+        {"from": "ps", "to": "person", "action": "consent_prompt", "label": "Consent prompt"},
+        {"from": "person", "to": "ps", "action": "approve", "label": "Approve", "mode": "response"}
+      ]
+    },
+    {
+      "id": "three-party",
+      "name": "PS authorization",
+      "flows": [
+        {"from": "agent", "to": "resource", "action": "request", "label": "Request"},
+        {"from": "resource", "to": "agent", "action": "resource_token", "label": "401 + resource token", "mode": "response"},
+        {"from": "agent", "to": "ps", "action": "auth_token_request", "label": "Auth token request", "phase": "authorize"},
+        {"include": "consent", "phase": "authorize"},
+        {"from": "ps", "to": "agent", "action": "auth_token", "label": "Auth token", "mode": "response", "phase": "authorize"},
+        {"from": "agent", "to": "resource", "action": "retry", "label": "Request + auth token"}
+      ]
+    }
+  ]
+}

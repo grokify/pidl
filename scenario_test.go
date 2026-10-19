@@ -229,3 +229,38 @@ func TestFlatten(t *testing.T) {
 		t.Fatal("Flatten of a legacy document should copy its flows")
 	}
 }
+
+func TestIncludeSpan(t *testing.T) {
+	p := scenarioProtocol()
+	proj, err := p.Scenario("three-party", ProjectOptions{})
+	if err != nil {
+		t.Fatalf("Scenario: %v", err)
+	}
+	if len(proj.Fragments) != 1 || proj.Fragments[0].ID != "interaction" {
+		t.Fatalf("Fragments = %+v, want the interaction fragment", proj.Fragments)
+	}
+	label, span := proj.IncludeSpan(proj.Flows[2])
+	if label != "Interaction" || !reflect.DeepEqual(span, []string{"person", "ps"}) {
+		t.Fatalf("IncludeSpan = %q, %v; want Interaction, [person ps]", label, span)
+	}
+
+	f := proj.Flows[2]
+	f.Label = "Consent"
+	if label, _ := proj.IncludeSpan(f); label != "Consent" {
+		t.Fatalf("IncludeSpan label = %q, want the step's own label", label)
+	}
+	if label, span := proj.IncludeSpan(Flow{Include: "missing"}); label != "missing" || span != nil {
+		t.Fatalf("IncludeSpan(missing) = %q, %v; want missing, nil", label, span)
+	}
+
+	expanded, err := p.Scenario("three-party", ProjectOptions{Expand: true})
+	if err != nil {
+		t.Fatalf("Scenario: %v", err)
+	}
+	if expanded.Fragments != nil {
+		t.Fatalf("expanded projection Fragments = %+v, want nil", expanded.Fragments)
+	}
+	if got := p.Flatten().Fragments; got != nil {
+		t.Fatalf("Flatten Fragments = %+v, want nil", got)
+	}
+}

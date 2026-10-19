@@ -8,11 +8,17 @@ func (p *Protocol) HasScenarios() bool {
 	return len(p.Scenarios) > 0
 }
 
-// ScenarioByID returns the scenario with the given ID, or nil.
+// ScenarioByID returns the scenario with the given ID, or nil. It also
+// finds the fragments a collapsed projection carries in Fragments.
 func (p *Protocol) ScenarioByID(id string) *Scenario {
 	for i := range p.Scenarios {
 		if p.Scenarios[i].ID == id {
 			return &p.Scenarios[i]
+		}
+	}
+	for i := range p.Fragments {
+		if p.Fragments[i].ID == id {
+			return &p.Fragments[i]
 		}
 	}
 	return nil

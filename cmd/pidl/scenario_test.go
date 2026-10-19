@@ -59,6 +59,8 @@ func TestRunScenarios(t *testing.T) {
 			wantStdout: []string{"participant agent", "participant resource", "signed_request"}},
 		{name: "generate expands fragments for formats without include boxes", args: []string{"generate", "-f", "dot", "--scenario", "three-party", demo}, wantCode: 0,
 			wantStdout: []string{"consent_prompt", "auth_token"}},
+		{name: "generate draws includes as boxes", args: []string{"generate", "-f", "mermaid", "--scenario", "three-party", demo}, wantCode: 0,
+			wantStdout: []string{"note over person,ps: ref: Consent", "auth_token"}},
 		{name: "generate expand flag", args: []string{"generate", "-f", "plantuml", "--scenario", "three-party", "--expand", demo}, wantCode: 0,
 			wantStdout: []string{"consent_prompt", "approve", "auth_token"}},
 		{name: "generate legacy file rejects scenario", args: []string{"generate", "-f", "mermaid", "--scenario", "x", legacy}, wantCode: 1,

@@ -187,6 +187,19 @@ func (r *SVGRenderer) render(p *pidl.Protocol) string {
 
 	// Populate message data and calculate endpoints
 	for i, f := range p.Flows {
+		if f.IsInclude() {
+			box := newIncludeBox(p, f)
+			fromIdx, fromOK := entityIndex[box.First()]
+			toIdx, toOK := entityIndex[box.Last()]
+			if !fromOK || !toOK {
+				continue
+			}
+			layout.SetMessageEndpoints(i, fromIdx, toIdx)
+			layout.Messages[i].Label = "ref: " + box.Label
+			layout.Messages[i].IsInclude = true
+			continue
+		}
+
 		fromIdx, fromOK := entityIndex[f.From]
 		toIdx, toOK := entityIndex[f.To]
 		if !fromOK || !toOK {
@@ -335,6 +348,10 @@ func (r *SVGRenderer) render(p *pidl.Protocol) string {
 }
 
 func (r *SVGRenderer) renderMessage(sb *strings.Builder, msg svg.MessageLayout, index int, style *svg.FlowAnimationStyle, security *pidl.FlowSecurity) {
+	if msg.IsInclude {
+		r.renderInclude(sb, msg)
+		return
+	}
 	lineClass := "message-line"
 	arrowClass := "message-arrow"
 	if msg.IsDashed {
@@ -420,6 +437,22 @@ func (r *SVGRenderer) renderMessage(sb *strings.Builder, msg svg.MessageLayout, 
 		sb.WriteString(fmt.Sprintf(`    <circle class="flow-dot flow-dot-%d" r="%d" style="offset-path: path('%s');"/>`+"\n",
 			index, style.DotSize, msg.PathD))
 	}
+}
+
+// renderInclude draws a scenario include step as a rounded box across the
+// lifelines of the included fragment's participants, labeled with its name.
+func (r *SVGRenderer) renderInclude(sb *strings.Builder, msg svg.MessageLayout) {
+	const halfWidth, height = 20, 24 // stays inside phase boxes, which pad 30px
+	minX, maxX := msg.FromX, msg.ToX
+	if maxX < minX {
+		minX, maxX = maxX, minX
+	}
+	x := minX - halfWidth
+	width := maxX - minX + 2*halfWidth
+	sb.WriteString(fmt.Sprintf(`    <rect class="include-box" x="%d" y="%d" width="%d" height="%d" rx="6" style="fill: rgba(127, 127, 127, 0.12); stroke: rgba(127, 127, 127, 0.6);"/>`+"\n",
+		x, msg.Y-height/2, width, height))
+	sb.WriteString(fmt.Sprintf(`    <text class="message-text" x="%d" y="%d" text-anchor="middle">%s</text>`+"\n",
+		(minX+maxX)/2, msg.Y+4, html.EscapeString(msg.Label)))
 }
 
 func (r *SVGRenderer) generateDefs() string {
@@ -513,9 +546,14 @@ func (r *SVGRenderer) calculatePhaseRegions(p *pidl.Protocol, layout svg.Layout,
 		// Get message Y position
 		msgY := layout.Messages[i].Y
 
-		// Get participant X positions
-		fromIdx, fromOK := entityIndex[f.From]
-		toIdx, toOK := entityIndex[f.To]
+		// Get participant X positions; an include step spans its fragment
+		from, to := f.From, f.To
+		if f.IsInclude() {
+			box := newIncludeBox(p, f)
+			from, to = box.First(), box.Last()
+		}
+		fromIdx, fromOK := entityIndex[from]
+		toIdx, toOK := entityIndex[to]
 		if !fromOK || !toOK {
 			continue
 		}

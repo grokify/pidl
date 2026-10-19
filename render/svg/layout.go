@@ -71,6 +71,9 @@ type MessageLayout struct {
 	HasNote bool
 	// Note is the note text for this flow.
 	Note string
+	// IsInclude marks a scenario include step, drawn as a labeled box
+	// spanning FromX to ToX instead of an arrow.
+	IsInclude bool
 }
 
 // LayoutConfig contains configuration for layout calculations.

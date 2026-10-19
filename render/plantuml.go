@@ -172,7 +172,14 @@ func (r *PlantUMLRenderer) phaseColor(depth int) string {
 }
 
 // renderFlow renders a single flow with its notes and annotations.
-func (r *PlantUMLRenderer) renderFlow(sb *strings.Builder, _ *pidl.Protocol, f pidl.Flow) {
+func (r *PlantUMLRenderer) renderFlow(sb *strings.Builder, p *pidl.Protocol, f pidl.Flow) {
+	if f.IsInclude() {
+		box := newIncludeBox(p, f)
+		if len(box.Span) > 0 {
+			fmt.Fprintf(sb, "ref over %s : %s\n", strings.Join(box.Span, ", "), box.Label)
+		}
+		return
+	}
 	arrow := r.modeToArrow(f.EffectiveMode())
 	label := f.DisplayLabel()
 

@@ -27,6 +27,11 @@ type Protocol struct {
 	// the scenario order.
 	Scenarios []Scenario `json:"scenarios,omitempty"`
 
+	// Fragments holds the fragment scenarios that include steps in a
+	// collapsed projection refer to, so renderers can label and size the
+	// include boxes. Protocol.Scenario sets it; it is never serialized.
+	Fragments []Scenario `json:"-"`
+
 	// Metadata contains additional protocol-level configuration.
 	Metadata *ProtocolMetadata `json:"metadata,omitempty"`
 

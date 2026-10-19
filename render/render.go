@@ -254,5 +254,10 @@ func SupportedFormats() []Format {
 // itself (as a labeled box). For other formats, callers expand includes
 // before rendering.
 func SupportsIncludes(format Format) bool {
-	return false
+	switch format {
+	case FormatPlantUML, FormatMermaid, FormatD2, FormatSVG, FormatSVGAnimated:
+		return true
+	default:
+		return false
+	}
 }

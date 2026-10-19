@@ -174,6 +174,10 @@ func (p *Protocol) clone() *Protocol {
 		result.Scenarios = make([]Scenario, len(p.Scenarios))
 		copy(result.Scenarios, p.Scenarios)
 	}
+	if len(p.Fragments) > 0 {
+		result.Fragments = make([]Scenario, len(p.Fragments))
+		copy(result.Fragments, p.Fragments)
+	}
 
 	if p.Metadata != nil {
 		result.Metadata = &ProtocolMetadata{

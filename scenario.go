@@ -114,6 +114,14 @@ func (p *Protocol) Scenario(id string, opts ProjectOptions) (*Protocol, error) {
 
 	result := p.clone()
 	result.Scenarios = nil
+	result.Fragments = nil
+	if !opts.Expand {
+		for _, s := range p.Scenarios {
+			if s.Fragment {
+				result.Fragments = append(result.Fragments, s)
+			}
+		}
+	}
 	result.Flows = make([]Flow, len(flows))
 	copy(result.Flows, flows)
 	result.Entities = p.entitiesFor(p.ScenarioParticipants(id))
@@ -205,6 +213,32 @@ func (p *Protocol) phasesFor(flows []Flow) []Phase {
 	return out
 }
 
+// IncludeSpan returns the label for an include step's box and the
+// participants the box spans, in entities order. The label is the step's
+// Label, else the fragment's name, else its ID. Participants are limited
+// to entities present in p, so a box never spans a participant the diagram
+// does not show.
+func (p *Protocol) IncludeSpan(f Flow) (string, []string) {
+	label := f.Label
+	frag := p.ScenarioByID(f.Include)
+	if label == "" && frag != nil {
+		label = frag.Name
+	}
+	if label == "" {
+		label = f.Include
+	}
+	if frag == nil {
+		return label, nil
+	}
+	var span []string
+	for _, id := range p.ScenarioParticipants(frag.ID) {
+		if p.EntityIndex(id) >= 0 {
+			span = append(span, id)
+		}
+	}
+	return label, span
+}
+
 // Flatten returns a single-flow Protocol holding every scenario's message
 // flows exactly once, in document order. Include steps are dropped, since
 // each fragment contributes its own flows. Use it for whole-document checks
@@ -217,6 +251,7 @@ func (p *Protocol) Flatten() *Protocol {
 		return result
 	}
 	result.Scenarios = nil
+	result.Fragments = nil
 	result.Flows = nil
 	for _, sc := range p.Scenarios {
 		for _, f := range sc.Flows {
