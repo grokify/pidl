@@ -889,6 +889,10 @@ type Flow struct {
 
 	// DataMappings explicitly maps output ports to input ports for data lineage.
 	DataMappings []DataPortMapping `json:"data_mappings,omitempty"`
+
+	// Example is an illustrative request, response and decoded tokens for
+	// this step, used by walkthrough viewers.
+	Example *FlowExample `json:"example,omitempty"`
 }
 
 // StateMutation represents a state change for an entity triggered by a flow.

@@ -560,6 +560,12 @@ func compareFlow(diff *ProtocolDiff, base, new *Flow, path string, opts DiffOpti
 		diff.addItem(DiffTypeModified, DiffCategoryFlow, path+".security",
 			base.Security, new.Security, "security requirements changed")
 	}
+
+	// Compare examples
+	if !reflect.DeepEqual(base.Example, new.Example) {
+		diff.addItem(DiffTypeModified, DiffCategoryFlow, path+".example",
+			base.Example, new.Example, "example changed")
+	}
 }
 
 // flowSummary describes a flow for diff summaries.
