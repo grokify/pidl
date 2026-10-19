@@ -49,9 +49,9 @@ A generic PIDL viewer that walks through each scenario step by step, with exampl
 
 **Theme:** One HTML file per protocol
 
-- [ ] `RMI-PIDL-035` Single-file build embedded in the Go binary and `generate -f viewer`, with a CI freshness check
+- [x] `RMI-PIDL-035` Single-file build embedded in the Go binary and `generate -f viewer`, with a CI freshness check
   - Depends on: `RMI-PIDL-034`
-- [ ] `RMI-PIDL-036` Documentation: viewer guide, example field in the specification, README and CLI reference
+- [x] `RMI-PIDL-036` Documentation: viewer guide, example field in the specification, README and CLI reference
   - Depends on: `RMI-PIDL-035`
-- [ ] `RMI-PIDL-037` v0.8.0 changelog and release notes
+- [x] `RMI-PIDL-037` v0.8.0 changelog and release notes
   - Depends on: `RMI-PIDL-036`
