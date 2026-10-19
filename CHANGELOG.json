@@ -7,101 +7,103 @@
   "maintainers": [
     "grokify"
   ],
+  "unreleased": {
+    "highlights": [
+      {
+        "description": "D2 sequence diagrams now render as sequence diagrams: messages are edges, responses are dashed in the flow direction, and labels are quoted so punctuation cannot break compilation"
+      },
+      {
+        "description": "Unit test coverage raised from 73.5% to 87.6%: the CLI is now driven through a testable run() function, every SVG format has golden-file tests, and the library packages sit between 89% and 94%"
+      }
+    ],
+    "fixed": [
+      {
+        "description": "D2 sequence renderer emitted messages as `seqN:`-keyed shapes, which D2 drew as notes and phase groups as extra actors",
+        "commit": "b139797"
+      },
+      {
+        "description": "D2 responses were written as `from <- to`, pointing the arrow at the sender",
+        "commit": "b139797"
+      },
+      {
+        "description": "D2 conditions were prefixed as `[cond]` in unquoted labels, which D2 parses as an array and refuses to compile",
+        "commit": "b139797"
+      },
+      {
+        "description": "All D2 labels, actor names, group names and tooltips in sequence, flow and arch styles are now double-quoted",
+        "commit": "b139797"
+      },
+      {
+        "description": "CLI `version` reported 0.4.0 since v0.5.0; it now reports the current release",
+        "commit": "9355423"
+      },
+      {
+        "description": "Network SVG connection order and trust SVG node placement varied between runs; both now follow first-appearance order",
+        "commit": "175d171"
+      },
+      {
+        "description": "CLI `components` and `trust` crashed on protocols without a metadata block",
+        "commit": "560d07b"
+      },
+      {
+        "description": "Debug REPL lost arguments of multi-word commands and looped forever on EOF",
+        "commit": "560d07b"
+      },
+      {
+        "description": "CLI `init`, `roles`, `components` and `trust` silently discarded JSON errors",
+        "commit": "560d07b"
+      },
+      {
+        "description": "Process data lineage linked a flow label naming one output port to every input on the target, so inputs with no producer looked internally supplied; a label now links at most one output to one input",
+        "commit": "5d8456c"
+      },
+      {
+        "description": "Windows checkouts converted text files to CRLF, so binaries built there embedded CRLF in the SVG template CSS and the SVG golden tests failed; text files now check out with LF everywhere",
+        "commit": "e8ff19c"
+      }
+    ],
+    "changed": [
+      {
+        "description": "D2 annotations render as D2 notes on the receiving actor instead of self-messages",
+        "commit": "b139797"
+      },
+      {
+        "description": "D2 events render dotted; responses and tool results dashed",
+        "commit": "b139797"
+      },
+      {
+        "description": "D2 sequence container no longer shows a visible `sequence` label",
+        "commit": "b139797"
+      },
+      {
+        "description": "CLI entry point extracted to run(args, stdout, stderr) int; subcommands return exit codes and a flag parse error exits 2",
+        "commit": "560d07b"
+      }
+    ],
+    "tests": [
+      {
+        "description": "Compile every built-in example and an awkward-label fixture in all three D2 styles with the `d2` CLI when installed",
+        "commit": "6d29a8e"
+      },
+      {
+        "description": "Assert D2 sequence output has no keyed messages or reversed arrows",
+        "commit": "6d29a8e"
+      },
+      {
+        "description": "Golden-file tests for svg, svg-animated, svg-network, svg-component, svg-trust and infographic output across templates, themes, boundaries and animation presets",
+        "commit": "fa63d4b"
+      },
+      {
+        "description": "Table-driven CLI tests covering every subcommand through run(), including a scripted debug REPL",
+        "commit": "a71e457"
+      },
+      {
+        "description": "Table-driven tests for Entity and FlowAnimation accessors, executors, analyzer rules and the Step Functions exporter",
+        "commit": "b316228"
+      }
+    ]
+  },
   "releases": [
-    {
-      "version": "v0.6.1",
-      "date": "2026-10-01",
-      "highlights": [
-        {
-          "description": "D2 sequence diagrams now render as sequence diagrams: messages are edges, responses are dashed in the flow direction, and labels are quoted so punctuation cannot break compilation"
-        },
-        {
-          "description": "Unit test coverage raised from 73.5% to 87.6%: the CLI is now driven through a testable run() function, every SVG format has golden-file tests, and the library packages sit between 89% and 94%"
-        }
-      ],
-      "fixed": [
-        {
-          "description": "D2 sequence renderer emitted messages as `seqN:`-keyed shapes, which D2 drew as notes and phase groups as extra actors",
-          "commit": "b139797"
-        },
-        {
-          "description": "D2 responses were written as `from <- to`, pointing the arrow at the sender",
-          "commit": "b139797"
-        },
-        {
-          "description": "D2 conditions were prefixed as `[cond]` in unquoted labels, which D2 parses as an array and refuses to compile",
-          "commit": "b139797"
-        },
-        {
-          "description": "All D2 labels, actor names, group names and tooltips in sequence, flow and arch styles are now double-quoted",
-          "commit": "b139797"
-        },
-        {
-          "description": "CLI `version` reported 0.4.0 since v0.5.0; now 0.6.1",
-          "commit": "9355423"
-        },
-        {
-          "description": "Network SVG connection order and trust SVG node placement varied between runs; both now follow first-appearance order",
-          "commit": "175d171"
-        },
-        {
-          "description": "CLI `components` and `trust` crashed on protocols without a metadata block",
-          "commit": "560d07b"
-        },
-        {
-          "description": "Debug REPL lost arguments of multi-word commands and looped forever on EOF",
-          "commit": "560d07b"
-        },
-        {
-          "description": "CLI `init`, `roles`, `components` and `trust` silently discarded JSON errors",
-          "commit": "560d07b"
-        },
-        {
-          "description": "Process data lineage linked a flow label naming one output port to every input on the target, so inputs with no producer looked internally supplied; a label now links at most one output to one input",
-          "commit": "5d8456c"
-        }
-      ],
-      "changed": [
-        {
-          "description": "D2 annotations render as D2 notes on the receiving actor instead of self-messages",
-          "commit": "b139797"
-        },
-        {
-          "description": "D2 events render dotted; responses and tool results dashed",
-          "commit": "b139797"
-        },
-        {
-          "description": "D2 sequence container no longer shows a visible `sequence` label",
-          "commit": "b139797"
-        },
-        {
-          "description": "CLI entry point extracted to run(args, stdout, stderr) int; subcommands return exit codes and a flag parse error exits 2",
-          "commit": "560d07b"
-        }
-      ],
-      "tests": [
-        {
-          "description": "Compile every built-in example and an awkward-label fixture in all three D2 styles with the `d2` CLI when installed",
-          "commit": "6d29a8e"
-        },
-        {
-          "description": "Assert D2 sequence output has no keyed messages or reversed arrows",
-          "commit": "6d29a8e"
-        },
-        {
-          "description": "Golden-file tests for svg, svg-animated, svg-network, svg-component, svg-trust and infographic output across templates, themes, boundaries and animation presets",
-          "commit": "fa63d4b"
-        },
-        {
-          "description": "Table-driven CLI tests covering every subcommand through run(), including a scripted debug REPL",
-          "commit": "a71e457"
-        },
-        {
-          "description": "Table-driven tests for Entity and FlowAnimation accessors, executors, analyzer rules and the Step Functions exporter",
-          "commit": "b316228"
-        }
-      ]
-    },
     {
       "version": "v0.6.0",
       "date": "2026-09-13",
