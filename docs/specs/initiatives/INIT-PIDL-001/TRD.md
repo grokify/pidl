@@ -213,11 +213,16 @@ New rules, each with an ID, a severity and an explanation:
 
 | Rule | Reports |
 |------|---------|
-| `scenario-unused-role` | an entity in no scenario |
-| `scenario-token-before-issue` | a flow `verifies` a token that no earlier flow in the expanded scenario `issues` |
-| `scenario-signer-mismatch` | `signed_by` differs from `from` without an annotation explaining it |
-| `scenario-verifier-not-participant` | a token's `verified_by` entity is not a participant of a scenario that verifies it |
-| `scenario-unused-fragment` | a fragment no scenario includes |
+| `SEC017` Unused role | an entity that no flow uses |
+| `SEC018` Token checked before issued | a flow `verifies` a token that no earlier step of the expanded scenario `issues`; tokens no flow issues are treated as external and skipped |
+| `SEC019` Signer differs from sender or token holder | `signed_by` differs from `from`, or a request presents a token that an earlier step delivered to someone other than the signer (the AAuth four-party `agent_jkt` case); skipped when the flow has a security annotation |
+| `SEC020` Token verifier mismatch | a flow's receiver checks a token whose `verified_by` does not list it |
+| `SEC021` Unused fragment | a fragment no scenario includes |
+
+Rules carry a scope. Flow rules (the existing SEC001 to SEC016) check
+`Protocol.Flatten()` for a document with scenarios; document rules
+receive the protocol as written and report scenario paths such as
+`scenarios[1].flows[0] (exchange)`.
 
 ### 8. Composition (`resolve.go`)
 

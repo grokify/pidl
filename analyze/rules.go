@@ -19,7 +19,23 @@ type SecurityRule struct {
 
 	// Check runs the rule against a protocol and returns any risks found.
 	Check func(p *pidl.Protocol) []SecurityRisk
+
+	// Scope says what Check receives. Flow rules (the default) get a
+	// protocol whose Flows holds every flow once; document rules get the
+	// protocol as written, scenarios included.
+	Scope RuleScope
 }
+
+// RuleScope selects the protocol view a rule checks.
+type RuleScope int
+
+const (
+	// ScopeFlows rules check Protocol.Flows. For a document with scenarios
+	// they receive Protocol.Flatten().
+	ScopeFlows RuleScope = iota
+	// ScopeDocument rules receive the protocol as written.
+	ScopeDocument
+)
 
 // DefaultRules returns all built-in security rules.
 func DefaultRules() []SecurityRule {
@@ -42,6 +58,12 @@ func DefaultRules() []SecurityRule {
 		ruleHumanStepWithoutTimeout(),
 		// Provenance rules
 		ruleFlowWithoutVerification(),
+		// Scenario and token-verification rules
+		ruleUnusedRole(),
+		ruleTokenCheckedBeforeIssued(),
+		ruleSignerDiffersFromSender(),
+		ruleVerifierMismatch(),
+		ruleUnusedFragment(),
 	}
 }
 

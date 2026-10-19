@@ -1780,15 +1780,14 @@ Examples:
 		}
 	}
 
-	// Analyze one scenario, or every scenario's flows once.
+	// Analyze one scenario, or the whole document (Analyze checks every
+	// scenario's flows once and runs the scenario rules).
 	if *scenario != "" {
 		p, err = selectScenario(p, *scenario, true)
 		if err != nil {
 			fmt.Fprintf(stderr, "Error: %v\n", err)
 			return 1
 		}
-	} else {
-		p = p.Flatten()
 	}
 
 	// Build analysis options
