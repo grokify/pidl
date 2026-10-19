@@ -58,7 +58,7 @@ func List() []string {
 				continue
 			}
 			name := entry.Name()
-			if strings.HasSuffix(name, ".json") && !strings.HasPrefix(name, ".") {
+			if isExampleFile(name) {
 				names = append(names, strings.TrimSuffix(name, ".json"))
 			}
 		}
@@ -72,7 +72,7 @@ func List() []string {
 				continue
 			}
 			name := entry.Name()
-			if strings.HasSuffix(name, ".json") && !strings.HasPrefix(name, ".") {
+			if isExampleFile(name) {
 				names = append(names, "stdlib/"+strings.TrimSuffix(name, ".json"))
 			}
 		}
@@ -86,7 +86,7 @@ func List() []string {
 				continue
 			}
 			name := entry.Name()
-			if strings.HasSuffix(name, ".json") && !strings.HasPrefix(name, ".") {
+			if isExampleFile(name) {
 				names = append(names, "process/"+strings.TrimSuffix(name, ".json"))
 			}
 		}
@@ -114,11 +114,26 @@ func Get(name string) (*Example, error) {
 		return nil, fmt.Errorf("parsing example %s: %w", name, err)
 	}
 
+	// Embed the code of resolved samples when the example has a lock.
+	if lockData, err := examplesFS.ReadFile(pidl.SampleLockPath(filename)); err == nil {
+		lock, err := pidl.ParseSampleLock(lockData)
+		if err != nil {
+			return nil, fmt.Errorf("parsing samples for example %s: %w", name, err)
+		}
+		p = p.WithSamples(lock)
+	}
+
 	return &Example{
 		Name:     strings.TrimSuffix(filepath.Base(filename), ".json"),
 		Filename: filename,
 		protocol: p,
 	}, nil
+}
+
+// isExampleFile reports whether an embedded file name is an example
+// document, rather than a hidden file or a sample lock.
+func isExampleFile(name string) bool {
+	return strings.HasSuffix(name, ".json") && !strings.HasPrefix(name, ".") && !strings.HasSuffix(name, pidl.SampleLockSuffix)
 }
 
 // GetProtocol returns a parsed protocol by example name.

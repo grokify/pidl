@@ -757,9 +757,9 @@
       "type": "object",
       "description": "Code for a step or scenario: inline code, or a marked region of a file in a repository",
       "required": ["language"],
-      "oneOf": [
-        { "required": ["code"], "not": { "required": ["source"] } },
-        { "required": ["source"], "not": { "required": ["code"] } }
+      "anyOf": [
+        { "required": ["code"] },
+        { "required": ["source"] }
       ],
       "properties": {
         "language": {

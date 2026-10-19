@@ -31,7 +31,8 @@ type Sample struct {
 	// Role is the entity ID whose developer writes this code.
 	Role string `json:"role,omitempty"`
 
-	// Code is inline code. Exactly one of Code and Source is set.
+	// Code is inline code, or a source's code once resolved. A sample has
+	// Code, Source, or both.
 	Code string `json:"code,omitempty"`
 
 	// Source refers to a marked region of a file in a repository.
@@ -103,12 +104,24 @@ func ReadSampleLock(path string) (*SampleLock, error) {
 	if err != nil {
 		return nil, err
 	}
+	l, err := ParseSampleLock(data)
+	if err != nil {
+		return nil, fmt.Errorf("parsing %s: %w", path, err)
+	}
+	return l, nil
+}
+
+// ParseSampleLock parses a lock file's contents.
+func ParseSampleLock(data []byte) (*SampleLock, error) {
 	var l SampleLock
 	if err := json.Unmarshal(data, &l); err != nil {
-		return nil, fmt.Errorf("parsing %s: %w", path, err)
+		return nil, err
 	}
 	return &l, nil
 }
+
+// SampleLockSuffix ends the name of a document's sample lock file.
+const SampleLockSuffix = ".samples.json"
 
 // WriteFile writes the lock with entries sorted by source.
 func (l *SampleLock) WriteFile(path string) error {
@@ -123,7 +136,7 @@ func (l *SampleLock) WriteFile(path string) error {
 // SampleLockPath returns the conventional lock path for a document:
 // "aauth.json" uses "aauth.samples.json".
 func SampleLockPath(docPath string) string {
-	return strings.TrimSuffix(docPath, filepath.Ext(docPath)) + ".samples.json"
+	return strings.TrimSuffix(docPath, filepath.Ext(docPath)) + SampleLockSuffix
 }
 
 // SourceReader reads a file of a repository at a ref ("" for the working
@@ -396,8 +409,8 @@ func validateSamples(field string, samples []Sample, entityIDs map[string]bool) 
 		case !sampleLanguagePattern.MatchString(s.Language):
 			errs = append(errs, ValidationError{Field: sf + ".language", Message: "must match pattern ^[a-z][a-z0-9+#-]*$"})
 		}
-		if (s.Code == "") == (s.Source == nil) {
-			errs = append(errs, ValidationError{Field: sf, Message: "set exactly one of code and source"})
+		if s.Code == "" && s.Source == nil {
+			errs = append(errs, ValidationError{Field: sf, Message: "set code or source"})
 		}
 		if s.Role != "" && !entityIDs[s.Role] {
 			errs = append(errs, ValidationError{Field: sf + ".role", Message: fmt.Sprintf("unknown entity %q", s.Role)})

@@ -558,8 +558,8 @@ A sample is code that sends or handles a step's message, such as an SDK call, sh
 | `language` | Yes | Highlighter name, such as `go`, `typescript`, `python` or `csharp`. `http` and `curl` are generated, not samples |
 | `label` | No | Distinguishes samples in one language |
 | `role` | No | Entity ID whose developer writes this code |
-| `code` | One of `code`, `source` | Inline code |
-| `source` | One of `code`, `source` | `repo`, optional `ref` (tag or commit), `path` within the repository, and `region` |
+| `code` | `code`, `source` or both | Inline code, or a source's code once resolved |
+| `source` | `code`, `source` or both | `repo`, optional `ref` (tag or commit), `path` within the repository, and `region` |
 
 **Regions.** A source names the code between `pidl:begin <region>` and `pidl:end <region>` markers, written in comments in any syntax. Marker lines of other regions inside it are dropped, common indentation is removed, and blank lines at either end are trimmed. Sources should point at tested files, so samples compile and run with each release of the code they show.
 
@@ -598,7 +598,7 @@ Numeric ordering fields are not used. The `sequence` field on a flow is deprecat
 13. `variant_of` names a main scenario that is not itself a variant, in the same group, and `variant_label` is set exactly when `variant_of` is
 14. Flow IDs match `^[a-z][a-z0-9_-]*$` and are unique within their flow list, and step IDs stay unique once fragments are expanded
 15. Narration keys are BCP 47 language tags with non-empty text, and every narration object includes the source language; representation keys are `http`, `curl` or a sample language on the step; include steps carry no narration
-16. A sample has a language other than `http` and `curl`, exactly one of `code` and `source`, a known `role`, and a source path inside its repository
+16. A sample has a language other than `http` and `curl`, `code` or `source` (or both, once resolved), a known `role`, and a source path inside its repository
 
 ## Schema
 
