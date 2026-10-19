@@ -31,6 +31,15 @@
         "$ref": "#/$defs/flow"
       }
     },
+    "pronunciations": {
+      "type": "object",
+      "description": "Spoken form of a term per language, such as {\"agent_jkt\": {\"en-US\": \"agent J K T\"}}",
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": { "$ref": "#/$defs/languageTag" },
+        "additionalProperties": { "type": "string", "minLength": 1 }
+      }
+    },
     "groups": {
       "type": "array",
       "description": "Ordered navigation sections that scenarios name in their group. Group order, then scenario order within a group, sets the output order.",
@@ -91,8 +100,51 @@
           "items": {
             "$ref": "#/$defs/reference"
           }
+        },
+        "language": {
+          "$ref": "#/$defs/languageTag",
+          "description": "BCP 47 tag of the narration source language and fallback. Defaults to en-US."
         }
       }
+    },
+    "languageTag": {
+      "type": "string",
+      "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$",
+      "description": "A BCP 47 language tag, such as en-US, fr or zh-Hans"
+    },
+    "narration": {
+      "type": "object",
+      "description": "Text written to be spoken, keyed by BCP 47 language tag. Includes the source language.",
+      "propertyNames": { "$ref": "#/$defs/languageTag" },
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "briefing": {
+      "type": "object",
+      "description": "Introduces a scenario before its steps",
+      "properties": {
+        "why": {
+          "type": "string",
+          "description": "Why the scenario exists and what problem it solves, as prose"
+        },
+        "points": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Key points, in display order"
+        },
+        "narration": {
+          "$ref": "#/$defs/narration",
+          "description": "Spoken over the briefing"
+        }
+      },
+      "additionalProperties": false
+    },
+    "representationNarration": {
+      "type": "object",
+      "description": "Narration used when a step is viewed in one representation",
+      "properties": {
+        "narration": { "$ref": "#/$defs/narration" }
+      },
+      "additionalProperties": false
     },
     "reference": {
       "type": "object",
@@ -331,6 +383,13 @@
           "type": "string",
           "description": "Label for the variant in a toggle, such as \"With user approval\". Required with variant_of."
         },
+        "narration": {
+          "$ref": "#/$defs/narration",
+          "description": "Spoken when the scenario opens"
+        },
+        "briefing": {
+          "$ref": "#/$defs/briefing"
+        },
         "flows": {
           "type": "array",
           "items": { "$ref": "#/$defs/flow" },
@@ -380,6 +439,16 @@
           "type": "string",
           "pattern": "^[a-z][a-z0-9_-]*$",
           "description": "Step identifier, unique within its scenario, for deep links, samples and narration. Steps inside an included fragment are addressed as <include>.<id>."
+        },
+        "narration": {
+          "$ref": "#/$defs/narration",
+          "description": "Spoken for this step. Tools fall back to description without it."
+        },
+        "representations": {
+          "type": "object",
+          "description": "Narration overrides by representation: http or curl",
+          "propertyNames": { "enum": ["http", "curl"] },
+          "additionalProperties": { "$ref": "#/$defs/representationNarration" }
         },
         "from": {
           "type": "string",

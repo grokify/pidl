@@ -35,7 +35,9 @@ A PIDL document is a JSON object. It describes either one flow (`flows`) or an o
 | `entities` | Yes | Participants in the protocol, in display order |
 | `phases` | No | Logical grouping of flows |
 | `flows` | One of `flows` or `scenarios` | Interactions between entities, as a single flow |
+| `groups` | No | Ordered navigation sections for scenarios (see [Groups](#groups)) |
 | `scenarios` | One of `flows` or `scenarios` | Named, ordered sequences of flows (see [Scenarios](#scenarios)) |
+| `pronunciations` | No | Spoken forms of terms per language (see [Narration](#narration)) |
 | `metadata` | No | Tokens, networks, components and trust relations |
 
 ## Protocol Metadata
@@ -70,6 +72,7 @@ The `protocol` object contains metadata about the protocol being described.
 | `description` | string | No | Brief description |
 | `category` | enum | No | One of: `auth`, `agent`, `messaging`, `provisioning`, `other` |
 | `references` | array | No | Links to specifications |
+| `language` | string | No | BCP 47 tag of the narration source language (default `en-US`) |
 
 ### Reference Object
 
@@ -211,6 +214,8 @@ Flows are the core semantic unit: directed interactions between entities.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `id` | string | No | Step identifier, unique within its scenario and matching `^[a-z][a-z0-9_-]*$` (see [Step IDs](#step-ids)) |
+| `narration` | object | No | Spoken for this step, by language (see [Narration](#narration)) |
+| `representations` | object | No | Narration overrides for `http` or `curl` |
 | `from` | string | Yes¹ | Source entity ID |
 | `to` | string | Yes¹ | Target entity ID |
 | `action` | string | Yes¹ | Action identifier |
@@ -396,6 +401,8 @@ A document has either `flows` or `scenarios`. A document with `flows` behaves as
 | `group` | string | No | ID of the [group](#groups) the scenario is listed under. Fragments have no group |
 | `variant_of` | string | No | ID of the main scenario this one is a [variant](#variants) of |
 | `variant_label` | string | With `variant_of` | Label for the variant in a toggle, such as "With user approval" |
+| `narration` | object | No | Spoken when the scenario opens, by language (see [Narration](#narration)) |
+| `briefing` | object | No | Why the scenario exists, its key points, and narration for them |
 | `flows` | array | Yes | The scenario's steps, in order |
 
 ### Groups
@@ -450,6 +457,42 @@ Token definitions and flow security can say who checks what, so reviews and gene
 | `verifies` | flow `security` | Token IDs the receiver checks |
 
 `issues` and `verifies` let tools follow a token through a scenario: who it was delivered to, who presents it, and who signs the request that carries it.
+
+## Narration
+
+Narration is text written to be spoken, for autoplay, audio and video. On-screen prose such as `description` often contains identifiers (`agent_jkt`, `aa-auth+jwt`) that read badly aloud, so narration is a separate script.
+
+Every narration value is an object keyed by BCP 47 language tag:
+
+```json
+{
+  "protocol": {"id": "aauth", "name": "AAuth", "language": "en-US"},
+  "pronunciations": {"agent_jkt": {"en-US": "agent J K T"}},
+  "scenarios": [{
+    "id": "agent-identity",
+    "name": "Agent identity",
+    "narration": {"en-US": "The agent proves who it is.", "fr-FR": "L'agent prouve son identité."},
+    "briefing": {
+      "why": "Resources need to know which agent is calling before deciding anything else.",
+      "points": ["Every request is signed", "No server issues a token"],
+      "narration": {"en-US": "Why agent identity comes first."}
+    },
+    "flows": [{
+      "id": "sign",
+      "from": "agent", "to": "resource", "action": "signed_request",
+      "narration": {"en-US": "The agent signs the request with its key."},
+      "representations": {
+        "curl": {"narration": {"en-US": "This curl command replays the signed request."}}
+      }
+    }]
+  }]
+}
+```
+
+- **Source language.** `protocol.language` (default `en-US`) is the language a document is written in. Every narration object includes it, and it is the fallback for any language a narration lacks.
+- **Representations.** A step's `representations` override its narration when the reader views the step as `http` or `curl`; sample languages join this list when samples are added. The fallback order is: the representation's narration in the chosen language, then in the source language, then the step's own narration in the chosen language, then in the source language, then `description`.
+- **Pronunciations** map a term to its spoken form per language, in the shape videoascode reads, so text-to-speech tools can use them unchanged.
+- **Include steps** carry no narration; their fragment's steps do.
 
 ## Flow Examples
 
@@ -523,6 +566,7 @@ Numeric ordering fields are not used. The `sequence` field on a flow is deprecat
 12. Group IDs are unique and match `^[a-z][a-z0-9_-]*$`; a scenario's `group` names a declared group, and fragments have no group
 13. `variant_of` names a main scenario that is not itself a variant, in the same group, and `variant_label` is set exactly when `variant_of` is
 14. Flow IDs match `^[a-z][a-z0-9_-]*$` and are unique within their flow list, and step IDs stay unique once fragments are expanded
+15. Narration keys are BCP 47 language tags with non-empty text, and every narration object includes the source language; representation keys are `http` or `curl`; include steps carry no narration
 
 ## Schema
 
