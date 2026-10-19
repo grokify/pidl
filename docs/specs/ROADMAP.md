@@ -2,7 +2,7 @@
 
 **Protocol Interaction Description Language** - A JSON-based DSL for describing protocol choreography that compiles to diagrams.
 
-**Current Version**: v0.5.0
+**Current Version**: v0.6.0
 **Status**: Active Development
 
 ---
@@ -15,12 +15,10 @@
 | v0.2.0 | Enhanced Flow Semantics | ✅ Done |
 | v0.3.0 | SVG Rendering & Network Boundaries | ✅ Done |
 | v0.4.0 | State, Security, Roles, Composition, Execution, Analysis | ✅ Done |
-| v0.5.0 | Process Spec Foundation | ✅ Done |
-| v0.6.0 | Process Spec Rendering | ✅ Done |
-| v0.6.1 | Process Spec Examples | ✅ Done |
-| v0.7.0 | Process Spec Analysis | ✅ Done |
-| v0.8.0 | Infographic Renderer & Documentation | ✅ Done |
-| v0.5.0+ | Data Lineage, Parallel, Cost, Workflow Exports, Integrations | ✅ Done |
+| v0.5.0 | Process Spec: foundation, rendering, examples, analysis, infographic renderer | ✅ Done |
+| v0.5.0 | Data Lineage, Parallel, Cost, Workflow Exports, Integrations | ✅ Done |
+| v0.6.0 | Flow Verification Provenance | ✅ Done |
+| v0.7.0 | Ordered Roles and Scenarios, plus D2, determinism and Windows fixes | 🔄 In Progress |
 | v1.0.0 | Production Ready Release | 🔲 Next |
 
 ---
@@ -99,9 +97,9 @@
 
 ---
 
-## Completed: Process Spec Profile (v0.5.0 - v0.6.0)
+## Completed: Process Spec Profile (v0.5.0)
 
-### v0.5.0: Process Spec Foundation ✅
+### Process Spec Foundation ✅ (v0.5.0)
 
 **Goal**: Extend PIDL to describe process/workflow specifications with step types and data ports.
 
@@ -140,7 +138,7 @@
 
 ---
 
-### v0.6.0: Process Spec Rendering ✅
+### Process Spec Rendering ✅ (v0.5.0)
 
 **Goal**: Visual differentiation for process steps and data ports in diagrams.
 
@@ -178,9 +176,9 @@
 
 ---
 
-## Upcoming: Process Spec Continuation
+## Completed: Process Spec Continuation (v0.5.0)
 
-### v0.6.1: Process Spec Examples ✅
+### Process Spec Examples ✅ (v0.5.0)
 
 **Goal**: Provide reference process specifications.
 
@@ -200,7 +198,7 @@
 
 ---
 
-### v0.7.0: Process Spec Analysis ✅
+### Process Spec Analysis ✅ (v0.5.0)
 
 **Goal**: Process-aware security analysis and simulation enhancements.
 
@@ -235,7 +233,7 @@ New types and methods:
 
 ---
 
-### v0.8.0: Infographic Renderer & Documentation ✅
+### Infographic Renderer & Documentation ✅ (v0.5.0)
 
 **Goal**: LinkedIn-friendly infographic renderer and complete documentation.
 
@@ -314,6 +312,21 @@ pidl generate -f infographic --size=datasheet-tile --no-animate --theme=minimal 
 - [x] LLM cost presets (GPT-4, Claude-3)
 - [x] Process cost analysis
 - [x] Execution cost calculation
+
+---
+
+## In Progress: v0.7.0
+
+### Ordered Roles and Scenarios
+
+One PIDL file holds a protocol's ordered roles and an ordered list of named scenarios, with reusable fragments. Array position is the only source of order, so diagrams, guides and presentations generated from one file agree.
+
+### Fixes Shipping in v0.7.0
+
+- [x] D2 sequence diagrams render as sequence diagrams
+- [x] Deterministic network and trust SVG output
+- [x] Process port matching links a labeled flow's output to one input
+- [x] Text files check out with LF on every platform
 
 ---
 
