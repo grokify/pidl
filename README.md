@@ -35,6 +35,7 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 - 🗂️ **Scenarios**: one file holds a protocol's roles and an ordered list of journeys, with shared fragments drawn as labeled boxes
 - 🔢 **Consistent ordering**: roles, scenarios and steps follow the file's order in every diagram, table and outline
 - 📑 **Overview outputs**: roles-by-scenario matrix, token table, and an ordered outline for guides and slide decks
+- 🖥️ **Walkthrough viewer**: a self-contained HTML page that steps through each scenario, highlighting the active roles and message and showing example requests, responses and decoded tokens
 - 🎨 **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT, D2, SVG
 - 🎬 **Animated SVG** with CSS flow visualizations and moving dots
 - 🌐 **Network boundary diagrams** for trust zone visualization
@@ -674,6 +675,8 @@ Formats:
 | `token-table` | Markdown table of tokens, checkers and claims (whole file) |
 | `outline` | Markdown outline of roles, scenarios and tokens (whole file) |
 | `outline-json` | The outline as JSON (whole file) |
+| `walkthrough-json` | Expanded scenarios with examples and findings, for viewers (whole file) |
+| `viewer` | Self-contained HTML walkthrough viewer (whole file) |
 
 ### examples
 
@@ -852,7 +855,7 @@ xml, _ := bpmn.Export(p)
 
 | Example | Protocol |
 |---------|----------|
-| `aauth_protocol` | AAuth (draft-11): five access modes as scenarios |
+| `aauth_protocol` | AAuth (draft-11): five access modes as scenarios, with example requests, responses and tokens |
 | `oauth2_authorization_code` | OAuth 2.0 Authorization Code Flow |
 | `oauth2_pkce` | OAuth 2.0 with PKCE |
 | `oauth2_with_states` | OAuth 2.0 with State Tracking |

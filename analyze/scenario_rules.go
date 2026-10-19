@@ -2,6 +2,7 @@ package analyze
 
 import (
 	"fmt"
+	"regexp"
 	"slices"
 
 	"github.com/grokify/pidl"
@@ -299,4 +300,26 @@ func hasSecurityAnnotation(f pidl.Flow) bool {
 		}
 	}
 	return false
+}
+
+// flattenedFlowLocation matches the locations flow rules report.
+var flattenedFlowLocation = regexp.MustCompile(`^flows\[(\d+)\]$`)
+
+// remapFlattenedLocations rewrites "flows[i]" locations, which index the
+// flattened protocol, to the flow as written, such as
+// "scenarios[1].flows[0] (consent)". writtenFlows lists flows in the same
+// order Protocol.Flatten does.
+func remapFlattenedLocations(p *pidl.Protocol, risks []SecurityRisk) {
+	sites := writtenFlows(p)
+	for i := range risks {
+		m := flattenedFlowLocation.FindStringSubmatch(risks[i].Location)
+		if m == nil {
+			continue
+		}
+		var idx int
+		if _, err := fmt.Sscanf(m[1], "%d", &idx); err != nil || idx >= len(sites) {
+			continue // not a flattened index we produced; leave it as reported
+		}
+		risks[i].Location = sites[idx].location
+	}
 }

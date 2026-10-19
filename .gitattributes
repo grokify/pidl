@@ -1,3 +1,6 @@
 # Check out text files with LF on every platform. go:embed templates and
 # golden test files must match byte for byte across operating systems.
 * text=auto eol=lf
+
+# Generated single-file viewer build
+render/viewer/viewer.html linguist-generated=true

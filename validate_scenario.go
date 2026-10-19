@@ -206,6 +206,9 @@ func validateIncludeStep(field string, f Flow) ValidationErrors {
 	if len(f.DataMappings) > 0 {
 		bad = append(bad, "data_mappings")
 	}
+	if f.Example != nil {
+		bad = append(bad, "example")
+	}
 	if len(bad) == 0 {
 		return nil
 	}

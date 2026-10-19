@@ -185,7 +185,7 @@ Options:
 func cmdGenerate(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
 	fs.SetOutput(stderr)
-	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table, outline, outline-json")
+	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table, outline, outline-json, walkthrough-json, viewer")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
 	templateDir := fs.String("template-dir", "", "Path to custom SVG template directory")
@@ -238,6 +238,8 @@ Formats:
   token-table        Markdown table of tokens, checkers and claims (whole file)
   outline            Markdown outline of roles, scenarios and tokens for guides and decks
   outline-json       The same outline as JSON
+  walkthrough-json   Expanded scenarios with examples and findings, for viewers
+  viewer             Self-contained HTML walkthrough viewer (whole file)
 
 SVG Templates:
   default          Clean, professional styling

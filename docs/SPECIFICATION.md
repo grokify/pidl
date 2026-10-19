@@ -224,6 +224,7 @@ Flows are the core semantic unit: directed interactions between entities.
 | `annotations` | array | No | Typed annotations for tooling |
 | `alternatives` | array | No | Alternative flow paths |
 | `verification` | object | No | Evidentiary provenance (tier/source/citation) |
+| `example` | object | No | Illustrative request, response and decoded tokens (see [Flow Examples](#flow-examples)) |
 
 ¹ Not set on an include step, which has `include` instead.
 
@@ -418,6 +419,46 @@ Token definitions and flow security can say who checks what, so reviews and gene
 | `verifies` | flow `security` | Token IDs the receiver checks |
 
 `issues` and `verifies` let tools follow a token through a scenario: who it was delivered to, who presents it, and who signs the request that carries it.
+
+## Flow Examples
+
+A flow can carry an illustrative message for walkthrough viewers. Examples explain a protocol; they are not message schemas.
+
+```json
+{
+  "from": "agent", "to": "ps", "action": "auth_token_request",
+  "example": {
+    "source": "draft-11 §7.2.1",
+    "kind": "draft",
+    "request": {
+      "method": "POST",
+      "url": "https://ps.example/token",
+      "headers": [
+        {"name": "Content-Type", "value": "application/json"},
+        {"name": "Signature-Key", "value": "sig=jwt;jwt=\"eyJ...\""}
+      ],
+      "body": {"resource_token": "eyJ...", "presented_token": "eyJ..."}
+    },
+    "tokens": [
+      {"token": "resource_token", "label": "request body",
+       "header": {"alg": "Ed25519", "typ": "aa-resource+jwt"},
+       "payload": {"iss": "https://resource.example", "agent_jkt": "kPrK..."}}
+    ],
+    "note": "The PS checks agent_jkt against the key that signed this request."
+  }
+}
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `source` | Yes | Citation, such as a specification section |
+| `kind` | Yes | `draft`: taken from the source, values aligned to the scenario; `derived`: written from the source's normative text |
+| `request` | One of `request`, `response`, `tokens` | `method`, `url`, ordered `headers` (`name`, `value`) and a JSON `body` |
+| `response` | One of `request`, `response`, `tokens` | `status`, ordered `headers` and a JSON `body` |
+| `tokens` | One of `request`, `response`, `tokens` | Decoded tokens: `token` (a token definition ID), `label`, `header` and `payload` |
+| `note` | No | What the reader should notice |
+
+Headers are a list so they keep their order. Include steps cannot carry examples.
 
 ## Ordering
 

@@ -22,6 +22,7 @@ func TestDocumentGolden(t *testing.T) {
 		{"document_outline", "tokens_demo", render.FormatOutline, ".md"},
 		{"document_outline_json", "tokens_demo", render.FormatOutlineJSON, ".json"},
 		{"document_outline_legacy", "../../examples/oauth2_pkce", render.FormatOutline, ".md"},
+		{"document_walkthrough", "tokens_demo", render.FormatWalkthroughJSON, ".json"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

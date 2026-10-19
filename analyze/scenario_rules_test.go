@@ -143,13 +143,13 @@ func TestFlowRulesSeeScenarioFlows(t *testing.T) {
 	p.Entities[1].TrustLevel = pidl.TrustLevelTrusted
 	opts := DefaultAnalysisOptions()
 	opts.MinSeverity = SeverityInfo
-	found := false
+	var locs []string
 	for _, r := range Analyze(p, opts).Risks {
 		if r.ID == "SEC001" {
-			found = true
+			locs = append(locs, r.Location)
 		}
 	}
-	if !found {
-		t.Fatal("flow rule SEC001 did not run on scenario flows")
+	if !reflect.DeepEqual(locs, []string{"scenarios[0].flows[0] (federated)", "scenarios[0].flows[3] (federated)", "scenarios[0].flows[4] (federated)"}) {
+		t.Fatalf("SEC001 locations = %v, want written scenario locations", locs)
 	}
 }
