@@ -534,6 +534,10 @@ A flow can carry an illustrative message for walkthrough viewers. Examples expla
 
 Headers are a list so they keep their order. Include steps cannot carry examples.
 
+**Wire form of a body.** A body is written as JSON for readability. On the wire it is the compact JSON encoding with keys in the order written; a body written as a JSON string is sent as the string's contents, for media types that are not JSON. A `Content-Digest` in an example covers this wire form.
+
+**cURL.** Tools generate an equivalent `curl` command for every example request: the method, the URL, each header in order and the wire body. curl cannot create HTTP message signatures, so a signed request's command replays the example's signature headers and says so in a leading comment.
+
 ## Ordering
 
 Order in PIDL comes from one source: the position of an item in its JSON array. Every output generated from a document (diagrams, tables, outlines, file listings) uses the same order, so presentations, guides and diagrams built from one file agree.
