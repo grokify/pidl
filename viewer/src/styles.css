@@ -603,8 +603,6 @@ body,
   font-size: 14px;
   line-height: 1.5;
   color: var(--muted);
-  max-height: 42px;
-  overflow: auto;
 }
 .narrative {
   flex: none;
