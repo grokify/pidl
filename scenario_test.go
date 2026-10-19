@@ -264,3 +264,18 @@ func TestIncludeSpan(t *testing.T) {
 		t.Fatalf("Flatten Fragments = %+v, want nil", got)
 	}
 }
+
+func TestScenarioSummaries(t *testing.T) {
+	got := scenarioProtocol().ScenarioSummaries()
+	want := []ScenarioSummary{
+		{Position: 1, ID: "agent-identity", Name: "Agent identity", Participants: []string{"agent", "resource"}, Steps: 2},
+		{Position: 2, ID: "three-party", Name: "PS authorization", Participants: []string{"person", "agent", "resource", "ps"}, Steps: 4, Includes: []string{"interaction"}},
+		{Position: 3, ID: "interaction", Name: "Interaction", Fragment: true, Participants: []string{"person", "ps"}, Steps: 2},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("ScenarioSummaries =\n%+v\nwant\n%+v", got, want)
+	}
+	if s := (&Protocol{}).ScenarioSummaries(); s != nil {
+		t.Fatalf("ScenarioSummaries on empty protocol = %+v, want nil", s)
+	}
+}

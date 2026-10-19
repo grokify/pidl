@@ -262,3 +262,50 @@ func (p *Protocol) Flatten() *Protocol {
 	}
 	return result
 }
+
+// ScenarioSummary describes one scenario for listings.
+type ScenarioSummary struct {
+	// Position is the 1-based position used for numbered output: main
+	// scenarios first in document order, then fragments.
+	Position     int      `json:"position"`
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	Fragment     bool     `json:"fragment,omitempty"`
+	Participants []string `json:"participants"`
+	Steps        int      `json:"steps"`
+	Includes     []string `json:"includes,omitempty"`
+}
+
+// ScenarioSummaries lists the scenarios in output order: main scenarios in
+// document order, then fragments in document order. Positions match the
+// file numbering used when rendering every scenario.
+func (p *Protocol) ScenarioSummaries() []ScenarioSummary {
+	var out []ScenarioSummary
+	add := func(sc Scenario) {
+		s := ScenarioSummary{
+			Position:     len(out) + 1,
+			ID:           sc.ID,
+			Name:         sc.Name,
+			Fragment:     sc.Fragment,
+			Participants: p.ScenarioParticipants(sc.ID),
+			Steps:        len(sc.Flows),
+		}
+		for _, f := range sc.Flows {
+			if f.IsInclude() {
+				s.Includes = append(s.Includes, f.Include)
+			}
+		}
+		out = append(out, s)
+	}
+	for _, sc := range p.Scenarios {
+		if !sc.Fragment {
+			add(sc)
+		}
+	}
+	for _, sc := range p.Scenarios {
+		if sc.Fragment {
+			add(sc)
+		}
+	}
+	return out
+}

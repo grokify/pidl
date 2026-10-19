@@ -65,6 +65,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cmdExamples(rest, stdout, stderr)
 	case "init":
 		return cmdInit(rest, stdout, stderr)
+	case "scenarios":
+		return cmdScenarios(rest, stdout, stderr)
 	case "roles":
 		return cmdRoles(rest, stdout, stderr)
 	case "components":
@@ -113,6 +115,7 @@ Commands:
   diff         Compare two protocol files
   debug        Interactive protocol debugger
   analyze      Security analysis of protocol
+  scenarios    List scenarios in a PIDL file, in output order
   roles        List protocol roles from PIDL files
   components   List deployment components from PIDL files
   trust        List trust relationships from PIDL files
@@ -1046,6 +1049,84 @@ Examples:
 				fmt.Fprintf(stdout, "%-20s %-25s %-12s %-20s %s\n", e.ID, truncate(e.Name, 25), r.Protocol, r.Role, r.Variant)
 			}
 		}
+	}
+	return 0
+}
+
+func cmdScenarios(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("scenarios", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	formatStr := fs.String("f", "table", "Output format: table, json")
+	fs.Usage = func() {
+		fmt.Fprint(stdout, `Usage: pidl scenarios [options] <file>
+
+List the scenarios in a PIDL file. Main scenarios come first in document
+order, then fragments; the # column matches the file numbers written by
+generate --all-scenarios --include-fragments.
+
+Options:
+`)
+		fs.PrintDefaults()
+		fmt.Fprint(stdout, `
+Examples:
+  pidl scenarios aauth.json
+  pidl scenarios -f json aauth.json
+`)
+	}
+
+	if err := fs.Parse(args); err != nil {
+		return flagExitCode(err)
+	}
+	if fs.NArg() == 0 {
+		fs.Usage()
+		return 1
+	}
+
+	p, err := loadProtocol(fs.Arg(0))
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
+	}
+	if p.NeedsResolution() {
+		opts := pidl.DefaultResolveOptions()
+		opts.BasePath = filepath.Dir(fs.Arg(0))
+		p, err = p.Resolve(opts)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error resolving: %v\n", err)
+			return 1
+		}
+	}
+
+	summaries := p.ScenarioSummaries()
+
+	if *formatStr == "json" {
+		if summaries == nil {
+			summaries = []pidl.ScenarioSummary{}
+		}
+		data, err := jsonMarshalIndent(summaries)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error marshaling JSON: %v\n", err)
+			return 1
+		}
+		fmt.Fprintln(stdout, string(data))
+		return 0
+	}
+
+	if len(summaries) == 0 {
+		fmt.Fprintf(stdout, "%s has no scenarios; it has a single flow list with %d flows.\n", p.ProtocolMeta.Name, len(p.Flows))
+		return 0
+	}
+
+	fmt.Fprintf(stdout, "Scenarios in %s\n\n", p.ProtocolMeta.Name)
+	fmt.Fprintf(stdout, "%-3s %-24s %-30s %-9s %5s  %s\n", "#", "ID", "NAME", "KIND", "STEPS", "PARTICIPANTS")
+	fmt.Fprintln(stdout, strings.Repeat("-", 100))
+	for _, s := range summaries {
+		kind := "main"
+		if s.Fragment {
+			kind = "fragment"
+		}
+		fmt.Fprintf(stdout, "%-3d %-24s %-30s %-9s %5d  %s\n",
+			s.Position, truncate(s.ID, 24), truncate(s.Name, 30), kind, s.Steps, strings.Join(s.Participants, ", "))
 	}
 	return 0
 }
