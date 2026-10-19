@@ -285,28 +285,28 @@
   <!-- Entities -->
   <g class="entities">
     <rect class="entity-box" x="50" y="50" width="100" height="50" rx="4"/>
-    <text class="entity-text" x="100" y="75">LLM Agent</text>
+    <text class="entity-text" x="100" y="75">User</text>
     <rect class="entity-box" x="50" y="130" width="100" height="50" rx="4"/>
-    <text class="entity-text" x="100" y="155">MCP Client</text>
+    <text class="entity-text" x="100" y="155">LLM Agent</text>
     <rect class="entity-box" x="50" y="210" width="100" height="50" rx="4"/>
-    <text class="entity-text" x="100" y="235">MCP Tool Server</text>
+    <text class="entity-text" x="100" y="235">MCP Client</text>
     <rect class="entity-box" x="50" y="290" width="100" height="50" rx="4"/>
-    <text class="entity-text" x="100" y="315">User</text>
+    <text class="entity-text" x="100" y="315">MCP Tool Server</text>
   </g>
 
   <!-- Connections -->
   <g class="connections">
-    <path class="connection" d="M100,155 Q100,155 100,235" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="190" text-anchor="middle">Initialize Connection, tools/list, tools/call (tool_name, arguments)</text>
-    <path class="connection" d="M100,235 Q100,235 100,155" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="190" text-anchor="middle">Server Info + Capabilities, Available Tools + Schemas, Tool Execution Result</text>
-    <path class="connection" d="M100,315 Q100,315 100,75" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="190" text-anchor="middle">User Message</text>
+    <path class="connection" d="M100,235 Q100,235 100,315" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="270" text-anchor="middle">Initialize Connection, tools/list, tools/call (tool_name, arguments)</text>
+    <path class="connection" d="M100,315 Q100,315 100,235" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="270" text-anchor="middle">Server Info + Capabilities, Available Tools + Schemas, Tool Execution Result</text>
     <path class="connection" d="M100,75 Q100,75 100,155" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="110" text-anchor="middle">Decide to Call Tool</text>
+    <text class="connection-label" x="100" y="110" text-anchor="middle">User Message</text>
+    <path class="connection" d="M100,155 Q100,155 100,235" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="190" text-anchor="middle">Decide to Call Tool</text>
+    <path class="connection" d="M100,235 Q100,235 100,155" marker-end="url(#arrow-connection)"/>
+    <text class="connection-label" x="100" y="190" text-anchor="middle">Tool Result</text>
     <path class="connection" d="M100,155 Q100,155 100,75" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="110" text-anchor="middle">Tool Result</text>
-    <path class="connection" d="M100,75 Q100,75 100,315" marker-end="url(#arrow-connection)"/>
-    <text class="connection-label" x="100" y="190" text-anchor="middle">Generated Response</text>
+    <text class="connection-label" x="100" y="110" text-anchor="middle">Generated Response</text>
   </g>
 </svg>

@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -64,6 +65,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cmdExamples(rest, stdout, stderr)
 	case "init":
 		return cmdInit(rest, stdout, stderr)
+	case "scenarios":
+		return cmdScenarios(rest, stdout, stderr)
 	case "roles":
 		return cmdRoles(rest, stdout, stderr)
 	case "components":
@@ -112,6 +115,7 @@ Commands:
   diff         Compare two protocol files
   debug        Interactive protocol debugger
   analyze      Security analysis of protocol
+  scenarios    List scenarios in a PIDL file, in output order
   roles        List protocol roles from PIDL files
   components   List deployment components from PIDL files
   trust        List trust relationships from PIDL files
@@ -181,7 +185,7 @@ Options:
 func cmdGenerate(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
 	fs.SetOutput(stderr)
-	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic")
+	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table, outline, outline-json")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
 	templateDir := fs.String("template-dir", "", "Path to custom SVG template directory")
@@ -190,6 +194,10 @@ func cmdGenerate(args []string, stdout, stderr io.Writer) int {
 	showSecurity := fs.Bool("show-security", true, "Show security annotations on flows")
 	showTrust := fs.Bool("show-trust", true, "Show trust levels and infer boundaries from trust")
 	resolveImports := fs.Bool("resolve", false, "Resolve imports and extends before generating")
+	scenario := fs.String("scenario", "", "Scenario ID to render (required for files with scenarios)")
+	expand := fs.Bool("expand", false, "Inline included fragments instead of drawing them as boxes")
+	allScenarios := fs.Bool("all-scenarios", false, "Render every scenario to its own file in the -o directory")
+	includeFragments := fs.Bool("include-fragments", false, "With --all-scenarios, also render fragments, after the main scenarios")
 	var boundaries boundaryFlags
 	fs.Var(&boundaries, "boundary", "Network boundary assignment (format: boundary_id:entity1,entity2). Can be repeated.")
 
@@ -226,6 +234,10 @@ Formats:
   svg-component      SVG deployment component diagram
   svg-trust          SVG trust relationship diagram
   infographic        Compact SVG for LinkedIn/datasheets with animated dots
+  scenario-matrix    Markdown table of roles by scenario (whole file)
+  token-table        Markdown table of tokens, checkers and claims (whole file)
+  outline            Markdown outline of roles, scenarios and tokens for guides and decks
+  outline-json       The same outline as JSON
 
 SVG Templates:
   default          Clean, professional styling
@@ -237,6 +249,11 @@ SVG Templates:
 Network Boundary Examples:
   --boundary="dmz:auth,gateway"      Assign entities to DMZ boundary
   --boundary="internal:api,db"       Assign entities to internal boundary
+
+Scenario Examples:
+  pidl generate -f mermaid --scenario=three-party aauth.json           One scenario
+  pidl generate -f mermaid --scenario=three-party --expand aauth.json  Inline fragments
+  pidl generate -f svg --all-scenarios -o diagrams/ aauth.json         01-<id>.svg, 02-<id>.svg, ...
 
 State Diagram Examples:
   pidl generate -f mermaid-state example.json              All entities with states
@@ -302,144 +319,158 @@ Infographic Examples:
 		return 1
 	}
 
-	// Handle format-specific rendering
-	var diagram string
-	if format == render.FormatMermaidState {
-		renderer := render.NewMermaidState()
-		if *entity != "" {
-			renderer.EntityFilter = *entity
-		}
-		diagram, err = renderer.RenderString(p)
-	} else if format == render.FormatSVG || format == render.FormatSVGAnimated {
-		var renderer *render.SVGRenderer
-		if *templateDir != "" {
-			renderer, err = render.NewSVGWithTemplateDir(*templateDir)
-			if err != nil {
-				fmt.Fprintf(stderr, "Error loading template: %v\n", err)
-				return 1
+	// renderOne renders one protocol (or scenario projection) in the
+	// requested format.
+	renderOne := func(p *pidl.Protocol) (string, error) {
+		var diagram string
+		var err error
+		if format == render.FormatMermaidState {
+			renderer := render.NewMermaidState()
+			if *entity != "" {
+				renderer.EntityFilter = *entity
 			}
-		} else if *template != "" {
-			renderer, err = render.NewSVGWithTemplate(*template)
-			if err != nil {
-				fmt.Fprintf(stderr, "Error loading template: %v\n", err)
-				return 1
+			diagram, err = renderer.RenderString(p)
+		} else if format == render.FormatSVG || format == render.FormatSVGAnimated {
+			var renderer *render.SVGRenderer
+			if *templateDir != "" {
+				renderer, err = render.NewSVGWithTemplateDir(*templateDir)
+				if err != nil {
+					return "", fmt.Errorf("loading template: %w", err)
+				}
+			} else if *template != "" {
+				renderer, err = render.NewSVGWithTemplate(*template)
+				if err != nil {
+					return "", fmt.Errorf("loading template: %w", err)
+				}
+			} else {
+				renderer = render.NewSVG()
 			}
+
+			if format == render.FormatSVGAnimated {
+				renderer.Animated = true
+			}
+			if *theme != "" {
+				renderer.Theme = *theme
+			}
+			renderer.ShowSecurity = *showSecurity
+
+			diagram, err = renderer.RenderString(p)
+		} else if format == render.FormatSVGNetwork {
+			renderer := render.NewSVGNetwork()
+			if *theme != "" {
+				renderer.Theme = *theme
+			}
+			renderer.ShowTrust = *showTrust
+			renderer.InferBoundariesFromTrust = *showTrust
+
+			// Parse and apply boundary overrides
+			for _, b := range boundaries {
+				boundaryID, entityIDs, parseErr := parseBoundaryFlag(b)
+				if parseErr != nil {
+					return "", fmt.Errorf("parsing boundary flag %q: %w", b, parseErr)
+				}
+				renderer.AddBoundaryOverride(boundaryID, entityIDs)
+			}
+
+			diagram, err = renderer.RenderString(p)
+		} else if format == render.FormatPlantUML {
+			renderer := render.NewPlantUML()
+			renderer.ShowSecurity = *showSecurity
+			diagram, err = renderer.RenderString(p)
+		} else if format == render.FormatMermaid {
+			renderer := render.NewMermaid()
+			renderer.ShowSecurity = *showSecurity
+			diagram, err = renderer.RenderString(p)
+		} else if format == render.FormatInfographic {
+			opts := render.DefaultInfographicOptions()
+
+			// Set size
+			switch *igSize {
+			case "linkedin-square":
+				opts.Size = render.SizeLinkedInSquare
+			case "linkedin-portrait":
+				opts.Size = render.SizeLinkedInPortrait
+			case "linkedin-landscape":
+				opts.Size = render.SizeLinkedInLandscape
+			case "datasheet-tile":
+				opts = render.DatasheetTileOptions()
+			case "datasheet-wide":
+				opts.Size = render.SizeDatasheetWide
+			}
+
+			// Set theme
+			switch *igTheme {
+			case "bold":
+				opts.Theme = render.ThemeBold
+			case "minimal":
+				opts.Theme = render.ThemeMinimal
+			case "dark":
+				opts.Theme = render.ThemeDark
+			case "tech":
+				opts.Theme = render.ThemeTech
+			case "corporate":
+				opts.Theme = render.ThemeCorporate
+			case "accessible":
+				opts.Theme = render.ThemeAccessible
+			}
+
+			// Set title
+			if *igTitle != "" {
+				opts.Title = *igTitle
+			} else {
+				opts.Title = p.ProtocolMeta.Name
+			}
+
+			// Set animation
+			if *igNoAnimate {
+				opts.AnimateDots = false
+			}
+
+			// Set custom shapes
+			if *igNoShapes {
+				opts.UseCustomShapes = false
+			}
+
+			// Set direction
+			if *igDirection == "vertical" {
+				opts.Direction = "vertical"
+			}
+
+			renderer := render.NewInfographicRenderer(opts)
+			diagram = renderer.Render(p)
 		} else {
-			renderer = render.NewSVG()
+			diagram, err = render.RenderString(format, p)
 		}
-
-		if format == render.FormatSVGAnimated {
-			renderer.Animated = true
+		if err != nil {
+			return "", fmt.Errorf("rendering: %w", err)
 		}
-		if *theme != "" {
-			renderer.Theme = *theme
-		}
-		renderer.ShowSecurity = *showSecurity
-
-		diagram, err = renderer.RenderString(p)
-	} else if format == render.FormatSVGNetwork {
-		renderer := render.NewSVGNetwork()
-		if *theme != "" {
-			renderer.Theme = *theme
-		}
-		renderer.ShowTrust = *showTrust
-		renderer.InferBoundariesFromTrust = *showTrust
-
-		// Parse and apply boundary overrides
-		for _, b := range boundaries {
-			boundaryID, entityIDs, parseErr := parseBoundaryFlag(b)
-			if parseErr != nil {
-				fmt.Fprintf(stderr, "Error parsing boundary flag %q: %v\n", b, parseErr)
-				return 1
-			}
-			renderer.AddBoundaryOverride(boundaryID, entityIDs)
-		}
-
-		diagram, err = renderer.RenderString(p)
-	} else if format == render.FormatPlantUML {
-		renderer := render.NewPlantUML()
-		renderer.ShowSecurity = *showSecurity
-		diagram, err = renderer.RenderString(p)
-	} else if format == render.FormatMermaid {
-		renderer := render.NewMermaid()
-		renderer.ShowSecurity = *showSecurity
-		diagram, err = renderer.RenderString(p)
-	} else if format == render.FormatInfographic {
-		opts := render.DefaultInfographicOptions()
-
-		// Set size
-		switch *igSize {
-		case "linkedin-square":
-			opts.Size = render.SizeLinkedInSquare
-		case "linkedin-portrait":
-			opts.Size = render.SizeLinkedInPortrait
-		case "linkedin-landscape":
-			opts.Size = render.SizeLinkedInLandscape
-		case "datasheet-tile":
-			opts = render.DatasheetTileOptions()
-		case "datasheet-wide":
-			opts.Size = render.SizeDatasheetWide
-		}
-
-		// Set theme
-		switch *igTheme {
-		case "bold":
-			opts.Theme = render.ThemeBold
-		case "minimal":
-			opts.Theme = render.ThemeMinimal
-		case "dark":
-			opts.Theme = render.ThemeDark
-		case "tech":
-			opts.Theme = render.ThemeTech
-		case "corporate":
-			opts.Theme = render.ThemeCorporate
-		case "accessible":
-			opts.Theme = render.ThemeAccessible
-		}
-
-		// Set title
-		if *igTitle != "" {
-			opts.Title = *igTitle
-		} else {
-			opts.Title = p.ProtocolMeta.Name
-		}
-
-		// Set animation
-		if *igNoAnimate {
-			opts.AnimateDots = false
-		}
-
-		// Set custom shapes
-		if *igNoShapes {
-			opts.UseCustomShapes = false
-		}
-
-		// Set direction
-		if *igDirection == "vertical" {
-			opts.Direction = "vertical"
-		}
-
-		renderer := render.NewInfographicRenderer(opts)
-		diagram = renderer.Render(p)
-	} else {
-		diagram, err = render.RenderString(format, p)
+		return diagram, nil
 	}
 
+	if render.IsDocumentFormat(format) {
+		if *scenario != "" || *allScenarios {
+			fmt.Fprintf(stderr, "Error: %s covers every scenario; drop --scenario and --all-scenarios\n", format)
+			return 1
+		}
+		return writeDiagram(renderOne, p, *output, stdout, stderr)
+	}
+
+	includeExpand := *expand || !render.SupportsIncludes(format)
+	if *allScenarios {
+		if *scenario != "" {
+			fmt.Fprintln(stderr, "Error: --all-scenarios and --scenario cannot be combined")
+			return 1
+		}
+		return generateAllScenarios(p, format, *output, *includeFragments, includeExpand, renderOne, stdout, stderr)
+	}
+
+	p, err = selectScenario(p, *scenario, includeExpand)
 	if err != nil {
-		fmt.Fprintf(stderr, "Error rendering: %v\n", err)
+		fmt.Fprintf(stderr, "Error: %v\n", err)
 		return 1
 	}
 
-	if *output == "" {
-		fmt.Fprint(stdout, diagram)
-	} else {
-		if err := os.WriteFile(*output, []byte(diagram), 0600); err != nil {
-			fmt.Fprintf(stderr, "Error writing %s: %v\n", *output, err)
-			return 1
-		}
-		fmt.Fprintf(stdout, "Wrote %s\n", *output)
-	}
-	return 0
+	return writeDiagram(renderOne, p, *output, stdout, stderr)
 }
 
 func cmdResolve(args []string, stdout, stderr io.Writer) int {
@@ -530,6 +561,7 @@ func cmdSimulate(args []string, stdout, stderr io.Writer) int {
 	traceOutput := fs.String("trace-output", "", "Output file for trace (default: stdout)")
 	showStates := fs.Bool("show-states", true, "Show entity state changes in trace")
 	showTimings := fs.Bool("show-timings", false, "Show timing information in trace")
+	scenario := fs.String("scenario", "", "Scenario ID to simulate (required for files with scenarios)")
 	fs.Usage = func() {
 		fmt.Fprint(stdout, `Usage: pidl simulate [options] <file>
 
@@ -551,6 +583,7 @@ Examples:
   pidl simulate --trace-format=svg -o trace.svg example.json  Output SVG trace
   pidl simulate --trace-format=mermaid example.json    Output Mermaid sequence
   pidl simulate --show-states --show-timings example.json
+  pidl simulate --scenario=three-party aauth.json      Simulate one scenario
 `)
 	}
 
@@ -579,6 +612,12 @@ Examples:
 			fmt.Fprintf(stderr, "Error resolving: %v\n", err)
 			return 1
 		}
+	}
+
+	p, err = selectScenario(p, *scenario, true)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
 
 	exec := pidl.NewExecutor(p)
@@ -1011,6 +1050,84 @@ Examples:
 	return 0
 }
 
+func cmdScenarios(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("scenarios", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	formatStr := fs.String("f", "table", "Output format: table, json")
+	fs.Usage = func() {
+		fmt.Fprint(stdout, `Usage: pidl scenarios [options] <file>
+
+List the scenarios in a PIDL file. Main scenarios come first in document
+order, then fragments; the # column matches the file numbers written by
+generate --all-scenarios --include-fragments.
+
+Options:
+`)
+		fs.PrintDefaults()
+		fmt.Fprint(stdout, `
+Examples:
+  pidl scenarios aauth.json
+  pidl scenarios -f json aauth.json
+`)
+	}
+
+	if err := fs.Parse(args); err != nil {
+		return flagExitCode(err)
+	}
+	if fs.NArg() == 0 {
+		fs.Usage()
+		return 1
+	}
+
+	p, err := loadProtocol(fs.Arg(0))
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
+	}
+	if p.NeedsResolution() {
+		opts := pidl.DefaultResolveOptions()
+		opts.BasePath = filepath.Dir(fs.Arg(0))
+		p, err = p.Resolve(opts)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error resolving: %v\n", err)
+			return 1
+		}
+	}
+
+	summaries := p.ScenarioSummaries()
+
+	if *formatStr == "json" {
+		if summaries == nil {
+			summaries = []pidl.ScenarioSummary{}
+		}
+		data, err := jsonMarshalIndent(summaries)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error marshaling JSON: %v\n", err)
+			return 1
+		}
+		fmt.Fprintln(stdout, string(data))
+		return 0
+	}
+
+	if len(summaries) == 0 {
+		fmt.Fprintf(stdout, "%s has no scenarios; it has a single flow list with %d flows.\n", p.ProtocolMeta.Name, len(p.Flows))
+		return 0
+	}
+
+	fmt.Fprintf(stdout, "Scenarios in %s\n\n", p.ProtocolMeta.Name)
+	fmt.Fprintf(stdout, "%-3s %-24s %-30s %-9s %5s  %s\n", "#", "ID", "NAME", "KIND", "STEPS", "PARTICIPANTS")
+	fmt.Fprintln(stdout, strings.Repeat("-", 100))
+	for _, s := range summaries {
+		kind := "main"
+		if s.Fragment {
+			kind = "fragment"
+		}
+		fmt.Fprintf(stdout, "%-3d %-24s %-30s %-9s %5d  %s\n",
+			s.Position, truncate(s.ID, 24), truncate(s.Name, 30), kind, s.Steps, strings.Join(s.Participants, ", "))
+	}
+	return 0
+}
+
 func cmdComponents(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("components", flag.ContinueOnError)
 	fs.SetOutput(stderr)
@@ -1253,8 +1370,9 @@ Examples:
 func cmdDebug(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("debug", flag.ContinueOnError)
 	fs.SetOutput(stderr)
+	scenario := fs.String("scenario", "", "Scenario ID to debug (required for files with scenarios)")
 	fs.Usage = func() {
-		fmt.Fprint(stdout, `Usage: pidl debug <file>
+		fmt.Fprint(stdout, `Usage: pidl debug [--scenario <id>] <file>
 
 Interactive protocol debugger. Step through protocol execution,
 set breakpoints, and inspect entity states.
@@ -1303,6 +1421,12 @@ Commands:
 			fmt.Fprintf(stderr, "Error resolving: %v\n", err)
 			return 1
 		}
+	}
+
+	p, err = selectScenario(p, *scenario, true)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %v\n", err)
+		return 1
 	}
 
 	session := pidl.NewDebugSession(p)
@@ -1598,6 +1722,7 @@ func cmdAnalyze(args []string, stdout, stderr io.Writer) int {
 	minSeverity := fs.String("min-severity", "info", "Minimum severity: critical, high, medium, low, info")
 	failOn := fs.String("fail-on", "", "Exit with error if risks at this severity or above found")
 	quiet := fs.Bool("q", false, "Quiet mode (summary only)")
+	scenario := fs.String("scenario", "", "Scenario ID to analyze (default: every scenario's flows once)")
 	var categories categoryFlags
 	fs.Var(&categories, "category", "Filter by category (repeatable): trust_boundary, authentication, data_protection, token_security, communication, configuration")
 	fs.Usage = func() {
@@ -1624,6 +1749,7 @@ Examples:
   pidl analyze --fail-on high protocol.json
   pidl analyze --category authentication protocol.json
   pidl analyze -q protocol.json
+  pidl analyze --scenario=three-party aauth.json
 `)
 	}
 
@@ -1650,6 +1776,16 @@ Examples:
 		p, err = p.Resolve(opts)
 		if err != nil {
 			fmt.Fprintf(stderr, "Error resolving: %v\n", err)
+			return 1
+		}
+	}
+
+	// Analyze one scenario, or the whole document (Analyze checks every
+	// scenario's flows once and runs the scenario rules).
+	if *scenario != "" {
+		p, err = selectScenario(p, *scenario, true)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error: %v\n", err)
 			return 1
 		}
 	}
@@ -1744,6 +1880,92 @@ func (c *categoryFlags) String() string {
 func (c *categoryFlags) Set(value string) error {
 	*c = append(*c, value)
 	return nil
+}
+
+// writeDiagram renders p and writes it to output, or to stdout when output
+// is empty.
+func writeDiagram(renderOne func(*pidl.Protocol) (string, error), p *pidl.Protocol, output string, stdout, stderr io.Writer) int {
+	diagram, err := renderOne(p)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error %v\n", err)
+		return 1
+	}
+	if output == "" {
+		fmt.Fprint(stdout, diagram)
+		return 0
+	}
+	if err := os.WriteFile(output, []byte(diagram), 0600); err != nil {
+		fmt.Fprintf(stderr, "Error writing %s: %v\n", output, err)
+		return 1
+	}
+	fmt.Fprintf(stdout, "Wrote %s\n", output)
+	return 0
+}
+
+// generateAllScenarios renders every main scenario of p (and, when
+// includeFragments is set, every fragment after them) into dir, one file per
+// scenario named NN-<scenario-id><ext>. NN is the 1-based position, padded to
+// at least two digits so a name sort keeps document order.
+func generateAllScenarios(p *pidl.Protocol, format render.Format, dir string, includeFragments, expand bool,
+	renderOne func(*pidl.Protocol) (string, error), stdout, stderr io.Writer) int {
+	if !p.HasScenarios() {
+		fmt.Fprintf(stderr, "Error: %s has no scenarios\n", p.ProtocolMeta.ID)
+		return 1
+	}
+	if dir == "" {
+		fmt.Fprintln(stderr, "Error: --all-scenarios needs an output directory: -o <dir>")
+		return 1
+	}
+
+	ids := p.ScenarioIDs(false)
+	if includeFragments {
+		for _, sc := range p.Scenarios {
+			if sc.Fragment {
+				ids = append(ids, sc.ID)
+			}
+		}
+	}
+
+	if err := os.MkdirAll(dir, 0o750); err != nil {
+		fmt.Fprintf(stderr, "Error creating %s: %v\n", dir, err)
+		return 1
+	}
+
+	width := max(2, len(strconv.Itoa(len(ids))))
+	for i, id := range ids {
+		proj, err := p.Scenario(id, pidl.ProjectOptions{Expand: expand})
+		if err != nil {
+			fmt.Fprintf(stderr, "Error: %v\n", err)
+			return 1
+		}
+		diagram, err := renderOne(proj)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error in scenario %s: %v\n", id, err)
+			return 1
+		}
+		path := filepath.Join(dir, fmt.Sprintf("%0*d-%s%s", width, i+1, id, format.FileExtension()))
+		if err := os.WriteFile(path, []byte(diagram), 0o600); err != nil {
+			fmt.Fprintf(stderr, "Error writing %s: %v\n", path, err)
+			return 1
+		}
+		fmt.Fprintf(stdout, "Wrote %s\n", path)
+	}
+	return 0
+}
+
+// selectScenario returns the protocol to work on. For a file with
+// scenarios it projects the chosen scenario, expanding included fragments
+// when expand is true; an empty id is an error that lists the scenario IDs.
+// For a file without scenarios it returns p, and a non-empty id is an error.
+func selectScenario(p *pidl.Protocol, id string, expand bool) (*pidl.Protocol, error) {
+	if !p.HasScenarios() && id == "" {
+		return p, nil
+	}
+	if p.HasScenarios() && id == "" {
+		return nil, fmt.Errorf("%s has scenarios; choose one with --scenario: %s",
+			p.ProtocolMeta.ID, strings.Join(p.ScenarioIDs(true), ", "))
+	}
+	return p.Scenario(id, pidl.ProjectOptions{Expand: expand})
 }
 
 // loadProtocol loads a protocol from a file or example name.

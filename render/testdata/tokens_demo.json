@@ -1,0 +1,48 @@
+{
+  "protocol": {"id": "tokens-demo", "name": "Tokens Demo"},
+  "entities": [
+    {"id": "agent", "name": "Agent", "type": "agent"},
+    {"id": "resource", "name": "Resource", "type": "resource_server"},
+    {"id": "ps", "name": "Person Server", "type": "authorization_server"},
+    {"id": "as", "name": "Access Server", "type": "authorization_server"}
+  ],
+  "metadata": {
+    "tokens": [
+      {
+        "id": "resource_token", "name": "Resource token", "type": "jwt",
+        "issuer": "resource", "audience": "ps", "binding": "dpop",
+        "verified_by": ["as", "ps"],
+        "claims": [
+          {"name": "aud", "checked_by": ["ps"]},
+          {"name": "agent_jkt", "checked_by": ["ps", "as"], "description": "Must match the key that signed the request | thumbprint"}
+        ]
+      },
+      {
+        "id": "auth_token", "name": "Auth token", "type": "jwt",
+        "issuer": "as", "audience": "resource", "binding": "dpop",
+        "verified_by": ["resource"],
+        "claims": [{"name": "iss", "checked_by": ["resource"]}]
+      },
+      {"id": "session", "name": "Session token"}
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "four-party", "name": "Federated authorization",
+      "flows": [
+        {"from": "agent", "to": "resource", "action": "request"},
+        {"from": "resource", "to": "agent", "action": "challenge", "mode": "response", "security": {"issues": ["resource_token"]}},
+        {"from": "agent", "to": "ps", "action": "token_request", "security": {"verifies": ["resource_token"]}},
+        {"include": "federate"},
+        {"from": "agent", "to": "resource", "action": "retry", "security": {"verifies": ["auth_token"]}}
+      ]
+    },
+    {
+      "id": "federate", "name": "PS to AS", "fragment": true,
+      "flows": [
+        {"from": "ps", "to": "as", "action": "exchange", "security": {"signed_by": "ps", "verifies": ["resource_token"]}},
+        {"from": "as", "to": "ps", "action": "auth_token", "mode": "response", "security": {"issues": ["auth_token"]}}
+      ]
+    }
+  ]
+}

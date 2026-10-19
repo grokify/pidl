@@ -203,7 +203,10 @@ func (r *D2Renderer) openPhaseGroups(sb *strings.Builder, p *pidl.Protocol, phas
 // such as `seq1: from -> to: label` is a labelled shape in D2, not an edge, and
 // renders as a note. Responses keep the from -> to direction of the flow and are
 // drawn dashed. Annotations become D2 notes on the receiving actor.
-func (r *D2Renderer) renderSequenceFlow(sb *strings.Builder, _ *pidl.Protocol, f pidl.Flow, indent string, seq int) int {
+func (r *D2Renderer) renderSequenceFlow(sb *strings.Builder, p *pidl.Protocol, f pidl.Flow, indent string, seq int) int {
+	if f.IsInclude() {
+		return r.renderSequenceInclude(sb, p, f, indent, seq)
+	}
 	from := r.sanitizeID(f.From)
 	to := r.sanitizeID(f.To)
 	label := f.DisplayLabel()
@@ -267,6 +270,21 @@ func (r *D2Renderer) renderSequenceFlow(sb *strings.Builder, _ *pidl.Protocol, f
 	}
 
 	return seq
+}
+
+// renderSequenceInclude draws an include step as a labeled group. D2 sizes
+// a sequence group by its contents, so an invisible edge from the first to
+// the last spanned participant stretches the box across the fragment.
+func (r *D2Renderer) renderSequenceInclude(sb *strings.Builder, p *pidl.Protocol, f pidl.Flow, indent string, seq int) int {
+	box := newIncludeBox(p, f)
+	fmt.Fprintf(sb, "%sref%d: %s {\n", indent, seq, d2Label("ref: "+box.Label))
+	if first := box.First(); first != "" {
+		fmt.Fprintf(sb, "%s  %s -> %s: \"\" {\n", indent, r.sanitizeID(first), r.sanitizeID(box.Last()))
+		fmt.Fprintf(sb, "%s    style.opacity: 0\n", indent)
+		fmt.Fprintf(sb, "%s  }\n", indent)
+	}
+	fmt.Fprintf(sb, "%s}\n", indent)
+	return seq + 1
 }
 
 // annotationPrefix returns a visual prefix for annotation types.

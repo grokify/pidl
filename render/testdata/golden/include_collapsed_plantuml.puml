@@ -1,0 +1,19 @@
+@startuml
+title Scenarios Demo — PS authorization
+
+participant "Person" as person
+participant "Agent" as agent
+participant "Resource" as resource
+participant "Person Server" as ps
+
+agent -> resource: Request
+resource --> agent: 401 + resource token
+
+box "Authorize" #LightGray
+agent -> ps: Auth token request
+ref over person, ps : Consent
+ps --> agent: Auth token
+end box
+agent -> resource: Request + auth token
+
+@enduml

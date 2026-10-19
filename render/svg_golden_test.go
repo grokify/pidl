@@ -340,7 +340,14 @@ func TestSVGGolden(t *testing.T) {
 // file when -update is set.
 func checkGolden(t *testing.T, name, got string) {
 	t.Helper()
-	path := filepath.Join(goldenDir, name+".svg")
+	checkGoldenFile(t, name, ".svg", got)
+}
+
+// checkGoldenFile compares got with testdata/golden/<name><ext>, rewriting
+// the file when -update is set.
+func checkGoldenFile(t *testing.T, name, ext, got string) {
+	t.Helper()
+	path := filepath.Join(goldenDir, name+ext)
 
 	if *update {
 		if err := os.MkdirAll(goldenDir, 0o750); err != nil {
@@ -354,7 +361,7 @@ func checkGolden(t *testing.T, name, got string) {
 
 	wantBytes, err := os.ReadFile(path) //nolint:gosec // path is built from a fixed test-case name under testdata
 	if errors.Is(err, os.ErrNotExist) {
-		t.Fatalf("golden file %s missing; regenerate with: go test ./render -run TestSVGGolden -update", path)
+		t.Fatalf("golden file %s missing; regenerate with: go test ./render -run Golden -update", path)
 	}
 	if err != nil {
 		t.Fatalf("read %s: %v", path, err)
@@ -365,7 +372,7 @@ func checkGolden(t *testing.T, name, got string) {
 	}
 
 	line, gotLine, wantLine := firstDifferingLine(got, want)
-	t.Errorf("output differs from %s at line %d\n  want: %s\n  got:  %s\n(got %d bytes, want %d bytes)\nregenerate with: go test ./render -run TestSVGGolden/%s -update",
+	t.Errorf("output differs from %s at line %d\n  want: %s\n  got:  %s\n(got %d bytes, want %d bytes)\nregenerate with: go test ./render -run Golden/%s -update",
 		path, line, wantLine, gotLine, len(got), len(want), name)
 }
 

@@ -175,7 +175,11 @@ func (r *MermaidRenderer) phaseColor(depth int) string {
 }
 
 // renderFlow renders a single flow with its notes and annotations.
-func (r *MermaidRenderer) renderFlow(sb *strings.Builder, _ *pidl.Protocol, f pidl.Flow, indent string) {
+func (r *MermaidRenderer) renderFlow(sb *strings.Builder, p *pidl.Protocol, f pidl.Flow, indent string) {
+	if f.IsInclude() {
+		r.renderInclude(sb, p, f, indent)
+		return
+	}
 	arrow := r.modeToArrow(f.EffectiveMode())
 	label := r.escapeLabel(f.DisplayLabel())
 
@@ -209,6 +213,21 @@ func (r *MermaidRenderer) renderFlow(sb *strings.Builder, _ *pidl.Protocol, f pi
 	if r.ShowVerification && f.HasVerification() {
 		fmt.Fprintf(sb, "%snote right of %s: %s\n", indent, f.To, r.escapeLabel(verificationBadge(f.Verification)))
 	}
+}
+
+// renderInclude draws an include step as a shaded box with a note across
+// the included fragment's participants.
+func (r *MermaidRenderer) renderInclude(sb *strings.Builder, p *pidl.Protocol, f pidl.Flow, indent string) {
+	box := newIncludeBox(p, f)
+	over := box.First()
+	if last := box.Last(); last != over {
+		over += "," + last
+	}
+	fmt.Fprintf(sb, "%srect rgba(127, 127, 127, 0.12)\n", indent)
+	if over != "" {
+		fmt.Fprintf(sb, "%s    note over %s: ref: %s\n", indent, over, r.escapeLabel(box.Label))
+	}
+	fmt.Fprintf(sb, "%send\n", indent)
 }
 
 // formatSecurityNote formats security requirements for display.

@@ -149,6 +149,12 @@ func Analyze(p *pidl.Protocol, opts AnalysisOptions) *SecurityAnalysis {
 		},
 	}
 
+	// Flow rules see every flow once; document rules see scenarios.
+	flows := p
+	if p.HasScenarios() {
+		flows = p.Flatten()
+	}
+
 	// Run all rules
 	rules := DefaultRules()
 	for _, rule := range rules {
@@ -158,7 +164,11 @@ func Analyze(p *pidl.Protocol, opts AnalysisOptions) *SecurityAnalysis {
 		}
 
 		// Run rule and collect risks
-		risks := rule.Check(p)
+		target := flows
+		if rule.Scope == ScopeDocument {
+			target = p
+		}
+		risks := rule.Check(target)
 		for _, risk := range risks {
 			// Filter by severity
 			if risk.Severity.Weight() < opts.MinSeverity.Weight() {

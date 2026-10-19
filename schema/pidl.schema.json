@@ -4,7 +4,7 @@
   "title": "PIDL Protocol",
   "description": "Protocol Interaction Description Language - describes protocol choreography for diagram generation",
   "type": "object",
-  "required": ["protocol", "entities", "flows"],
+  "required": ["protocol", "entities"],
   "properties": {
     "protocol": {
       "$ref": "#/$defs/protocolMetadata"
@@ -26,9 +26,16 @@
     },
     "flows": {
       "type": "array",
-      "description": "Interactions between entities",
+      "description": "Interactions between entities, as a single unnamed scenario. Use either flows or scenarios, not both.",
       "items": {
         "$ref": "#/$defs/flow"
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "description": "Named, ordered sequences of flows. Array position is the scenario order.",
+      "items": {
+        "$ref": "#/$defs/scenario"
       },
       "minItems": 1
     },
@@ -36,6 +43,13 @@
       "$ref": "#/$defs/metadata"
     }
   },
+  "anyOf": [
+    { "required": ["flows"] },
+    { "required": ["scenarios"] }
+  ],
+  "if": { "required": ["scenarios"] },
+  "then": { "properties": { "flows": { "maxItems": 0 } } },
+  "else": { "properties": { "flows": { "minItems": 1 } } },
   "$defs": {
     "protocolMetadata": {
       "type": "object",
@@ -268,10 +282,53 @@
         }
       }
     },
+    "scenario": {
+      "type": "object",
+      "description": "A named, ordered sequence of flows, such as one access mode or user journey",
+      "required": ["id", "name", "flows"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "description": "Unique scenario identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable display name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the scenario"
+        },
+        "participants": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true,
+          "description": "Entity IDs shown for this scenario, in entities order. Defaults to the entities the scenario uses."
+        },
+        "fragment": {
+          "type": "boolean",
+          "description": "Marks a reusable sub-flow that other scenarios include"
+        },
+        "flows": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/flow" },
+          "minItems": 1,
+          "description": "The scenario's steps, in order"
+        }
+      },
+      "additionalProperties": false
+    },
     "flow": {
       "type": "object",
-      "description": "An interaction between two entities",
-      "required": ["from", "to", "action"],
+      "description": "An interaction between two entities, or an include step that inserts a fragment scenario's flows",
+      "oneOf": [
+        { "required": ["from", "to", "action"], "not": { "required": ["include"] } },
+        {
+          "required": ["include"],
+          "not": { "anyOf": [{ "required": ["from"] }, { "required": ["to"] }, { "required": ["action"] }] }
+        }
+      ],
       "properties": {
         "from": {
           "type": "string",
@@ -284,6 +341,10 @@
         "action": {
           "type": "string",
           "description": "Identifier for the action being performed"
+        },
+        "include": {
+          "type": "string",
+          "description": "ID of a fragment scenario whose flows take this step's place. Only allowed in scenarios; an include step has no from, to or action."
         },
         "label": {
           "type": "string",
@@ -302,7 +363,8 @@
         },
         "sequence": {
           "type": "integer",
-          "description": "Optional explicit ordering (flows are ordered by array position by default)",
+          "description": "Deprecated. Display-only step number; flows are ordered by array position only",
+          "deprecated": true,
           "minimum": 1
         },
         "condition": {
@@ -430,8 +492,41 @@
         "description": {
           "type": "string",
           "description": "Additional context about the token"
+        },
+        "verified_by": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true,
+          "description": "Entity IDs that check this token"
+        },
+        "claims": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/tokenClaim" },
+          "description": "Claims that checkers rely on, in display order"
         }
       }
+    },
+    "tokenClaim": {
+      "type": "object",
+      "description": "A claim in a token and the entities that check it",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Claim name, such as aud or agent_jkt"
+        },
+        "checked_by": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true,
+          "description": "Entity IDs that check this claim"
+        },
+        "description": {
+          "type": "string",
+          "description": "What the claim carries or how it is checked"
+        }
+      },
+      "additionalProperties": false
     },
     "flowSecurity": {
       "type": "object",
@@ -456,6 +551,20 @@
         "description": {
           "type": "string",
           "description": "Additional security context"
+        },
+        "signed_by": {
+          "type": "string",
+          "description": "Entity ID that signs the request; defaults to the flow's from entity"
+        },
+        "issues": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Token definition IDs this flow delivers"
+        },
+        "verifies": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Token definition IDs the receiver checks"
         }
       }
     },

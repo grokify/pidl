@@ -1,0 +1,20 @@
+sequenceDiagram
+    title Scenarios Demo — PS authorization
+    autonumber
+
+    participant person as Person
+    participant agent as Agent
+    participant resource as Resource
+    participant ps as Person Server
+
+    agent->>resource: Request
+    resource-->>agent: 401 + resource token
+    rect rgb(240, 240, 240)
+        note right of person: Authorize
+        agent->>ps: Auth token request
+        ps->>person: Consent prompt
+        person-->>ps: Approve
+        ps-->>agent: Auth token
+    end
+
+    agent->>resource: Request + auth token

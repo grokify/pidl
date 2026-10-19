@@ -19,8 +19,18 @@ type Protocol struct {
 	// Phases provide optional logical grouping of flows.
 	Phases []Phase `json:"phases,omitempty"`
 
-	// Flows are the interactions between entities.
-	Flows []Flow `json:"flows"`
+	// Flows are the interactions between entities. A document has either
+	// Flows (a single unnamed scenario) or Scenarios, not both.
+	Flows []Flow `json:"flows,omitempty"`
+
+	// Scenarios are named, ordered sequences of flows. Array position is
+	// the scenario order.
+	Scenarios []Scenario `json:"scenarios,omitempty"`
+
+	// Fragments holds the fragment scenarios that include steps in a
+	// collapsed projection refer to, so renderers can label and size the
+	// include boxes. Protocol.Scenario sets it; it is never serialized.
+	Fragments []Scenario `json:"-"`
 
 	// Metadata contains additional protocol-level configuration.
 	Metadata *ProtocolMetadata `json:"metadata,omitempty"`
@@ -92,6 +102,13 @@ type TokenDefinition struct {
 	Binding string `json:"binding,omitempty"`
 	// Description provides additional context.
 	Description string `json:"description,omitempty"`
+
+	// VerifiedBy lists the entities that check this token. Outputs list
+	// them in entities order.
+	VerifiedBy []string `json:"verified_by,omitempty"`
+
+	// Claims lists the claims checkers rely on, in display order.
+	Claims []TokenClaim `json:"claims,omitempty"`
 }
 
 // NetworkConfig defines a network boundary.
@@ -659,6 +676,31 @@ const (
 	EntityTypeOther               EntityType = "other"
 )
 
+// Scenario is a named, ordered sequence of flows within a protocol, such
+// as one access mode or user journey. A fragment scenario is a reusable
+// sub-flow that other scenarios include.
+type Scenario struct {
+	// ID is the unique identifier, used by include steps and CLI selection.
+	ID string `json:"id"`
+
+	// Name is the human-readable display name.
+	Name string `json:"name"`
+
+	// Description of the scenario.
+	Description string `json:"description,omitempty"`
+
+	// Participants selects the entities shown for this scenario. It must
+	// list entity IDs in entities order. When empty, participants are the
+	// entities used by the scenario's flows and includes.
+	Participants []string `json:"participants,omitempty"`
+
+	// Fragment marks a reusable sub-flow that other scenarios include.
+	Fragment bool `json:"fragment,omitempty"`
+
+	// Flows are the scenario's steps, in order.
+	Flows []Flow `json:"flows"`
+}
+
 // Phase represents a logical grouping of flows.
 type Phase struct {
 	// ID is the unique identifier.
@@ -726,6 +768,18 @@ const (
 	SecurityRequirementMAC SecurityRequirement = "mac"
 )
 
+// TokenClaim is one claim in a token and the entities that check it.
+type TokenClaim struct {
+	// Name is the claim name, such as "aud" or "agent_jkt".
+	Name string `json:"name"`
+
+	// CheckedBy lists the entities that check this claim.
+	CheckedBy []string `json:"checked_by,omitempty"`
+
+	// Description explains what the claim carries or how it is checked.
+	Description string `json:"description,omitempty"`
+}
+
 // FlowSecurity describes security requirements for a flow.
 type FlowSecurity struct {
 	// Requires lists security mechanisms required for this flow.
@@ -736,6 +790,14 @@ type FlowSecurity struct {
 	Confidential bool `json:"confidential,omitempty"`
 	// Description provides additional security context.
 	Description string `json:"description,omitempty"`
+	// SignedBy is the entity that signs the request. It defaults to the
+	// flow's From entity; set it when someone else signs, for example an
+	// intermediary signing on an agent's behalf.
+	SignedBy string `json:"signed_by,omitempty"`
+	// Issues lists token definition IDs this flow delivers.
+	Issues []string `json:"issues,omitempty"`
+	// Verifies lists token definition IDs the receiver checks.
+	Verifies []string `json:"verifies,omitempty"`
 }
 
 // VerificationTier records how well-substantiated a flow is. Values match the
@@ -762,13 +824,17 @@ type FlowVerification struct {
 // Flow represents an interaction between two entities.
 type Flow struct {
 	// From is the source entity ID.
-	From string `json:"from"`
+	From string `json:"from,omitempty"`
 
 	// To is the target entity ID.
-	To string `json:"to"`
+	To string `json:"to,omitempty"`
 
 	// Action identifies the action being performed.
-	Action string `json:"action"`
+	Action string `json:"action,omitempty"`
+
+	// Include is the ID of a fragment scenario whose flows take this
+	// step's place. An include step has no From, To or Action.
+	Include string `json:"include,omitempty"`
 
 	// Label is the display label (defaults to Action).
 	Label string `json:"label,omitempty"`
@@ -782,7 +848,10 @@ type Flow struct {
 	// Description provides additional details.
 	Description string `json:"description,omitempty"`
 
-	// Sequence provides explicit ordering.
+	// Sequence is a display-only step number. It never affects order:
+	// flows run in array order.
+	//
+	// Deprecated: move the flow within the flows array to change its order.
 	Sequence int `json:"sequence,omitempty"`
 
 	// Condition specifies when this flow is executed (e.g., "token_valid", "error").

@@ -74,6 +74,9 @@ func (p *Protocol) Validate() ValidationErrors {
 	// Validate flows
 	errs = append(errs, p.validateFlows()...)
 
+	// Validate scenarios and include steps
+	errs = append(errs, p.validateScenarios()...)
+
 	// Validate state mutations in flows
 	errs = append(errs, p.validateStateMutations()...)
 

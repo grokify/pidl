@@ -1,0 +1,31 @@
+title: "Scenarios Demo — PS authorization" {
+  shape: text
+  near: top-center
+  style.font-size: 24
+}
+
+sequence: "" {
+  shape: sequence_diagram
+
+  person: "Person"
+  agent: "Agent"
+  resource: "Resource"
+  ps: "Person Server"
+
+  agent -> resource: "Request"
+  resource -> agent: "401 + resource token" {
+    style.stroke-dash: 3
+  }
+  authorize: "Authorize" {
+    agent -> ps: "Auth token request"
+    ps -> person: "Consent prompt"
+    person -> ps: "Approve" {
+      style.stroke-dash: 3
+    }
+    ps -> agent: "Auth token" {
+      style.stroke-dash: 3
+    }
+  }
+
+  agent -> resource: "Request + auth token"
+}
