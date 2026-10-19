@@ -169,6 +169,9 @@ func Analyze(p *pidl.Protocol, opts AnalysisOptions) *SecurityAnalysis {
 			target = p
 		}
 		risks := rule.Check(target)
+		if rule.Scope == ScopeFlows && p.HasScenarios() {
+			remapFlattenedLocations(p, risks)
+		}
 		for _, risk := range risks {
 			// Filter by severity
 			if risk.Severity.Weight() < opts.MinSeverity.Weight() {
@@ -438,4 +441,15 @@ func ParseCategory(s string) (RiskCategory, error) {
 	default:
 		return "", fmt.Errorf("unknown category: %s", s)
 	}
+}
+
+// Findings converts the analysis risks into findings for pidl.Walkthrough.
+func (a *SecurityAnalysis) Findings() []pidl.Finding {
+	out := make([]pidl.Finding, 0, len(a.Risks))
+	for _, r := range a.Risks {
+		out = append(out, pidl.Finding{
+			ID: r.ID, Severity: string(r.Severity), Title: r.Title, Description: r.Description, Location: r.Location,
+		})
+	}
+	return out
 }
