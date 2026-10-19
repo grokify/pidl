@@ -41,15 +41,15 @@ implementing an item carry `Refs: RMI-PIDL-<NNN>`.
 
 **Theme:** Roles, tokens and scenarios documented in one order
 
-- [ ] `RMI-PIDL-012` `scenario-matrix` output: entities × scenarios in declared order
+- [x] `RMI-PIDL-012` `scenario-matrix` output: entities × scenarios in declared order
   - Depends on: `RMI-PIDL-005`
-- [ ] `RMI-PIDL-013` Verification fields: `TokenDefinition.VerifiedBy`, `TokenClaim`, `FlowSecurity.SignedBy`, `Issues`, `Verifies`, with validation and schema
+- [x] `RMI-PIDL-013` Verification fields: `TokenDefinition.VerifiedBy`, `TokenClaim`, `FlowSecurity.SignedBy`, `Issues`, `Verifies`, with validation and schema
   - Depends on: `RMI-PIDL-004`
-- [ ] `RMI-PIDL-014` `token-table` output: issuer, audience, binding, verified by and claims, in declared order
+- [x] `RMI-PIDL-014` `token-table` output: issuer, audience, binding, verified by and claims, in declared order
   - Depends on: `RMI-PIDL-013`
-- [ ] `RMI-PIDL-015` `outline` and `outline-json` outputs: roles, then scenarios with steps, for deck and guide tooling
+- [x] `RMI-PIDL-015` `outline` and `outline-json` outputs: roles, then scenarios with steps, for deck and guide tooling
   - Depends on: `RMI-PIDL-005`
-- [ ] `RMI-PIDL-016` Analyzer rules: unused role, token checked before issued, signer mismatch, verifier not a participant, unused fragment
+- [x] `RMI-PIDL-016` Analyzer rules: unused role, token checked before issued, signer mismatch, verifier not a participant, unused fragment
   - Depends on: `RMI-PIDL-013`
 
 ## Phase 4 — Composition, Diff, Example and Release
