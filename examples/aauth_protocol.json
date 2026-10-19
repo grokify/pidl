@@ -298,6 +298,7 @@
           "include": "agent-token"
         },
         {
+          "id": "request",
           "from": "agent",
           "to": "resource",
           "action": "signed_request",
@@ -365,6 +366,7 @@
           }
         },
         {
+          "id": "ok",
           "from": "resource",
           "to": "agent",
           "action": "ok",
@@ -409,6 +411,7 @@
           "include": "agent-token"
         },
         {
+          "id": "request",
           "from": "agent",
           "to": "resource",
           "action": "signed_request",
@@ -475,6 +478,7 @@
           }
         },
         {
+          "id": "interaction-required",
           "from": "resource",
           "to": "agent",
           "action": "interaction_required",
@@ -515,6 +519,7 @@
           }
         },
         {
+          "id": "complete-interaction",
           "from": "person",
           "to": "resource",
           "action": "complete_interaction",
@@ -522,6 +527,7 @@
           "description": "The person completes the resource's own login and consent, with no person server involved."
         },
         {
+          "id": "poll",
           "from": "agent",
           "to": "resource",
           "action": "poll",
@@ -587,6 +593,7 @@
           }
         },
         {
+          "id": "session-token",
           "from": "resource",
           "to": "agent",
           "action": "session_token",
@@ -626,6 +633,7 @@
           }
         },
         {
+          "id": "session-request",
           "from": "agent",
           "to": "resource",
           "action": "session_request",
@@ -698,6 +706,7 @@
           }
         },
         {
+          "id": "ok",
           "from": "resource",
           "to": "agent",
           "action": "ok",
@@ -740,6 +749,7 @@
           "include": "person-token"
         },
         {
+          "id": "request",
           "from": "agent",
           "to": "resource",
           "action": "signed_request",
@@ -807,6 +817,7 @@
           }
         },
         {
+          "id": "ok",
           "from": "resource",
           "to": "agent",
           "action": "ok",
@@ -854,6 +865,7 @@
           "include": "person-token"
         },
         {
+          "id": "authorize",
           "from": "agent",
           "to": "resource",
           "action": "authorize",
@@ -928,6 +940,7 @@
           }
         },
         {
+          "id": "resource-token",
           "from": "resource",
           "to": "agent",
           "action": "resource_token",
@@ -982,6 +995,7 @@
           }
         },
         {
+          "id": "auth-token-request",
           "from": "agent",
           "to": "ps",
           "action": "auth_token_request",
@@ -1118,6 +1132,7 @@
           "include": "consent"
         },
         {
+          "id": "auth-token",
           "from": "ps",
           "to": "agent",
           "action": "auth_token",
@@ -1179,6 +1194,7 @@
           }
         },
         {
+          "id": "api-request",
           "from": "agent",
           "to": "resource",
           "action": "api_request",
@@ -1248,6 +1264,7 @@
           }
         },
         {
+          "id": "ok",
           "from": "resource",
           "to": "agent",
           "action": "ok",
@@ -1294,6 +1311,7 @@
           "include": "person-token"
         },
         {
+          "id": "authorize",
           "from": "agent",
           "to": "resource",
           "action": "authorize",
@@ -1368,6 +1386,7 @@
           }
         },
         {
+          "id": "resource-token",
           "from": "resource",
           "to": "agent",
           "action": "resource_token",
@@ -1422,6 +1441,7 @@
           }
         },
         {
+          "id": "auth-token-request",
           "from": "agent",
           "to": "ps",
           "action": "auth_token_request",
@@ -1558,6 +1578,7 @@
           "include": "consent"
         },
         {
+          "id": "federate",
           "from": "ps",
           "to": "as",
           "action": "federate",
@@ -1687,6 +1708,7 @@
           }
         },
         {
+          "id": "as-auth-token",
           "from": "as",
           "to": "ps",
           "action": "auth_token",
@@ -1748,6 +1770,7 @@
           }
         },
         {
+          "id": "auth-token",
           "from": "ps",
           "to": "agent",
           "action": "auth_token",
@@ -1809,6 +1832,7 @@
           }
         },
         {
+          "id": "api-request",
           "from": "agent",
           "to": "resource",
           "action": "api_request",
@@ -1877,6 +1901,7 @@
           }
         },
         {
+          "id": "ok",
           "from": "resource",
           "to": "agent",
           "action": "ok",
@@ -1918,6 +1943,7 @@
       "description": "Before anything else, the agent needs an agent token from its agent provider. How it gets one depends on where it runs. This walkthrough shows a web app: the agent keeps a durable key in the browser, made at enrollment after the user signed in, and for each token generates a fresh ephemeral key that the durable key vouches for. Mobile apps follow the same pattern with a hardware-backed key and platform attestation; a self-hosted agent is its own agent provider and simply issues its own token.",
       "flows": [
         {
+          "id": "attest",
           "from": "agent",
           "to": "ap",
           "action": "attest",
@@ -1996,6 +2022,7 @@
           }
         },
         {
+          "id": "agent-token",
           "from": "ap",
           "to": "agent",
           "action": "agent_token",
@@ -2063,6 +2090,7 @@
       "description": "The agent asks its person server for a person token for one resource. The token tells that resource which person the agent acts for, using an identifier unique to the resource, and is bound to the agent's key.",
       "flows": [
         {
+          "id": "request",
           "from": "agent",
           "to": "ps",
           "action": "person_token_request",
@@ -2144,6 +2172,7 @@
           }
         },
         {
+          "id": "person-token",
           "from": "ps",
           "to": "agent",
           "action": "person_token",
@@ -2211,6 +2240,7 @@
       "description": "When the person server needs the person, it pauses the request with a 202 and an interaction code. The agent sends the person to the PS's consent page, the person approves, and the agent collects the result by polling.",
       "flows": [
         {
+          "id": "interaction-required",
           "from": "ps",
           "to": "agent",
           "action": "interaction_required",
@@ -2252,6 +2282,7 @@
           }
         },
         {
+          "id": "direct-user",
           "from": "agent",
           "to": "person",
           "action": "direct_user",
@@ -2259,6 +2290,7 @@
           "description": "The agent sends the person to the PS's interaction page with the code, opening a browser or showing a link or QR code."
         },
         {
+          "id": "approve",
           "from": "person",
           "to": "ps",
           "action": "approve",
@@ -2266,6 +2298,7 @@
           "description": "The person reviews what is being asked: which agent, which resource, what access, and the agent's stated reason, shown as the agent's claim rather than the PS's. They approve."
         },
         {
+          "id": "poll",
           "from": "agent",
           "to": "ps",
           "action": "poll",
