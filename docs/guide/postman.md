@@ -17,7 +17,7 @@ pidl generate -f postman --mock -o aauth-mock.postman_collection.json aauth_prot
 | Folders | Groups, then scenarios, in output order; fragments expanded in place |
 | Requests | Steps whose sender is the client role (`--client`, default: the first `agent` or `client` entity) and that have an example request |
 | URLs | Each role's base URL becomes a variable such as `{{ps_url}}` |
-| Chained values | A value an earlier response delivers (a body member, a `Location` or another header) and a later request reuses is saved to a collection variable and referenced as `{{name}}` |
+| Chained values | A value an earlier response delivers (a body member, a `Location` or another header, or a string parameter of a structured header such as the `resource-token` in `AAuth-Requirement`) and a later request reuses is saved to a collection variable and referenced as `{{name}}` |
 | Checks | Status code; headers named in the example; body members; and the claim names of tokens the body carries |
 | Deferred responses | A request answered `202` with `Location` accepts either the `202` (then the next request polls `{{location}}` until it completes) or the final response (then the poll is skipped) |
 | Folder notes | The scenario's description and narration, and the steps between other roles that the collection does not send |
