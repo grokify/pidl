@@ -5,21 +5,23 @@
 
 ## Entry Gate
 
-`INIT-PIDL-003` narration and pronunciations delivered.
+`INIT-PIDL-003` narration, briefings and pronunciations delivered.
 
 ## Build Order
 
-1. **Viewer video mode.**
-2. **`generate -f vac`** with scenario and group selection, voice settings and the viewer file.
-3. **Compatibility test and guide**, with an end-to-end AAuth render.
+1. **Viewer video mode and `window.pidl.goTo`.**
+2. **Per-scenario videoascode configurations** with `evaluate` steps, plus the combined configuration.
+3. **Briefing decks** with network diagrams.
+4. **Compatibility test, guide and release**, with an end-to-end AAuth render.
 
 ## Risks and Mitigations
 
 | Risk | Mitigation |
 |------|------------|
 | videoascode configuration changes | Compatibility test against its types |
-| Narration gaps | Fall back to descriptions; `INIT-PIDL-004` adds narration |
+| Frames captured before render | `goTo` resolves after render; `evaluate` awaits it |
+| Narration or briefing gaps | Fall back to descriptions; `INIT-PIDL-004` adds content |
 
 ## Follow-On
 
-Intro and outro Marp slide segments; chapter markers from segment timings; translated narration.
+Chapter markers from segment timings; translated narration and briefings; outro slides with links.

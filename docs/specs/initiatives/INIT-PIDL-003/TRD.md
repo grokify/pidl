@@ -18,7 +18,12 @@ type Group struct {
 // e.g. {"agent_jkt": {"en-US": "agent J K T"}}. A map is right here: entries
 // are looked up by term, never listed in order.
 // ProtocolMeta gains: Language string (BCP 47, default "en-US")
-// Scenario gains: Group, VariantOf, VariantLabel, Narration string
+// Scenario gains: Group, VariantOf, VariantLabel, Narration string; Briefing *Briefing
+type Briefing struct {
+    Why       string   `json:"why,omitempty"`       // why the scenario exists, as prose
+    Points    []string `json:"points,omitempty"`    // key points, in display order
+    Narration string   `json:"narration,omitempty"` // spoken over the briefing slides
+}
 // Flow gains: ID, Narration string
 // FlowExample and Scenario gain: Samples []Sample
 type Sample struct {
@@ -74,7 +79,7 @@ Profiles (`analyze/profiles`): `aauth-draft-11` adds AA101 (`alg` must be fully 
 
 ### 6. Walkthrough model
 
-`Walkthrough` gains `Groups`, `Pronunciations`; scenarios gain `Group`, `VariantOf`, `VariantLabel`, `Narration`; steps gain `ID`, `Narration`, `Samples` (resolved), `Curl`, and `TokenEvents` (issued, forwarded, presented, checked) derived from `issues`, `verifies` and example tokens.
+`Walkthrough` gains `Groups`, `Pronunciations`; scenarios gain `Group`, `VariantOf`, `VariantLabel`, `Narration`, `Briefing`; steps gain `ID`, `Narration`, `Samples` (resolved), `Curl`, and `TokenEvents` (issued, forwarded, presented, checked) derived from `issues`, `verifies` and example tokens.
 
 ### 7. Viewer
 

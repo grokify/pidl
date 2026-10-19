@@ -20,7 +20,7 @@ Protocol-neutral extensions that make PIDL a source for developer education. Com
 
 **Theme:** Spoken scripts and the same message in many forms
 
-- [ ] `RMI-PIDL-042` Narration on scenarios and flows, and protocol pronunciations
+- [ ] `RMI-PIDL-042` Narration on scenarios and flows, scenario briefings (why, key points, narration), and protocol pronunciations
 - [ ] `RMI-PIDL-043` Samples: inline code or source references to tested files, with region extraction and `pidl samples resolve` and `check`
   - Depends on: `RMI-PIDL-040`
 - [ ] `RMI-PIDL-044` Generated cURL for example requests
