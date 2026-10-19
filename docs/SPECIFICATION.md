@@ -17,23 +17,26 @@ PIDL is designed for protocols where the primary concern is "who talks to whom, 
 
 ## Document Structure
 
-A PIDL document is a JSON object with three required sections and one optional section:
+A PIDL document is a JSON object. It describes either one flow (`flows`) or an ordered list of named scenarios (`scenarios`):
 
 ```json
 {
   "protocol": { ... },
   "entities": [ ... ],
   "phases": [ ... ],
-  "flows": [ ... ]
+  "flows": [ ... ],
+  "scenarios": [ ... ]
 }
 ```
 
 | Section | Required | Description |
 |---------|----------|-------------|
 | `protocol` | Yes | Metadata about the protocol |
-| `entities` | Yes | Participants in the protocol |
+| `entities` | Yes | Participants in the protocol, in display order |
 | `phases` | No | Logical grouping of flows |
-| `flows` | Yes | Interactions between entities |
+| `flows` | One of `flows` or `scenarios` | Interactions between entities, as a single flow |
+| `scenarios` | One of `flows` or `scenarios` | Named, ordered sequences of flows (see [Scenarios](#scenarios)) |
+| `metadata` | No | Tokens, networks, components and trust relations |
 
 ## Protocol Metadata
 
@@ -207,9 +210,10 @@ Flows are the core semantic unit: directed interactions between entities.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `from` | string | Yes | Source entity ID |
-| `to` | string | Yes | Target entity ID |
-| `action` | string | Yes | Action identifier |
+| `from` | string | Yes¹ | Source entity ID |
+| `to` | string | Yes¹ | Target entity ID |
+| `action` | string | Yes¹ | Action identifier |
+| `include` | string | No | ID of a fragment scenario to insert here (scenarios only; see [Include Steps](#include-steps-and-fragments)) |
 | `label` | string | No | Display label (defaults to action) |
 | `mode` | enum | No | Interaction mode (defaults to `request`) |
 | `phase` | string | No | Phase ID this flow belongs to |
@@ -220,6 +224,8 @@ Flows are the core semantic unit: directed interactions between entities.
 | `annotations` | array | No | Typed annotations for tooling |
 | `alternatives` | array | No | Alternative flow paths |
 | `verification` | object | No | Evidentiary provenance (tier/source/citation) |
+
+¹ Not set on an include step, which has `include` instead.
 
 ### Flow Verification
 
@@ -339,6 +345,80 @@ The `alternatives` field defines branching paths from a flow. They are rendered 
 | `flows` | array | Yes | Flows in this alternative path |
 | `description` | string | No | Description of this alternative |
 
+## Scenarios
+
+A protocol often has several journeys through the same roles: AAuth has five access modes, OAuth has several grants. Instead of one file per journey, a document can hold an ordered list of named scenarios that share the same `entities`, `phases` and `metadata`.
+
+```json
+{
+  "protocol": {"id": "demo", "name": "Demo"},
+  "entities": [
+    {"id": "person", "name": "Person", "type": "user"},
+    {"id": "agent", "name": "Agent", "type": "agent"},
+    {"id": "ps", "name": "Person Server", "type": "authorization_server"}
+  ],
+  "scenarios": [
+    {
+      "id": "three-party",
+      "name": "PS authorization",
+      "flows": [
+        {"from": "agent", "to": "ps", "action": "auth_token_request"},
+        {"include": "consent"},
+        {"from": "ps", "to": "agent", "action": "auth_token", "mode": "response"}
+      ]
+    },
+    {
+      "id": "consent",
+      "name": "User consent",
+      "fragment": true,
+      "flows": [
+        {"from": "ps", "to": "person", "action": "consent_prompt"},
+        {"from": "person", "to": "ps", "action": "approve", "mode": "response"}
+      ]
+    }
+  ]
+}
+```
+
+A document has either `flows` or `scenarios`. A document with `flows` behaves as a single unnamed scenario, so existing files keep working.
+
+### Scenario Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | Yes | Unique identifier, matching `^[a-z][a-z0-9_-]*$` |
+| `name` | string | Yes | Display name |
+| `description` | string | No | Description of the scenario |
+| `participants` | array | No | Entity IDs to show, in `entities` order. Defaults to the entities the scenario uses, including those of included fragments |
+| `fragment` | boolean | No | Marks a reusable sub-flow that other scenarios include |
+| `flows` | array | Yes | The scenario's steps, in order |
+
+### Include Steps and Fragments
+
+A step `{"include": "<scenario-id>"}` inserts a fragment's flows at that point. The target must be a scenario with `"fragment": true`, and includes must not form a cycle. An include step may also set `phase`, `condition`, `label`, `note`, `description` and `annotations`; inlined flows inherit the include's `phase` and `condition` when they have none of their own.
+
+Diagram formats draw an include step as a labeled box spanning the fragment's participants (PlantUML `ref over`, a shaded Mermaid `rect`, a D2 group, an SVG box), or inline the fragment's flows when expanded.
+
+Fragments are listed after main scenarios wherever scenarios are numbered, so a deck or file listing shows the journeys first and the shared pieces after them.
+
+### Working with One Scenario
+
+Most outputs describe one flow. Tools select a scenario and project it into a single-flow protocol: the scenario's flows, its participants (in `entities` order), the phases it uses, and the shared metadata. In the Go library this is `Protocol.Scenario(id, ProjectOptions{Expand: ...})`; on the command line it is `--scenario <id>`.
+
+### Token Verification
+
+Token definitions and flow security can say who checks what, so reviews and generated tables show where each guarantee is enforced:
+
+| Field | On | Description |
+|-------|----|-------------|
+| `verified_by` | token definition | Entity IDs that check the token |
+| `claims` | token definition | Claims checkers rely on, each with `name`, `checked_by` and `description` |
+| `signed_by` | flow `security` | Entity that signs the request, when it is not the sender |
+| `issues` | flow `security` | Token IDs the flow delivers |
+| `verifies` | flow `security` | Token IDs the receiver checks |
+
+`issues` and `verifies` let tools follow a token through a scenario: who it was delivered to, who presents it, and who signs the request that carries it.
+
 ## Ordering
 
 Order in PIDL comes from one source: the position of an item in its JSON array. Every output generated from a document (diagrams, tables, outlines, file listings) uses the same order, so presentations, guides and diagrams built from one file agree.
@@ -360,9 +440,14 @@ Numeric ordering fields are not used. The `sequence` field on a flow is deprecat
 1. All entity IDs referenced in flows must be defined in `entities`
 2. All phase IDs referenced in flows must be defined in `phases`
 3. A protocol must have at least 2 entities
-4. A protocol must have at least 1 flow
-5. Entity and phase IDs must be unique within their respective arrays
-6. IDs must match pattern: `^[a-z][a-z0-9_]*$` (entities/phases) or `^[a-z][a-z0-9_-]*$` (protocol)
+4. A protocol must have at least 1 flow, or at least 1 scenario that is not a fragment; a document with scenarios has no top-level flows
+5. Entity, phase and scenario IDs must be unique within their respective arrays
+6. IDs must match pattern: `^[a-z][a-z0-9_]*$` (entities/phases) or `^[a-z][a-z0-9_-]*$` (protocol/scenarios)
+7. A scenario must have a name and at least 1 flow
+8. A flow is either a message (`from`, `to`, `action`) or an include step, and include steps appear only in scenarios
+9. An include must name a fragment scenario, and includes must not form a cycle
+10. A scenario's `participants` must name known entities, once each, in `entities` order, and must cover every entity the scenario uses
+11. Token and entity references in `verified_by`, `claims`, `signed_by`, `issues` and `verifies` must resolve
 
 ## Schema
 

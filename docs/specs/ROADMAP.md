@@ -18,7 +18,7 @@
 | v0.5.0 | Process Spec: foundation, rendering, examples, analysis, infographic renderer | ✅ Done |
 | v0.5.0 | Data Lineage, Parallel, Cost, Workflow Exports, Integrations | ✅ Done |
 | v0.6.0 | Flow Verification Provenance | ✅ Done |
-| v0.7.0 | Ordered Roles and Scenarios, plus D2, determinism and Windows fixes | 🔄 In Progress |
+| v0.7.0 | Ordered Roles and Scenarios, plus D2, determinism and Windows fixes | 🔄 Release pending |
 | v1.0.0 | Production Ready Release | 🔲 Next |
 
 ---
@@ -321,6 +321,13 @@ pidl generate -f infographic --size=datasheet-tile --no-animate --theme=minimal 
 
 One PIDL file holds a protocol's ordered roles and an ordered list of named scenarios, with reusable fragments. Array position is the only source of order, so diagrams, guides and presentations generated from one file agree.
 
+- [x] Scenarios, include steps and fragments, with validation and the JSON Schema
+- [x] `--scenario`, `--all-scenarios` and `pidl scenarios`; include steps drawn as labeled boxes
+- [x] Roles-by-scenario matrix, token table and ordered outline (Markdown and JSON)
+- [x] Token verification fields and scenario analyzer rules (SEC017 to SEC021)
+- [x] Scenario-aware `extends`, `imports` and `diff`
+- [x] AAuth draft-11 example
+
 ### Fixes Shipping in v0.7.0
 
 - [x] D2 sequence diagrams render as sequence diagrams
@@ -356,6 +363,7 @@ One PIDL file holds a protocol's ordered roles and an ordered list of named scen
 | OpenID Connect | Auth | ✅ Example |
 | MCP (Model Context Protocol) | Agent | ✅ Example |
 | A2A (Agent-to-Agent) | Agent | ✅ Example |
+| AAuth | Agent | ✅ Example |
 | OAIAF Architecture | Multi-Protocol | ✅ Example |
 | SAML 2.0 | Auth | ✅ Example |
 | WebAuthn/FIDO2 | Auth | ✅ Example |

@@ -10,6 +10,7 @@ pidl <command> [options] [arguments]
 |---------|-------------|
 | `validate` | Validate PIDL JSON files |
 | `generate` | Generate diagrams from PIDL files |
+| `scenarios` | List the scenarios in a PIDL file |
 | `examples` | List or show built-in examples |
 | `init` | Create a new PIDL file from template |
 | `simulate` | Run protocol simulation with state tracking |
@@ -60,7 +61,11 @@ pidl generate [options] <file>
 | Option | Description | Default |
 |--------|-------------|---------|
 | `-f` | Output format | `plantuml` |
-| `-o` | Output file | stdout |
+| `-o` | Output file, or directory with `--all-scenarios` | stdout |
+| `--scenario` | Scenario to render (required for files with scenarios, except whole-file formats) | |
+| `--expand` | Show included fragments step by step instead of as boxes | false |
+| `--all-scenarios` | Render every main scenario to `NN-<id><ext>` in the `-o` directory | false |
+| `--include-fragments` | With `--all-scenarios`, also render fragments after the main scenarios | false |
 
 ### Formats
 
@@ -72,10 +77,20 @@ pidl generate [options] <file>
 | `d2` | D2 sequence diagram |
 | `d2-flow` | D2 data flow diagram |
 | `d2-arch` | D2 architecture diagram |
+| `scenario-matrix` | Markdown table of roles by scenario (whole file) |
+| `token-table` | Markdown table of tokens, checkers and claims (whole file) |
+| `outline` | Markdown outline of roles, scenarios and tokens (whole file) |
+| `outline-json` | The outline as JSON (whole file) |
 
 ### Examples
 
 ```bash
+# One scenario of a multi-scenario file
+pidl generate -f mermaid --scenario ps-authorization aauth_protocol
+
+# Every scenario, numbered in file order
+pidl generate -f svg --all-scenarios -o diagrams/ aauth_protocol
+
 # PlantUML to stdout
 pidl generate protocol.json
 
@@ -91,6 +106,29 @@ pidl generate -f d2-arch protocol.json
 # From built-in example
 pidl generate oauth2_authorization_code
 ```
+
+## scenarios
+
+List the scenarios in a PIDL file: main scenarios in file order, then fragments. The `#` column matches the file numbers written by `generate --all-scenarios --include-fragments`.
+
+```bash
+pidl scenarios [options] <file>
+```
+
+### Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `-f` | Output format: table, json | `table` |
+
+### Examples
+
+```bash
+pidl scenarios aauth_protocol
+pidl scenarios -f json aauth_protocol
+```
+
+See the [Scenarios guide](../guide/scenarios.md).
 
 ## examples
 
@@ -267,6 +305,7 @@ pidl analyze [options] <file>
 | `--category` | Filter by category (repeatable) |
 | `--fail-on` | Exit code 1 if risks at this severity |
 | `-q, --quiet` | Summary only |
+| `--scenario` | Analyze one scenario (default: the whole file) |
 
 ### Built-in Rules
 
@@ -282,6 +321,11 @@ pidl analyze [options] <file>
 | SEC008 | Low | Entity without defined trust level |
 | SEC009 | Medium | Sensitive data in redirect parameters |
 | SEC010 | Medium | Weak authentication method |
+| SEC017 | Low | Role that no flow uses |
+| SEC018 | Medium | Token checked before any earlier step issues it |
+| SEC019 | Low | Request signed by someone other than its sender or the token holder |
+| SEC020 | Low | Token checked by an entity not in its `verified_by` |
+| SEC021 | Info | Fragment that no scenario includes |
 
 ### Examples
 

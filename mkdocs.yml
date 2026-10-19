@@ -61,6 +61,7 @@ nav:
     - Entities: guide/entities.md
     - Flows: guide/flows.md
     - Phases: guide/phases.md
+    - Scenarios: guide/scenarios.md
     - Annotations: guide/annotations.md
     - Alternatives: guide/alternatives.md
     - Process Specifications: guide/process.md
