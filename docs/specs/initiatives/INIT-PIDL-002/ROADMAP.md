@@ -21,13 +21,13 @@ A generic PIDL viewer that walks through each scenario step by step, with exampl
 
 **Theme:** Every AAuth step with a request, response and tokens from draft-11
 
-- [ ] `RMI-PIDL-026` AAuth fragments: agent token, person token and consent examples, with the shared values used across scenarios
+- [x] `RMI-PIDL-026` AAuth fragments: agent token, person token and consent examples, with the shared values used across scenarios
   - Depends on: `RMI-PIDL-022`
-- [ ] `RMI-PIDL-027` AAuth agent identity and resource-managed examples
+- [x] `RMI-PIDL-027` AAuth agent identity and resource-managed examples
   - Depends on: `RMI-PIDL-026`
-- [ ] `RMI-PIDL-028` AAuth person identity and PS authorization examples
+- [x] `RMI-PIDL-028` AAuth person identity and PS authorization examples
   - Depends on: `RMI-PIDL-026`
-- [ ] `RMI-PIDL-029` AAuth federated authorization examples
+- [x] `RMI-PIDL-029` AAuth federated authorization examples
   - Depends on: `RMI-PIDL-028`
 
 ## Phase 3 — Viewer
