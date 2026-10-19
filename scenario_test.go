@@ -279,3 +279,13 @@ func TestScenarioSummaries(t *testing.T) {
 		t.Fatalf("ScenarioSummaries on empty protocol = %+v, want nil", s)
 	}
 }
+
+func TestDirectParticipants(t *testing.T) {
+	p := scenarioProtocol()
+	if got, want := p.DirectParticipants("three-party"), []string{"agent", "resource", "ps"}; !reflect.DeepEqual(got, want) {
+		t.Fatalf("DirectParticipants(three-party) = %v, want %v", got, want)
+	}
+	if got := p.DirectParticipants("missing"); got != nil {
+		t.Fatalf("DirectParticipants(missing) = %v, want nil", got)
+	}
+}

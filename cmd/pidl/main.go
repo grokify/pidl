@@ -185,7 +185,7 @@ Options:
 func cmdGenerate(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
 	fs.SetOutput(stderr)
-	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic")
+	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
 	templateDir := fs.String("template-dir", "", "Path to custom SVG template directory")
@@ -234,6 +234,7 @@ Formats:
   svg-component      SVG deployment component diagram
   svg-trust          SVG trust relationship diagram
   infographic        Compact SVG for LinkedIn/datasheets with animated dots
+  scenario-matrix    Markdown table of roles by scenario (whole file)
 
 SVG Templates:
   default          Clean, professional styling
@@ -443,6 +444,14 @@ Infographic Examples:
 		return diagram, nil
 	}
 
+	if render.IsDocumentFormat(format) {
+		if *scenario != "" || *allScenarios {
+			fmt.Fprintf(stderr, "Error: %s covers every scenario; drop --scenario and --all-scenarios\n", format)
+			return 1
+		}
+		return writeDiagram(renderOne, p, *output, stdout, stderr)
+	}
+
 	includeExpand := *expand || !render.SupportsIncludes(format)
 	if *allScenarios {
 		if *scenario != "" {
@@ -458,22 +467,7 @@ Infographic Examples:
 		return 1
 	}
 
-	diagram, err := renderOne(p)
-	if err != nil {
-		fmt.Fprintf(stderr, "Error %v\n", err)
-		return 1
-	}
-
-	if *output == "" {
-		fmt.Fprint(stdout, diagram)
-	} else {
-		if err := os.WriteFile(*output, []byte(diagram), 0600); err != nil {
-			fmt.Fprintf(stderr, "Error writing %s: %v\n", *output, err)
-			return 1
-		}
-		fmt.Fprintf(stdout, "Wrote %s\n", *output)
-	}
-	return 0
+	return writeDiagram(renderOne, p, *output, stdout, stderr)
 }
 
 func cmdResolve(args []string, stdout, stderr io.Writer) int {
@@ -1884,6 +1878,26 @@ func (c *categoryFlags) String() string {
 func (c *categoryFlags) Set(value string) error {
 	*c = append(*c, value)
 	return nil
+}
+
+// writeDiagram renders p and writes it to output, or to stdout when output
+// is empty.
+func writeDiagram(renderOne func(*pidl.Protocol) (string, error), p *pidl.Protocol, output string, stdout, stderr io.Writer) int {
+	diagram, err := renderOne(p)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error %v\n", err)
+		return 1
+	}
+	if output == "" {
+		fmt.Fprint(stdout, diagram)
+		return 0
+	}
+	if err := os.WriteFile(output, []byte(diagram), 0600); err != nil {
+		fmt.Fprintf(stderr, "Error writing %s: %v\n", output, err)
+		return 1
+	}
+	fmt.Fprintf(stdout, "Wrote %s\n", output)
+	return 0
 }
 
 // generateAllScenarios renders every main scenario of p (and, when

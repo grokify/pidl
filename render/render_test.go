@@ -196,9 +196,18 @@ func TestMustNewPanics(t *testing.T) {
 }
 
 func TestSupportedFormats(t *testing.T) {
-	formats := SupportedFormats()
-	if len(formats) != 16 {
-		t.Errorf("SupportedFormats() = %d formats, want 16", len(formats))
+	seen := map[Format]bool{}
+	for _, f := range SupportedFormats() {
+		if seen[f] {
+			t.Errorf("SupportedFormats() lists %s twice", f)
+		}
+		seen[f] = true
+		if got, err := ParseFormat(string(f)); err != nil || got != f {
+			t.Errorf("ParseFormat(%q) = %q, %v; want %q", f, got, err, f)
+		}
+	}
+	if len(seen) < 17 {
+		t.Errorf("SupportedFormats() = %d formats, want at least 17", len(seen))
 	}
 }
 

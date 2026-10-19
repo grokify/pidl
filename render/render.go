@@ -29,6 +29,7 @@ const (
 	FormatSVGComponent     Format = "svg-component"
 	FormatSVGTrust         Format = "svg-trust"
 	FormatInfographic      Format = "infographic"
+	FormatScenarioMatrix   Format = "scenario-matrix"
 )
 
 // String returns the format as a string.
@@ -43,7 +44,7 @@ func (f Format) FileExtension() string {
 		return ".puml"
 	case FormatMermaid, FormatMermaidState, FormatMermaidComponent, FormatMermaidTrust:
 		return ".mmd"
-	case FormatMarkdownMatrix:
+	case FormatMarkdownMatrix, FormatScenarioMatrix:
 		return ".md"
 	case FormatDOT:
 		return ".dot"
@@ -91,8 +92,10 @@ func ParseFormat(s string) (Format, error) {
 		return FormatSVGTrust, nil
 	case "infographic", "infog", "ig":
 		return FormatInfographic, nil
+	case "scenario-matrix", "scenarios-matrix":
+		return FormatScenarioMatrix, nil
 	default:
-		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic", s)
+		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix", s)
 	}
 }
 
@@ -205,6 +208,8 @@ func New(format Format) (Renderer, error) {
 		return NewSVGComponent(), nil
 	case FormatSVGTrust:
 		return NewSVGTrust(), nil
+	case FormatScenarioMatrix:
+		return NewScenarioMatrix(), nil
 	default:
 		return nil, fmt.Errorf("unknown format: %s", format)
 	}
@@ -247,6 +252,7 @@ func SupportedFormats() []Format {
 		FormatSVGComponent,
 		FormatSVGTrust,
 		FormatInfographic,
+		FormatScenarioMatrix,
 	}
 }
 
@@ -256,6 +262,18 @@ func SupportedFormats() []Format {
 func SupportsIncludes(format Format) bool {
 	switch format {
 	case FormatPlantUML, FormatMermaid, FormatD2, FormatSVG, FormatSVGAnimated:
+		return true
+	default:
+		return false
+	}
+}
+
+// IsDocumentFormat reports whether the format describes the whole document
+// (every scenario) rather than one flow list, so callers should not project
+// a single scenario before rendering it.
+func IsDocumentFormat(format Format) bool {
+	switch format {
+	case FormatScenarioMatrix:
 		return true
 	default:
 		return false

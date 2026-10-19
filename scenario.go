@@ -309,3 +309,20 @@ func (p *Protocol) ScenarioSummaries() []ScenarioSummary {
 	}
 	return out
 }
+
+// DirectParticipants returns the entities that scenario id's own message
+// flows use, in entities order, leaving out entities that appear only in
+// included fragments. It returns nil for an unknown scenario.
+func (p *Protocol) DirectParticipants(id string) []string {
+	sc := p.ScenarioByID(id)
+	if sc == nil {
+		return nil
+	}
+	var ids []string
+	for _, f := range sc.Flows {
+		if !f.IsInclude() {
+			ids = append(ids, flowEntities(f)...)
+		}
+	}
+	return p.OrderEntities(ids)
+}
