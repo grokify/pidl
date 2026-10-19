@@ -2,7 +2,7 @@
 
 **Protocol Interaction Description Language** - A JSON-based DSL for describing protocol choreography that compiles to diagrams.
 
-**Current Version**: v0.6.0
+**Current Version**: v0.7.0
 **Status**: Active Development
 
 ---
@@ -18,7 +18,7 @@
 | v0.5.0 | Process Spec: foundation, rendering, examples, analysis, infographic renderer | ✅ Done |
 | v0.5.0 | Data Lineage, Parallel, Cost, Workflow Exports, Integrations | ✅ Done |
 | v0.6.0 | Flow Verification Provenance | ✅ Done |
-| v0.7.0 | Ordered Roles and Scenarios, plus D2, determinism and Windows fixes | 🔄 Release pending |
+| v0.7.0 | Ordered Roles and Scenarios, plus D2, determinism and Windows fixes | ✅ Done |
 | v1.0.0 | Production Ready Release | 🔲 Next |
 
 ---
@@ -315,7 +315,7 @@ pidl generate -f infographic --size=datasheet-tile --no-animate --theme=minimal 
 
 ---
 
-## In Progress: v0.7.0
+## Completed: v0.7.0
 
 ### Ordered Roles and Scenarios
 
