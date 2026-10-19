@@ -2,7 +2,8 @@ import { Card } from "./components/Card";
 import { Stage } from "./components/Stage";
 import { MessagePanel } from "./components/MessagePanel";
 import { SequenceDiagram } from "./components/SequenceDiagram";
-import { StepCaption } from "./components/StepCaption";
+import { ScenarioIntro, StepNarrative } from "./components/StepCaption";
+import { StepControls } from "./components/StepControls";
 import { TopBar } from "./components/TopBar";
 import { usePosition } from "./hooks/usePosition";
 import { usePrefs } from "./hooks/usePrefs";
@@ -24,20 +25,20 @@ export default function App({ walkthrough }: { walkthrough: Walkthrough }) {
       <TopBar
         walkthrough={walkthrough}
         scenario={scenario}
-        step={step}
         onScenario={selectScenario}
-        onStep={goTo}
         theme={prefs.theme}
         onTheme={prefs.cycleTheme}
         present={prefs.present}
         onPresent={prefs.togglePresent}
       />
       <main className="content">
-        <Card title="Sequence" meta={scenario.fragment ? "Shared steps" : `${scenario.participants.length} roles`} className="diagram-card">
+        <Card title={scenario.name} meta={scenario.fragment ? "Shared steps" : `${scenario.participants.length} roles · ${scenario.steps.length} steps`} className="diagram-card">
+          <ScenarioIntro scenario={scenario} />
           <div className="diagram-wrap" ref={ref}>
             <SequenceDiagram scenario={scenario} roles={walkthrough.roles} width={width} active={step} onSelect={goTo} />
           </div>
-          <StepCaption scenario={scenario} roles={walkthrough.roles} step={step} />
+          <StepNarrative scenario={scenario} roles={walkthrough.roles} step={step} />
+          <StepControls step={step} total={scenario.steps.length} onStep={goTo} />
         </Card>
         <div className="side">
           <Card title="Request" className="message-card">

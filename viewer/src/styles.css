@@ -247,49 +247,18 @@ body,
   padding: 7px 12px;
   min-width: 340px;
 }
-.stepper {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.stepper button {
-  font: inherit;
-  font-size: 14px;
-  color: var(--text);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 7px 14px;
-  cursor: pointer;
-}
-.stepper button:hover:not(:disabled) {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.stepper button:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-.step-count {
-  min-width: 110px;
-  text-align: center;
-  font-size: 14px;
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-}
 .content {
   flex: 1;
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  gap: 24px;
-  padding: 24px 28px 28px;
+  gap: 20px;
+  padding: 20px 24px 22px;
 }
 .side {
   display: grid;
   grid-template-rows: 1fr 1fr;
-  gap: 24px;
+  gap: 20px;
   min-height: 0;
 }
 
@@ -320,6 +289,12 @@ body,
   letter-spacing: 0.06em;
   color: var(--muted);
 }
+.diagram-card .card-head h2 {
+  font-size: 18px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+}
 .card-meta {
   font-size: 13px;
   color: var(--muted);
@@ -346,19 +321,6 @@ body,
 }
 
 /* Step caption */
-.caption {
-  flex: none;
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border);
-  font-size: 14px;
-  line-height: 1.5;
-  max-height: 150px;
-  overflow: auto;
-}
-.caption p {
-  margin: 0 0 6px;
-}
 .caption-title {
   font-size: 16px;
   font-weight: 700;
@@ -382,7 +344,8 @@ body,
   color: var(--muted);
 }
 .caption-note {
-  padding: 8px 12px;
+  font-size: 14px;
+  padding: 6px 12px;
   border-left: 3px solid var(--accent);
   background: var(--accent-soft);
   border-radius: 6px;
@@ -591,10 +554,8 @@ body,
 }
 
 /* View controls and presentation stage */
-.stepper {
-  margin-left: auto;
-}
 .view-controls {
+  margin-left: auto;
   display: flex;
   gap: 8px;
 }
@@ -630,4 +591,131 @@ body,
 }
 .stage .app {
   height: 100%;
+}
+
+/* Scenario intro, step narrative and presentation controls */
+.intro {
+  flex: none;
+  margin-bottom: 10px;
+}
+.intro p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+  max-height: 42px;
+  overflow: auto;
+}
+.narrative {
+  flex: none;
+  box-sizing: border-box;
+  height: 176px;
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  overflow: auto;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.narrative p {
+  margin: 0 0 8px;
+}
+.narrative-title {
+  font-weight: 700;
+  font-size: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+.narrative-label {
+  font-weight: 600;
+  color: var(--accent);
+  margin-left: 6px;
+}
+.narrative-trail {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--band-text);
+  background: var(--band);
+  border-radius: 10px;
+  padding: 1px 8px;
+}
+.narrative-text.muted,
+.muted {
+  color: var(--muted);
+}
+.step-controls {
+  flex: none;
+  margin-top: 10px;
+}
+.finding-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.finding-chip {
+  font-size: 12.5px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: var(--warn-soft);
+  color: var(--text);
+  border: 1px solid var(--warn);
+  cursor: help;
+}
+.progress {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+.step-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.step-buttons button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+.step-buttons button.nav {
+  font-size: 20px;
+  width: 52px;
+  height: 40px;
+}
+.step-buttons button.ghost {
+  font-size: 13px;
+  padding: 8px 12px;
+  color: var(--muted);
+}
+.step-buttons button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.step-buttons button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.step-buttons .step-count {
+  min-width: 150px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.step-buttons .step-count strong {
+  color: var(--text);
 }

@@ -1,13 +1,11 @@
-import { scenarioGroups } from "../nav";
 import type { Theme } from "../hooks/usePrefs";
+import { scenarioGroups } from "../nav";
 import type { Scenario, Walkthrough } from "../types";
 
 interface Props {
   walkthrough: Walkthrough;
   scenario: Scenario;
-  step: number;
   onScenario: (id: string) => void;
-  onStep: (step: number) => void;
   theme: Theme;
   onTheme: () => void;
   present: boolean;
@@ -16,9 +14,8 @@ interface Props {
 
 const THEME_LABEL: Record<Theme, string> = { auto: "Auto", light: "Light", dark: "Dark" };
 
-export function TopBar({ walkthrough, scenario, step, onScenario, onStep, theme, onTheme, present, onPresent }: Props) {
+export function TopBar({ walkthrough, scenario, onScenario, theme, onTheme, present, onPresent }: Props) {
   const { main, fragments } = scenarioGroups(walkthrough);
-  const total = scenario.steps.length;
   return (
     <header className="topbar">
       <div className="brand">
@@ -46,20 +43,6 @@ export function TopBar({ walkthrough, scenario, step, onScenario, onStep, theme,
           )}
         </select>
       </label>
-      <nav className="stepper" aria-label="Steps">
-        <button onClick={() => onStep(0)} disabled={step === 0} title="Overview (Home)">
-          Overview
-        </button>
-        <button onClick={() => onStep(step - 1)} disabled={step === 0} title="Previous step (←)" aria-label="Previous step">
-          ←
-        </button>
-        <span className="step-count" aria-live="polite">
-          {step === 0 ? `${total} steps` : `Step ${step} of ${total}`}
-        </span>
-        <button onClick={() => onStep(step + 1)} disabled={step === total} title="Next step (→)" aria-label="Next step">
-          →
-        </button>
-      </nav>
       <div className="view-controls">
         <button onClick={onTheme} title="Theme: auto, light or dark">
           Theme: {THEME_LABEL[theme]}
