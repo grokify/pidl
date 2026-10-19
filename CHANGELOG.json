@@ -7,66 +7,68 @@
   "maintainers": [
     "grokify"
   ],
-  "unreleased": {
-    "highlights": [
-      {
-        "description": "Walkthrough viewer: pidl generate -f viewer writes one self-contained HTML page that steps through each scenario, highlighting the active roles and message, with the scenario's introduction, each step's narrative, and presentation controls"
-      },
-      {
-        "description": "Flow examples: a step can carry an illustrative HTTP request, response and decoded tokens with a cited source, shown in the viewer with signed headers marked and checked claims highlighted"
-      },
-      {
-        "description": "The AAuth draft-11 example is fully worked: every step of the five access modes and their shared steps has a narrative and an example, with one consistent set of keys, tokens and timestamps"
-      }
-    ],
-    "added": [
-      {
-        "description": "Flow example field with source, draft or derived kind, request, response, decoded tokens and note, plus validation and JSON Schema",
-        "commit": "063bba5"
-      },
-      {
-        "description": "JSON Schema definitions for flow examples",
-        "commit": "482e9e2"
-      },
-      {
-        "description": "Protocol.Walkthrough: scenarios with fragments expanded, each step's example, security references and written location, and findings attached by location",
-        "commit": "9df7563"
-      },
-      {
-        "description": "walkthrough-json output format with analyzer findings attached (SEC016 left out by default)",
-        "commit": "da956e3"
-      },
-      {
-        "description": "viewer output format: a self-contained HTML walkthrough viewer embedded in the binary, with a CI check that the embedded build is current",
-        "commit": "d9399f3"
-      },
-      {
-        "description": "Walkthrough viewer app in viewer/ (Vite, React, TypeScript): sequence diagram with fragment bands, stepping by keys, buttons and URL hash, request, response and token panels, 16:9 presentation stage, and light and dark themes",
-        "commit": "40e631e"
-      },
-      {
-        "description": "AAuth examples for every step of the five access modes and the agent token, person token and consent fragments, including the web app agent bootstrap",
-        "commit": "3b294fa"
-      },
-      {
-        "description": "Scenario introductions and step narratives for the AAuth example",
-        "commit": "6380348"
-      }
-    ],
-    "fixed": [
-      {
-        "description": "For documents with scenarios, analyzer flow rules reported locations as indexes into the flattened protocol; they now report the written scenario flow",
-        "commit": "9df7563"
-      }
-    ],
-    "documentation": [
-      {
-        "description": "Walkthrough Viewer guide, Flow Examples section in the specification, and the walkthrough-json and viewer formats in the CLI reference and README",
-        "commit": "684540b"
-      }
-    ]
-  },
   "releases": [
+    {
+      "version": "v0.8.0",
+      "date": "2026-10-19",
+      "highlights": [
+        {
+          "description": "Walkthrough viewer: pidl generate -f viewer writes one self-contained HTML page that steps through each scenario, highlighting the active roles and message, with the scenario's introduction, each step's narrative, and presentation controls"
+        },
+        {
+          "description": "Flow examples: a step can carry an illustrative HTTP request, response and decoded tokens with a cited source, shown in the viewer with signed headers marked and checked claims highlighted"
+        },
+        {
+          "description": "The AAuth draft-11 example is fully worked: every step of the five access modes and their shared steps has a narrative and an example, with one consistent set of keys, tokens and timestamps"
+        }
+      ],
+      "added": [
+        {
+          "description": "Flow example field with source, draft or derived kind, request, response, decoded tokens and note, plus validation and JSON Schema",
+          "commit": "063bba5"
+        },
+        {
+          "description": "JSON Schema definitions for flow examples",
+          "commit": "482e9e2"
+        },
+        {
+          "description": "Protocol.Walkthrough: scenarios with fragments expanded, each step's example, security references and written location, and findings attached by location",
+          "commit": "9df7563"
+        },
+        {
+          "description": "walkthrough-json output format with analyzer findings attached (SEC016 left out by default)",
+          "commit": "da956e3"
+        },
+        {
+          "description": "viewer output format: a self-contained HTML walkthrough viewer embedded in the binary, with a CI check that the embedded build is current",
+          "commit": "d9399f3"
+        },
+        {
+          "description": "Walkthrough viewer app in viewer/ (Vite, React, TypeScript): sequence diagram with fragment bands, stepping by keys, buttons and URL hash, request, response and token panels, 16:9 presentation stage, and light and dark themes",
+          "commit": "40e631e"
+        },
+        {
+          "description": "AAuth examples for every step of the five access modes and the agent token, person token and consent fragments, including the web app agent bootstrap",
+          "commit": "3b294fa"
+        },
+        {
+          "description": "Scenario introductions and step narratives for the AAuth example",
+          "commit": "6380348"
+        }
+      ],
+      "fixed": [
+        {
+          "description": "For documents with scenarios, analyzer flow rules reported locations as indexes into the flattened protocol; they now report the written scenario flow",
+          "commit": "9df7563"
+        }
+      ],
+      "documentation": [
+        {
+          "description": "Walkthrough Viewer guide, Flow Examples section in the specification, and the walkthrough-json and viewer formats in the CLI reference and README",
+          "commit": "684540b"
+        }
+      ]
+    },
     {
       "version": "v0.7.0",
       "date": "2026-10-19",
