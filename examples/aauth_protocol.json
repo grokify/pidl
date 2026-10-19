@@ -277,6 +277,57 @@
             "verifies": [
               "agent_token"
             ]
+          },
+          "example": {
+            "source": "draft-11 §5.3.2, §11.3.3",
+            "kind": "derived",
+            "request": {
+              "method": "GET",
+              "url": "https://resource.example/api/documents",
+              "headers": [
+                {
+                  "name": "Signature-Input",
+                  "value": "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\");created=1730217610"
+                },
+                {
+                  "name": "Signature",
+                  "value": "sig=:SIGNATURE-PLACEHOLDER:"
+                },
+                {
+                  "name": "Signature-Key",
+                  "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtYWdlbnQrand0Iiwia2lkIjoiYXAta2V5LTEifQ.eyJpc3MiOi…\""
+                }
+              ]
+            },
+            "tokens": [
+              {
+                "token": "agent_token",
+                "label": "Signature-Key header",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-agent+jwt",
+                  "kid": "ap-key-1"
+                },
+                "payload": {
+                  "iss": "https://agent.example",
+                  "dwk": "aauth-agent.json",
+                  "sub": "aauth:assistant@agent.example",
+                  "ps": "https://ps.example",
+                  "cnf": {
+                    "jwk": {
+                      "kty": "OKP",
+                      "crv": "Ed25519",
+                      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+                      "alg": "Ed25519"
+                    }
+                  },
+                  "jti": "at-1c2d3e",
+                  "iat": 1730217000,
+                  "exp": 1730303400
+                }
+              }
+            ],
+            "note": "The agent signs every request with the key in the token's cnf; the verifier checks the signature against that key."
           }
         },
         {
@@ -284,7 +335,33 @@
           "to": "agent",
           "action": "ok",
           "label": "200 OK",
-          "mode": "response"
+          "mode": "response",
+          "example": {
+            "source": "draft-11 §4.2.1",
+            "kind": "derived",
+            "response": {
+              "status": 200,
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "documents": [
+                  {
+                    "id": "doc-1",
+                    "title": "Q3 planning"
+                  },
+                  {
+                    "id": "doc-2",
+                    "title": "Team offsite"
+                  }
+                ]
+              }
+            },
+            "note": "The resource decides on the agent's identity alone (sub of the agent token)."
+          }
         }
       ]
     },
@@ -309,6 +386,56 @@
             "verifies": [
               "agent_token"
             ]
+          },
+          "example": {
+            "source": "draft-11 §6.2",
+            "kind": "derived",
+            "request": {
+              "method": "GET",
+              "url": "https://resource.example/api/data",
+              "headers": [
+                {
+                  "name": "Signature-Input",
+                  "value": "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\");created=1730217610"
+                },
+                {
+                  "name": "Signature",
+                  "value": "sig=:SIGNATURE-PLACEHOLDER:"
+                },
+                {
+                  "name": "Signature-Key",
+                  "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtYWdlbnQrand0Iiwia2lkIjoiYXAta2V5LTEifQ.eyJpc3MiOi…\""
+                }
+              ]
+            },
+            "tokens": [
+              {
+                "token": "agent_token",
+                "label": "Signature-Key header",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-agent+jwt",
+                  "kid": "ap-key-1"
+                },
+                "payload": {
+                  "iss": "https://agent.example",
+                  "dwk": "aauth-agent.json",
+                  "sub": "aauth:assistant@agent.example",
+                  "ps": "https://ps.example",
+                  "cnf": {
+                    "jwk": {
+                      "kty": "OKP",
+                      "crv": "Ed25519",
+                      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+                      "alg": "Ed25519"
+                    }
+                  },
+                  "jti": "at-1c2d3e",
+                  "iat": 1730217000,
+                  "exp": 1730303400
+                }
+              }
+            ]
           }
         },
         {
@@ -316,7 +443,39 @@
           "to": "agent",
           "action": "interaction_required",
           "label": "202 interaction required",
-          "mode": "response"
+          "mode": "response",
+          "example": {
+            "source": "draft-11 §6.2",
+            "kind": "draft",
+            "response": {
+              "status": 202,
+              "headers": [
+                {
+                  "name": "Location",
+                  "value": "https://resource.example/pending/abc123"
+                },
+                {
+                  "name": "Retry-After",
+                  "value": "0"
+                },
+                {
+                  "name": "Cache-Control",
+                  "value": "no-store"
+                },
+                {
+                  "name": "AAuth-Requirement",
+                  "value": "requirement=interaction; url=\"https://resource.example/interaction\"; code=\"A1B2-C3D4\""
+                },
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "status": "pending"
+              }
+            }
+          }
         },
         {
           "from": "person",
@@ -336,6 +495,56 @@
             "verifies": [
               "agent_token"
             ]
+          },
+          "example": {
+            "source": "draft-11 §11.8.3",
+            "kind": "derived",
+            "request": {
+              "method": "GET",
+              "url": "https://resource.example/pending/abc123",
+              "headers": [
+                {
+                  "name": "Signature-Input",
+                  "value": "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\");created=1730217690"
+                },
+                {
+                  "name": "Signature",
+                  "value": "sig=:SIGNATURE-PLACEHOLDER:"
+                },
+                {
+                  "name": "Signature-Key",
+                  "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtYWdlbnQrand0Iiwia2lkIjoiYXAta2V5LTEifQ.eyJpc3MiOi…\""
+                }
+              ]
+            },
+            "tokens": [
+              {
+                "token": "agent_token",
+                "label": "Signature-Key header",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-agent+jwt",
+                  "kid": "ap-key-1"
+                },
+                "payload": {
+                  "iss": "https://agent.example",
+                  "dwk": "aauth-agent.json",
+                  "sub": "aauth:assistant@agent.example",
+                  "ps": "https://ps.example",
+                  "cnf": {
+                    "jwk": {
+                      "kty": "OKP",
+                      "crv": "Ed25519",
+                      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+                      "alg": "Ed25519"
+                    }
+                  },
+                  "jti": "at-1c2d3e",
+                  "iat": 1730217000,
+                  "exp": 1730303400
+                }
+              }
+            ]
           }
         },
         {
@@ -348,6 +557,32 @@
             "issues": [
               "session_token"
             ]
+          },
+          "example": {
+            "source": "draft-11 §6.2, §6.3",
+            "kind": "draft",
+            "response": {
+              "status": 200,
+              "headers": [
+                {
+                  "name": "AAuth-Access",
+                  "value": "wrapped-session-token-value"
+                },
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "items": [
+                  {
+                    "id": 1,
+                    "value": "example"
+                  }
+                ]
+              }
+            },
+            "note": "The session token is opaque to the agent and meaningless without the agent's signature."
           }
         },
         {
@@ -364,6 +599,61 @@
               "agent_token",
               "session_token"
             ]
+          },
+          "example": {
+            "source": "draft-11 §6.3",
+            "kind": "draft",
+            "request": {
+              "method": "GET",
+              "url": "https://resource.example/api/data",
+              "headers": [
+                {
+                  "name": "Authorization",
+                  "value": "AAuth wrapped-session-token-value"
+                },
+                {
+                  "name": "Signature-Input",
+                  "value": "sig=(\"@method\" \"@authority\" \"@path\" \"authorization\" \"signature-key\");created=1730217700"
+                },
+                {
+                  "name": "Signature",
+                  "value": "sig=:SIGNATURE-PLACEHOLDER:"
+                },
+                {
+                  "name": "Signature-Key",
+                  "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtYWdlbnQrand0Iiwia2lkIjoiYXAta2V5LTEifQ.eyJpc3MiOi…\""
+                }
+              ]
+            },
+            "tokens": [
+              {
+                "token": "agent_token",
+                "label": "Signature-Key header",
+                "header": {
+                  "alg": "Ed25519",
+                  "typ": "aa-agent+jwt",
+                  "kid": "ap-key-1"
+                },
+                "payload": {
+                  "iss": "https://agent.example",
+                  "dwk": "aauth-agent.json",
+                  "sub": "aauth:assistant@agent.example",
+                  "ps": "https://ps.example",
+                  "cnf": {
+                    "jwk": {
+                      "kty": "OKP",
+                      "crv": "Ed25519",
+                      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+                      "alg": "Ed25519"
+                    }
+                  },
+                  "jti": "at-1c2d3e",
+                  "iat": 1730217000,
+                  "exp": 1730303400
+                }
+              }
+            ],
+            "note": "The signature must cover the authorization header, so the session token cannot be replayed as a bearer token."
           }
         },
         {
@@ -371,7 +661,28 @@
           "to": "agent",
           "action": "ok",
           "label": "200 OK",
-          "mode": "response"
+          "mode": "response",
+          "example": {
+            "source": "draft-11 §6.3",
+            "kind": "derived",
+            "response": {
+              "status": 200,
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "items": [
+                  {
+                    "id": 1,
+                    "value": "example"
+                  }
+                ]
+              }
+            }
+          }
         }
       ]
     },
