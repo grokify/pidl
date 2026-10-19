@@ -81,6 +81,8 @@ pidl generate [options] <file>
 | `token-table` | Markdown table of tokens, checkers and claims (whole file) |
 | `outline` | Markdown outline of roles, scenarios and tokens (whole file) |
 | `outline-json` | The outline as JSON (whole file) |
+| `walkthrough-json` | Expanded scenarios with examples and findings, for viewers (whole file) |
+| `viewer` | Self-contained HTML walkthrough viewer (whole file) |
 
 ### Examples
 
@@ -90,6 +92,9 @@ pidl generate -f mermaid --scenario ps-authorization aauth_protocol
 
 # Every scenario, numbered in file order
 pidl generate -f svg --all-scenarios -o diagrams/ aauth_protocol
+
+# Step-by-step walkthrough viewer in one HTML file
+pidl generate -f viewer -o aauth.html aauth_protocol
 
 # PlantUML to stdout
 pidl generate protocol.json
