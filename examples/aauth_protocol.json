@@ -89,6 +89,39 @@
   "metadata": {
     "tokens": [
       {
+        "id": "naming_jwt",
+        "name": "Naming JWT (jkt-jwt)",
+        "type": "jwt",
+        "binding": "http_signature",
+        "description": "Signed by the agent's durable key; delegates signing to a fresh ephemeral key (draft-hardt-httpbis-signature-key §3.5, draft-hardt-aauth-bootstrap §8.1)",
+        "verified_by": [
+          "ap"
+        ],
+        "claims": [
+          {
+            "name": "iss",
+            "checked_by": [
+              "ap"
+            ],
+            "description": "urn:jkt thumbprint of the durable key in the header jwk; the agent provider finds the enrollment by it"
+          },
+          {
+            "name": "cnf",
+            "checked_by": [
+              "ap"
+            ],
+            "description": "The new ephemeral key; must be the key that signed the request"
+          },
+          {
+            "name": "exp",
+            "checked_by": [
+              "ap"
+            ],
+            "description": "The delegation is short-lived"
+          }
+        ]
+      },
+      {
         "id": "agent_token",
         "name": "Agent token",
         "type": "jwt",
@@ -1882,14 +1915,85 @@
       "id": "agent-token",
       "name": "Obtain agent token",
       "fragment": true,
-      "description": "Before anything else, the agent needs an agent token from its agent provider. The token binds the agent's public key to a stable identifier such as aauth:assistant@agent.example and lives at most 24 hours.",
+      "description": "Before anything else, the agent needs an agent token from its agent provider. How it gets one depends on where it runs. This walkthrough shows a web app: the agent keeps a durable key in the browser, made at enrollment after the user signed in, and for each token generates a fresh ephemeral key that the durable key vouches for. Mobile apps follow the same pattern with a hardware-backed key and platform attestation; a self-hosted agent is its own agent provider and simply issues its own token.",
       "flows": [
         {
           "from": "agent",
           "to": "ap",
           "action": "attest",
-          "label": "Prove identity (platform-specific)",
-          "description": "The agent generates a key pair and proves to its agent provider that it is what it claims to be. How it does so is platform-specific: device attestation, a workload identity, or a signed-in app."
+          "label": "Request agent token (web app)",
+          "description": "The agent generates a fresh ephemeral key and asks its agent provider for an agent token. It signs the request with the new key, and the Signature-Key header carries a naming JWT signed by its durable key, which vouches for the new key. The agent provider recognizes the durable key from enrollment, checks that the new key signed the request, and applies its policy.",
+          "security": {
+            "requires": [
+              "signature"
+            ],
+            "token": "naming_jwt",
+            "verifies": [
+              "naming_jwt"
+            ]
+          },
+          "example": {
+            "source": "draft-hardt-aauth-bootstrap-02 §8.1, §10.1; draft-hardt-httpbis-signature-key-09 §3.5",
+            "kind": "draft",
+            "request": {
+              "method": "POST",
+              "url": "https://agent.example/agent-token",
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "name": "Content-Digest",
+                  "value": "sha-256=:RBNvo1WzZ4oRRq0W9+hknpT7T8If536DEMBg9hyq/4o=:"
+                },
+                {
+                  "name": "Signature-Input",
+                  "value": "sig=(\"@method\" \"@authority\" \"@path\" \"content-type\" \"content-digest\" \"signature-key\");created=1730216995"
+                },
+                {
+                  "name": "Signature",
+                  "value": "sig=:SIGNATURE-PLACEHOLDER:"
+                },
+                {
+                  "name": "Signature-Key",
+                  "value": "sig=jkt-jwt;jwt=\"eyJ0eXAiOiJqa3QtczI1Nitqd3QiLCJhbGciOiJFZDI1NTE5IiwiandrIjp7Imt0eSI6Ik9LUCIsImNydiI6IkVkMjU1MTkiLCJ4IjoiWDg5aVlfREZkRkJJWnBHdFBONFFwNWdWbzJTVXNlcHFSekVwcXZra1pLQSIsImFsZyI6IkVkMjU1MTkifX0.eyJpc3MiOi…\""
+                }
+              ],
+              "body": {}
+            },
+            "tokens": [
+              {
+                "token": "naming_jwt",
+                "label": "Signature-Key header (jkt-jwt)",
+                "header": {
+                  "typ": "jkt-s256+jwt",
+                  "alg": "Ed25519",
+                  "jwk": {
+                    "kty": "OKP",
+                    "crv": "Ed25519",
+                    "x": "X89iY_DFdFBIZpGtPN4Qp5gVo2SUsepqRzEpqvkkZKA",
+                    "alg": "Ed25519"
+                  }
+                },
+                "payload": {
+                  "iss": "urn:jkt:sha-256:Dl4mdGekBJpcwv4ggNmewjSm6FYVbHZ21DGJVq39i4k",
+                  "iat": 1730216990,
+                  "exp": 1730217290,
+                  "cnf": {
+                    "jwk": {
+                      "kty": "OKP",
+                      "crv": "Ed25519",
+                      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+                      "alg": "Ed25519"
+                    }
+                  },
+                  "jti": "nj-4e5f6a"
+                }
+              }
+            ],
+            "note": "This is the web app pattern from the AAuth Bootstrap guidance; the endpoint path is the agent provider's own. Enrollment came first: the user signed in and the agent registered its durable key. Other platforms differ: a mobile app keeps its durable key in the Secure Enclave or StrongBox and usually attests it with App Attest or Play Integrity at enrollment; a self-hosted agent publishes its own JWKS and issues its own agent token, with no request at all; workload identity is not yet covered by the guidance."
+          }
         },
         {
           "from": "ap",
@@ -1904,12 +2008,25 @@
             ]
           },
           "example": {
-            "source": "draft-11 §5.3.1",
+            "source": "draft-11 §5.3.1; draft-hardt-aauth-bootstrap-02 §10.1",
             "kind": "derived",
+            "response": {
+              "status": 200,
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "agent_token": "eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtYWdlbnQrand0Iiwia2lkIjoiYXAta2V5LTEifQ.eyJpc3MiOiJodHRwczovL2FnZW50LmV4YW1wbGUiLCJkd2siOiJhYXV0aC1hZ2VudC5qc29uIiwic3ViIjoiYWF1dGg6YXNzaXN0YW50QGFnZW50LmV4YW1wbGUiLCJwcyI6Imh0dHBzOi8vcHMuZXhhbXBsZSIsImNuZiI6eyJqd2siOnsia3R5IjoiT0tQIiwiY3J2IjoiRWQyNTUxOSIsIngiOiIxMXFZQVlLeENyZlZTXzdUeVdRSE9nN2hjdlBhcGlNbHJ3SWFhUGNIVVJvIiwiYWxnIjoiRWQyNTUxOSJ9fSwianRpIjoiYXQtMWMyZDNlIiwiaWF0IjoxNzMwMjE3MDAwLCJleHAiOjE3MzAzMDM0MDB9.SIGNATURE",
+                "expires_in": 86400
+              }
+            },
             "tokens": [
               {
                 "token": "agent_token",
-                "label": "issued by the agent provider",
+                "label": "response body",
                 "header": {
                   "alg": "Ed25519",
                   "typ": "aa-agent+jwt",
@@ -1934,7 +2051,7 @@
                 }
               }
             ],
-            "note": "How the agent proves itself to its agent provider is platform-specific (I-D.hardt-aauth-bootstrap). The agent token binds the agent's key (cnf) to its identifier (sub) for at most 24 hours."
+            "note": "The agent token binds the ephemeral key (cnf) to the agent's identifier (sub). Neither draft defines this response's format; agent providers define their own. Bootstrap guidance suggests about an hour as a typical lifetime; 24 hours is the protocol's maximum."
           }
         }
       ]
