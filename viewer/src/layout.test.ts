@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MARGIN_X, ROW_H, layoutScenario, rowY } from "./layout";
+import { BAND_LABEL_H, MARGIN_X, ROW_H, layoutScenario } from "./layout";
 import type { Role, Scenario, Step } from "./types";
 
 const roles: Role[] = ["person", "agent", "resource", "ps"].map((id, i) => ({ position: i + 1, id, name: id.toUpperCase() }));
@@ -32,11 +32,11 @@ describe("layoutScenario", () => {
 
   it("places one row per step", () => {
     expect(l.rows).toHaveLength(6);
-    expect(l.rows[2].y - l.rows[1].y).toBe(ROW_H);
+    expect(l.rows[4].y - l.rows[3].y).toBe(ROW_H);
     expect(l.rows[0].x1).toBe(l.columns[1].x);
     expect(l.rows[0].x2).toBe(l.columns[2].x);
     expect(l.rows[5].self).toBe(true);
-    expect(l.height).toBeGreaterThan(rowY(5));
+    expect(l.height).toBeGreaterThan(l.rows[5].y);
   });
 
   it("groups consecutive fragment steps into nested bands", () => {
@@ -49,6 +49,37 @@ describe("layoutScenario", () => {
     const [outer, , inner] = l.bands;
     expect(inner.x).toBeGreaterThan(outer.x);
     expect(inner.y).toBeGreaterThan(outer.y);
+  });
+
+  it("adds a label strip above each band's first step", () => {
+    // Step 2 enters Consent (one strip); step 3 enters Login (one more);
+    // step 6 enters Other (one more).
+    expect(l.rows[1].y - l.rows[0].y).toBe(ROW_H + BAND_LABEL_H);
+    expect(l.rows[2].y - l.rows[1].y).toBe(ROW_H + BAND_LABEL_H);
+    expect(l.rows[3].y - l.rows[2].y).toBe(ROW_H);
+    expect(l.rows[5].y - l.rows[4].y).toBe(ROW_H + BAND_LABEL_H);
+  });
+
+  it("never puts a band title on a message label", () => {
+    for (const b of l.bands) {
+      const titleBaseline = b.y + 15;
+      const labelTop = l.rows[b.first].y - 8 - 14; // label baseline minus font size
+      expect(titleBaseline).toBeLessThanOrEqual(labelTop);
+    }
+  });
+
+  it("stacks the titles of nested bands that start together", () => {
+    const nested: Scenario = {
+      ...sc,
+      steps: [step(1, "agent", "ps"), step(2, "ps", "person", ["Outer", "Inner"]), step(3, "person", "ps", ["Outer"])],
+    };
+    const n = layoutScenario(nested, roles, 900);
+    const [outer, inner] = n.bands;
+    expect(outer.name).toBe("Outer");
+    expect(inner.name).toBe("Inner");
+    expect(inner.y - outer.y).toBe(BAND_LABEL_H);
+    expect(n.rows[1].y - n.rows[0].y).toBe(ROW_H + 2 * BAND_LABEL_H);
+    expect(inner.y + 15).toBeLessThanOrEqual(n.rows[1].y - 8 - 14);
   });
 
   it("centers a single participant", () => {

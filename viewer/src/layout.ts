@@ -10,6 +10,9 @@ export const MARGIN_X = 80;
 export const BOX_W = 132;
 const BAND_PAD_X = 58;
 const BAND_INSET = 7;
+// BAND_LABEL_H is the strip above a band's first step that holds the band's
+// title, so the title never sits on the first message label.
+export const BAND_LABEL_H = 22;
 
 export interface Column {
   id: string;
@@ -44,8 +47,21 @@ export interface Layout {
   bands: Band[];
 }
 
+// rowY is a row's y before any band label strips are added.
 export function rowY(index: number): number {
   return HEADER_H + TOP_PAD + index * ROW_H + ROW_H / 2;
+}
+
+// bandStarts counts, for each step, how many fragment bands begin there:
+// a step that enters a fragment, or several nested ones at once.
+function bandStarts(sc: Scenario): number[] {
+  return sc.steps.map((s, i) => {
+    const cur = s.fragments ?? [];
+    const prev = sc.steps[i - 1]?.fragments ?? [];
+    let shared = 0;
+    while (shared < cur.length && shared < prev.length && cur[shared] === prev[shared]) shared++;
+    return cur.length - shared;
+  });
 }
 
 // layoutScenario places the scenario's participants as columns, in role
@@ -64,13 +80,20 @@ export function layoutScenario(sc: Scenario, roles: Role[], width: number): Layo
   const xOf = new Map(columns.map((c) => [c.id, c.x]));
   const x = (id: string) => xOf.get(id) ?? width / 2;
 
-  const rows: Row[] = sc.steps.map((s, i) => ({
-    index: i,
-    y: rowY(i),
-    x1: x(s.from),
-    x2: x(s.to),
-    self: s.from === s.to,
-  }));
+  // Each band starting at a step pushes that step and the rest down by one
+  // label strip.
+  const starts = bandStarts(sc);
+  let offset = 0;
+  const rows: Row[] = sc.steps.map((s, i) => {
+    offset += starts[i] * BAND_LABEL_H;
+    return {
+      index: i,
+      y: rowY(i) + offset,
+      x1: x(s.from),
+      x2: x(s.to),
+      self: s.from === s.to,
+    };
+  });
 
   const bands: Band[] = [];
   const maxDepth = Math.max(0, ...sc.steps.map((s) => s.fragments?.length ?? 0));
@@ -80,7 +103,7 @@ export function layoutScenario(sc: Scenario, roles: Role[], width: number): Layo
     for (let i = 0; i <= sc.steps.length; i++) {
       const inBand = i < sc.steps.length && (sc.steps[i].fragments?.length ?? 0) > depth;
       if (start >= 0 && (!inBand || key(i) !== key(start))) {
-        bands.push(makeBand(sc, rows, start, i - 1, depth, x));
+        bands.push(makeBand(sc, rows, start, i - 1, depth, x, starts[start]));
         start = -1;
       }
       if (inBand && start < 0) {
@@ -89,16 +112,28 @@ export function layoutScenario(sc: Scenario, roles: Role[], width: number): Layo
     }
   }
 
+  const lastY = rows.length > 0 ? rows[rows.length - 1].y : rowY(0);
   return {
     width,
-    height: rowY(sc.steps.length - 1) + ROW_H / 2 + BOTTOM_PAD,
+    height: lastY + ROW_H / 2 + BOTTOM_PAD,
     columns,
     rows,
     bands,
   };
 }
 
-function makeBand(sc: Scenario, rows: Row[], first: number, last: number, depth: number, x: (id: string) => number): Band {
+// makeBand sizes a band around its steps. startsHere is how many bands
+// begin at the band's first step; their label strips stack above that step,
+// outermost first, so this band's strip is (startsHere - depthAmongThem) up.
+function makeBand(
+  sc: Scenario,
+  rows: Row[],
+  first: number,
+  last: number,
+  depth: number,
+  x: (id: string) => number,
+  startsHere: number,
+): Band {
   let minX = Infinity;
   let maxX = -Infinity;
   for (let i = first; i <= last; i++) {
@@ -110,7 +145,11 @@ function makeBand(sc: Scenario, rows: Row[], first: number, last: number, depth:
   const inset = depth * BAND_INSET;
   const left = minX - BAND_PAD_X + inset;
   const right = maxX + BAND_PAD_X - inset;
-  const top = rows[first].y - ROW_H / 2 + 3 + inset;
+  // Bands that began at an earlier step and still enclose this one sit
+  // outside this band's strips; count only those starting here.
+  const enclosingDepth = (sc.steps[first].fragments?.length ?? 0) - startsHere;
+  const strips = startsHere - (depth - enclosingDepth);
+  const top = rows[first].y - ROW_H / 2 + 3 - strips * BAND_LABEL_H;
   const bottom = rows[last].y + ROW_H / 2 - 3 - inset;
   return {
     name: sc.steps[first].fragments?.[depth] ?? "",

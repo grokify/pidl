@@ -70,7 +70,7 @@ export function SequenceDiagram({ scenario, roles, width, active, onSelect }: Pr
           {layout.bands.map((b) => (
             <g key={`${b.depth}-${b.first}`} className={`band depth-${b.depth}`}>
               <rect x={b.x} y={b.y} width={b.width} height={b.height} rx={8} />
-              <text x={b.x + 10} y={b.y + 16}>
+              <text x={b.x + 10} y={b.y + 15}>
                 {b.name}
               </text>
             </g>
