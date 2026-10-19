@@ -1,4 +1,5 @@
 import { Card } from "./components/Card";
+import { MessagePanel } from "./components/MessagePanel";
 import { SequenceDiagram } from "./components/SequenceDiagram";
 import { StepCaption } from "./components/StepCaption";
 import { TopBar } from "./components/TopBar";
@@ -26,20 +27,18 @@ export default function App({ walkthrough }: { walkthrough: Walkthrough }) {
         </Card>
         <div className="side">
           <Card title="Request" className="message-card">
-            {req?.example?.request ? (
-              <code>
-                {req.example.request.method} {req.example.request.url}
-              </code>
+            {req ? (
+              <MessagePanel kind="request" step={req} roles={walkthrough.roles} tokens={walkthrough.tokens ?? []} />
             ) : (
               <p className="empty">{step === 0 ? "Step through the scenario to see each request." : "No HTTP request for this step."}</p>
             )}
           </Card>
           <Card title="Response" className="message-card">
-            {res?.example?.response ? (
-              <code>HTTP {res.example.response.status}</code>
+            {res ? (
+              <MessagePanel kind="response" step={res} roles={walkthrough.roles} tokens={walkthrough.tokens ?? []} />
             ) : (
               <p className="empty">
-                {ex?.responseLater != null ? `The response arrives in step ${ex.responseLater + 1}.` : "No HTTP response for this step."}
+                {ex?.responseLater != null ? `The response arrives in step ${ex.responseLater + 1}.` : step === 0 ? "Responses appear as you step through." : "No HTTP response for this step."}
               </p>
             )}
           </Card>

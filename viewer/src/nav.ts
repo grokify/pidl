@@ -36,8 +36,12 @@ export interface Exchange {
   responseLater: number | null;
 }
 
-const hasRequest = (s: Step) => Boolean(s.example?.request);
-const hasResponse = (s: Step) => Boolean(s.example?.response);
+// A step's example fills the request pane when the step is a request and
+// the response pane when it is a response. An example with only decoded
+// tokens (such as a token handed over outside HTTP) follows the same rule.
+const tokensOnly = (s: Step) => Boolean(s.example && !s.example.request && !s.example.response && s.example.tokens?.length);
+const hasRequest = (s: Step) => Boolean(s.example?.request) || (!s.response && tokensOnly(s));
+const hasResponse = (s: Step) => Boolean(s.example?.response) || (Boolean(s.response) && tokensOnly(s));
 
 // exchangeFor pairs requests with responses. When a request is active, its
 // response is the next step going the other way between the same two roles;

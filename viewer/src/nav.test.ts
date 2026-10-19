@@ -49,6 +49,11 @@ describe("exchangeFor", () => {
   it("shows nothing for a step without an example", () => {
     expect(exchangeFor(scenario, 2)).toEqual({ request: null, response: null, responseLater: null });
   });
+  it("shows a tokens-only response in the response pane", () => {
+    const tokensOnly = { source: "x", kind: "derived" as const, tokens: [{ token: "agent_token" }] };
+    const sc: Scenario = { ...scenario, steps: [step(1, "agent", "ap"), step(2, "ap", "agent", { response: true, example: tokensOnly })] };
+    expect(exchangeFor(sc, 1)).toEqual({ request: null, response: 1, responseLater: null });
+  });
   it("handles out of range", () => {
     expect(exchangeFor(scenario, 9)).toEqual({ request: null, response: null, responseLater: null });
   });
