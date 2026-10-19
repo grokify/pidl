@@ -390,6 +390,11 @@
         "briefing": {
           "$ref": "#/$defs/briefing"
         },
+        "samples": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/sample" },
+          "description": "Code for the scenario as a whole, such as a role's setup"
+        },
         "flows": {
           "type": "array",
           "items": { "$ref": "#/$defs/flow" },
@@ -446,8 +451,8 @@
         },
         "representations": {
           "type": "object",
-          "description": "Narration overrides by representation: http or curl",
-          "propertyNames": { "enum": ["http", "curl"] },
+          "description": "Narration overrides by representation: http, curl, or a sample language on this step",
+          "propertyNames": { "pattern": "^[a-z][a-z0-9+#-]*$" },
           "additionalProperties": { "$ref": "#/$defs/representationNarration" }
         },
         "from": {
@@ -738,7 +743,45 @@
             "additionalProperties": false
           }
         },
-        "note": { "type": "string" }
+        "note": { "type": "string" },
+        "samples": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/sample" },
+          "description": "Code that sends or handles this message, such as SDK calls"
+        }
+      },
+      "additionalProperties": false
+    },
+    "sample": {
+      "type": "object",
+      "description": "Code for a step or scenario: inline code, or a marked region of a file in a repository",
+      "required": ["language"],
+      "oneOf": [
+        { "required": ["code"], "not": { "required": ["source"] } },
+        { "required": ["source"], "not": { "required": ["code"] } }
+      ],
+      "properties": {
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9+#-]*$",
+          "not": { "enum": ["http", "curl"] },
+          "description": "Highlighter name of the code's language, such as go, typescript, python or csharp"
+        },
+        "label": { "type": "string", "description": "Distinguishes samples in one language, such as Agent or Resource" },
+        "role": { "type": "string", "description": "Entity ID whose developer writes this code" },
+        "code": { "type": "string", "minLength": 1, "description": "Inline code" },
+        "source": {
+          "type": "object",
+          "description": "The code between pidl:begin <region> and pidl:end <region> comments in a file",
+          "required": ["repo", "path", "region"],
+          "properties": {
+            "repo": { "type": "string", "minLength": 1, "description": "Repository path, such as github.com/aauth-dev/aauth-go" },
+            "ref": { "type": "string", "description": "Tag or commit to read the file at; empty reads the working tree" },
+            "path": { "type": "string", "minLength": 1, "description": "File path within the repository" },
+            "region": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$", "description": "Marked region name" }
+          },
+          "additionalProperties": false
+        }
       },
       "additionalProperties": false
     },

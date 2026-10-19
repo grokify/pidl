@@ -403,6 +403,7 @@ A document has either `flows` or `scenarios`. A document with `flows` behaves as
 | `variant_label` | string | With `variant_of` | Label for the variant in a toggle, such as "With user approval" |
 | `narration` | object | No | Spoken when the scenario opens, by language (see [Narration](#narration)) |
 | `briefing` | object | No | Why the scenario exists, its key points, and narration for them |
+| `samples` | array | No | Code for the scenario as a whole (see [Samples](#samples)) |
 | `flows` | array | Yes | The scenario's steps, in order |
 
 ### Groups
@@ -490,7 +491,7 @@ Every narration value is an object keyed by BCP 47 language tag:
 ```
 
 - **Source language.** `protocol.language` (default `en-US`) is the language a document is written in. Every narration object includes it, and it is the fallback for any language a narration lacks.
-- **Representations.** A step's `representations` override its narration when the reader views the step as `http` or `curl`; sample languages join this list when samples are added. The fallback order is: the representation's narration in the chosen language, then in the source language, then the step's own narration in the chosen language, then in the source language, then `description`.
+- **Representations.** A step's `representations` override its narration when the reader views the step as `http`, `curl`, or one of the step's sample languages. The fallback order is: the representation's narration in the chosen language, then in the source language, then the step's own narration in the chosen language, then in the source language, then `description`.
 - **Pronunciations** map a term to its spoken form per language, in the shape videoascode reads, so text-to-speech tools can use them unchanged.
 - **Include steps** carry no narration; their fragment's steps do.
 
@@ -531,12 +532,38 @@ A flow can carry an illustrative message for walkthrough viewers. Examples expla
 | `response` | One of `request`, `response`, `tokens` | `status`, ordered `headers` and a JSON `body` |
 | `tokens` | One of `request`, `response`, `tokens` | Decoded tokens: `token` (a token definition ID), `label`, `header` and `payload` |
 | `note` | No | What the reader should notice |
+| `samples` | No | Code that sends or handles the message (see [Samples](#samples)) |
 
 Headers are a list so they keep their order. Include steps cannot carry examples.
 
 **Wire form of a body.** A body is written as JSON for readability. On the wire it is the compact JSON encoding with keys in the order written; a body written as a JSON string is sent as the string's contents, for media types that are not JSON. A `Content-Digest` in an example covers this wire form.
 
 **cURL.** Tools generate an equivalent `curl` command for every example request: the method, the URL, each header in order and the wire body. curl cannot create HTTP message signatures, so a signed request's command replays the example's signature headers and says so in a leading comment.
+
+## Samples
+
+A sample is code that sends or handles a step's message, such as an SDK call, shown beside the HTTP and cURL forms. Flow examples and scenarios carry `samples`:
+
+```json
+"samples": [
+  {"language": "go", "label": "Agent", "role": "agent",
+   "source": {"repo": "github.com/aauth-dev/aauth-go", "ref": "v0.3.0",
+              "path": "examples/walkthrough/federated_test.go", "region": "federated.ps-to-as"}},
+  {"language": "python", "code": "client.request_auth_token(resource_token)"}
+]
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `language` | Yes | Highlighter name, such as `go`, `typescript`, `python` or `csharp`. `http` and `curl` are generated, not samples |
+| `label` | No | Distinguishes samples in one language |
+| `role` | No | Entity ID whose developer writes this code |
+| `code` | One of `code`, `source` | Inline code |
+| `source` | One of `code`, `source` | `repo`, optional `ref` (tag or commit), `path` within the repository, and `region` |
+
+**Regions.** A source names the code between `pidl:begin <region>` and `pidl:end <region>` markers, written in comments in any syntax. Marker lines of other regions inside it are dropped, common indentation is removed, and blank lines at either end are trimmed. Sources should point at tested files, so samples compile and run with each release of the code they show.
+
+**Lock file.** `pidl samples resolve <file>` reads each source from checkouts under a root directory (default `$GOPATH/src`, at `<root>/<repo>`; with `ref`, the file at that ref) and writes the code and its SHA-256 to `<file without .json>.samples.json`. Generation reads the lock, so outputs never need the source repositories or the network. `pidl samples check <file>` fails when a source is not in the lock, its region is missing, or its code changed since it was resolved; CI runs it to keep samples current.
 
 ## Ordering
 
@@ -570,7 +597,8 @@ Numeric ordering fields are not used. The `sequence` field on a flow is deprecat
 12. Group IDs are unique and match `^[a-z][a-z0-9_-]*$`; a scenario's `group` names a declared group, and fragments have no group
 13. `variant_of` names a main scenario that is not itself a variant, in the same group, and `variant_label` is set exactly when `variant_of` is
 14. Flow IDs match `^[a-z][a-z0-9_-]*$` and are unique within their flow list, and step IDs stay unique once fragments are expanded
-15. Narration keys are BCP 47 language tags with non-empty text, and every narration object includes the source language; representation keys are `http` or `curl`; include steps carry no narration
+15. Narration keys are BCP 47 language tags with non-empty text, and every narration object includes the source language; representation keys are `http`, `curl` or a sample language on the step; include steps carry no narration
+16. A sample has a language other than `http` and `curl`, exactly one of `code` and `source`, a known `role`, and a source path inside its repository
 
 ## Schema
 
