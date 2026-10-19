@@ -88,6 +88,11 @@ func TestPostmanSigned(t *testing.T) {
 		t.Errorf("attest does not capture the agent token:\n%s", script(attest))
 	}
 
+	person := request(t, fed, "person-token.request")
+	if !strings.Contains(person.Request.Body.Raw, `"resource": "{{resource_url}}"`) {
+		t.Errorf("person request body should name the resource by variable:\n%s", person.Request.Body.Raw)
+	}
+
 	authorize := request(t, fed, "authorize")
 	if header(authorize, "X-Sandbox-Present") != "person" || header(authorize, "X-Sandbox-Token") != "{{person_token}}" {
 		t.Errorf("authorize presents %q %q", header(authorize, "X-Sandbox-Present"), header(authorize, "X-Sandbox-Token"))
@@ -224,6 +229,9 @@ func TestPostmanEnvironment(t *testing.T) {
 }
 
 func TestPostmanHelpers(t *testing.T) {
+	if got := replaceOrigin(`{"r":"https://a.example","s":"https://a.example.org","t":"https://a.example/x"}`, "https://a.example", "{{a_url}}"); got != `{"r":"{{a_url}}","s":"https://a.example.org","t":"{{a_url}}/x"}` {
+		t.Errorf("replaceOrigin = %s", got)
+	}
 	if got := pointerExpr("/a~1b/0/c~0d"); got != `["a/b"][0]["c~d"]` {
 		t.Errorf("pointerExpr = %s", got)
 	}

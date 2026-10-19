@@ -330,7 +330,7 @@ func (r *PostmanRenderer) scenarioFolder(w pidl.Walkthrough, sc pidl.Walkthrough
 	caps := collectCaptures(steps)
 	items := make([]PostmanItem, 0, len(steps))
 	for i := range steps {
-		item, err := r.requestItem(sc, steps, i, caps)
+		item, err := r.requestItem(sc, steps, i, caps, roles)
 		if err != nil {
 			return PostmanItem{}, err
 		}
@@ -456,6 +456,36 @@ func collectCaptures(steps []postmanStep) map[int][]capture {
 	return out
 }
 
+// replaceOrigin replaces origin where it appears as a whole origin: not
+// followed by more host characters, so "https://a.example" does not match
+// inside "https://a.example.org".
+func replaceOrigin(s, origin, repl string) string {
+	if origin == "" {
+		return s
+	}
+	var b strings.Builder
+	for {
+		i := strings.Index(s, origin)
+		if i < 0 {
+			b.WriteString(s)
+			return b.String()
+		}
+		end := i + len(origin)
+		if end < len(s) && (isHostChar(s[end]) || s[end] == ':') {
+			b.WriteString(s[:end])
+			s = s[end:]
+			continue
+		}
+		b.WriteString(s[:i])
+		b.WriteString(repl)
+		s = s[end:]
+	}
+}
+
+func isHostChar(c byte) bool {
+	return c == '.' || c == '-' || (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+}
+
 // volatileHeader reports headers whose values describe the response
 // itself rather than carry protocol values.
 func volatileHeader(name string) bool {
@@ -558,7 +588,7 @@ func sandboxPresent(st pidl.WalkthroughStep) string {
 	}
 }
 
-func (r *PostmanRenderer) requestItem(sc pidl.WalkthroughScenario, steps []postmanStep, i int, caps map[int][]capture) (PostmanItem, error) {
+func (r *PostmanRenderer) requestItem(sc pidl.WalkthroughScenario, steps []postmanStep, i int, caps map[int][]capture, roles map[string]string) (PostmanItem, error) {
 	ps := steps[i]
 	st := ps.step
 	ex := st.Example.Request
@@ -571,6 +601,20 @@ func (r *PostmanRenderer) requestItem(sc pidl.WalkthroughScenario, steps []postm
 	sub := func(s string) string {
 		for _, c := range earlier {
 			s = strings.ReplaceAll(s, c.value, "{{"+c.name+"}}")
+		}
+		return s
+	}
+	// subRoles also replaces role origins that appear in values, such as a
+	// resource named in a body, so they follow the environment.
+	origins := make([]string, 0, len(roles))
+	for role := range roles {
+		origins = append(origins, role)
+	}
+	sort.Slice(origins, func(a, b int) bool { return len(roles[origins[a]]) > len(roles[origins[b]]) })
+	subRoles := func(s string) string {
+		s = sub(s)
+		for _, role := range origins {
+			s = replaceOrigin(s, roles[role], "{{"+role+"_url}}")
 		}
 		return s
 	}
@@ -588,7 +632,7 @@ func (r *PostmanRenderer) requestItem(sc pidl.WalkthroughScenario, steps []postm
 		if signed && isSignatureHeader(h.Name) {
 			continue
 		}
-		req.Header = append(req.Header, PostmanHeader{Key: h.Name, Value: sub(h.Value)})
+		req.Header = append(req.Header, PostmanHeader{Key: h.Name, Value: subRoles(h.Value)})
 	}
 	if signed {
 		req.URL = "{{signer_url}}/" + target
@@ -606,7 +650,7 @@ func (r *PostmanRenderer) requestItem(sc pidl.WalkthroughScenario, steps []postm
 		if err != nil {
 			return PostmanItem{}, fmt.Errorf("step %d body: %w", st.Number, err)
 		}
-		raw := sub(string(wire))
+		raw := subRoles(string(wire))
 		if pretty, err := indentJSON(raw); err == nil {
 			raw = pretty
 		}
@@ -856,7 +900,7 @@ func (r *PostmanRenderer) checks(res pidl.WalkthroughStep) []string {
 			}
 			lines = append(lines,
 				fmt.Sprintf("pm.test('%s claims', () => {", t.Token),
-				fmt.Sprintf("  const payload = JSON.parse(atob(String(pidlBody[%q]).split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));", t.Token),
+				fmt.Sprintf("  const payload = JSON.parse(Buffer.from(String(pidlBody[%q]).split('.')[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'));", t.Token),
 				fmt.Sprintf("  pm.expect(payload).to.include.keys(%s);", quoted),
 				"});",
 			)
