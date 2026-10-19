@@ -55,6 +55,10 @@
         {
           "description": "CLI `init`, `roles`, `components` and `trust` silently discarded JSON errors",
           "commit": "560d07b"
+        },
+        {
+          "description": "Process data lineage linked a flow label naming one output port to every input on the target, so inputs with no producer looked internally supplied; a label now links at most one output to one input",
+          "commit": "5d8456c"
         }
       ],
       "changed": [
