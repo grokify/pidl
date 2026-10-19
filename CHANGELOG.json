@@ -59,6 +59,10 @@
         {
           "description": "Process data lineage linked a flow label naming one output port to every input on the target, so inputs with no producer looked internally supplied; a label now links at most one output to one input",
           "commit": "5d8456c"
+        },
+        {
+          "description": "Windows checkouts converted text files to CRLF, so binaries built there embedded CRLF in the SVG template CSS and the SVG golden tests failed; text files now check out with LF everywhere",
+          "commit": "e8ff19c"
         }
       ],
       "changed": [
