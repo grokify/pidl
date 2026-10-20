@@ -15,7 +15,7 @@ const WalkthroughFormat = "pidl-walkthrough/v1"
 // fragments expanded in place. Viewers render it without needing PIDL's
 // include, ordering or analysis rules.
 type Walkthrough struct {
-	// Format is WalkthroughFormat.
+	// Format names the format and its major version, "pidl-walkthrough/v1".
 	Format      string `json:"format"`
 	ID          string `json:"id"`
 	Name        string `json:"name"`

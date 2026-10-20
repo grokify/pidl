@@ -1,0 +1,586 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/grokify/pidl/schema/walkthrough.schema.json",
+  "$ref": "#/$defs/Walkthrough",
+  "$defs": {
+    "Briefing": {
+      "properties": {
+        "why": {
+          "type": "string",
+          "description": "Why explains, as prose, why the scenario exists and what problem it\nsolves."
+        },
+        "points": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Points are the key points, in display order."
+        },
+        "narration": {
+          "$ref": "#/$defs/Narration",
+          "description": "Narration is spoken over the briefing."
+        }
+      },
+      "type": "object",
+      "description": "Briefing introduces a scenario before its steps, for example on slides that open a video."
+    },
+    "ExampleHeader": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ],
+      "description": "ExampleHeader is one HTTP header."
+    },
+    "ExampleRequest": {
+      "properties": {
+        "method": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "headers": {
+          "items": {
+            "$ref": "#/$defs/ExampleHeader"
+          },
+          "type": "array"
+        },
+        "body": {
+          "description": "Body is the request body as JSON, kept byte for byte so key order\nsurvives a round trip."
+        }
+      },
+      "type": "object",
+      "required": [
+        "method",
+        "url"
+      ],
+      "description": "ExampleRequest is an illustrative HTTP request."
+    },
+    "ExampleResponse": {
+      "properties": {
+        "status": {
+          "type": "integer"
+        },
+        "headers": {
+          "items": {
+            "$ref": "#/$defs/ExampleHeader"
+          },
+          "type": "array"
+        },
+        "body": true
+      },
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "description": "ExampleResponse is an illustrative HTTP response."
+    },
+    "ExampleToken": {
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "Token is the token definition ID."
+        },
+        "label": {
+          "type": "string",
+          "description": "Label says where the token travels, such as \"Signature-Key header\"."
+        },
+        "header": {
+          "description": "Header and Payload are the decoded JWT header and claims."
+        },
+        "payload": true
+      },
+      "type": "object",
+      "required": [
+        "token"
+      ],
+      "description": "ExampleToken is a decoded token carried by a message."
+    },
+    "Finding": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "severity",
+        "title"
+      ],
+      "description": "Finding is an analysis result attached to a step."
+    },
+    "FlowExample": {
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Source cites where the example comes from, such as \"draft-11 §7.2.1\"."
+        },
+        "kind": {
+          "type": "string",
+          "description": "Kind is draft or derived."
+        },
+        "request": {
+          "$ref": "#/$defs/ExampleRequest",
+          "description": "Request is the HTTP request, for steps that send one."
+        },
+        "response": {
+          "$ref": "#/$defs/ExampleResponse",
+          "description": "Response is the HTTP response, for steps that return one."
+        },
+        "tokens": {
+          "items": {
+            "$ref": "#/$defs/ExampleToken"
+          },
+          "type": "array",
+          "description": "Tokens are decoded tokens the message carries, in display order."
+        },
+        "samples": {
+          "items": {
+            "$ref": "#/$defs/Sample"
+          },
+          "type": "array",
+          "description": "Samples are code that sends or handles this message, such as SDK\ncalls, shown beside the HTTP form."
+        },
+        "note": {
+          "type": "string",
+          "description": "Note explains anything the reader should notice in this example."
+        }
+      },
+      "type": "object",
+      "required": [
+        "source",
+        "kind"
+      ],
+      "description": "FlowExample is an illustrative message for one step: the HTTP request, the HTTP response and decoded tokens."
+    },
+    "Group": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID is the unique identifier scenarios refer to."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name is the display name."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the group."
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "description": "Group is a navigation section that scenarios are listed under."
+    },
+    "Narration": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object",
+      "description": "Narration is text written to be spoken, keyed by BCP 47 language tag."
+    },
+    "OutlineRole": {
+      "properties": {
+        "position": {
+          "type": "integer"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "type": "object",
+      "required": [
+        "position",
+        "id",
+        "name"
+      ],
+      "description": "OutlineRole is one entity in an outline."
+    },
+    "RepresentationNarration": {
+      "properties": {
+        "narration": {
+          "$ref": "#/$defs/Narration",
+          "description": "Narration replaces the step's narration for this representation."
+        }
+      },
+      "type": "object",
+      "description": "RepresentationNarration overrides a step's narration when the reader views the step in one representation, such as cURL or Go code."
+    },
+    "Sample": {
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": "Language names the code's language with a common highlighter name,\nsuch as \"go\", \"typescript\", \"python\" or \"csharp\". Samples are also\nrepresentations a step's narration can be overridden for."
+        },
+        "label": {
+          "type": "string",
+          "description": "Label distinguishes samples in one language, such as \"Agent\" and\n\"Resource\"."
+        },
+        "role": {
+          "type": "string",
+          "description": "Role is the entity ID whose developer writes this code."
+        },
+        "code": {
+          "type": "string",
+          "description": "Code is inline code, or a source's code once resolved. A sample has\nCode, Source, or both."
+        },
+        "source": {
+          "$ref": "#/$defs/SampleSource",
+          "description": "Source refers to a marked region of a file in a repository."
+        }
+      },
+      "type": "object",
+      "required": [
+        "language"
+      ],
+      "description": "Sample is code that sends or handles a step's message, such as a Go SDK call."
+    },
+    "SampleSource": {
+      "properties": {
+        "repo": {
+          "type": "string",
+          "description": "Repo is the repository's module-style path, such as\n\"github.com/aauth-dev/aauth-go\"."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Ref is a tag or commit to read the file at. Empty reads the\ncheckout's working tree."
+        },
+        "path": {
+          "type": "string",
+          "description": "Path is the file's path within the repository."
+        },
+        "region": {
+          "type": "string",
+          "description": "Region is the marked region's name."
+        }
+      },
+      "type": "object",
+      "required": [
+        "repo",
+        "path",
+        "region"
+      ],
+      "description": "SampleSource refers to the code between \"pidl:begin \u003cregion\u003e\" and \"pidl:end \u003cregion\u003e\" markers, in comments, in a file of a repository."
+    },
+    "TokenClaim": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name is the claim name, such as \"aud\" or \"agent_jkt\"."
+        },
+        "checked_by": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "CheckedBy lists the entities that check this claim."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description explains what the claim carries or how it is checked."
+        }
+      },
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "description": "TokenClaim is one claim in a token and the entities that check it."
+    },
+    "Walkthrough": {
+      "properties": {
+        "format": {
+          "type": "string",
+          "const": "pidl-walkthrough/v1",
+          "description": "Format names the format and its major version, \"pidl-walkthrough/v1\"."
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string",
+          "description": "Language is the source language of the narration."
+        },
+        "pronunciations": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "roles": {
+          "items": {
+            "$ref": "#/$defs/OutlineRole"
+          },
+          "type": "array"
+        },
+        "groups": {
+          "items": {
+            "$ref": "#/$defs/Group"
+          },
+          "type": "array"
+        },
+        "scenarios": {
+          "items": {
+            "$ref": "#/$defs/WalkthroughScenario"
+          },
+          "type": "array"
+        },
+        "tokens": {
+          "items": {
+            "$ref": "#/$defs/WalkthroughToken"
+          },
+          "type": "array"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "type": "array",
+          "description": "Findings holds findings that do not locate a single flow, such as an\nunused role."
+        }
+      },
+      "type": "object",
+      "required": [
+        "format",
+        "id",
+        "name",
+        "language",
+        "roles",
+        "scenarios"
+      ],
+      "description": "Walkthrough is a protocol prepared for step-by-step presentation: roles in entities order and, for each scenario in output order, its steps with fragments expanded in place."
+    },
+    "WalkthroughScenario": {
+      "properties": {
+        "position": {
+          "type": "integer"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "fragment": {
+          "type": "boolean"
+        },
+        "group": {
+          "type": "string"
+        },
+        "variant_of": {
+          "type": "string"
+        },
+        "variant_label": {
+          "type": "string"
+        },
+        "narration": {
+          "$ref": "#/$defs/Narration"
+        },
+        "briefing": {
+          "$ref": "#/$defs/Briefing"
+        },
+        "samples": {
+          "items": {
+            "$ref": "#/$defs/Sample"
+          },
+          "type": "array"
+        },
+        "participants": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/WalkthroughStep"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object",
+      "required": [
+        "position",
+        "id",
+        "name",
+        "participants",
+        "steps"
+      ],
+      "description": "WalkthroughScenario is one scenario with its expanded steps."
+    },
+    "WalkthroughStep": {
+      "properties": {
+        "number": {
+          "type": "integer",
+          "description": "Number is the 1-based position within the expanded scenario."
+        },
+        "id": {
+          "type": "string",
+          "description": "ID is the step's flow ID, qualified as \"\u003cinclude\u003e.\u003cid\u003e\" for a step\ninside an included fragment; empty when the flow has no ID."
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "response": {
+          "type": "boolean"
+        },
+        "phase": {
+          "type": "string"
+        },
+        "fragments": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Fragments names the fragments this step sits inside, outermost first."
+        },
+        "description": {
+          "type": "string"
+        },
+        "narration": {
+          "$ref": "#/$defs/Narration"
+        },
+        "representations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/RepresentationNarration"
+          },
+          "type": "object",
+          "description": "Representations holds narration overrides by representation."
+        },
+        "note": {
+          "type": "string"
+        },
+        "signed_by": {
+          "type": "string"
+        },
+        "issues": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "verifies": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "example": {
+          "$ref": "#/$defs/FlowExample"
+        },
+        "curl": {
+          "type": "string",
+          "description": "Curl is a curl command equivalent to the example request."
+        },
+        "location": {
+          "type": "string"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object",
+      "required": [
+        "number",
+        "from",
+        "to",
+        "label",
+        "location"
+      ],
+      "description": "WalkthroughStep is one message of an expanded scenario."
+    },
+    "WalkthroughToken": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "issuer": {
+          "type": "string"
+        },
+        "audience": {
+          "type": "string"
+        },
+        "verified_by": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "claims": {
+          "items": {
+            "$ref": "#/$defs/TokenClaim"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "description": "WalkthroughToken is a token definition with the claims its checkers use."
+    }
+  },
+  "title": "PIDL Walkthrough",
+  "description": "A protocol prepared for step-by-step presentation, produced by `pidl generate -f walkthrough-json`."
+}
