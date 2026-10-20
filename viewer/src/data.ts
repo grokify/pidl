@@ -46,13 +46,13 @@ export interface Loaded {
   base: string;
 }
 
+/** Where a walkthrough comes from: `data` or `src`. */
 export interface LoadOptions {
-  // data is a walkthrough, parsed or as JSON text.
+  /** A walkthrough, parsed or as JSON text. */
   data?: unknown;
-  // src is the URL of a .walkthrough.json, resolved against the page.
+  /** The URL of a `.walkthrough.json`, resolved against the page. */
   src?: string;
-  // base resolves relative paths in the walkthrough (default: src, or
-  // the page for inline data).
+  /** Resolves relative paths in the walkthrough. Default: `src`, or the page for inline data. */
   base?: string;
 }
 

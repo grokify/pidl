@@ -1,6 +1,7 @@
 // The embeddable viewer, published as @grokify/pidl-viewer and served by
 // CDNs: PidlViewer.mount renders a walkthrough into any element.
 import { StrictMode } from "react";
+import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import App from "./App";
 import { load, type LoadOptions, WALKTHROUGH_FORMAT } from "./data";
@@ -10,24 +11,34 @@ import css from "./styles.css?inline";
 import type { Walkthrough } from "./types";
 
 export { WALKTHROUGH_FORMAT };
-export type { Walkthrough };
+export type { LoadOptions };
+export type * from "./walkthrough.gen";
 
+/** Options for {@link mount}: the walkthrough as `data` or `src`, and where it keeps its position. */
 export interface MountOptions extends LoadOptions {
-  // hash keeps the scenario and step in the page's URL hash. Use it only
-  // when the viewer is the one walkthrough on its page.
+  /**
+   * Keep the scenario and step in the page's URL hash, so a link or reload
+   * returns to the same step. Use it only when the viewer is the one
+   * walkthrough on its page. Default false.
+   */
   hash?: boolean;
 }
 
+/** A mounted viewer. */
 export interface Viewer {
+  /** The walkthrough shown. */
   walkthrough: Walkthrough;
+  /** Removes the viewer from its element. */
   unmount(): void;
 }
 
-// mount renders a walkthrough into el, inside a shadow root so the page's
-// styles and the viewer's do not affect each other. The element sizes the
-// viewer: 720px tall unless the page sets a height. It resolves once the
-// walkthrough has loaded, and rejects, after showing the error in el, when
-// it cannot be loaded.
+/**
+ * Renders a walkthrough into `el`, inside a shadow root so the page's
+ * styles and the viewer's do not affect each other. The element sizes the
+ * viewer: 720px tall unless the page sets a height. Resolves once the
+ * walkthrough has loaded and is shown; rejects, after showing the error
+ * in `el`, when it cannot be loaded.
+ */
 export async function mount(el: Element, opts: MountOptions): Promise<Viewer> {
   const { shadow, root } = prepare(el);
   const unmount = () => {
@@ -38,14 +49,15 @@ export async function mount(el: Element, opts: MountOptions): Promise<Viewer> {
   const pageUrl = window.location.href;
   try {
     const { walkthrough, base } = await load(opts, pageUrl);
-    root.render(
+    // Render now, so the viewer is on the page when mount resolves.
+    flushSync(() => root.render(
       <StrictMode>
         <App
           walkthrough={walkthrough}
           host={{ hash: opts.hash ?? false, keys: "element", page: false, source: fromOtherOrigin(base, pageUrl) }}
         />
       </StrictMode>,
-    );
+    ));
     return { walkthrough, unmount };
   } catch (err) {
     showError(root, err);
@@ -74,18 +86,20 @@ function showError(root: Root, err: unknown) {
   );
 }
 
-// AutoMount is what a script tag's data-pidl-* attributes ask for.
+/** What a script tag's `data-pidl-*` attributes ask for. */
 export interface AutoMount {
   target: string;
   options: MountOptions;
 }
 
-// autoMountOptions reads a script tag's attributes: data-pidl-target, a
-// selector for the element to mount on, and the walkthrough from, in
-// order, the inline JSON element whose id is data-pidl-data, the URL in
-// data-pidl-src, or the page's ?src= parameter. The position goes in the
-// URL hash only when this is the one auto-mounted viewer on the page.
-// It returns null when the tag has no data-pidl-target.
+/**
+ * Reads a script tag's attributes: `data-pidl-target`, a selector for the
+ * element to mount on, and the walkthrough from, in order, the inline JSON
+ * element whose id is `data-pidl-data`, the URL in `data-pidl-src`, or the
+ * page's `?src=` parameter. The position goes in the URL hash only when
+ * this is the one auto-mounted viewer on the page. Returns null when the
+ * tag has no `data-pidl-target`.
+ */
 export function autoMountOptions(script: Element, doc: Document): AutoMount | null {
   const target = script.getAttribute("data-pidl-target");
   if (!target) {
