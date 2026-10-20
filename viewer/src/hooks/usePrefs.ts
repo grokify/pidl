@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isTyping } from "../host";
 
 export type Theme = "auto" | "light" | "dark";
 const THEMES: Theme[] = ["auto", "light", "dark"];
@@ -32,7 +33,10 @@ function loadRep(): string {
   }
 }
 
-export function usePrefs() {
+// usePrefs holds the viewer's remembered preferences and handles the
+// present key sent to keyTarget. With page, the theme also applies to the
+// page itself, for the standalone viewer.
+export function usePrefs(keyTarget: EventTarget | null, page: boolean) {
   const [rep, setRepState] = useState<string>(loadRep);
   const setRep = useCallback((r: string) => {
     setRepState(r);
@@ -42,11 +46,12 @@ export function usePrefs() {
   const [present, setPresent] = useState<boolean>(() => load("pidl.present", ["on", "off"] as const, "off") === "on");
 
   useEffect(() => {
+    save("pidl.theme", theme);
+    if (!page) return;
     const root = document.documentElement;
     if (theme === "auto") delete root.dataset.theme;
     else root.dataset.theme = theme;
-    save("pidl.theme", theme);
-  }, [theme]);
+  }, [theme, page]);
 
   useEffect(() => save("pidl.present", present ? "on" : "off"), [present]);
 
@@ -54,15 +59,16 @@ export function usePrefs() {
   const togglePresent = useCallback(() => setPresent((p) => !p), []);
 
   useEffect(() => {
+    if (!keyTarget) return;
     const onKey = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement | null;
-      if (t && (t.tagName === "SELECT" || t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+      if (isTyping(e)) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "p" || e.key === "P") togglePresent();
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [togglePresent]);
+    const listener = onKey as EventListener;
+    keyTarget.addEventListener("keydown", listener);
+    return () => keyTarget.removeEventListener("keydown", listener);
+  }, [keyTarget, togglePresent]);
 
   return { theme, cycleTheme, present, togglePresent, rep, setRep };
 }

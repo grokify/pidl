@@ -1,48 +1,58 @@
 import { useCallback, useEffect, useState } from "react";
+import { isTyping } from "../host";
 import { clampStep, formatHash, parseHash, type Position } from "../nav";
 import type { Walkthrough } from "../types";
 
-// usePosition keeps the current scenario and step in the URL hash, so a
-// link or reload returns to the same step, and handles step keys.
-export function usePosition(w: Walkthrough) {
-  const [pos, setPos] = useState<Position>(() => parseHash(window.location.hash, w));
+// usePosition holds the current scenario and step and handles step keys
+// sent to keyTarget. With hash, it keeps the position in the URL hash, so
+// a link or reload returns to the same step.
+export function usePosition(w: Walkthrough, hash: boolean, keyTarget: EventTarget | null) {
+  const [pos, setPos] = useState<Position>(() => parseHash(hash ? window.location.hash : "", w));
   const scenario = w.scenarios.find((s) => s.id === pos.scenarioId) ?? w.scenarios[0];
 
   useEffect(() => {
+    if (!hash) return;
     const target = formatHash(pos, w);
     if (window.location.hash !== target) {
       window.history.replaceState(null, "", target);
     }
-  }, [pos, w]);
+  }, [hash, pos, w]);
 
   useEffect(() => {
+    if (!hash) return;
     const onHash = () => setPos(parseHash(window.location.hash, w));
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
-  }, [w]);
+  }, [hash, w]);
 
   const goTo = useCallback(
     (step: number) => setPos((p) => ({ ...p, step: clampStep(scenario, step) })),
     [scenario],
   );
   const selectScenario = useCallback((scenarioId: string) => setPos({ scenarioId, step: 0 }), []);
+  // move steps from the latest position, so keys pressed in quick
+  // succession each count.
+  const move = useCallback(
+    (delta: number) => setPos((p) => ({ ...p, step: clampStep(scenario, p.step + delta) })),
+    [scenario],
+  );
 
   useEffect(() => {
+    if (!keyTarget) return;
     const onKey = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement | null;
-      if (t && (t.tagName === "SELECT" || t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+      if (isTyping(e)) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       switch (e.key) {
         case "ArrowRight":
         case "ArrowDown":
         case "PageDown":
         case " ":
-          goTo(pos.step + 1);
+          move(1);
           break;
         case "ArrowLeft":
         case "ArrowUp":
         case "PageUp":
-          goTo(pos.step - 1);
+          move(-1);
           break;
         case "Home":
           goTo(0);
@@ -55,9 +65,10 @@ export function usePosition(w: Walkthrough) {
       }
       e.preventDefault();
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [goTo, pos.step, scenario.steps.length]);
+    const listener = onKey as EventListener;
+    keyTarget.addEventListener("keydown", listener);
+    return () => keyTarget.removeEventListener("keydown", listener);
+  }, [keyTarget, goTo, move, scenario.steps.length]);
 
   return { scenario, step: pos.step, goTo, selectScenario };
 }

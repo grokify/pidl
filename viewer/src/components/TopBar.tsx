@@ -4,6 +4,8 @@ import type { Scenario, Walkthrough } from "../types";
 
 interface Props {
   walkthrough: Walkthrough;
+  // source is the host the walkthrough came from, when not this page's.
+  source?: string;
   scenario: Scenario;
   onScenario: (id: string) => void;
   theme: Theme;
@@ -14,13 +16,13 @@ interface Props {
 
 const THEME_LABEL: Record<Theme, string> = { auto: "Auto", light: "Light", dark: "Dark" };
 
-export function TopBar({ walkthrough, scenario, onScenario, theme, onTheme, present, onPresent }: Props) {
+export function TopBar({ walkthrough, source, scenario, onScenario, theme, onTheme, present, onPresent }: Props) {
   const { main, fragments } = scenarioGroups(walkthrough);
   return (
     <header className="topbar">
       <div className="brand">
         <span className="brand-name">{walkthrough.name}</span>
-        <span className="brand-sub">protocol walkthrough</span>
+        <span className="brand-sub">protocol walkthrough{source && ` · from ${source}`}</span>
       </div>
       <label className="scenario-select">
         <span>Scenario</span>
