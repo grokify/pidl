@@ -39,5 +39,6 @@ jobs:
         run: git diff --exit-code -- src/walkthrough.gen.ts || (echo "src/walkthrough.gen.ts is out of date; run npm run types and commit it" && exit 1)
       - run: npm test
       - run: npm run build:embed
+      - run: npm run build:lib
       - name: Committed viewer build is current
         run: git diff --exit-code -- ../render/viewer/viewer.html || (echo "render/viewer/viewer.html is out of date; run go generate ./render and commit it" && exit 1)
