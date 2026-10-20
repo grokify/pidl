@@ -18,7 +18,7 @@ const scenario: Scenario = {
     step(5, "ps", "agent", { response: true, example: res }),    // auth token
   ],
 };
-const w: Walkthrough = { id: "x", name: "X", roles: [], scenarios: [scenario, { ...scenario, id: "other" }] };
+const w: Walkthrough = { format: "pidl-walkthrough/v1", language: "en-US", id: "x", name: "X", roles: [], scenarios: [scenario, { ...scenario, id: "other" }] };
 
 describe("hash", () => {
   it("round-trips", () => {

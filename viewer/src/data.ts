@@ -45,5 +45,7 @@ export function parseWalkthrough(text: string): Walkthrough {
   if (!Array.isArray(data.roles) || !Array.isArray(data.scenarios)) {
     throw new Error("Not a PIDL walkthrough: expected roles and scenarios");
   }
+  // Walkthroughs written before v1 have no format; any v1 revision reads as v1.
+  data.format = WALKTHROUGH_FORMAT;
   return data as Walkthrough;
 }
