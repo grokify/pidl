@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 
 	"github.com/invopop/jsonschema"
 
@@ -42,7 +43,7 @@ func main() {
 func Generate() ([]byte, error) {
 	// Readers ignore fields they do not know, so a walkthrough from a
 	// newer v1 producer still validates against an older v1 schema.
-	r := &jsonschema.Reflector{AllowAdditionalProperties: true}
+	r := &jsonschema.Reflector{AllowAdditionalProperties: true, Mapper: enums}
 	comments, err := rootComments()
 	if err != nil {
 		return nil, err
@@ -71,6 +72,15 @@ func Generate() ([]byte, error) {
 		return nil, err
 	}
 	return buf.Bytes(), nil
+}
+
+// enums gives string types with a closed set of values their enum, which
+// reflection cannot see.
+func enums(t reflect.Type) *jsonschema.Schema {
+	if t == reflect.TypeFor[pidl.ExampleKind]() {
+		return &jsonschema.Schema{Type: "string", Enum: []any{pidl.ExampleKindDraft, pidl.ExampleKindDerived}}
+	}
+	return nil
 }
 
 // rootComments returns the doc comments of the pidl package's types, keyed

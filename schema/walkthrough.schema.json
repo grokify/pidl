@@ -139,6 +139,10 @@
         },
         "kind": {
           "type": "string",
+          "enum": [
+            "draft",
+            "derived"
+          ],
           "description": "Kind is draft or derived."
         },
         "request": {
