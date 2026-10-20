@@ -2,6 +2,8 @@
 // (pidl.Walkthrough in the Go library).
 
 export interface Walkthrough {
+  // format is "pidl-walkthrough/v1"; absent in walkthroughs written before v1.
+  format?: string;
   id: string;
   name: string;
   description?: string;
