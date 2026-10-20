@@ -1,13 +1,13 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
-import { loadWalkthrough } from "./data";
+import { loadPage } from "./data";
 import "./styles.css";
 
 const root = createRoot(document.getElementById("root")!);
 
-loadWalkthrough()
-  .then((w) => {
+loadPage()
+  .then(({ walkthrough: w }) => {
     document.title = `${w.name} walkthrough`;
     root.render(
       <StrictMode>
