@@ -47,7 +47,7 @@ A request's response appears only when you reach it, so the walkthrough reveals 
 
 ## Data
 
-The viewer reads the walkthrough produced by `pidl generate -f walkthrough-json`: every scenario with fragments expanded, each step's example, and analyzer findings attached to the steps they concern (SEC016, flow provenance, is left out). Use that format to build other viewers.
+The viewer reads a [walkthrough](../reference/walkthrough-format.md) (`pidl-walkthrough/v1`), the format `pidl generate -f walkthrough-json` produces: every scenario with fragments expanded, each step's example, and analyzer findings attached to the steps they concern (SEC016, flow provenance, is left out). Use that format to build other viewers.
 
 ## Developing the Viewer
 
