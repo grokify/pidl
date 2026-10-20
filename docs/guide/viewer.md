@@ -9,6 +9,8 @@ open aauth.html
 
 The output is one self-contained HTML file. It needs no server and no network, so it can be emailed, attached to an issue or opened straight from disk.
 
+To show walkthroughs inside other pages, such as a docs site, load the viewer from a CDN instead: see [Embedding the Viewer](embedding.md).
+
 ## The Page
 
 | Area | Shows |
@@ -60,6 +62,7 @@ npm run data       # write public/walkthrough.json from the AAuth example
 npm run dev        # http://localhost:5173
 npm test
 npm run build:embed  # rebuild render/viewer/viewer.html for the Go binary
+npm run build:lib    # build the embeddable viewer into dist-lib/
 ```
 
 `go generate ./render` runs the same build. CI fails when the committed `render/viewer/viewer.html` does not match a fresh build.
