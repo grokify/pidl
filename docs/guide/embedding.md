@@ -34,7 +34,54 @@ The script mounts the viewer on the element named by `data-pidl-target` once the
 | `data-pidl-src="<url>"` | the URL, relative to the page |
 | *(neither)* | the page's `?src=` query parameter |
 
-The same file is on unpkg at `https://unpkg.com/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js`. Always name an exact version, so a new release cannot change your pages.
+### A Complete Page
+
+A page that shows one walkthrough needs nothing else, much as a Swagger UI page needs only its script and the URL of an OpenAPI document:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AAuth Protocol Walkthrough</title>
+  <style>
+    body { margin: 0; }
+    #walkthrough { height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="walkthrough"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js"
+          data-pidl-target="#walkthrough"
+          data-pidl-src="aauth.walkthrough.json"></script>
+</body>
+</html>
+```
+
+Put `aauth.walkthrough.json` next to the page, or give `data-pidl-src` a full URL.
+
+### Versions
+
+Every version on npm is on jsDelivr at `https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@<version>/dist-lib/pidl-viewer.js`, and on unpkg at the same path under `https://unpkg.com/`.
+
+- **Name an exact version**, such as `@0.9.0`. A file at an exact version never changes, so a new release cannot change your pages. A range such as `@0.9` follows new releases, but CDNs cache it for days, so pages can show different versions for a while.
+- **Check the file with Subresource Integrity.** Add the file's hash and `crossorigin`, and the browser refuses the script if the CDN ever serves anything else:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js"
+        integrity="sha384-<hash>"
+        crossorigin="anonymous"
+        data-pidl-target="#walkthrough"
+        data-pidl-src="aauth.walkthrough.json"></script>
+```
+
+jsDelivr shows the hash on the package's page; to compute it yourself:
+
+```bash
+curl -s https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js \
+  | openssl dgst -sha384 -binary | openssl base64 -A
+```
 
 ### Inline Data
 

@@ -37,6 +37,24 @@ npm run build:lib    # dist-lib/: the embeddable viewer, types and schema
 npm run build:embed  # render/viewer/viewer.html for pidl generate -f viewer
 ```
 
+## Release
+
+The package is released with PIDL and shares its version: the `v0.9.0` tag publishes `@grokify/pidl-viewer@0.9.0`.
+
+1. Set `version` in `package.json` to the release version, and run `npm install` to update `package-lock.json`.
+2. Push, and wait for CI to pass.
+3. Push the `vX.Y.Z` tag. The Viewer Release workflow checks that the tag matches `package.json`, runs the tests, builds `dist-lib/` and publishes to npm with provenance.
+4. Check that the version is on the CDN: `curl -sI https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@X.Y.Z/dist-lib/pidl-viewer.js` answers `200`.
+
+The workflow authenticates with npm trusted publishing, so the repository stores no npm token. npm sets up a trusted publisher only for a package that exists, so the first version is published by hand, by a maintainer of the `@grokify` scope:
+
+```bash
+npm login
+npm publish --access public   # runs the tests and build:lib first
+```
+
+Then, in the package's settings on npmjs.com, add a trusted publisher: GitHub Actions, repository `grokify/pidl`, workflow `viewer-release.yaml`.
+
 ## License
 
 MIT
