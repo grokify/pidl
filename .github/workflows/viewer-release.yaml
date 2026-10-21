@@ -1,0 +1,41 @@
+name: Viewer Release
+# Publishes @grokify/pidl-viewer to npm when a release tag is pushed.
+# jsDelivr and unpkg serve every npm version, so this is also the CDN
+# release. npm trusted publishing authenticates the job, so no npm token
+# is stored in the repository.
+permissions:
+  contents: read
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: viewer
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: npm
+          cache-dependency-path: viewer/package-lock.json
+      # Trusted publishing needs npm 11.5.1 or later.
+      - run: npm install -g npm@12.2.0
+      - name: Package version matches the tag
+        run: |
+          version="$(node -p 'require("./package.json").version')"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "viewer/package.json is $version but the tag is $GITHUB_REF_NAME"
+            exit 1
+          fi
+      - run: npm ci
+      # prepublishOnly runs the tests and npm run build:lib.
+      - run: npm publish --provenance --access public
