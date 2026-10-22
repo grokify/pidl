@@ -53,6 +53,10 @@
          <lastmod>2026-10-22</lastmod>
     </url>
     <url>
+         <loc>https://grokify.github.io/pidl/guide/embedding/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
          <loc>https://grokify.github.io/pidl/guide/entities/</loc>
          <lastmod>2026-10-22</lastmod>
     </url>
@@ -69,11 +73,23 @@
          <lastmod>2026-10-22</lastmod>
     </url>
     <url>
+         <loc>https://grokify.github.io/pidl/guide/narration/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
          <loc>https://grokify.github.io/pidl/guide/phases/</loc>
          <lastmod>2026-10-22</lastmod>
     </url>
     <url>
+         <loc>https://grokify.github.io/pidl/guide/postman/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
          <loc>https://grokify.github.io/pidl/guide/process/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/guide/samples/</loc>
          <lastmod>2026-10-22</lastmod>
     </url>
     <url>
@@ -94,6 +110,10 @@
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/reference/library/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/reference/walkthrough-format/</loc>
          <lastmod>2026-10-22</lastmod>
     </url>
     <url>
@@ -130,6 +150,10 @@
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/releases/v0.8.0/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/releases/v0.9.0/</loc>
          <lastmod>2026-10-22</lastmod>
     </url>
     <url>
@@ -174,6 +198,86 @@
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-002/TRD/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-003/PLAN/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-003/PRD/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-003/ROADMAP/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-003/TRD/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-004/PLAN/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-004/PRD/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-004/ROADMAP/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-004/TRD/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-005/PLAN/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-005/PRD/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-005/ROADMAP/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-005/TRD/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-006/PLAN/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-006/PRD/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-006/ROADMAP/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-006/TRD/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-007/PLAN/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-007/PRD/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-007/ROADMAP/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-007/TRD/</loc>
          <lastmod>2026-10-22</lastmod>
     </url>
 </urlset>
