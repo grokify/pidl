@@ -1,0 +1,924 @@
+{
+  "protocol": {
+    "id": "oauth2-api-access",
+    "name": "OAuth 2.0 API Access",
+    "version": "1.0",
+    "language": "en-US",
+    "description": "A worked walkthrough of calling an API with OAuth 2.0: a user delegating access with the authorization code grant and PKCE, a service using client credentials, a scope challenge, an asynchronous request, and a request signed with HTTP Message Signatures. Every step carries an example message.",
+    "category": "auth",
+    "references": [
+      {
+        "name": "RFC 6749 - OAuth 2.0",
+        "url": "https://www.rfc-editor.org/rfc/rfc6749"
+      },
+      {
+        "name": "RFC 6750 - Bearer Token Usage",
+        "url": "https://www.rfc-editor.org/rfc/rfc6750"
+      },
+      {
+        "name": "RFC 7636 - PKCE",
+        "url": "https://www.rfc-editor.org/rfc/rfc7636"
+      },
+      {
+        "name": "RFC 9068 - JWT Profile for Access Tokens",
+        "url": "https://www.rfc-editor.org/rfc/rfc9068"
+      },
+      {
+        "name": "RFC 7240 - Prefer Header",
+        "url": "https://www.rfc-editor.org/rfc/rfc7240"
+      },
+      {
+        "name": "RFC 9421 - HTTP Message Signatures",
+        "url": "https://www.rfc-editor.org/rfc/rfc9421"
+      },
+      {
+        "name": "RFC 9530 - Digest Fields",
+        "url": "https://www.rfc-editor.org/rfc/rfc9530"
+      }
+    ]
+  },
+  "pronunciations": {
+    "PKCE": {
+      "en-US": "pixy"
+    },
+    "OAuth": {
+      "en-US": "oh auth"
+    }
+  },
+  "entities": [
+    {
+      "id": "user",
+      "name": "User",
+      "type": "user",
+      "description": "The person who owns the reports and approves access in a browser",
+      "trust_level": "untrusted"
+    },
+    {
+      "id": "client",
+      "name": "Client",
+      "type": "client",
+      "description": "The application that calls the API; registered at the authorization server as s6BhdRkqt3",
+      "trust_level": "semi_trusted"
+    },
+    {
+      "id": "as",
+      "name": "Authorization Server",
+      "type": "authorization_server",
+      "description": "Authenticates the user, records consent and issues access tokens",
+      "trust_level": "authoritative"
+    },
+    {
+      "id": "api",
+      "name": "API",
+      "type": "resource_server",
+      "description": "Serves the reports and accepts access tokens issued by the authorization server",
+      "trust_level": "trusted"
+    }
+  ],
+  "metadata": {
+    "tokens": [
+      {
+        "id": "authorization_code",
+        "name": "Authorization code",
+        "type": "opaque",
+        "issuer": "as",
+        "description": "Short-lived and single-use; bound to the PKCE code challenge",
+        "verified_by": [
+          "as"
+        ]
+      },
+      {
+        "id": "access_token",
+        "name": "Access token (at+jwt)",
+        "type": "jwt",
+        "issuer": "as",
+        "audience": "api",
+        "binding": "bearer",
+        "description": "A JWT access token (RFC 9068) the API validates itself",
+        "verified_by": [
+          "api"
+        ],
+        "claims": [
+          {
+            "name": "aud",
+            "checked_by": [
+              "api"
+            ],
+            "description": "Must name this API"
+          },
+          {
+            "name": "scope",
+            "checked_by": [
+              "api"
+            ],
+            "description": "Must include the scope the operation needs"
+          },
+          {
+            "name": "exp",
+            "checked_by": [
+              "api"
+            ],
+            "description": "The token is short-lived"
+          }
+        ]
+      }
+    ]
+  },
+  "groups": [
+    {
+      "id": "delegated",
+      "name": "User-delegated access"
+    },
+    {
+      "id": "service",
+      "name": "Service access"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "authorization-code",
+      "name": "Authorization code with PKCE",
+      "group": "delegated",
+      "description": "A user lets the client read their reports. The browser carries the authorization request and the code; the client exchanges the code, proving with PKCE that it started the request, and calls the API with the access token.",
+      "narration": {
+        "en-US": "A user lets an application read their reports, without ever giving it their password."
+      },
+      "briefing": {
+        "why": "The client never sees the user's credentials, and a stolen authorization code is useless without the PKCE verifier.",
+        "points": [
+          "The browser carries the code, not the token",
+          "PKCE binds the code to the client that asked for it",
+          "The API checks the token itself"
+        ],
+        "narration": {
+          "en-US": "Why the authorization code grant with PKCE is the default for applications."
+        }
+      },
+      "flows": [
+        {
+          "id": "authorize",
+          "from": "user",
+          "to": "as",
+          "action": "authorization_request",
+          "label": "GET /authorize (code_challenge)",
+          "description": "The client sends the user's browser to the authorization server with what it wants (scope), where to return (redirect_uri) and a PKCE code challenge derived from a secret verifier it keeps.",
+          "narration": {
+            "en-US": "The application sends the user's browser to the authorization server, with a challenge derived from a secret only it knows."
+          },
+          "security": {
+            "requires": [
+              "encryption"
+            ]
+          },
+          "example": {
+            "source": "RFC 6749 §4.1.1, RFC 7636 §4.3",
+            "kind": "draft",
+            "request": {
+              "method": "GET",
+              "url": "https://as.example/authorize?response_type=code&client_id=s6BhdRkqt3&redirect_uri=https%3A%2F%2Fclient.example%2Fcb&scope=reports.monthly.read&state=xyz&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256"
+            }
+          }
+        },
+        {
+          "id": "consent",
+          "from": "as",
+          "to": "user",
+          "action": "login_and_consent",
+          "label": "Sign in and approve reports.monthly.read",
+          "description": "The authorization server signs the user in and asks them to approve reading their reports."
+        },
+        {
+          "id": "redirect",
+          "from": "as",
+          "to": "user",
+          "action": "authorization_response",
+          "label": "302 to redirect_uri with code",
+          "mode": "response",
+          "description": "The authorization server sends the browser back to the client with a short-lived authorization code and the client's state.",
+          "security": {
+            "issues": [
+              "authorization_code"
+            ]
+          },
+          "example": {
+            "source": "RFC 6749 §4.1.2",
+            "kind": "draft",
+            "response": {
+              "status": 302,
+              "headers": [
+                {
+                  "name": "Location",
+                  "value": "https://client.example/cb?code=SplxlOBeZQQYbYS6WxSbIA&state=xyz"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "callback",
+          "from": "user",
+          "to": "client",
+          "action": "callback",
+          "label": "GET /cb?code&state",
+          "description": "The browser delivers the code to the client, which checks that state matches the request it started.",
+          "security": {
+            "requires": [
+              "encryption"
+            ]
+          },
+          "example": {
+            "source": "RFC 6749 §4.1.2",
+            "kind": "draft",
+            "request": {
+              "method": "GET",
+              "url": "https://client.example/cb?code=SplxlOBeZQQYbYS6WxSbIA&state=xyz"
+            }
+          }
+        },
+        {
+          "id": "token-request",
+          "from": "client",
+          "to": "as",
+          "action": "token_request",
+          "label": "POST /token (code + code_verifier)",
+          "description": "The client exchanges the code at the token endpoint, authenticating itself and sending the PKCE verifier. The authorization server hashes the verifier and compares it with the challenge.",
+          "narration": {
+            "en-US": "The application trades the code for a token, and proves with its secret that it started this request."
+          },
+          "representations": {
+            "curl": {
+              "narration": {
+                "en-US": "This curl command posts the form the token endpoint expects."
+              }
+            }
+          },
+          "security": {
+            "requires": [
+              "encryption"
+            ],
+            "verifies": [
+              "authorization_code"
+            ]
+          },
+          "example": {
+            "source": "RFC 6749 §4.1.3, RFC 7636 §4.5",
+            "kind": "draft",
+            "request": {
+              "method": "POST",
+              "url": "https://as.example/token",
+              "headers": [
+                {
+                  "name": "Authorization",
+                  "value": "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW"
+                },
+                {
+                  "name": "Content-Type",
+                  "value": "application/x-www-form-urlencoded"
+                }
+              ],
+              "body": "grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA&redirect_uri=https%3A%2F%2Fclient.example%2Fcb&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+            }
+          }
+        },
+        {
+          "id": "token-response",
+          "from": "as",
+          "to": "client",
+          "action": "token_response",
+          "label": "200 access_token",
+          "mode": "response",
+          "description": "The authorization server returns an access token for the API and a refresh token.",
+          "security": {
+            "issues": [
+              "access_token"
+            ]
+          },
+          "example": {
+            "source": "RFC 6749 §4.1.4, RFC 9068 §2",
+            "kind": "derived",
+            "response": {
+              "status": 200,
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "name": "Cache-Control",
+                  "value": "no-store"
+                }
+              ],
+              "body": {
+                "access_token": "eyJ0eXAiOiJhdCtqd3QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImFzLWtleS0xIn0.eyJpc3MiOiJodHRwczovL2FzLmV4YW1wbGUiLCJzdWIiOiIyNDgyODk3NjEwMDEiLCJhdWQiOiJodHRwczovL2FwaS5leGFtcGxlIiwiY2xpZW50X2lkIjoiczZCaGRSa3F0MyIsInNjb3BlIjoicmVwb3J0cy5tb250aGx5LnJlYWQiLCJpYXQiOjE3MzAyMTc2MDAsImV4cCI6MTczMDIyMTIwMCwianRpIjoiYXQtOWYyYzQxIn0.SIGNATURE",
+                "token_type": "Bearer",
+                "expires_in": 3600,
+                "refresh_token": "tGzv3JOk…",
+                "scope": "reports.monthly.read"
+              }
+            },
+            "tokens": [
+              {
+                "token": "access_token",
+                "label": "response body",
+                "header": {
+                  "typ": "at+jwt",
+                  "alg": "RS256",
+                  "kid": "as-key-1"
+                },
+                "payload": {
+                  "iss": "https://as.example",
+                  "sub": "248289761001",
+                  "aud": "https://api.example",
+                  "client_id": "s6BhdRkqt3",
+                  "scope": "reports.monthly.read",
+                  "iat": 1730217600,
+                  "exp": 1730221200,
+                  "jti": "at-9f2c41"
+                }
+              }
+            ],
+            "note": "sub names the user: the API learns whose reports to return from the token."
+          }
+        },
+        {
+          "id": "api-request",
+          "from": "client",
+          "to": "api",
+          "action": "api_request",
+          "label": "GET /reports w/ Bearer access_token",
+          "description": "The client calls the API with the access token in the Authorization header. The API validates the token's signature, issuer, audience, expiry and scope before it answers.",
+          "security": {
+            "requires": [
+              "token"
+            ],
+            "token": "access_token",
+            "verifies": [
+              "access_token"
+            ]
+          },
+          "example": {
+            "source": "RFC 6750 §2.1",
+            "kind": "draft",
+            "request": {
+              "method": "GET",
+              "url": "https://api.example/reports",
+              "headers": [
+                {
+                  "name": "Authorization",
+                  "value": "Bearer eyJ0eXAiOiJhdCtqd3QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImFzLWtleS0xIn0.eyJpc3MiOiJodHRwczovL2FzLmV4YW1wbGUiLCJzdWIiOiIyNDgyODk3NjEwMDEiLCJhdWQiOiJodHRwczovL2FwaS5leGFtcGxlIiwiY2xpZW50X2lkIjoiczZCaGRSa3F0MyIsInNjb3BlIjoicmVwb3J0cy5tb250aGx5LnJlYWQiLCJpYXQiOjE3MzAyMTc2MDAsImV4cCI6MTczMDIyMTIwMCwianRpIjoiYXQtOWYyYzQxIn0.SIGNATURE"
+                }
+              ]
+            },
+            "tokens": [
+              {
+                "token": "access_token",
+                "label": "Authorization header",
+                "header": {
+                  "typ": "at+jwt",
+                  "alg": "RS256",
+                  "kid": "as-key-1"
+                },
+                "payload": {
+                  "iss": "https://as.example",
+                  "sub": "248289761001",
+                  "aud": "https://api.example",
+                  "client_id": "s6BhdRkqt3",
+                  "scope": "reports.monthly.read",
+                  "iat": 1730217600,
+                  "exp": 1730221200,
+                  "jti": "at-9f2c41"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "api-response",
+          "from": "api",
+          "to": "client",
+          "action": "api_response",
+          "label": "200 OK reports",
+          "mode": "response",
+          "description": "The token carries reports.monthly.read for this API, so the API returns the reports.",
+          "example": {
+            "source": "RFC 6750 §2.1",
+            "kind": "derived",
+            "response": {
+              "status": 200,
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "name": "Cache-Control",
+                  "value": "no-store"
+                }
+              ],
+              "body": {
+                "reports": [
+                  {
+                    "id": "r-2026-09",
+                    "title": "September usage"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "client-credentials",
+      "name": "Client credentials",
+      "group": "service",
+      "description": "A service calls the API on its own behalf. It authenticates to the authorization server with its credentials and uses the access token it receives.",
+      "flows": [
+        {
+          "id": "token",
+          "include": "client-token"
+        },
+        {
+          "id": "call",
+          "include": "call-api"
+        }
+      ]
+    },
+    {
+      "id": "scope-challenge",
+      "name": "Client credentials after a scope challenge",
+      "group": "service",
+      "variant_of": "client-credentials",
+      "variant_label": "After a scope challenge",
+      "description": "The service calls the API without a token first. The API's challenge names the scope it needs, and the service asks for exactly that scope.",
+      "flows": [
+        {
+          "id": "first-request",
+          "from": "client",
+          "to": "api",
+          "action": "api_request",
+          "label": "GET /reports (no token)",
+          "description": "The service calls the API before it has a token.",
+          "security": {
+            "requires": [
+              "encryption"
+            ]
+          },
+          "example": {
+            "source": "RFC 6750 §3",
+            "kind": "derived",
+            "request": {
+              "method": "GET",
+              "url": "https://api.example/reports"
+            }
+          }
+        },
+        {
+          "id": "challenge",
+          "from": "api",
+          "to": "client",
+          "action": "challenge",
+          "label": "401 WWW-Authenticate: Bearer scope",
+          "mode": "response",
+          "description": "The API answers 401 with a Bearer challenge naming its realm and the scope the operation needs.",
+          "example": {
+            "source": "RFC 6750 §3",
+            "kind": "derived",
+            "response": {
+              "status": 401,
+              "headers": [
+                {
+                  "name": "WWW-Authenticate",
+                  "value": "Bearer realm=\"api.example\", scope=\"reports.monthly.read\""
+                }
+              ]
+            },
+            "note": "The client asks the authorization server for the scope the challenge names."
+          }
+        },
+        {
+          "id": "token",
+          "include": "client-token"
+        },
+        {
+          "id": "call",
+          "include": "call-api"
+        }
+      ]
+    },
+    {
+      "id": "async-export",
+      "name": "Asynchronous export",
+      "group": "service",
+      "description": "A long-running request: the API accepts the export, answers 202 with where to look, and the service polls until the export is ready.",
+      "flows": [
+        {
+          "id": "token",
+          "include": "client-token"
+        },
+        {
+          "id": "export-request",
+          "from": "client",
+          "to": "api",
+          "action": "export_request",
+          "label": "POST /exports (Prefer: respond-async)",
+          "description": "The service asks for an export and says it can wait for the result.",
+          "security": {
+            "requires": [
+              "token"
+            ],
+            "token": "access_token",
+            "verifies": [
+              "access_token"
+            ]
+          },
+          "example": {
+            "source": "RFC 7240 §4.1",
+            "kind": "derived",
+            "request": {
+              "method": "POST",
+              "url": "https://api.example/exports",
+              "headers": [
+                {
+                  "name": "Authorization",
+                  "value": "Bearer eyJ0eXAiOiJhdCtqd3QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImFzLWtleS0xIn0.eyJpc3MiOiJodHRwczovL2FzLmV4YW1wbGUiLCJzdWIiOiJzNkJoZFJrcXQzIiwiYXVkIjoiaHR0cHM6Ly9hcGkuZXhhbXBsZSIsImNsaWVudF9pZCI6InM2QmhkUmtxdDMiLCJzY29wZSI6InJlcG9ydHMubW9udGhseS5yZWFkIiwiaWF0IjoxNzMwMjE3OTAwLCJleHAiOjE3MzAyMjE1MDAsImp0aSI6ImF0LTNiN2UwOCJ9.SIGNATURE"
+                },
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "name": "Prefer",
+                  "value": "respond-async"
+                }
+              ],
+              "body": {
+                "report": "r-2026-09",
+                "format": "csv"
+              }
+            }
+          }
+        },
+        {
+          "id": "export-accepted",
+          "from": "api",
+          "to": "client",
+          "action": "export_accepted",
+          "label": "202 Location",
+          "mode": "response",
+          "description": "The API accepts the export and names the URL that will hold its status.",
+          "example": {
+            "source": "RFC 7240 §4.1, RFC 9110 §15.3.3",
+            "kind": "derived",
+            "response": {
+              "status": 202,
+              "headers": [
+                {
+                  "name": "Location",
+                  "value": "https://api.example/exports/7a1d"
+                },
+                {
+                  "name": "Retry-After",
+                  "value": "1"
+                }
+              ],
+              "body": {
+                "status": "pending"
+              }
+            }
+          }
+        },
+        {
+          "id": "export-poll",
+          "from": "client",
+          "to": "api",
+          "action": "export_poll",
+          "label": "GET Location",
+          "description": "The service polls the status URL with the same token.",
+          "security": {
+            "requires": [
+              "token"
+            ],
+            "token": "access_token",
+            "verifies": [
+              "access_token"
+            ]
+          },
+          "example": {
+            "source": "RFC 7240 §4.1",
+            "kind": "derived",
+            "request": {
+              "method": "GET",
+              "url": "https://api.example/exports/7a1d",
+              "headers": [
+                {
+                  "name": "Authorization",
+                  "value": "Bearer eyJ0eXAiOiJhdCtqd3QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImFzLWtleS0xIn0.eyJpc3MiOiJodHRwczovL2FzLmV4YW1wbGUiLCJzdWIiOiJzNkJoZFJrcXQzIiwiYXVkIjoiaHR0cHM6Ly9hcGkuZXhhbXBsZSIsImNsaWVudF9pZCI6InM2QmhkUmtxdDMiLCJzY29wZSI6InJlcG9ydHMubW9udGhseS5yZWFkIiwiaWF0IjoxNzMwMjE3OTAwLCJleHAiOjE3MzAyMjE1MDAsImp0aSI6ImF0LTNiN2UwOCJ9.SIGNATURE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "export-ready",
+          "from": "api",
+          "to": "client",
+          "action": "export_ready",
+          "label": "200 export ready",
+          "mode": "response",
+          "description": "The export is complete, and the response says where to download it.",
+          "example": {
+            "source": "RFC 7240 §4.1",
+            "kind": "derived",
+            "response": {
+              "status": 200,
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "status": "complete",
+                "download": "https://api.example/exports/7a1d/data.csv"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "signed-request",
+      "name": "Signed request",
+      "group": "service",
+      "description": "The service signs a request with HTTP Message Signatures, so the API can verify which key sent it and that the body was not changed.",
+      "flows": [
+        {
+          "id": "post-message",
+          "from": "client",
+          "to": "api",
+          "action": "signed_request",
+          "label": "POST /messages (Signature, Content-Digest)",
+          "description": "The service hashes the body into Content-Digest and signs the method, authority, path, digest and content type with its key.",
+          "security": {
+            "requires": [
+              "signature"
+            ]
+          },
+          "example": {
+            "source": "RFC 9421 §2.5, RFC 9530 §2",
+            "kind": "derived",
+            "request": {
+              "method": "POST",
+              "url": "https://api.example/messages",
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "name": "Content-Digest",
+                  "value": "sha-256=:tC1UtBcfnSHozu9XQ5lFXFP/Hz+wQVsxQjIhj+7j6+I=:"
+                },
+                {
+                  "name": "Signature-Input",
+                  "value": "sig1=(\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\");created=1730217600;keyid=\"client-key-1\";alg=\"ed25519\""
+                },
+                {
+                  "name": "Signature",
+                  "value": "sig1=:SIGNATURE-PLACEHOLDER:"
+                }
+              ],
+              "body": {
+                "text": "Monthly report is ready"
+              }
+            },
+            "note": "The API looks up client-key-1, recomputes the digest from the body it received, and verifies the signature over the covered components."
+          }
+        },
+        {
+          "id": "message-created",
+          "from": "api",
+          "to": "client",
+          "action": "created",
+          "label": "201 Created",
+          "mode": "response",
+          "description": "The signature and digest verify, so the API stores the message.",
+          "example": {
+            "source": "RFC 9110 §15.3.2",
+            "kind": "derived",
+            "response": {
+              "status": 201,
+              "headers": [
+                {
+                  "name": "Location",
+                  "value": "https://api.example/messages/m-41"
+                },
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "id": "m-41"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "client-token",
+      "name": "Client credentials token",
+      "fragment": true,
+      "description": "The service authenticates with its client credentials and receives an access token.",
+      "flows": [
+        {
+          "id": "request",
+          "from": "client",
+          "to": "as",
+          "action": "token_request",
+          "label": "POST /token (client_credentials)",
+          "description": "The service authenticates with HTTP Basic and asks for the scope it needs.",
+          "security": {
+            "requires": [
+              "encryption"
+            ]
+          },
+          "example": {
+            "source": "RFC 6749 §4.4.2",
+            "kind": "draft",
+            "request": {
+              "method": "POST",
+              "url": "https://as.example/token",
+              "headers": [
+                {
+                  "name": "Authorization",
+                  "value": "Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW"
+                },
+                {
+                  "name": "Content-Type",
+                  "value": "application/x-www-form-urlencoded"
+                }
+              ],
+              "body": "grant_type=client_credentials&scope=reports.monthly.read"
+            }
+          }
+        },
+        {
+          "id": "response",
+          "from": "as",
+          "to": "client",
+          "action": "token_response",
+          "label": "200 access_token",
+          "mode": "response",
+          "description": "The authorization server returns an access token for the service itself.",
+          "security": {
+            "issues": [
+              "access_token"
+            ]
+          },
+          "example": {
+            "source": "RFC 6749 §4.4.3, RFC 9068 §2",
+            "kind": "derived",
+            "response": {
+              "status": 200,
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "name": "Cache-Control",
+                  "value": "no-store"
+                }
+              ],
+              "body": {
+                "access_token": "eyJ0eXAiOiJhdCtqd3QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImFzLWtleS0xIn0.eyJpc3MiOiJodHRwczovL2FzLmV4YW1wbGUiLCJzdWIiOiJzNkJoZFJrcXQzIiwiYXVkIjoiaHR0cHM6Ly9hcGkuZXhhbXBsZSIsImNsaWVudF9pZCI6InM2QmhkUmtxdDMiLCJzY29wZSI6InJlcG9ydHMubW9udGhseS5yZWFkIiwiaWF0IjoxNzMwMjE3OTAwLCJleHAiOjE3MzAyMjE1MDAsImp0aSI6ImF0LTNiN2UwOCJ9.SIGNATURE",
+                "token_type": "Bearer",
+                "expires_in": 3600,
+                "scope": "reports.monthly.read"
+              }
+            },
+            "tokens": [
+              {
+                "token": "access_token",
+                "label": "response body",
+                "header": {
+                  "typ": "at+jwt",
+                  "alg": "RS256",
+                  "kid": "as-key-1"
+                },
+                "payload": {
+                  "iss": "https://as.example",
+                  "sub": "s6BhdRkqt3",
+                  "aud": "https://api.example",
+                  "client_id": "s6BhdRkqt3",
+                  "scope": "reports.monthly.read",
+                  "iat": 1730217900,
+                  "exp": 1730221500,
+                  "jti": "at-3b7e08"
+                }
+              }
+            ],
+            "note": "sub is the client itself: no user is involved."
+          }
+        }
+      ]
+    },
+    {
+      "id": "call-api",
+      "name": "Call the API",
+      "fragment": true,
+      "description": "The service calls the API with its access token.",
+      "flows": [
+        {
+          "id": "api-request",
+          "from": "client",
+          "to": "api",
+          "action": "api_request",
+          "label": "GET /reports w/ Bearer access_token",
+          "description": "The client calls the API with the access token in the Authorization header. The API validates the token's signature, issuer, audience, expiry and scope before it answers.",
+          "security": {
+            "requires": [
+              "token"
+            ],
+            "token": "access_token",
+            "verifies": [
+              "access_token"
+            ]
+          },
+          "example": {
+            "source": "RFC 6750 §2.1",
+            "kind": "derived",
+            "request": {
+              "method": "GET",
+              "url": "https://api.example/reports",
+              "headers": [
+                {
+                  "name": "Authorization",
+                  "value": "Bearer eyJ0eXAiOiJhdCtqd3QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImFzLWtleS0xIn0.eyJpc3MiOiJodHRwczovL2FzLmV4YW1wbGUiLCJzdWIiOiJzNkJoZFJrcXQzIiwiYXVkIjoiaHR0cHM6Ly9hcGkuZXhhbXBsZSIsImNsaWVudF9pZCI6InM2QmhkUmtxdDMiLCJzY29wZSI6InJlcG9ydHMubW9udGhseS5yZWFkIiwiaWF0IjoxNzMwMjE3OTAwLCJleHAiOjE3MzAyMjE1MDAsImp0aSI6ImF0LTNiN2UwOCJ9.SIGNATURE"
+                }
+              ]
+            },
+            "tokens": [
+              {
+                "token": "access_token",
+                "label": "Authorization header",
+                "header": {
+                  "typ": "at+jwt",
+                  "alg": "RS256",
+                  "kid": "as-key-1"
+                },
+                "payload": {
+                  "iss": "https://as.example",
+                  "sub": "s6BhdRkqt3",
+                  "aud": "https://api.example",
+                  "client_id": "s6BhdRkqt3",
+                  "scope": "reports.monthly.read",
+                  "iat": 1730217900,
+                  "exp": 1730221500,
+                  "jti": "at-3b7e08"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "api-response",
+          "from": "api",
+          "to": "client",
+          "action": "api_response",
+          "label": "200 OK reports",
+          "mode": "response",
+          "description": "The token carries reports.monthly.read for this API, so the API returns the reports.",
+          "example": {
+            "source": "RFC 6750 §2.1",
+            "kind": "derived",
+            "response": {
+              "status": 200,
+              "headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "name": "Cache-Control",
+                  "value": "no-store"
+                }
+              ],
+              "body": {
+                "reports": [
+                  {
+                    "id": "r-2026-09",
+                    "title": "September usage"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
