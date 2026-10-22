@@ -11,6 +11,10 @@ pidl <command> [options] [arguments]
 | `validate` | Validate PIDL JSON files |
 | `generate` | Generate diagrams from PIDL files |
 | `scenarios` | List the scenarios in a PIDL file |
+| `samples` | Resolve and check code samples from source repositories |
+| `roles` | List protocol roles |
+| `components` | List deployment components |
+| `trust` | List trust relationships |
 | `examples` | List or show built-in examples |
 | `init` | Create a new PIDL file from template |
 | `simulate` | Run protocol simulation with state tracking |
@@ -66,6 +70,13 @@ pidl generate [options] <file>
 | `--expand` | Show included fragments step by step instead of as boxes | false |
 | `--all-scenarios` | Render every main scenario to `NN-<id><ext>` in the `-o` directory | false |
 | `--include-fragments` | With `--all-scenarios`, also render fragments after the main scenarios | false |
+| `--resolve` | Resolve `imports` and `extends` before generating | false |
+| `--samples` | Sample lock file for `walkthrough-json` and `viewer` | `<file without .json>.samples.json`, when present |
+| `--client` | Postman: the role whose requests are sent | the first `agent` or `client` entity |
+| `--mock` | Postman: save example responses for a mock server and check only status codes | false |
+| `--signer` | Postman: signer profile for signed protocols (`aauth-sandbox`) | |
+| `--targets` | Postman environments: a JSON file naming each target's role URLs and signer | |
+| `--target` | Postman environments: the target in `--targets` to write | |
 
 ### Formats
 
@@ -73,16 +84,26 @@ pidl generate [options] <file>
 |--------|-------------|
 | `plantuml` | PlantUML sequence diagram |
 | `mermaid` | Mermaid sequence diagram |
+| `mermaid-state` | Mermaid state diagram (requires entity states) |
+| `mermaid-component` | Mermaid deployment component diagram |
+| `mermaid-trust` | Mermaid trust relationship diagram |
+| `markdown-matrix` | Markdown protocol role matrix |
 | `dot` | Graphviz DOT data flow |
 | `d2` | D2 sequence diagram |
 | `d2-flow` | D2 data flow diagram |
 | `d2-arch` | D2 architecture diagram |
+| `svg`, `svg-animated` | SVG sequence diagram, optionally with animated flow dots |
+| `svg-network` | Network boundary diagram |
+| `svg-component`, `svg-trust` | SVG deployment component and trust relationship diagrams |
+| `infographic` | Compact SVG for LinkedIn and datasheets |
 | `scenario-matrix` | Markdown table of roles by scenario (whole file) |
 | `token-table` | Markdown table of tokens, checkers and claims (whole file) |
 | `outline` | Markdown outline of roles, scenarios and tokens (whole file) |
 | `outline-json` | The outline as JSON (whole file) |
 | `walkthrough-json` | A [walkthrough](walkthrough-format.md) (`pidl-walkthrough/v1`): expanded scenarios with examples and findings, for viewers (whole file) |
 | `viewer` | Self-contained HTML walkthrough viewer (whole file) |
+| `postman` | [Postman collection](../guide/postman.md): a folder per scenario, chained requests and checks (whole file) |
+| `postman-environment` | Postman environment for one target in a `--targets` file |
 
 ### Examples
 
@@ -95,6 +116,9 @@ pidl generate -f svg --all-scenarios -o diagrams/ oauth2_api_access
 
 # Step-by-step walkthrough viewer in one HTML file
 pidl generate -f viewer -o api.html oauth2_api_access
+
+# Postman collection that sends signed requests through the AAuth sandbox
+pidl generate -f postman --signer aauth-sandbox -o aauth.postman_collection.json aauth_protocol
 
 # PlantUML to stdout
 pidl generate protocol.json
@@ -134,6 +158,33 @@ pidl scenarios -f json oauth2_api_access
 ```
 
 See the [Scenarios guide](../guide/scenarios.md).
+
+## samples
+
+Resolve and check [code samples](../guide/samples.md) whose code comes from marked regions of files in source repositories.
+
+```bash
+pidl samples <resolve|check> [options] <file>
+```
+
+`resolve` reads every sample source and writes the code and its SHA-256 to a lock file beside the document. `check` fails when a source is not in the lock, its region is missing, or its code changed since it was resolved; run it in CI.
+
+### Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--root` | Directory holding repository checkouts at `<root>/<repo>` | `$GOPATH/src`, or `~/go/src` |
+| `--lock` | Lock file | `<file without .json>.samples.json` |
+
+### Examples
+
+```bash
+# Write the lock file
+pidl samples resolve aauth.json
+
+# Fail when samples have fallen behind their sources
+pidl samples check aauth.json
+```
 
 ## examples
 
