@@ -36,6 +36,11 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 - 🔢 **Consistent ordering**: roles, scenarios and steps follow the file's order in every diagram, table and outline
 - 📑 **Overview outputs**: roles-by-scenario matrix, token table, and an ordered outline for guides and slide decks
 - 🖥️ **Walkthrough viewer**: a self-contained HTML page that steps through each scenario, highlighting the active roles and message and showing example requests, responses and decoded tokens
+- 🌍 **Embeddable viewer**: `@grokify/pidl-viewer` loads from a CDN with one script tag and shows any walkthrough file, inline or by URL
+- 🧾 **Walkthrough format**: `pidl-walkthrough/v1`, the processed form viewers read, with a JSON Schema and TypeScript types
+- 💻 **Code samples and cURL**: each request as HTTP, a generated `curl` command, or SDK code taken from tested source files; each implementation can keep its samples in its own sample set, so the protocol document names none
+- 🎙️ **Narration**: spoken text by language, scenario briefings and pronunciations, for audio and narrated video
+- 📮 **Postman collections**: a runnable collection per protocol, with values chained between requests, checks on every response, and signed requests sent through a signing proxy
 - 🎨 **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT, D2, SVG
 - 🎬 **Animated SVG** with CSS flow visualizations and moving dots
 - 🌐 **Network boundary diagrams** for trust zone visualization
@@ -615,6 +620,11 @@ pidl <command> [options] [arguments]
 Commands:
   validate   Validate PIDL JSON files
   generate   Generate diagrams from PIDL files
+  scenarios  List scenarios in a PIDL file, in output order
+  samples    Resolve and check code samples from source repositories
+  roles      List protocol roles
+  components List deployment components
+  trust      List trust relationships
   examples   List or show built-in examples
   init       Create a new PIDL file from template
   simulate   Run protocol simulation with state tracking
@@ -677,6 +687,22 @@ Formats:
 | `outline-json` | The outline as JSON (whole file) |
 | `walkthrough-json` | A [walkthrough](https://github.com/grokify/pidl/blob/main/docs/reference/walkthrough-format.md) (`pidl-walkthrough/v1`): expanded scenarios with examples and findings, for viewers (whole file) |
 | `viewer` | Self-contained HTML walkthrough viewer (whole file) |
+| `postman` | Postman collection: a folder per scenario, chained requests and checks (whole file) |
+| `postman-environment` | Postman environment for one target in a `--targets` file |
+
+### samples
+
+```bash
+pidl samples <resolve|check> [options] <file>
+
+Options:
+  --root <dir>       Directory holding repository checkouts at <root>/<repo> (default: $GOPATH/src)
+  --lock <file>      A document's lock file (default: <file without .json>.samples.json)
+  --repo-dir <dir>   Read every source from this checkout
+  --protocol <file>  With a sample set, check every step address against this document
+```
+
+`<file>` is a document or a sample set (`pidl-samples/v1`). `resolve` records each sample's code and hash, in the document's lock file or in the set; `check` fails when a sample has fallen behind its source.
 
 ### examples
 

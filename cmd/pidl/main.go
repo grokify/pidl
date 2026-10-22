@@ -32,7 +32,7 @@ func (b *repeatedFlag) Set(value string) error {
 	return nil
 }
 
-const version = "0.8.0"
+const version = "0.9.0"
 
 // stdin is the reader used by interactive commands (the debug REPL). It is a
 // package-level variable so tests can substitute scripted input.

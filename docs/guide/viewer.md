@@ -31,13 +31,14 @@ To show walkthroughs inside other pages, such as a docs site, load the viewer fr
 | End | Last step |
 | P | Present on a 16:9 stage |
 
-The URL records the scenario and step, for example `#federated-authorization/12`, so a link opens at that step.
+The URL records the scenario and step, for example `#federated-authorization/12`, so a link opens at that step. A step with an [ID](scenarios.md#sections-variants-and-step-ids) can be linked by name instead, such as `#ps-authorization/consent.approve`, which keeps working when steps are added before it.
 
 ## Requests, Responses and Tokens
 
 When a flow has an [example](../SPECIFICATION.md#flow-examples), the cards show it:
 
 - **HTTP**: the request line, `Host`, headers in written order and body, or the status line, headers and body. Headers covered by the HTTP message signature (from `Signature-Input`) are marked *signed*. Long values such as JWTs shorten; click to expand.
+- **cURL** and **code**: the request as a generated `curl` command, and the step's [code samples](samples.md), one tab per language, titled by label and role, with a copy button. The tab you choose stays selected from step to step; a step without that form shows HTTP with the tab disabled.
 - **Tokens**: each decoded token's header and claims. Claims that the receiving role checks, according to the token's `claims` and `checked_by`, are highlighted.
 - **Provenance**: a `draft` badge for examples taken from the cited source with values aligned, or `derived` for examples written from its normative text, with the source section and the example's note.
 
