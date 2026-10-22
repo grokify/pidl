@@ -20,14 +20,14 @@ import (
 	"github.com/grokify/pidl/render"
 )
 
-// boundaryFlags is a custom flag type that collects multiple --boundary values.
-type boundaryFlags []string
+// repeatedFlag collects the values of a flag given more than once, such as --boundary and --samples.
+type repeatedFlag []string
 
-func (b *boundaryFlags) String() string {
+func (b *repeatedFlag) String() string {
 	return strings.Join(*b, ", ")
 }
 
-func (b *boundaryFlags) Set(value string) error {
+func (b *repeatedFlag) Set(value string) error {
 	*b = append(*b, value)
 	return nil
 }
@@ -195,7 +195,8 @@ func cmdGenerate(args []string, stdout, stderr io.Writer) int {
 	postmanMock := fs.Bool("mock", false, "Postman: save example responses for a mock server and check only status codes")
 	postmanTargets := fs.String("targets", "", "Postman environments: targets file (JSON) naming each target's role URLs and signer")
 	postmanTarget := fs.String("target", "", "Postman environments: target to write from --targets")
-	samplesLock := fs.String("samples", "", "Sample lock file for walkthrough-json and viewer (default: <file without .json>.samples.json, when present)")
+	var samplesFiles repeatedFlag
+	fs.Var(&samplesFiles, "samples", "Samples for walkthrough-json and viewer: a document's lock file or a sample set (pidl-samples/v1). Can be repeated. (default: <file without .json>.samples.json, when present)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
 	templateDir := fs.String("template-dir", "", "Path to custom SVG template directory")
 	theme := fs.String("theme", "", "SVG theme (light, dark, auto)")
@@ -207,7 +208,7 @@ func cmdGenerate(args []string, stdout, stderr io.Writer) int {
 	expand := fs.Bool("expand", false, "Inline included fragments instead of drawing them as boxes")
 	allScenarios := fs.Bool("all-scenarios", false, "Render every scenario to its own file in the -o directory")
 	includeFragments := fs.Bool("include-fragments", false, "With --all-scenarios, also render fragments, after the main scenarios")
-	var boundaries boundaryFlags
+	var boundaries repeatedFlag
 	fs.Var(&boundaries, "boundary", "Network boundary assignment (format: boundary_id:entity1,entity2). Can be repeated.")
 
 	// Infographic options
@@ -333,18 +334,12 @@ Infographic Examples:
 	}
 
 	if format == render.FormatWalkthroughJSON || format == render.FormatViewer {
-		lockPath, explicit := *samplesLock, *samplesLock != ""
-		if !explicit {
-			lockPath = pidl.SampleLockPath(filename)
-		}
-		lock, err := pidl.ReadSampleLock(lockPath)
-		switch {
-		case err == nil:
-			p = p.WithSamples(lock)
-		case explicit || !os.IsNotExist(err):
-			fmt.Fprintf(stderr, "Error reading samples %s: %v\n", lockPath, err)
+		withSamples, err := applySamples(p, filename, samplesFiles)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error reading samples: %v\n", err)
 			return 1
 		}
+		p = withSamples
 	}
 
 	// renderOne renders one protocol (or scenario projection) in the

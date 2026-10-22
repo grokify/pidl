@@ -565,6 +565,38 @@ A sample is code that sends or handles a step's message, such as an SDK call, sh
 
 **Lock file.** `pidl samples resolve <file>` reads each source from checkouts under a root directory (default `$GOPATH/src`, at `<root>/<repo>`; with `ref`, the file at that ref) and writes the code and its SHA-256 to `<file without .json>.samples.json`. Generation reads the lock, so outputs never need the source repositories or the network. `pidl samples check <file>` fails when a source is not in the lock, its region is missing, or its code changed since it was resolved; CI runs it to keep samples current.
 
+### Sample Sets
+
+A protocol document describes the protocol and should not depend on any implementation of it. Code samples from an SDK belong with that SDK: a **sample set** keeps them in a file of its own, beside the tested code they come from, and generation joins one or more sets to the document.
+
+```json
+{
+  "format": "pidl-samples/v1",
+  "protocol": "aauth",
+  "name": "example-sdk-go",
+  "samples": [
+    {"step": "agent-identity/sign", "language": "go", "label": "Agent", "role": "agent",
+     "source": {"repo": "example.com/sdk", "path": "walkthrough/agent_test.go", "region": "agent-identity.sign"}},
+    {"step": "interaction/approve", "language": "go", "label": "Server",
+     "source": {"repo": "example.com/sdk", "path": "walkthrough/consent_test.go", "region": "interaction.approve"}}
+  ]
+}
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `format` | Yes | `pidl-samples/v1` |
+| `protocol` | No | The protocol ID the set is for; a set for another protocol is refused |
+| `name` | No | The implementation's name, cited by examples the set creates |
+| `samples` | Yes | Samples, each with the fields of a sample plus `step`, and `sha256` once resolved |
+
+- **Step addresses** name a step as written: `<scenario>/<step-id>` for a step of a scenario or a fragment, `<scenario>` for the scenario's own samples, or `<step-id>` in a document without scenarios. A sample on a fragment's step appears wherever the fragment is included. Steps need IDs to be addressed.
+- **Joining.** A set's samples follow a step's own samples. A step without an example gets one holding only the samples, citing the set's `name`. An address that names no step, or a source that is not resolved, is an error, so a set cannot fall silently behind the protocol.
+- **Resolving.** A set is its own lock: `pidl samples resolve <set>` writes each source's `code` and `sha256` into the set, and `pidl samples check <set>` fails when one is missing or its source changed. `--repo-dir <dir>` reads every source from one checkout, such as the implementation's own repository in its CI, and `--protocol <document>` also checks every address.
+- **Generating.** `pidl generate --samples <set>`, repeated for several implementations, joins sets to the document for `walkthrough-json` and `viewer`.
+
+The schema is `schema/samples.schema.json`.
+
 ## Ordering
 
 Order in PIDL comes from one source: the position of an item in its JSON array. Every output generated from a document (diagrams, tables, outlines, file listings) uses the same order, so presentations, guides and diagrams built from one file agree.

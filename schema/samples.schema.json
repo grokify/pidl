@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/grokify/pidl/schema/samples.schema.json",
+  "$ref": "#/$defs/SampleSet",
+  "$defs": {
+    "SampleSet": {
+      "properties": {
+        "format": {
+          "type": "string",
+          "const": "pidl-samples/v1",
+          "description": "Format names the format and its major version: pidl-samples/v1."
+        },
+        "protocol": {
+          "type": "string",
+          "description": "Protocol is the ID of the protocol the set is for. When set, the\nset applies only to that protocol."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name names the implementation, such as \"example-sdk-go\". It is the\nsource cited by examples the set creates for steps without one."
+        },
+        "samples": {
+          "items": {
+            "$ref": "#/$defs/SampleSetEntry"
+          },
+          "type": "array",
+          "description": "Samples are the set's samples, each attached to a step."
+        }
+      },
+      "type": "object",
+      "required": [
+        "format",
+        "samples"
+      ],
+      "description": "SampleSet holds code samples for a protocol, kept apart from the protocol document."
+    },
+    "SampleSetEntry": {
+      "properties": {
+        "step": {
+          "type": "string",
+          "description": "Step is the address of a step as written: \"<scenario>/<step-id>\" for\na step of a scenario or fragment, \"<scenario>\" for the scenario's\nown samples, or \"<step-id>\" in a document without scenarios."
+        },
+        "language": {
+          "type": "string",
+          "description": "Language names the code's language with a common highlighter name,\nsuch as \"go\", \"typescript\", \"python\" or \"csharp\". Samples are also\nrepresentations a step's narration can be overridden for."
+        },
+        "label": {
+          "type": "string",
+          "description": "Label distinguishes samples in one language, such as \"Agent\" and\n\"Resource\"."
+        },
+        "role": {
+          "type": "string",
+          "description": "Role is the entity ID whose developer writes this code."
+        },
+        "code": {
+          "type": "string",
+          "description": "Code is inline code, or a source's code once resolved. A sample has\nCode, Source, or both."
+        },
+        "source": {
+          "$ref": "#/$defs/SampleSource",
+          "description": "Source refers to a marked region of a file in a repository."
+        },
+        "sha256": {
+          "type": "string",
+          "description": "SHA256 is the hex SHA-256 of Code, recorded when Source is resolved."
+        }
+      },
+      "type": "object",
+      "required": [
+        "step",
+        "language"
+      ],
+      "description": "SampleSetEntry is one sample and the step it belongs to."
+    },
+    "SampleSource": {
+      "properties": {
+        "repo": {
+          "type": "string",
+          "description": "Repo is the repository's module-style path, such as\n\"github.com/aauth-dev/aauth-go\"."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Ref is a tag or commit to read the file at. Empty reads the\ncheckout's working tree."
+        },
+        "path": {
+          "type": "string",
+          "description": "Path is the file's path within the repository."
+        },
+        "region": {
+          "type": "string",
+          "description": "Region is the marked region's name."
+        }
+      },
+      "type": "object",
+      "required": [
+        "repo",
+        "path",
+        "region"
+      ],
+      "description": "SampleSource refers to the code between \"pidl:begin <region>\" and \"pidl:end <region>\" markers, in comments, in a file of a repository."
+    }
+  },
+  "title": "PIDL Sample Set",
+  "description": "Code samples an implementation keeps apart from a protocol document, each attached to a step by its address, read by `pidl samples` and `pidl generate --samples`."
+}

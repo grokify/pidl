@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/grokify/pidl"
 )
@@ -27,15 +28,25 @@ func cmdSamples(args []string, stdout, stderr io.Writer) int {
 	usage := func(w io.Writer) {
 		fmt.Fprint(w, `Usage: pidl samples <resolve|check> [options] <file>
 
+<file> is a PIDL document whose steps carry samples, or a sample set
+(format pidl-samples/v1): samples an implementation keeps apart from the
+document, each attached to a step by its address.
+
 Resolve reads every sample source (a marked region of a file in a
-repository) and writes the code and its SHA-256 to a lock file beside the
-document. Check fails when a source is not resolved, its region is
-missing, or its code changed since it was resolved.
+repository) and records the code and its SHA-256: for a document, in a
+lock file beside it; for a sample set, in the set itself. Check fails when
+a source is not resolved, its region is missing, or its code changed since
+it was resolved.
 
 Options:
-  --root <dir>   Directory holding repository checkouts at <root>/<repo>
-                 (default: $GOPATH/src or ~/go/src)
-  --lock <file>  Lock file (default: <file without .json>.samples.json)
+  --root <dir>       Directory holding repository checkouts at <root>/<repo>
+                     (default: $GOPATH/src or ~/go/src)
+  --lock <file>      Document lock file (default: <file without .json>.samples.json)
+  --repo-dir <dir>   Read every source from this checkout instead of
+                     <root>/<repo>, such as the repository a sample set
+                     lives in (use . in its own CI)
+  --protocol <file>  With a sample set: also check that every step address
+                     names a step of this document
 `)
 	}
 	if len(args) == 0 {
@@ -57,6 +68,8 @@ Options:
 	fs.SetOutput(stderr)
 	root := fs.String("root", defaultSamplesRoot(), "Directory holding repository checkouts")
 	lockPath := fs.String("lock", "", "Lock file")
+	protocolPath := fs.String("protocol", "", "Document a sample set's addresses must name steps of")
+	repoDir := fs.String("repo-dir", "", "Read every source from this checkout")
 	fs.Usage = func() { usage(stderr) }
 	if err := fs.Parse(args[1:]); err != nil {
 		return flagExitCode(err)
@@ -65,8 +78,24 @@ Options:
 		usage(stderr)
 		return 1
 	}
-	filename := fs.Arg(0)
-	p, err := pidl.ParseFile(filename)
+	filename := filepath.Clean(fs.Arg(0))
+	data, err := os.ReadFile(filename) //nolint:gosec // G304, G703: the path is a command-line argument
+	if err != nil {
+		fmt.Fprintf(stderr, "Error reading %s: %v\n", filename, err)
+		return 1
+	}
+	read := pidl.LocalSourceReader(*root)
+	if *repoDir != "" {
+		read = pidl.CheckoutSourceReader(*repoDir)
+	}
+	if pidl.IsSampleSet(data) {
+		return samplesSet(sub, filename, data, *protocolPath, read, stdout, stderr)
+	}
+	if *protocolPath != "" {
+		fmt.Fprintln(stderr, "--protocol applies only to a sample set")
+		return 1
+	}
+	p, err := pidl.Parse(data)
 	if err != nil {
 		fmt.Fprintf(stderr, "Error parsing %s: %v\n", filename, err)
 		return 1
@@ -78,8 +107,6 @@ Options:
 	if *lockPath == "" {
 		*lockPath = pidl.SampleLockPath(filename)
 	}
-	read := pidl.LocalSourceReader(*root)
-
 	if sub == "resolve" {
 		lock, err := p.ResolveSamples(read)
 		if err != nil {
@@ -112,4 +139,88 @@ Options:
 	}
 	fmt.Fprintf(stdout, "%d sample sources match %s\n", len(lock.Samples), *lockPath)
 	return 0
+}
+
+// samplesSet resolves or checks a sample set.
+func samplesSet(sub, filename string, data []byte, protocolPath string, read pidl.SourceReader, stdout, stderr io.Writer) int {
+	set, err := pidl.ParseSampleSet(data)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error parsing %s: %v\n", filename, err)
+		return 1
+	}
+	if errs := set.Validate(); errs.HasErrors() {
+		fmt.Fprintf(stderr, "Validation errors in %s:\n%s", filename, errs)
+		return 1
+	}
+	if sub == "resolve" {
+		if err := set.Resolve(read); err != nil {
+			fmt.Fprintf(stderr, "Error resolving samples:\n%v\n", err)
+			return 1
+		}
+		if err := set.WriteFile(filename); err != nil {
+			fmt.Fprintf(stderr, "Error writing %s: %v\n", filename, err)
+			return 1
+		}
+		fmt.Fprintf(stdout, "Resolved %d samples in %s\n", len(set.Samples), filename)
+		return 0
+	}
+
+	problems := set.Check(read)
+	if protocolPath != "" {
+		p, err := pidl.ParseFile(protocolPath)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error parsing %s: %v\n", protocolPath, err)
+			return 1
+		}
+		if _, err := p.WithSampleSet(set); err != nil {
+			problems = append(problems, strings.Split(err.Error(), "\n")...)
+		}
+	}
+	for _, pr := range problems {
+		fmt.Fprintln(stderr, pr)
+	}
+	if len(problems) > 0 {
+		return 1
+	}
+	fmt.Fprintf(stdout, "%d samples in %s are current\n", len(set.Samples), filename)
+	return 0
+}
+
+// applySamples joins samples to a document for generation. Each file is a
+// lock for the document's own sample sources or a sample set. With no
+// files, the document's conventional lock applies when it exists.
+func applySamples(p *pidl.Protocol, docPath string, files []string) (*pidl.Protocol, error) {
+	if len(files) == 0 {
+		lock, err := pidl.ReadSampleLock(pidl.SampleLockPath(docPath))
+		switch {
+		case err == nil:
+			return p.WithSamples(lock), nil
+		case os.IsNotExist(err):
+			return p, nil
+		default:
+			return nil, err
+		}
+	}
+	for _, path := range files {
+		data, err := os.ReadFile(filepath.Clean(path)) //nolint:gosec // G304, G703: the path is a command-line argument
+		if err != nil {
+			return nil, err
+		}
+		if pidl.IsSampleSet(data) {
+			set, err := pidl.ParseSampleSet(data)
+			if err != nil {
+				return nil, fmt.Errorf("%s: %w", path, err)
+			}
+			if p, err = p.WithSampleSet(set); err != nil {
+				return nil, fmt.Errorf("%s: %w", path, err)
+			}
+			continue
+		}
+		lock, err := pidl.ParseSampleLock(data)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", path, err)
+		}
+		p = p.WithSamples(lock)
+	}
+	return p, nil
 }

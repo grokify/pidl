@@ -149,18 +149,33 @@ type SourceReader func(repo, ref, path string) ([]byte, error)
 // root/<repo>. With a ref it reads the file at that ref through git.
 func LocalSourceReader(root string) SourceReader {
 	return func(repo, ref, path string) ([]byte, error) {
-		dir := filepath.Join(root, filepath.FromSlash(repo))
-		if ref == "" {
-			return os.ReadFile(filepath.Join(dir, filepath.FromSlash(path))) // #nosec G304 -- paths come from the document's sample sources
-		}
-		cmd := exec.Command("git", "-C", dir, "show", ref+":"+path) // #nosec G204 -- arguments are passed without a shell
-		var stderr bytes.Buffer
-		cmd.Stderr = &stderr
-		out, err := cmd.Output()
-		if err != nil {
-			return nil, fmt.Errorf("git show %s:%s in %s: %w: %s", ref, path, dir, err, strings.TrimSpace(stderr.String()))
-		}
-		return out, nil
+		return readCheckout(filepath.Join(root, filepath.FromSlash(repo)), ref, path)
+	}
+}
+
+// readCheckout reads path from the checkout in dir, at ref when it is not
+// empty.
+func readCheckout(dir, ref, path string) ([]byte, error) {
+	if ref == "" {
+		return os.ReadFile(filepath.Join(dir, filepath.FromSlash(path))) // #nosec G304 -- paths come from validated sample sources
+	}
+	cmd := exec.Command("git", "-C", dir, "show", ref+":"+path) // #nosec G204 -- arguments are passed without a shell
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("git show %s:%s in %s: %w: %s", ref, path, dir, err, strings.TrimSpace(stderr.String()))
+	}
+	return out, nil
+}
+
+// CheckoutSourceReader reads every repository's files from one checkout,
+// dir, whatever the repository: for samples whose sources all live in the
+// repository at hand. With a ref it reads the file at that ref through
+// git.
+func CheckoutSourceReader(dir string) SourceReader {
+	return func(_, ref, path string) ([]byte, error) {
+		return readCheckout(dir, ref, path)
 	}
 }
 
@@ -414,7 +429,7 @@ func validateSamples(field string, samples []Sample, entityIDs map[string]bool) 
 		if s.Code == "" && s.Source == nil {
 			errs = append(errs, ValidationError{Field: sf, Message: "set code or source"})
 		}
-		if s.Role != "" && !entityIDs[s.Role] {
+		if s.Role != "" && entityIDs != nil && !entityIDs[s.Role] {
 			errs = append(errs, ValidationError{Field: sf + ".role", Message: fmt.Sprintf("unknown entity %q", s.Role)})
 		}
 		if src := s.Source; src != nil {
