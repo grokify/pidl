@@ -13,6 +13,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	oscfs "github.com/grokify/oscompat/fs"
 )
 
 // Sample is code that sends or handles a step's message, such as a Go SDK
@@ -419,7 +421,9 @@ func validateSamples(field string, samples []Sample, entityIDs map[string]bool) 
 			if src.Repo == "" {
 				errs = append(errs, ValidationError{Field: sf + ".source.repo", Message: "required"})
 			}
-			if src.Path == "" || filepath.IsAbs(src.Path) || strings.Contains(src.Path, "..") {
+			// A repository path uses forward slashes on every platform, so it is
+			// checked the same way everywhere, not with filepath.IsAbs.
+			if oscfs.ValidateSlashPath(src.Path) != nil {
 				errs = append(errs, ValidationError{Field: sf + ".source.path", Message: "required, relative, and within the repository"})
 			}
 			if !regionNamePattern.MatchString(src.Region) {
