@@ -8,6 +8,7 @@ on:
     paths:
       - 'viewer/**'
       - 'render/viewer/**'
+      - 'schema/walkthrough.schema.json'
       - '.github/workflows/viewer.yaml'
   pull_request:
     branches:
@@ -15,6 +16,7 @@ on:
     paths:
       - 'viewer/**'
       - 'render/viewer/**'
+      - 'schema/walkthrough.schema.json'
       - '.github/workflows/viewer.yaml'
   workflow_dispatch:
 
@@ -32,7 +34,11 @@ jobs:
           cache: npm
           cache-dependency-path: viewer/package-lock.json
       - run: npm ci
+      - run: npm run types
+      - name: Generated types are current
+        run: git diff --exit-code -- src/walkthrough.gen.ts || (echo "src/walkthrough.gen.ts is out of date; run npm run types and commit it" && exit 1)
       - run: npm test
       - run: npm run build:embed
+      - run: npm run build:lib
       - name: Committed viewer build is current
         run: git diff --exit-code -- ../render/viewer/viewer.html || (echo "render/viewer/viewer.html is out of date; run go generate ./render and commit it" && exit 1)

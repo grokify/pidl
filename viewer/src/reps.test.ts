@@ -11,7 +11,7 @@ const signed = step(1, {
   example: { ...req, samples: [{ language: "go", code: "c.Do(req)" }, { language: "python", source: { repo: "r", path: "p", region: "x" } }] },
 });
 const ok = step(2, { response: true, example: { ...res, samples: [{ language: "typescript", code: "await r.json()" }] } });
-const w: Walkthrough = { id: "x", name: "X", roles: [], scenarios: [{ position: 1, id: "s", name: "S", participants: [], steps: [signed, ok] }] };
+const w: Walkthrough = { format: "pidl-walkthrough/v1", language: "en-US", id: "x", name: "X", roles: [], scenarios: [{ position: 1, id: "s", name: "S", participants: [], steps: [signed, ok] }] };
 
 describe("representations", () => {
   it("lists HTTP, cURL, then sample languages in order of appearance", () => {

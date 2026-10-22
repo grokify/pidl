@@ -63,6 +63,7 @@ nav:
     - Phases: guide/phases.md
     - Scenarios: guide/scenarios.md
     - Walkthrough Viewer: guide/viewer.md
+    - Embedding the Viewer: guide/embedding.md
     - Postman Collections: guide/postman.md
     - Annotations: guide/annotations.md
     - Alternatives: guide/alternatives.md
@@ -72,6 +73,7 @@ nav:
   - Reference:
     - Specification: SPECIFICATION.md
     - CLI Reference: reference/cli.md
+    - Walkthrough Format: reference/walkthrough-format.md
     - Go Library: reference/library.md
   - Examples:
     - Overview: examples/index.md

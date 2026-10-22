@@ -675,7 +675,7 @@ Formats:
 | `token-table` | Markdown table of tokens, checkers and claims (whole file) |
 | `outline` | Markdown outline of roles, scenarios and tokens (whole file) |
 | `outline-json` | The outline as JSON (whole file) |
-| `walkthrough-json` | Expanded scenarios with examples and findings, for viewers (whole file) |
+| `walkthrough-json` | A [walkthrough](https://github.com/grokify/pidl/blob/main/docs/reference/walkthrough-format.md) (`pidl-walkthrough/v1`): expanded scenarios with examples and findings, for viewers (whole file) |
 | `viewer` | Self-contained HTML walkthrough viewer (whole file) |
 
 ### examples

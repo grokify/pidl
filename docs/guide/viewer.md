@@ -9,6 +9,8 @@ open aauth.html
 
 The output is one self-contained HTML file. It needs no server and no network, so it can be emailed, attached to an issue or opened straight from disk.
 
+To show walkthroughs inside other pages, such as a docs site, load the viewer from a CDN instead: see [Embedding the Viewer](embedding.md).
+
 ## The Page
 
 | Area | Shows |
@@ -47,7 +49,7 @@ A request's response appears only when you reach it, so the walkthrough reveals 
 
 ## Data
 
-The viewer reads the walkthrough produced by `pidl generate -f walkthrough-json`: every scenario with fragments expanded, each step's example, and analyzer findings attached to the steps they concern (SEC016, flow provenance, is left out). Use that format to build other viewers.
+The viewer reads a [walkthrough](../reference/walkthrough-format.md) (`pidl-walkthrough/v1`), the format `pidl generate -f walkthrough-json` produces: every scenario with fragments expanded, each step's example, and analyzer findings attached to the steps they concern (SEC016, flow provenance, is left out). Use that format to build other viewers.
 
 ## Developing the Viewer
 
@@ -60,6 +62,7 @@ npm run data       # write public/walkthrough.json from the AAuth example
 npm run dev        # http://localhost:5173
 npm test
 npm run build:embed  # rebuild render/viewer/viewer.html for the Go binary
+npm run build:lib    # build the embeddable viewer into dist-lib/
 ```
 
 `go generate ./render` runs the same build. CI fails when the committed `render/viewer/viewer.html` does not match a fresh build.

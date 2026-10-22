@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "./components/Card";
 import { Stage } from "./components/Stage";
 import { MessagePanel } from "./components/MessagePanel";
@@ -9,14 +10,18 @@ import { TopBar } from "./components/TopBar";
 import { usePosition } from "./hooks/usePosition";
 import { usePrefs } from "./hooks/usePrefs";
 import { useWidth } from "./hooks/useWidth";
+import { PAGE_HOST, type Host } from "./host";
 import { exchangeFor } from "./nav";
 import { representations } from "./reps";
 import type { Walkthrough } from "./types";
 
-export default function App({ walkthrough }: { walkthrough: Walkthrough }) {
-  const { scenario, step, goTo, selectScenario } = usePosition(walkthrough);
+export default function App({ walkthrough, host = PAGE_HOST }: { walkthrough: Walkthrough; host?: Host }) {
+  // An embedded viewer takes keys only while it has focus.
+  const [root, setRoot] = useState<HTMLDivElement | null>(null);
+  const keyTarget = host.keys === "page" ? window : root;
+  const { scenario, step, goTo, selectScenario } = usePosition(walkthrough, host.hash, keyTarget);
   const { ref, width } = useWidth<HTMLDivElement>(900);
-  const prefs = usePrefs();
+  const prefs = usePrefs(keyTarget, host.page);
   const reps = representations(walkthrough);
   const rep = reps.includes(prefs.rep) ? prefs.rep : reps[0];
   const repProps = { reps, rep, onRep: prefs.setRep };
@@ -28,10 +33,17 @@ export default function App({ walkthrough }: { walkthrough: Walkthrough }) {
   const involvesPerson = active ? isPerson(active.from) || isPerson(active.to) : false;
 
   return (
+    <div
+      className="pidl-viewer"
+      ref={setRoot}
+      data-theme={prefs.theme === "auto" ? undefined : prefs.theme}
+      tabIndex={host.keys === "element" ? 0 : undefined}
+    >
     <Stage on={prefs.present}>
     <div className="app">
       <TopBar
         walkthrough={walkthrough}
+        source={host.source}
         scenario={scenario}
         onScenario={selectScenario}
         theme={prefs.theme}
@@ -87,5 +99,6 @@ export default function App({ walkthrough }: { walkthrough: Walkthrough }) {
       </main>
     </div>
     </Stage>
+    </div>
   );
 }

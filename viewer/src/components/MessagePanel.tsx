@@ -90,13 +90,13 @@ export function MessagePanel({ kind, step, roles, tokens, reps, rep, onRep }: Pr
                   {t.label && <span className="token-label">{t.label}</span>}
                   {checks.size > 0 && <span className="token-checks">{name(step.to)} checks {checks.size} claims</span>}
                 </div>
-                {t.header && (
+                {t.header != null && (
                   <>
                     <div className="token-part">Header</div>
                     <JsonView value={t.header} />
                   </>
                 )}
-                {t.payload && (
+                {t.payload != null && (
                   <>
                     <div className="token-part">Claims</div>
                     <JsonView value={t.payload} highlight={checks} />

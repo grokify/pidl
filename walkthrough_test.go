@@ -1,7 +1,9 @@
 package pidl
 
 import (
+	"encoding/json"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -89,5 +91,19 @@ func TestWalkthroughLegacy(t *testing.T) {
 	}
 	if s := w.Scenarios[0].Steps[1]; s.Location != "flows[1]" || len(s.Findings) != 1 {
 		t.Errorf("legacy step = %+v", s)
+	}
+}
+
+func TestWalkthroughFormat(t *testing.T) {
+	w := exampleProtocol().Walkthrough(nil)
+	if w.Format != WalkthroughFormat {
+		t.Fatalf("format = %q, want %q", w.Format, WalkthroughFormat)
+	}
+	data, err := json.Marshal(w)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasPrefix(string(data), `{"format":"pidl-walkthrough/v1",`) {
+		t.Errorf("format is not the first field: %.60s", data)
 	}
 }

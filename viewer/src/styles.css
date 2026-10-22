@@ -1,5 +1,18 @@
-:root {
+/* The viewer's root element. Everything is set here rather than on the
+   page, so the same rules work in the standalone page and inside the
+   shadow root of an embedded viewer, where inherited page styles stop. */
+:host {
+  display: block;
+  height: 720px;
+}
+.pidl-viewer {
+  height: 100%;
   font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
   --bg: #ffffff;
   --panel: #f6f7f9;
   --text: #1d2433;
@@ -22,7 +35,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  .pidl-viewer:not([data-theme="light"]) {
     --bg: #0f1420;
     --panel: #161d2c;
     --text: #e4e7ec;
@@ -42,7 +55,7 @@
     --border: #283246;
   }
 }
-:root[data-theme="dark"] {
+.pidl-viewer[data-theme="dark"] {
   --bg: #0f1420;
   --panel: #161d2c;
   --text: #e4e7ec;
@@ -62,9 +75,8 @@
   --border: #283246;
 }
 
-body {
-  margin: 0;
-  background: var(--bg);
+.pidl-viewer:focus {
+  outline: none;
 }
 
 .load-error {
@@ -194,12 +206,7 @@ body {
   fill: #fff;
 }
 
-/* Page layout */
-html,
-body,
-#root {
-  height: 100%;
-}
+/* Layout */
 .app {
   display: flex;
   flex-direction: column;
@@ -577,6 +584,7 @@ body,
 .stage-viewport {
   position: fixed;
   inset: 0;
+  z-index: 2147483000;
   display: flex;
   align-items: center;
   justify-content: center;

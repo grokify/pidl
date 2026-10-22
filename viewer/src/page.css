@@ -1,0 +1,20 @@
+/* The standalone viewer page: the viewer fills the window. */
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+}
+html {
+  background: #ffffff;
+}
+html[data-theme="dark"] {
+  background: #0f1420;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    background: #0f1420;
+  }
+}

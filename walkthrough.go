@@ -6,11 +6,17 @@ import (
 	"slices"
 )
 
+// WalkthroughFormat identifies the walkthrough format and its major
+// version. Within a major version, changes only add optional fields.
+const WalkthroughFormat = "pidl-walkthrough/v1"
+
 // Walkthrough is a protocol prepared for step-by-step presentation: roles
 // in entities order and, for each scenario in output order, its steps with
 // fragments expanded in place. Viewers render it without needing PIDL's
 // include, ordering or analysis rules.
 type Walkthrough struct {
+	// Format names the format and its major version, "pidl-walkthrough/v1".
+	Format      string `json:"format"`
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
@@ -112,7 +118,7 @@ func (p *Protocol) Walkthrough(findings []Finding) Walkthrough {
 	}
 
 	o := p.Outline()
-	w := Walkthrough{ID: o.ID, Name: o.Name, Description: o.Description, Roles: o.Roles, Groups: p.Groups,
+	w := Walkthrough{Format: WalkthroughFormat, ID: o.ID, Name: o.Name, Description: o.Description, Roles: o.Roles, Groups: p.Groups,
 		Language: p.SourceLanguage(), Pronunciations: p.Pronunciations, Scenarios: []WalkthroughScenario{}, Findings: general}
 
 	if !p.HasScenarios() {

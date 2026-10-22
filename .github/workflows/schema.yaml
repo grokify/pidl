@@ -1,0 +1,38 @@
+name: Walkthrough Schema
+permissions:
+  contents: read
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.go'
+      - 'schema/**'
+      - '.github/workflows/schema.yaml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**.go'
+      - 'schema/**'
+      - '.github/workflows/schema.yaml'
+  workflow_dispatch:
+
+# The schema is generated from the Go types by a separate module,
+# schema/gen, which the shared Go workflows do not run.
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: schema/gen
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: schema/gen/go.mod
+          cache-dependency-path: schema/gen/go.sum
+      - name: Schema is current and every example validates
+        run: go test ./...
+      - name: Schema is Go-friendly
+        run: go run github.com/grokify/schemakit/cmd/schemakit@v0.6.0 lint --property-case snake_case ../walkthrough.schema.json
