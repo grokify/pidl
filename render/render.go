@@ -13,28 +13,30 @@ import (
 type Format string
 
 const (
-	FormatPlantUML         Format = "plantuml"
-	FormatMermaid          Format = "mermaid"
-	FormatMermaidState     Format = "mermaid-state"
-	FormatMermaidComponent Format = "mermaid-component"
-	FormatMermaidTrust     Format = "mermaid-trust"
-	FormatMarkdownMatrix   Format = "markdown-matrix"
-	FormatDOT              Format = "dot"
-	FormatD2               Format = "d2"
-	FormatD2Flow           Format = "d2-flow"
-	FormatD2Arch           Format = "d2-arch"
-	FormatSVG              Format = "svg"
-	FormatSVGAnimated      Format = "svg-animated"
-	FormatSVGNetwork       Format = "svg-network"
-	FormatSVGComponent     Format = "svg-component"
-	FormatSVGTrust         Format = "svg-trust"
-	FormatInfographic      Format = "infographic"
-	FormatScenarioMatrix   Format = "scenario-matrix"
-	FormatTokenTable       Format = "token-table"
-	FormatOutline          Format = "outline"
-	FormatOutlineJSON      Format = "outline-json"
-	FormatWalkthroughJSON  Format = "walkthrough-json"
-	FormatViewer           Format = "viewer"
+	FormatPlantUML           Format = "plantuml"
+	FormatMermaid            Format = "mermaid"
+	FormatMermaidState       Format = "mermaid-state"
+	FormatMermaidComponent   Format = "mermaid-component"
+	FormatMermaidTrust       Format = "mermaid-trust"
+	FormatMarkdownMatrix     Format = "markdown-matrix"
+	FormatDOT                Format = "dot"
+	FormatD2                 Format = "d2"
+	FormatD2Flow             Format = "d2-flow"
+	FormatD2Arch             Format = "d2-arch"
+	FormatSVG                Format = "svg"
+	FormatSVGAnimated        Format = "svg-animated"
+	FormatSVGNetwork         Format = "svg-network"
+	FormatSVGComponent       Format = "svg-component"
+	FormatSVGTrust           Format = "svg-trust"
+	FormatInfographic        Format = "infographic"
+	FormatScenarioMatrix     Format = "scenario-matrix"
+	FormatTokenTable         Format = "token-table"
+	FormatOutline            Format = "outline"
+	FormatOutlineJSON        Format = "outline-json"
+	FormatWalkthroughJSON    Format = "walkthrough-json"
+	FormatViewer             Format = "viewer"
+	FormatPostman            Format = "postman"
+	FormatPostmanEnvironment Format = "postman-environment"
 )
 
 // String returns the format as a string.
@@ -53,6 +55,10 @@ func (f Format) FileExtension() string {
 		return ".md"
 	case FormatOutlineJSON, FormatWalkthroughJSON:
 		return ".json"
+	case FormatPostman:
+		return ".postman_collection.json"
+	case FormatPostmanEnvironment:
+		return ".postman_environment.json"
 	case FormatViewer:
 		return ".html"
 	case FormatDOT:
@@ -113,8 +119,12 @@ func ParseFormat(s string) (Format, error) {
 		return FormatWalkthroughJSON, nil
 	case "viewer", "html":
 		return FormatViewer, nil
+	case "postman":
+		return FormatPostman, nil
+	case "postman-environment":
+		return FormatPostmanEnvironment, nil
 	default:
-		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table, outline, outline-json, walkthrough-json, viewer", s)
+		return "", fmt.Errorf("unknown format %q: valid formats are plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table, outline, outline-json, walkthrough-json, viewer, postman, postman-environment", s)
 	}
 }
 
@@ -239,6 +249,10 @@ func New(format Format) (Renderer, error) {
 		return NewWalkthroughJSON(), nil
 	case FormatViewer:
 		return NewViewer(), nil
+	case FormatPostman:
+		return NewPostman(PostmanOptions{}), nil
+	case FormatPostmanEnvironment:
+		return &PostmanEnvironmentRenderer{}, nil
 	default:
 		return nil, fmt.Errorf("unknown format: %s", format)
 	}
@@ -287,6 +301,8 @@ func SupportedFormats() []Format {
 		FormatOutlineJSON,
 		FormatWalkthroughJSON,
 		FormatViewer,
+		FormatPostman,
+		FormatPostmanEnvironment,
 	}
 }
 
@@ -307,7 +323,7 @@ func SupportsIncludes(format Format) bool {
 // a single scenario before rendering it.
 func IsDocumentFormat(format Format) bool {
 	switch format {
-	case FormatScenarioMatrix, FormatTokenTable, FormatOutline, FormatOutlineJSON, FormatWalkthroughJSON, FormatViewer:
+	case FormatScenarioMatrix, FormatTokenTable, FormatOutline, FormatOutlineJSON, FormatWalkthroughJSON, FormatViewer, FormatPostman, FormatPostmanEnvironment:
 		return true
 	default:
 		return false

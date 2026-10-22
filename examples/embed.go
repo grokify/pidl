@@ -4,6 +4,7 @@ package examples
 import (
 	"embed"
 	"fmt"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -112,6 +113,15 @@ func Get(name string) (*Example, error) {
 	p, err := pidl.Parse(data)
 	if err != nil {
 		return nil, fmt.Errorf("parsing example %s: %w", name, err)
+	}
+
+	// A composed example extends or imports others in the same set.
+	if p.NeedsResolution() {
+		opts := pidl.DefaultResolveOptions()
+		opts.FS, opts.BasePath = examplesFS, path.Dir(filename)
+		if p, err = p.Resolve(opts); err != nil {
+			return nil, fmt.Errorf("resolving example %s: %w", name, err)
+		}
 	}
 
 	// Embed the code of resolved samples when the example has a lock.

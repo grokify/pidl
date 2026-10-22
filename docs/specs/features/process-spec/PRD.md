@@ -190,6 +190,5 @@ See ROADMAP.md for phased delivery plan.
 
 ## References
 
-- [IDEATION_PROCESSSPEC.md](../../../../IDEATION_PROCESSSPEC.md) - Original ideation conversation
 - [PIDL Specification](../../../SPECIFICATION.md) - Current PIDL spec
 - [VisionSpec](https://github.com/grokify/visionspec) - Target use case

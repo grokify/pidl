@@ -384,4 +384,4 @@ The following are explicitly out of scope for PIDL:
 
 ## Contributing
 
-See [CONTRIBUTING.md](../../CONTRIBUTING.md) for guidelines on contributing to PIDL development.
+To contribute, open an issue or a pull request at [github.com/grokify/pidl](https://github.com/grokify/pidl).
