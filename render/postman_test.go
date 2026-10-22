@@ -61,7 +61,7 @@ func script(it PostmanItem) string {
 }
 
 func TestPostmanSigned(t *testing.T) {
-	c, err := NewPostman(PostmanOptions{Signer: SignerAAuthSandbox}).Collection(aauthProtocol(t))
+	c, err := NewPostman(PostmanOptions{Signer: SignerProxy}).Collection(aauthProtocol(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +81,7 @@ func TestPostmanSigned(t *testing.T) {
 	}
 
 	attest := request(t, fed, "agent-token.attest")
-	if attest.Request.URL != "{{signer_url}}/{{ap_url}}/agent-token" || header(attest, "X-Sandbox-Present") != "jkt-jwt" || header(attest, "Signature-Key") != "" {
+	if attest.Request.URL != "{{signer_url}}/{{ap_url}}/agent-token" || header(attest, "Signature-Key") != "sig=jkt-jwt" || header(attest, "Signature") != "" {
 		t.Errorf("attest = %+v", attest.Request)
 	}
 	if !strings.Contains(script(attest), `pm.collectionVariables.set("agent_token", pm.response.json()["agent_token"]);`) {
@@ -94,8 +94,8 @@ func TestPostmanSigned(t *testing.T) {
 	}
 
 	authorize := request(t, fed, "authorize")
-	if header(authorize, "X-Sandbox-Present") != "person" || header(authorize, "X-Sandbox-Token") != "{{person_token}}" {
-		t.Errorf("authorize presents %q %q", header(authorize, "X-Sandbox-Present"), header(authorize, "X-Sandbox-Token"))
+	if got := header(authorize, "Signature-Key"); got != `sig=jwt;jwt="{{person_token}}"` {
+		t.Errorf("authorize presents %q", got)
 	}
 
 	token := request(t, fed, "auth-token-request")
@@ -121,8 +121,8 @@ func TestPostmanSigned(t *testing.T) {
 	}
 
 	api := request(t, fed, "api-request")
-	if header(api, "X-Sandbox-Present") != "auth" || header(api, "X-Sandbox-Token") != "{{auth_token}}" {
-		t.Errorf("api request presents %q %q", header(api, "X-Sandbox-Present"), header(api, "X-Sandbox-Token"))
+	if got := header(api, "Signature-Key"); got != `sig=jwt;jwt="{{auth_token}}"` {
+		t.Errorf("api request presents %q", got)
 	}
 
 	rm := folder(t, c, "Resource-managed")
@@ -159,14 +159,14 @@ func TestPostmanMock(t *testing.T) {
 }
 
 func TestPostmanJSON(t *testing.T) {
-	out, err := NewPostman(PostmanOptions{Signer: SignerAAuthSandbox}).RenderString(aauthProtocol(t))
+	out, err := NewPostman(PostmanOptions{Signer: SignerProxy}).RenderString(aauthProtocol(t))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if strings.Contains(out, `\u0026`) || strings.Contains(out, `\u003c`) {
 		t.Error("JSON escapes HTML characters")
 	}
-	again, err := NewPostman(PostmanOptions{Signer: SignerAAuthSandbox}).RenderString(aauthProtocol(t))
+	again, err := NewPostman(PostmanOptions{Signer: SignerProxy}).RenderString(aauthProtocol(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -251,7 +251,7 @@ func TestPostmanPetstoreChallenges(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	c, err := NewPostman(PostmanOptions{Signer: SignerAAuthSandbox}).Collection(p)
+	c, err := NewPostman(PostmanOptions{Signer: SignerProxy}).Collection(p)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -262,8 +262,8 @@ func TestPostmanPetstoreChallenges(t *testing.T) {
 
 	// The resource token arrives as a parameter of AAuth-Requirement.
 	asPerson := request(t, order, "order-as-person")
-	if header(asPerson, "X-Sandbox-Present") != "person" || header(asPerson, "X-Sandbox-Token") != "{{person_token}}" {
-		t.Errorf("order as person presents %q %q", header(asPerson, "X-Sandbox-Present"), header(asPerson, "X-Sandbox-Token"))
+	if got := header(asPerson, "Signature-Key"); got != `sig=jwt;jwt="{{person_token}}"` {
+		t.Errorf("order as person presents %q", got)
 	}
 	if s := script(asPerson); !strings.Contains(s, `pm.collectionVariables.set("resource_token", ((pm.response.headers.get("AAuth-Requirement") || "").match(/(?:^|;)\s*resource-token="([^"]*)"/) || [])[1]);`) {
 		t.Errorf("challenge does not capture the resource token:\n%s", s)
@@ -273,8 +273,8 @@ func TestPostmanPetstoreChallenges(t *testing.T) {
 		t.Errorf("token request does not use the captured resource token:\n%s", token.Request.Body.Raw)
 	}
 	withAuth := request(t, order, "order-with-auth")
-	if header(withAuth, "X-Sandbox-Present") != "auth" || header(withAuth, "X-Sandbox-Token") != "{{auth_token}}" {
-		t.Errorf("order with auth presents %q %q", header(withAuth, "X-Sandbox-Present"), header(withAuth, "X-Sandbox-Token"))
+	if got := header(withAuth, "Signature-Key"); got != `sig=jwt;jwt="{{auth_token}}"` {
+		t.Errorf("order with auth presents %q", got)
 	}
 	// The person token is requested for the Petstore, by role URL.
 	person := request(t, order, "person-token.request")
@@ -293,5 +293,59 @@ func TestHeaderParam(t *testing.T) {
 	}
 	if got := headerParam(v, "url"); got != "" {
 		t.Errorf("url = %q", got)
+	}
+}
+
+func TestProxySignatureKey(t *testing.T) {
+	req := func(headers ...pidl.ExampleHeader) *pidl.ExampleRequest {
+		return &pidl.ExampleRequest{Method: "GET", URL: "https://api.example/", Headers: headers}
+	}
+	signed := []pidl.ExampleHeader{{Name: "Signature-Input", Value: `sig=("@method")`}, {Name: "Signature", Value: "sig=:x:"}}
+	tests := []struct {
+		name  string
+		req   *pidl.ExampleRequest
+		token string
+		want  string
+	}{
+		{"jwt with a captured token", req(append(signed, pidl.ExampleHeader{Name: "Signature-Key", Value: `sig=jwt;jwt="eyJ..."`})...), "user_token", `sig=jwt;jwt="{{user_token}}"`},
+		{"jwt without one", req(append(signed, pidl.ExampleHeader{Name: "Signature-Key", Value: `sig=jwt;jwt="eyJ..."`})...), "", "sig=jwt"},
+		{"another label and scheme", req(append(signed, pidl.ExampleHeader{Name: "Signature-Key", Value: `key1=hwk;kty="OKP";x="abc"`})...), "user_token", "key1=hwk"},
+		{"no Signature-Key", req(signed...), "", ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := proxySignatureKey(tt.req, tt.token); got != tt.want {
+				t.Errorf("proxySignatureKey() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+	if !isSigned(req(signed...)) || isSigned(req(pidl.ExampleHeader{Name: "Authorization", Value: "Bearer x"})) {
+		t.Error("isSigned is wrong")
+	}
+}
+
+func TestPostmanProxySendsUnsignedRequestsDirectly(t *testing.T) {
+	c, err := NewPostman(PostmanOptions{Signer: SignerProxy}).Collection(aauthProtocol(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := json.Marshal(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(b), "X-Sandbox") {
+		t.Error("the collection names a particular signer's headers")
+	}
+	for _, f := range c.Item {
+		for _, it := range f.Item {
+			if it.Request == nil || strings.HasPrefix(it.Request.URL, "{{signer_url}}/") {
+				continue
+			}
+			for _, h := range it.Request.Header {
+				if strings.EqualFold(h.Key, "Signature") || strings.EqualFold(h.Key, "Signature-Input") {
+					t.Errorf("%s is signed but sent directly", it.ID)
+				}
+			}
+		}
 	}
 }
