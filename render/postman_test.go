@@ -12,21 +12,38 @@ import (
 	"github.com/grokify/pidl/examples"
 )
 
-func aauthProtocol(t *testing.T) *pidl.Protocol {
+// apiProtocol is the generic worked example, which has every feature the
+// collection renders: browser steps it does not send, chained tokens, a
+// challenge parameter, a deferred response and a signed request.
+func apiProtocol(t *testing.T) *pidl.Protocol {
 	t.Helper()
-	p, err := examples.GetProtocol("aauth_protocol")
+	p, err := examples.GetProtocol("oauth2_api_access")
 	if err != nil {
 		t.Fatal(err)
 	}
 	return p
 }
 
+// folder finds a scenario folder by name prefix, inside group folders.
 func folder(t *testing.T, c *PostmanCollection, prefix string) PostmanItem {
 	t.Helper()
-	for _, f := range c.Item {
-		if strings.HasPrefix(f.Name, prefix) {
-			return f
+	var find func(items []PostmanItem) *PostmanItem
+	find = func(items []PostmanItem) *PostmanItem {
+		for i, f := range items {
+			if f.Request != nil {
+				continue
+			}
+			if strings.HasPrefix(f.Name, prefix) {
+				return &items[i]
+			}
+			if got := find(f.Item); got != nil {
+				return got
+			}
 		}
+		return nil
+	}
+	if f := find(c.Item); f != nil {
+		return *f
 	}
 	t.Fatalf("no folder %q", prefix)
 	return PostmanItem{}
@@ -60,92 +77,94 @@ func script(it PostmanItem) string {
 	return strings.Join(lines, "\n")
 }
 
-func TestPostmanSigned(t *testing.T) {
-	c, err := NewPostman(PostmanOptions{Signer: SignerProxy}).Collection(aauthProtocol(t))
+func TestPostmanCollection(t *testing.T) {
+	c, err := NewPostman(PostmanOptions{Signer: SignerProxy}).Collection(apiProtocol(t))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if c.Info.Schema != PostmanSchema || !regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`).MatchString(c.Info.PostmanID) {
 		t.Fatalf("info = %+v", c.Info)
 	}
-	if len(c.Item) != 5 {
-		t.Fatalf("folders = %d, want the five access modes", len(c.Item))
+	if len(c.Item) != 2 || c.Item[0].Name != "User-delegated access" || c.Item[1].Name != "Service access" {
+		t.Fatalf("top-level folders = %d, want the two groups in order", len(c.Item))
 	}
 
-	fed := folder(t, c, "Federated")
-	if !strings.Contains(fed.Description, "not sent by this collection") || !strings.Contains(fed.Description, "Access Server") {
-		t.Errorf("federated description should list the PS-to-AS steps:\n%s", fed.Description)
+	// Steps between other roles are listed, not sent.
+	code := folder(t, c, "Authorization code")
+	if !strings.Contains(code.Description, "not sent by this collection") || !strings.Contains(code.Description, "GET /authorize") {
+		t.Errorf("authorization code description should list the browser steps:\n%s", code.Description)
 	}
-	if !strings.Contains(script(fed), `"federated-authorization.resource_url"`) {
-		t.Error("federated folder lacks the per-scenario role override")
+	if len(code.Item) != 2 {
+		t.Errorf("authorization code sends %d requests, want the token request and the API call", len(code.Item))
 	}
-
-	attest := request(t, fed, "agent-token.attest")
-	if attest.Request.URL != "{{signer_url}}/{{ap_url}}/agent-token" || header(attest, "Signature-Key") != "sig=jkt-jwt" || header(attest, "Signature") != "" {
-		t.Errorf("attest = %+v", attest.Request)
-	}
-	if !strings.Contains(script(attest), `pm.collectionVariables.set("agent_token", pm.response.json()["agent_token"]);`) {
-		t.Errorf("attest does not capture the agent token:\n%s", script(attest))
-	}
-
-	person := request(t, fed, "person-token.request")
-	if !strings.Contains(person.Request.Body.Raw, `"resource": "{{resource_url}}"`) {
-		t.Errorf("person request body should name the resource by variable:\n%s", person.Request.Body.Raw)
-	}
-
-	authorize := request(t, fed, "authorize")
-	if got := header(authorize, "Signature-Key"); got != `sig=jwt;jwt="{{person_token}}"` {
-		t.Errorf("authorize presents %q", got)
-	}
-
-	token := request(t, fed, "auth-token-request")
-	if !strings.Contains(token.Request.Body.Raw, `"resource_token": "{{resource_token}}"`) || !strings.Contains(token.Request.Body.Raw, `"presented_token": "{{person_token}}"`) {
-		t.Errorf("token request body does not chain tokens:\n%s", token.Request.Body.Raw)
+	token := request(t, code, "token-request")
+	if token.Request.URL != "{{as_url}}/token" || !strings.Contains(token.Request.Body.Raw, "code_verifier=") {
+		t.Errorf("token request = %+v", token.Request)
 	}
 	s := script(token)
-	for _, want := range []string{"if (pm.response.code === 200) {", `setNextRequest("federated-authorization/api-request")`, `pm.collectionVariables.set("location", pm.response.headers.get("Location"));`, "pm.test('status 202'"} {
+	for _, want := range []string{`pm.collectionVariables.set("access_token", pm.response.json()["access_token"]);`, "access_token claims", `"scope","sub"`} {
 		if !strings.Contains(s, want) {
-			t.Errorf("deferred token request script missing %q:\n%s", want, s)
+			t.Errorf("token request script missing %q:\n%s", want, s)
 		}
 	}
+	if got := header(request(t, code, "api-request"), "Authorization"); got != "Bearer {{access_token}}" {
+		t.Errorf("API request Authorization = %q", got)
+	}
 
-	poll := request(t, fed, "consent.poll")
-	if poll.Request.URL != "{{signer_url}}/{{location}}" {
+	// A parameter of a challenge flows into the next request.
+	challenge := folder(t, c, "Client credentials after")
+	if s := script(request(t, challenge, "first-request")); !strings.Contains(s, `pm.collectionVariables.set("scope", ((pm.response.headers.get("WWW-Authenticate") || "").match(/(?:^|[;,\s])\s*scope="([^"]*)"/) || [])[1]);`) {
+		t.Errorf("challenge does not capture the scope:\n%s", s)
+	}
+	if body := request(t, challenge, "token.request").Request.Body.Raw; body != "grant_type=client_credentials&scope={{scope}}" {
+		t.Errorf("token request body = %q, want the captured scope", body)
+	}
+
+	// A deferred response is polled, or the poll is skipped.
+	export := folder(t, c, "Asynchronous export")
+	s = script(request(t, export, "export-request"))
+	for _, want := range []string{"if (pm.response.code === 200) {", `pm.collectionVariables.set("location", pm.response.headers.get("Location"));`, "pm.test('status 202'"} {
+		if !strings.Contains(s, want) {
+			t.Errorf("deferred request script missing %q:\n%s", want, s)
+		}
+	}
+	poll := request(t, export, "export-poll")
+	if poll.Request.URL != "{{location}}" {
 		t.Errorf("poll URL = %q", poll.Request.URL)
 	}
-	s = script(poll)
-	for _, want := range []string{"if (pm.response.code === 202) {", `setNextRequest("federated-authorization/consent.poll")`, `pm.collectionVariables.set("auth_token"`, "auth_token claims"} {
-		if !strings.Contains(s, want) {
-			t.Errorf("poll script missing %q:\n%s", want, s)
+	if s := script(poll); !strings.Contains(s, "if (pm.response.code === 202) {") || !strings.Contains(s, `setNextRequest("async-export/export-poll")`) {
+		t.Errorf("poll script:\n%s", s)
+	}
+	if !strings.Contains(script(export), `"async-export.api_url"`) {
+		t.Error("export folder lacks the per-scenario role override")
+	}
+
+	// A signed request goes through the signing proxy, without the
+	// signature headers it cannot create.
+	signed := request(t, folder(t, c, "Signed request"), "post-message")
+	if signed.Request.URL != "{{signer_url}}/{{api_url}}/messages" {
+		t.Errorf("signed request URL = %q", signed.Request.URL)
+	}
+	for _, h := range []string{"Signature", "Signature-Input", "Content-Digest", "Signature-Key"} {
+		if header(signed, h) != "" {
+			t.Errorf("signed request sends %s", h)
 		}
 	}
-
-	api := request(t, fed, "api-request")
-	if got := header(api, "Signature-Key"); got != `sig=jwt;jwt="{{auth_token}}"` {
-		t.Errorf("api request presents %q", got)
-	}
-
-	rm := folder(t, c, "Resource-managed")
-	session := request(t, rm, "session-request")
-	if header(session, "Authorization") != "AAuth {{aauth_access}}" {
-		t.Errorf("session request Authorization = %q", header(session, "Authorization"))
-	}
-	if len(attest.Response) != 0 {
-		t.Error("signed collection should not carry saved examples")
+	if len(token.Response) != 0 {
+		t.Error("a live collection should not carry saved examples")
 	}
 }
 
 func TestPostmanMock(t *testing.T) {
-	c, err := NewPostman(PostmanOptions{Mock: true}).Collection(aauthProtocol(t))
+	c, err := NewPostman(PostmanOptions{Mock: true}).Collection(apiProtocol(t))
 	if err != nil {
 		t.Fatal(err)
 	}
-	ps := folder(t, c, "PS authorization")
-	authorize := request(t, ps, "authorize")
-	if authorize.Request.URL != "{{resource_url}}/authorize" || header(authorize, "Signature-Key") == "" {
+	authorize := request(t, folder(t, c, "Signed request"), "post-message")
+	if authorize.Request.URL != "{{api_url}}/messages" || header(authorize, "Signature") == "" {
 		t.Errorf("mock request should be direct and keep its example headers: %+v", authorize.Request)
 	}
-	if header(authorize, "x-mock-response-name") != authorize.Name || len(authorize.Response) != 1 || authorize.Response[0].Code != 200 {
+	if header(authorize, "x-mock-response-name") != authorize.Name || len(authorize.Response) != 1 || authorize.Response[0].Code != 201 {
 		t.Fatalf("mock example = %+v", authorize.Response)
 	}
 	if s := script(authorize); strings.Contains(s, "body has") {
@@ -159,14 +178,14 @@ func TestPostmanMock(t *testing.T) {
 }
 
 func TestPostmanJSON(t *testing.T) {
-	out, err := NewPostman(PostmanOptions{Signer: SignerProxy}).RenderString(aauthProtocol(t))
+	out, err := NewPostman(PostmanOptions{Signer: SignerProxy}).RenderString(apiProtocol(t))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if strings.Contains(out, `\u0026`) || strings.Contains(out, `\u003c`) {
 		t.Error("JSON escapes HTML characters")
 	}
-	again, err := NewPostman(PostmanOptions{Signer: SignerProxy}).RenderString(aauthProtocol(t))
+	again, err := NewPostman(PostmanOptions{Signer: SignerProxy}).RenderString(apiProtocol(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -180,7 +199,7 @@ func TestPostmanJSON(t *testing.T) {
 }
 
 func TestPostmanNoClient(t *testing.T) {
-	p := aauthProtocol(t)
+	p := apiProtocol(t)
 	if _, err := NewPostman(PostmanOptions{Client: "nobody"}).Collection(p); err != nil {
 		t.Fatalf("an unknown client yields empty folders, not an error: %v", err)
 	}
@@ -191,13 +210,13 @@ func TestPostmanNoClient(t *testing.T) {
 }
 
 func TestPostmanEnvironment(t *testing.T) {
-	p := aauthProtocol(t)
+	p := apiProtocol(t)
 	path := filepath.Join(t.TempDir(), "targets.json")
 	targets := `{
-  "sandbox": {
+  "local": {
     "signer": "http://127.0.0.1:8099",
-    "roles": {"ap": "https://ap.aauth.test", "ps": "https://ps.aauth.test", "resource": "https://resource.aauth.test", "as": "https://as.aauth.test"},
-    "scenarios": {"federated-authorization": {"resource": "https://docs.aauth.test"}}
+    "roles": {"as": "https://as.local.test", "api": "https://api.local.test"},
+    "scenarios": {"async-export": {"api": "https://exports.local.test"}}
   },
   "bad": {"roles": {"nobody": "https://x.test"}}
 }`
@@ -208,12 +227,12 @@ func TestPostmanEnvironment(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	sandbox := ts["sandbox"]
-	out, err := (&PostmanEnvironmentRenderer{Name: "sandbox", Target: &sandbox}).RenderString(p)
+	local := ts["local"]
+	out, err := (&PostmanEnvironmentRenderer{Name: "local", Target: &local}).RenderString(p)
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{`"key": "ps_url"`, `"value": "https://ps.aauth.test"`, `"key": "federated-authorization.resource_url"`, `"value": "https://docs.aauth.test"`, `"key": "signer_url"`, `"_postman_variable_scope": "environment"`} {
+	for _, want := range []string{`"key": "as_url"`, `"value": "https://as.local.test"`, `"key": "async-export.api_url"`, `"value": "https://exports.local.test"`, `"key": "signer_url"`, `"_postman_variable_scope": "environment"`} {
 		if !strings.Contains(out, want) {
 			t.Errorf("environment missing %s:\n%s", want, out)
 		}
@@ -223,7 +242,7 @@ func TestPostmanEnvironment(t *testing.T) {
 		t.Errorf("bad target error = %v", err)
 	}
 	def, err := (&PostmanEnvironmentRenderer{}).RenderString(p)
-	if err != nil || !strings.Contains(def, "https://ps.example") {
+	if err != nil || !strings.Contains(def, "https://as.example") {
 		t.Errorf("default environment = %v\n%s", err, def)
 	}
 }
@@ -238,48 +257,11 @@ func TestPostmanHelpers(t *testing.T) {
 	if nameUUID("x") != nameUUID("x") || nameUUID("x") == nameUUID("y") {
 		t.Error("nameUUID is not deterministic and distinct")
 	}
-	if got := sanitizeVar("aauth-access"); got != "aauth_access" {
+	if got := sanitizeVar("session-token"); got != "session_token" {
 		t.Errorf("sanitizeVar = %q", got)
 	}
 	if got := nextRequest(""); !strings.Contains(got, "setNextRequest(null)") {
 		t.Errorf("nextRequest(\"\") = %q", got)
-	}
-}
-
-func TestPostmanPetstoreChallenges(t *testing.T) {
-	p, err := examples.GetProtocol("aauth_petstore")
-	if err != nil {
-		t.Fatal(err)
-	}
-	c, err := NewPostman(PostmanOptions{Signer: SignerProxy}).Collection(p)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(c.Item) != 2 {
-		t.Fatalf("folders = %d, want browse and order", len(c.Item))
-	}
-	order := folder(t, c, "Order a pet")
-
-	// The resource token arrives as a parameter of AAuth-Requirement.
-	asPerson := request(t, order, "order-as-person")
-	if got := header(asPerson, "Signature-Key"); got != `sig=jwt;jwt="{{person_token}}"` {
-		t.Errorf("order as person presents %q", got)
-	}
-	if s := script(asPerson); !strings.Contains(s, `pm.collectionVariables.set("resource_token", ((pm.response.headers.get("AAuth-Requirement") || "").match(/(?:^|[;,\s])\s*resource-token="([^"]*)"/) || [])[1]);`) {
-		t.Errorf("challenge does not capture the resource token:\n%s", s)
-	}
-	token := request(t, order, "auth-token-request")
-	if !strings.Contains(token.Request.Body.Raw, `"resource_token": "{{resource_token}}"`) {
-		t.Errorf("token request does not use the captured resource token:\n%s", token.Request.Body.Raw)
-	}
-	withAuth := request(t, order, "order-with-auth")
-	if got := header(withAuth, "Signature-Key"); got != `sig=jwt;jwt="{{auth_token}}"` {
-		t.Errorf("order with auth presents %q", got)
-	}
-	// The person token is requested for the Petstore, by role URL.
-	person := request(t, order, "person-token.request")
-	if !strings.Contains(person.Request.Body.Raw, `"resource": "{{resource_url}}"`) {
-		t.Errorf("person token request body:\n%s", person.Request.Body.Raw)
 	}
 }
 
@@ -293,6 +275,13 @@ func TestHeaderParam(t *testing.T) {
 	}
 	if got := headerParam(v, "url"); got != "" {
 		t.Errorf("url = %q", got)
+	}
+	challenge := `Bearer realm="api.example", error="insufficient_scope", scope="reports.monthly.read"`
+	if got := headerParam(challenge, "realm"); got != "api.example" {
+		t.Errorf("realm = %q", got)
+	}
+	if got := headerParam(challenge, "scope"); got != "reports.monthly.read" {
+		t.Errorf("scope = %q", got)
 	}
 }
 
@@ -325,7 +314,7 @@ func TestProxySignatureKey(t *testing.T) {
 }
 
 func TestPostmanProxySendsUnsignedRequestsDirectly(t *testing.T) {
-	c, err := NewPostman(PostmanOptions{Signer: SignerProxy}).Collection(aauthProtocol(t))
+	c, err := NewPostman(PostmanOptions{Signer: SignerProxy}).Collection(apiProtocol(t))
 	if err != nil {
 		t.Fatal(err)
 	}

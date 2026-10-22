@@ -80,7 +80,7 @@ if err := aauth.SignRequest(req, key); err != nil {
 // sample on a step and a scenario-level source sample.
 func sampledProtocol() *Protocol {
 	p := narratedProtocol()
-	src := &SampleSource{Repo: "github.com/aauth-dev/aauth-go", Path: "examples/walkthrough/agent_test.go", Region: "agent.sign"}
+	src := &SampleSource{Repo: "example.com/sdk", Path: "walkthrough/agent_test.go", Region: "agent.sign"}
 	p.Scenarios[0].Flows[0].Example = &FlowExample{
 		Source: "draft-11", Kind: ExampleKindDerived,
 		Request: &ExampleRequest{Method: "GET", URL: "https://resource.example/"},
@@ -91,7 +91,7 @@ func sampledProtocol() *Protocol {
 	}
 	p.Scenarios[0].Flows[0].Representations["go"] = RepresentationNarration{Narration: Narration{"en-US": "In Go, the SDK signs the request."}}
 	p.Scenarios[0].Samples = []Sample{{Language: "go", Label: "Setup", Source: &SampleSource{
-		Repo: "github.com/aauth-dev/aauth-go", Path: "examples/walkthrough/agent_test.go", Region: "agent.attach"}}}
+		Repo: "example.com/sdk", Path: "walkthrough/agent_test.go", Region: "agent.attach"}}}
 	return p
 }
 
@@ -113,7 +113,7 @@ func TestSamplesValid(t *testing.T) {
 
 func TestResolveCheckApplySamples(t *testing.T) {
 	p := sampledProtocol()
-	files := map[string]string{"github.com/aauth-dev/aauth-go@:examples/walkthrough/agent_test.go": goSource}
+	files := map[string]string{"example.com/sdk@:walkthrough/agent_test.go": goSource}
 	lock, err := p.ResolveSamples(fakeReader(files))
 	if err != nil {
 		t.Fatal(err)
@@ -142,7 +142,7 @@ func TestResolveCheckApplySamples(t *testing.T) {
 	}
 
 	// The source changes after resolving.
-	files["github.com/aauth-dev/aauth-go@:examples/walkthrough/agent_test.go"] = strings.Replace(goSource, `"GET"`, `"POST"`, 1)
+	files["example.com/sdk@:walkthrough/agent_test.go"] = strings.Replace(goSource, `"GET"`, `"POST"`, 1)
 	problems := p.CheckSamples(lock, fakeReader(files))
 	if len(problems) != 1 || !strings.Contains(problems[0], "source changed") {
 		t.Fatalf("after change, CheckSamples = %v", problems)
