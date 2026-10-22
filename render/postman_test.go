@@ -265,7 +265,7 @@ func TestPostmanPetstoreChallenges(t *testing.T) {
 	if got := header(asPerson, "Signature-Key"); got != `sig=jwt;jwt="{{person_token}}"` {
 		t.Errorf("order as person presents %q", got)
 	}
-	if s := script(asPerson); !strings.Contains(s, `pm.collectionVariables.set("resource_token", ((pm.response.headers.get("AAuth-Requirement") || "").match(/(?:^|;)\s*resource-token="([^"]*)"/) || [])[1]);`) {
+	if s := script(asPerson); !strings.Contains(s, `pm.collectionVariables.set("resource_token", ((pm.response.headers.get("AAuth-Requirement") || "").match(/(?:^|[;,\s])\s*resource-token="([^"]*)"/) || [])[1]);`) {
 		t.Errorf("challenge does not capture the resource token:\n%s", s)
 	}
 	token := request(t, order, "auth-token-request")
