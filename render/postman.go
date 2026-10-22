@@ -22,10 +22,15 @@ const PostmanSchema = "https://schema.getpostman.com/json/collection/v2.1.0/coll
 const (
 	// SignerNone sends requests directly, with their example headers.
 	SignerNone = ""
-	// SignerAAuthSandbox sends requests through the AAuth sandbox's
-	// signing helper: the target URL follows the helper's address, and
-	// X-Sandbox-Present and X-Sandbox-Token select the presented token.
-	SignerAAuthSandbox = "aauth-sandbox"
+	// SignerProxy sends requests with HTTP message signatures (RFC 9421)
+	// through a signing proxy at {{signer_url}}: the target URL follows
+	// the proxy's address. Postman cannot sign, so the example's
+	// Signature, Signature-Input and Content-Digest headers are left out
+	// for the proxy to create, and Signature-Key names only how to sign:
+	// its scheme, and for the jwt scheme the token to present when an
+	// earlier response delivered it. Requests without signatures are sent
+	// directly.
+	SignerProxy = "proxy"
 )
 
 // PostmanOptions configure the collection.
@@ -243,7 +248,7 @@ func (r *PostmanRenderer) Collection(p *pidl.Protocol) (*PostmanCollection, erro
 		c.Variable = append(c.Variable, PostmanVariable{Key: role + "_url", Value: roles[role]})
 	}
 	if r.Options.Signer != SignerNone {
-		c.Variable = append(c.Variable, PostmanVariable{Key: "signer_url", Value: "http://127.0.0.1:8099"})
+		c.Variable = append(c.Variable, PostmanVariable{Key: "signer_url", Value: ""})
 	}
 	return c, nil
 }
@@ -561,39 +566,40 @@ func signatureScheme(req *pidl.ExampleRequest) string {
 	return ""
 }
 
-// tokenType returns the typ of a decoded example token.
-func tokenType(st pidl.WalkthroughStep, id string) string {
-	for _, t := range st.Example.Tokens {
-		if t.Token != id {
-			continue
-		}
-		var h struct {
-			Typ string `json:"typ"`
-		}
-		if json.Unmarshal(t.Header, &h) == nil {
-			return h.Typ
+// isSigned reports whether a request carries an HTTP message signature.
+func isSigned(req *pidl.ExampleRequest) bool {
+	for _, h := range req.Headers {
+		switch strings.ToLower(h.Name) {
+		case "signature", "signature-input":
+			return true
 		}
 	}
-	return ""
+	return false
 }
 
-// sandboxPresent maps a request's Signature-Key to the AAuth sandbox
-// helper's X-Sandbox-Present value.
-func sandboxPresent(st pidl.WalkthroughStep) string {
-	switch scheme := signatureScheme(st.Example.Request); scheme {
-	case "hwk", "jkt-jwt":
-		return scheme
-	case "":
-		return "none"
+// labelPattern matches the label of a Signature-Key value, such as "sig".
+var labelPattern = regexp.MustCompile(`^\s*([A-Za-z0-9_-]+)=`)
+
+// proxySignatureKey is the Signature-Key a signing proxy receives: the
+// example's label and scheme, and for the jwt scheme the captured token
+// to present, if any. Without a token the proxy presents its own.
+func proxySignatureKey(req *pidl.ExampleRequest, token string) string {
+	label, scheme := "sig", signatureScheme(req)
+	for _, h := range req.Headers {
+		if strings.EqualFold(h.Name, "Signature-Key") {
+			if m := labelPattern.FindStringSubmatch(h.Value); m != nil {
+				label = m[1]
+			}
+		}
 	}
-	switch tokenType(st, presentedToken(st)) {
-	case "aa-person+jwt":
-		return "person"
-	case "aa-auth+jwt":
-		return "auth"
-	default:
-		return "agent"
+	if scheme == "" {
+		return ""
 	}
+	v := label + "=" + scheme
+	if scheme == "jwt" && token != "" {
+		v += `;jwt="{{` + token + `}}"`
+	}
+	return v
 }
 
 func (r *PostmanRenderer) requestItem(sc pidl.WalkthroughScenario, steps []postmanStep, i int, caps map[int][]capture, roles map[string]string) (PostmanItem, error) {
@@ -635,7 +641,7 @@ func (r *PostmanRenderer) requestItem(sc pidl.WalkthroughScenario, steps []postm
 	}
 
 	req := &PostmanRequest{Method: ex.Method, Header: []PostmanHeader{}, URL: target}
-	signed := r.Options.Signer == SignerAAuthSandbox
+	signed := r.Options.Signer == SignerProxy && isSigned(ex)
 	for _, h := range ex.Headers {
 		if signed && isSignatureHeader(h.Name) {
 			continue
@@ -644,10 +650,12 @@ func (r *PostmanRenderer) requestItem(sc pidl.WalkthroughScenario, steps []postm
 	}
 	if signed {
 		req.URL = "{{signer_url}}/" + target
-		present := sandboxPresent(st)
-		req.Header = append(req.Header, PostmanHeader{Key: "X-Sandbox-Present", Value: present})
-		if tok := presentedToken(st); tok != "" && present != "jkt-jwt" && present != "hwk" && hasCapture(earlier, tok) {
-			req.Header = append(req.Header, PostmanHeader{Key: "X-Sandbox-Token", Value: "{{" + tok + "}}"})
+		tok := presentedToken(st)
+		if !hasCapture(earlier, tok) {
+			tok = ""
+		}
+		if v := proxySignatureKey(ex, tok); v != "" {
+			req.Header = append(req.Header, PostmanHeader{Key: "Signature-Key", Value: v})
 		}
 	}
 	if r.Options.Mock && ps.response != nil {
