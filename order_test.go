@@ -24,7 +24,7 @@ func TestScenarioIDs(t *testing.T) {
 		want      []string
 	}{
 		{"main only", false, []string{"agent-identity", "three-party"}},
-		{"with fragments", true, []string{"agent-identity", "interaction", "three-party"}},
+		{"with fragments", true, []string{"agent-identity", "three-party", "interaction"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

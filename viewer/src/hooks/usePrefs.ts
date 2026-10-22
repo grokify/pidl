@@ -22,7 +22,22 @@ function save(key: string, value: string) {
   }
 }
 
+// loadRep reads the remembered representation, such as "http" or "go".
+function loadRep(): string {
+  try {
+    const v = window.localStorage.getItem("pidl.rep");
+    return v && /^[a-z][a-z0-9+#-]*$/.test(v) ? v : "http";
+  } catch {
+    return "http";
+  }
+}
+
 export function usePrefs() {
+  const [rep, setRepState] = useState<string>(loadRep);
+  const setRep = useCallback((r: string) => {
+    setRepState(r);
+    save("pidl.rep", r);
+  }, []);
   const [theme, setTheme] = useState<Theme>(() => load("pidl.theme", THEMES, "auto"));
   const [present, setPresent] = useState<boolean>(() => load("pidl.present", ["on", "off"] as const, "off") === "on");
 
@@ -49,5 +64,5 @@ export function usePrefs() {
     return () => window.removeEventListener("keydown", onKey);
   }, [togglePresent]);
 
-  return { theme, cycleTheme, present, togglePresent };
+  return { theme, cycleTheme, present, togglePresent, rep, setRep };
 }

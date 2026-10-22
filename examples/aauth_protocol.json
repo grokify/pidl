@@ -298,6 +298,7 @@
           "include": "agent-token"
         },
         {
+          "id": "request",
           "from": "agent",
           "to": "resource",
           "action": "signed_request",
@@ -361,10 +362,35 @@
                 }
               }
             ],
-            "note": "The agent signs every request with the key in the token's cnf; the verifier checks the signature against that key."
+            "note": "The agent signs every request with the key in the token's cnf; the verifier checks the signature against that key.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/agent_identity_test.go",
+                  "region": "agent-identity.request.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Resource",
+                "role": "resource",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/agent_identity_test.go",
+                  "region": "agent-identity.request.resource"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "ok",
           "from": "resource",
           "to": "agent",
           "action": "ok",
@@ -409,6 +435,7 @@
           "include": "agent-token"
         },
         {
+          "id": "request",
           "from": "agent",
           "to": "resource",
           "action": "signed_request",
@@ -471,10 +498,35 @@
                   "exp": 1730303400
                 }
               }
+            ],
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/resource_managed_test.go",
+                  "region": "resource-managed.request.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Resource",
+                "role": "resource",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/resource_managed_test.go",
+                  "region": "resource-managed.request.resource"
+                }
+              }
             ]
           }
         },
         {
+          "id": "interaction-required",
           "from": "resource",
           "to": "agent",
           "action": "interaction_required",
@@ -511,17 +563,61 @@
               "body": {
                 "status": "pending"
               }
-            }
+            },
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/resource_managed_test.go",
+                  "region": "resource-managed.interaction-required.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Resource",
+                "role": "resource",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/resource_managed_test.go",
+                  "region": "resource-managed.interaction-required.resource"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "complete-interaction",
           "from": "person",
           "to": "resource",
           "action": "complete_interaction",
           "label": "Completes the resource's own login and consent",
-          "description": "The person completes the resource's own login and consent, with no person server involved."
+          "description": "The person completes the resource's own login and consent, with no person server involved.",
+          "example": {
+            "source": "draft-11 §4.2.2",
+            "kind": "derived",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Resource",
+                "role": "resource",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/resource_managed_test.go",
+                  "region": "resource-managed.complete-interaction.resource"
+                }
+              }
+            ],
+            "note": "No protocol message: the person acts in a browser. The code shows what the servers and agent run."
+          }
         },
         {
+          "id": "poll",
           "from": "agent",
           "to": "resource",
           "action": "poll",
@@ -583,10 +679,35 @@
                   "exp": 1730303400
                 }
               }
+            ],
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/resource_managed_test.go",
+                  "region": "resource-managed.poll.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Resource",
+                "role": "resource",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/resource_managed_test.go",
+                  "region": "resource-managed.poll.resource"
+                }
+              }
             ]
           }
         },
         {
+          "id": "session-token",
           "from": "resource",
           "to": "agent",
           "action": "session_token",
@@ -622,10 +743,35 @@
                 ]
               }
             },
-            "note": "The session token is opaque to the agent and meaningless without the agent's signature."
+            "note": "The session token is opaque to the agent and meaningless without the agent's signature.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/resource_managed_test.go",
+                  "region": "resource-managed.session-token.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Resource",
+                "role": "resource",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/resource_managed_test.go",
+                  "region": "resource-managed.session-token.resource"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "session-request",
           "from": "agent",
           "to": "resource",
           "action": "session_request",
@@ -694,10 +840,35 @@
                 }
               }
             ],
-            "note": "The signature must cover the authorization header, so the session token cannot be replayed as a bearer token."
+            "note": "The signature must cover the authorization header, so the session token cannot be replayed as a bearer token.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/resource_managed_test.go",
+                  "region": "resource-managed.session-request.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Resource",
+                "role": "resource",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/resource_managed_test.go",
+                  "region": "resource-managed.session-request.resource"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "ok",
           "from": "resource",
           "to": "agent",
           "action": "ok",
@@ -740,6 +911,7 @@
           "include": "person-token"
         },
         {
+          "id": "request",
           "from": "agent",
           "to": "resource",
           "action": "signed_request",
@@ -803,10 +975,35 @@
                 }
               }
             ],
-            "note": "The person token replaces the agent token in Signature-Key. Its cnf is the same key that signs, so verification works as before."
+            "note": "The person token replaces the agent token in Signature-Key. Its cnf is the same key that signs, so verification works as before.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/person_identity_test.go",
+                  "region": "person-identity.request.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Resource",
+                "role": "resource",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/person_identity_test.go",
+                  "region": "person-identity.request.resource"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "ok",
           "from": "resource",
           "to": "agent",
           "action": "ok",
@@ -854,6 +1051,7 @@
           "include": "person-token"
         },
         {
+          "id": "authorize",
           "from": "agent",
           "to": "resource",
           "action": "authorize",
@@ -924,10 +1122,35 @@
                 }
               }
             ],
-            "note": "The signature does not cover this body: Content-Digest is required only toward PS and AS endpoints, unless the resource asks for it through additional_signature_components."
+            "note": "The signature does not cover this body: Content-Digest is required only toward PS and AS endpoints, unless the resource asks for it through additional_signature_components.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.authorize.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Resource",
+                "role": "resource",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.authorize.resource"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "resource-token",
           "from": "resource",
           "to": "agent",
           "action": "resource_token",
@@ -978,10 +1201,24 @@
                 }
               }
             ],
-            "note": "aud is the PS (three-party: the resource has no access server). presented_jti names the person token the agent presented, and agent_jkt is the thumbprint of the agent's key."
+            "note": "aud is the PS (three-party: the resource has no access server). presented_jti names the person token the agent presented, and agent_jkt is the thumbprint of the agent's key.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.resource-token.agent"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "auth-token-request",
           "from": "agent",
           "to": "ps",
           "action": "auth_token_request",
@@ -1111,13 +1348,38 @@
                 }
               }
             ],
-            "note": "The PS checks agent_jkt against the key that signed this request (the agent's), and checks presented_token against the resource token's presented_jti, ps and sub."
+            "note": "The PS checks agent_jkt against the key that signed this request (the agent's), and checks presented_token against the resource token's presented_jti, ps and sub.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.auth-token-request.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Person Server",
+                "role": "ps",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/deployment_test.go",
+                  "region": "ps-authorization.auth-token-request.ps"
+                }
+              }
+            ]
           }
         },
         {
           "include": "consent"
         },
         {
+          "id": "auth-token",
           "from": "ps",
           "to": "agent",
           "action": "auth_token",
@@ -1175,10 +1437,24 @@
                 }
               }
             ],
-            "note": "The PS issues the auth token itself (dwk aauth-person.json). Its exp does not exceed the person token's, so expires_in is shorter than an hour."
+            "note": "The PS issues the auth token itself (dwk aauth-person.json). Its exp does not exceed the person token's, so expires_in is shorter than an hour.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.auth-token.agent"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "api-request",
           "from": "agent",
           "to": "resource",
           "action": "api_request",
@@ -1244,10 +1520,35 @@
                 }
               }
             ],
-            "note": "The resource checks iss, aud, cnf against the signing key, sub and scope."
+            "note": "The resource checks iss, aud, cnf against the signing key, sub and scope.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.api-request.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Resource",
+                "role": "resource",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.api-request.resource"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "ok",
           "from": "resource",
           "to": "agent",
           "action": "ok",
@@ -1294,6 +1595,7 @@
           "include": "person-token"
         },
         {
+          "id": "authorize",
           "from": "agent",
           "to": "resource",
           "action": "authorize",
@@ -1364,10 +1666,35 @@
                 }
               }
             ],
-            "note": "The signature does not cover this body: Content-Digest is required only toward PS and AS endpoints, unless the resource asks for it through additional_signature_components."
+            "note": "The signature does not cover this body: Content-Digest is required only toward PS and AS endpoints, unless the resource asks for it through additional_signature_components.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.authorize.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Resource",
+                "role": "resource",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.authorize.resource"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "resource-token",
           "from": "resource",
           "to": "agent",
           "action": "resource_token",
@@ -1418,10 +1745,24 @@
                 }
               }
             ],
-            "note": "aud is the resource's access server (four-party). presented_jti names the person token the agent presented, and agent_jkt is the thumbprint of the agent's key."
+            "note": "aud is the resource's access server (four-party). presented_jti names the person token the agent presented, and agent_jkt is the thumbprint of the agent's key.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.resource-token.agent"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "auth-token-request",
           "from": "agent",
           "to": "ps",
           "action": "auth_token_request",
@@ -1551,13 +1892,38 @@
                 }
               }
             ],
-            "note": "The PS checks agent_jkt against the key that signed this request (the agent's), and checks presented_token against the resource token's presented_jti, ps and sub."
+            "note": "The PS checks agent_jkt against the key that signed this request (the agent's), and checks presented_token against the resource token's presented_jti, ps and sub.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.auth-token-request.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Person Server",
+                "role": "ps",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/deployment_test.go",
+                  "region": "ps-authorization.auth-token-request.ps"
+                }
+              }
+            ]
           }
         },
         {
           "include": "consent"
         },
         {
+          "id": "federate",
           "from": "ps",
           "to": "as",
           "action": "federate",
@@ -1683,10 +2049,35 @@
                 }
               }
             ],
-            "note": "The PS signs this request with its own key (jwks_uri scheme), but the resource token's agent_jkt is the agent's key thumbprint. §6.7.2 step 2 asks the AS to compare agent_jkt with the key that signed the request, which here is the PS's key, so the check as written fails. The AS can only compare against the agent token's cnf instead."
+            "note": "The PS signs this request with its own key (jwks_uri scheme), but the resource token's agent_jkt is the agent's key thumbprint. §6.7.2 step 2 asks the AS to compare agent_jkt with the key that signed the request, which here is the PS's key, so the check as written fails. The AS can only compare against the agent token's cnf instead.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Person Server",
+                "role": "ps",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/deployment_test.go",
+                  "region": "federated-authorization.federate.ps"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Access Server",
+                "role": "as",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/deployment_test.go",
+                  "region": "federated-authorization.federate.as"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "as-auth-token",
           "from": "as",
           "to": "ps",
           "action": "auth_token",
@@ -1748,6 +2139,7 @@
           }
         },
         {
+          "id": "auth-token",
           "from": "ps",
           "to": "agent",
           "action": "auth_token",
@@ -1805,10 +2197,24 @@
                 }
               }
             ],
-            "note": "The PS returns the AS-issued auth token to the agent on its pending request."
+            "note": "The PS returns the AS-issued auth token to the agent on its pending request.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.auth-token.agent"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "api-request",
           "from": "agent",
           "to": "resource",
           "action": "api_request",
@@ -1873,10 +2279,35 @@
                   "exp": 1730221200
                 }
               }
+            ],
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.api-request.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Resource",
+                "role": "resource",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/ps_authorization_test.go",
+                  "region": "ps-authorization.api-request.resource"
+                }
+              }
             ]
           }
         },
         {
+          "id": "ok",
           "from": "resource",
           "to": "agent",
           "action": "ok",
@@ -1918,6 +2349,7 @@
       "description": "Before anything else, the agent needs an agent token from its agent provider. How it gets one depends on where it runs. This walkthrough shows a web app: the agent keeps a durable key in the browser, made at enrollment after the user signed in, and for each token generates a fresh ephemeral key that the durable key vouches for. Mobile apps follow the same pattern with a hardware-backed key and platform attestation; a self-hosted agent is its own agent provider and simply issues its own token.",
       "flows": [
         {
+          "id": "attest",
           "from": "agent",
           "to": "ap",
           "action": "attest",
@@ -1992,10 +2424,35 @@
                 }
               }
             ],
-            "note": "This is the web app pattern from the AAuth Bootstrap guidance; the endpoint path is the agent provider's own. Enrollment came first: the user signed in and the agent registered its durable key. Other platforms differ: a mobile app keeps its durable key in the Secure Enclave or StrongBox and usually attests it with App Attest or Play Integrity at enrollment; a self-hosted agent publishes its own JWKS and issues its own agent token, with no request at all; workload identity is not yet covered by the guidance."
+            "note": "This is the web app pattern from the AAuth Bootstrap guidance; the endpoint path is the agent provider's own. Enrollment came first: the user signed in and the agent registered its durable key. Other platforms differ: a mobile app keeps its durable key in the Secure Enclave or StrongBox and usually attests it with App Attest or Play Integrity at enrollment; a self-hosted agent publishes its own JWKS and issues its own agent token, with no request at all; workload identity is not yet covered by the guidance.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/agent_token_test.go",
+                  "region": "agent-token.attest.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Agent Provider",
+                "role": "ap",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/agent_token_test.go",
+                  "region": "agent-token.attest.ap"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "agent-token",
           "from": "ap",
           "to": "agent",
           "action": "agent_token",
@@ -2051,7 +2508,31 @@
                 }
               }
             ],
-            "note": "The agent token binds the ephemeral key (cnf) to the agent's identifier (sub). Neither draft defines this response's format; agent providers define their own. Bootstrap guidance suggests about an hour as a typical lifetime; 24 hours is the protocol's maximum."
+            "note": "The agent token binds the ephemeral key (cnf) to the agent's identifier (sub). Neither draft defines this response's format; agent providers define their own. Bootstrap guidance suggests about an hour as a typical lifetime; 24 hours is the protocol's maximum.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/agent_token_test.go",
+                  "region": "agent-token.agent-token.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Agent Provider",
+                "role": "ap",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/agent_token_test.go",
+                  "region": "agent-token.agent-token.ap"
+                }
+              }
+            ]
           }
         }
       ]
@@ -2063,6 +2544,7 @@
       "description": "The agent asks its person server for a person token for one resource. The token tells that resource which person the agent acts for, using an identifier unique to the resource, and is bound to the agent's key.",
       "flows": [
         {
+          "id": "request",
           "from": "agent",
           "to": "ps",
           "action": "person_token_request",
@@ -2140,10 +2622,35 @@
                 }
               }
             ],
-            "note": "A body sent to a PS must be covered by the signature through Content-Digest and Content-Type (§11.3.3.1). The draft's own example in §7.1 omits them."
+            "note": "A body sent to a PS must be covered by the signature through Content-Digest and Content-Type (§11.3.3.1). The draft's own example in §7.1 omits them.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/person_token_test.go",
+                  "region": "person-token.request.agent"
+                }
+              },
+              {
+                "language": "go",
+                "label": "Person Server",
+                "role": "ps",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/person_token_test.go",
+                  "region": "person-token.request.ps"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "person-token",
           "from": "ps",
           "to": "agent",
           "action": "person_token",
@@ -2211,6 +2718,7 @@
       "description": "When the person server needs the person, it pauses the request with a 202 and an interaction code. The agent sends the person to the PS's consent page, the person approves, and the agent collects the result by polling.",
       "flows": [
         {
+          "id": "interaction-required",
           "from": "ps",
           "to": "agent",
           "action": "interaction_required",
@@ -2248,24 +2756,76 @@
                 "status": "pending"
               }
             },
-            "note": "The PS needs the person before it can issue. The agent sends the person to the interaction URL with the code and polls the Location URL."
+            "note": "The PS needs the person before it can issue. The agent sends the person to the interaction URL with the code and polls the Location URL.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Person Server",
+                "role": "ps",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/consent_test.go",
+                  "region": "consent.interaction-required.ps"
+                }
+              }
+            ]
           }
         },
         {
+          "id": "direct-user",
           "from": "agent",
           "to": "person",
           "action": "direct_user",
           "label": "Open interaction URL with code",
-          "description": "The agent sends the person to the PS's interaction page with the code, opening a browser or showing a link or QR code."
+          "description": "The agent sends the person to the PS's interaction page with the code, opening a browser or showing a link or QR code.",
+          "example": {
+            "source": "draft-11 §7.3",
+            "kind": "derived",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/consent_test.go",
+                  "region": "consent.direct-user.agent"
+                }
+              }
+            ],
+            "note": "No protocol message: the person acts in a browser. The code shows what the servers and agent run."
+          }
         },
         {
+          "id": "approve",
           "from": "person",
           "to": "ps",
           "action": "approve",
           "label": "Review and approve",
-          "description": "The person reviews what is being asked: which agent, which resource, what access, and the agent's stated reason, shown as the agent's claim rather than the PS's. They approve."
+          "description": "The person reviews what is being asked: which agent, which resource, what access, and the agent's stated reason, shown as the agent's claim rather than the PS's. They approve.",
+          "example": {
+            "source": "draft-11 §7.3",
+            "kind": "derived",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Person Server",
+                "role": "ps",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/consent_test.go",
+                  "region": "consent.approve.ps"
+                }
+              }
+            ],
+            "note": "No protocol message: the person acts in a browser. The code shows what the servers and agent run."
+          }
         },
         {
+          "id": "poll",
           "from": "agent",
           "to": "ps",
           "action": "poll",
@@ -2332,7 +2892,20 @@
                 }
               }
             ],
-            "note": "Polling switches to GET on the Location URL and does not resend the original body. Prefer: wait asks the PS to hold the response until it can answer."
+            "note": "Polling switches to GET on the Location URL and does not resend the original body. Prefer: wait asks the PS to hold the response until it can answer.",
+            "samples": [
+              {
+                "language": "go",
+                "label": "Agent",
+                "role": "agent",
+                "source": {
+                  "repo": "github.com/aauth-dev/aauth-go",
+                  "ref": "feat/v0.3.0-walkthrough-samples",
+                  "path": "examples/walkthrough/consent_test.go",
+                  "region": "consent.poll.agent"
+                }
+              }
+            ]
           }
         }
       ]

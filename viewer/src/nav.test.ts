@@ -30,6 +30,17 @@ describe("hash", () => {
     expect(parseHash("", w)).toEqual({ scenarioId: "three-party", step: 0 });
     expect(parseHash("#other", w)).toEqual({ scenarioId: "other", step: 0 });
   });
+  it("reads and writes step IDs", () => {
+    const withIds: Walkthrough = {
+      ...w,
+      scenarios: [{ ...scenario, steps: scenario.steps.map((s, i) => (i === 3 ? { ...s, id: "consent.poll" } : s)) }],
+    };
+    expect(parseHash("#three-party/consent.poll", withIds)).toEqual({ scenarioId: "three-party", step: 4 });
+    expect(parseHash("#three-party/missing", withIds)).toEqual({ scenarioId: "three-party", step: 0 });
+    expect(formatHash({ scenarioId: "three-party", step: 4 }, withIds)).toBe("#three-party/consent.poll");
+    expect(formatHash({ scenarioId: "three-party", step: 2 }, withIds)).toBe("#three-party/2");
+    expect(formatHash({ scenarioId: "three-party", step: 0 }, withIds)).toBe("#three-party/0");
+  });
   it("clamps steps", () => {
     expect(clampStep(scenario, -1)).toBe(0);
     expect(clampStep(scenario, 2.7)).toBe(2);

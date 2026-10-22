@@ -10,12 +10,16 @@ import { usePosition } from "./hooks/usePosition";
 import { usePrefs } from "./hooks/usePrefs";
 import { useWidth } from "./hooks/useWidth";
 import { exchangeFor } from "./nav";
+import { representations } from "./reps";
 import type { Walkthrough } from "./types";
 
 export default function App({ walkthrough }: { walkthrough: Walkthrough }) {
   const { scenario, step, goTo, selectScenario } = usePosition(walkthrough);
   const { ref, width } = useWidth<HTMLDivElement>(900);
   const prefs = usePrefs();
+  const reps = representations(walkthrough);
+  const rep = reps.includes(prefs.rep) ? prefs.rep : reps[0];
+  const repProps = { reps, rep, onRep: prefs.setRep };
   const ex = step > 0 ? exchangeFor(scenario, step - 1) : null;
   const req = ex?.request != null ? scenario.steps[ex.request] : undefined;
   const res = ex?.response != null ? scenario.steps[ex.response] : undefined;
@@ -48,7 +52,7 @@ export default function App({ walkthrough }: { walkthrough: Walkthrough }) {
           <Card title="Request" className="message-card">
             {req ? (
               req.example ? (
-                <MessagePanel kind="request" step={req} roles={walkthrough.roles} tokens={walkthrough.tokens ?? []} />
+                <MessagePanel kind="request" step={req} roles={walkthrough.roles} tokens={walkthrough.tokens ?? []} {...repProps} />
               ) : (
                 <NoExample step={req} roles={walkthrough.roles} />
               )
@@ -63,7 +67,7 @@ export default function App({ walkthrough }: { walkthrough: Walkthrough }) {
           <Card title="Response" className="message-card">
             {res ? (
               res.example ? (
-                <MessagePanel kind="response" step={res} roles={walkthrough.roles} tokens={walkthrough.tokens ?? []} />
+                <MessagePanel kind="response" step={res} roles={walkthrough.roles} tokens={walkthrough.tokens ?? []} {...repProps} />
               ) : (
                 <NoExample step={res} roles={walkthrough.roles} />
               )

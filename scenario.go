@@ -271,13 +271,17 @@ type ScenarioSummary struct {
 	ID           string   `json:"id"`
 	Name         string   `json:"name"`
 	Fragment     bool     `json:"fragment,omitempty"`
+	Group        string   `json:"group,omitempty"`
+	VariantOf    string   `json:"variant_of,omitempty"`
+	VariantLabel string   `json:"variant_label,omitempty"`
 	Participants []string `json:"participants"`
 	Steps        int      `json:"steps"`
 	Includes     []string `json:"includes,omitempty"`
 }
 
-// ScenarioSummaries lists the scenarios in output order: main scenarios in
-// document order, then fragments in document order. Positions match the
+// ScenarioSummaries lists the scenarios in output order (see
+// OrderedScenarios): main scenarios by group with variants after their
+// base, then fragments in document order. Positions match the
 // file numbering used when rendering every scenario.
 func (p *Protocol) ScenarioSummaries() []ScenarioSummary {
 	var out []ScenarioSummary
@@ -287,6 +291,9 @@ func (p *Protocol) ScenarioSummaries() []ScenarioSummary {
 			ID:           sc.ID,
 			Name:         sc.Name,
 			Fragment:     sc.Fragment,
+			Group:        sc.Group,
+			VariantOf:    sc.VariantOf,
+			VariantLabel: sc.VariantLabel,
 			Participants: p.ScenarioParticipants(sc.ID),
 			Steps:        len(sc.Flows),
 		}
@@ -297,15 +304,8 @@ func (p *Protocol) ScenarioSummaries() []ScenarioSummary {
 		}
 		out = append(out, s)
 	}
-	for _, sc := range p.Scenarios {
-		if !sc.Fragment {
-			add(sc)
-		}
-	}
-	for _, sc := range p.Scenarios {
-		if sc.Fragment {
-			add(sc)
-		}
+	for _, i := range p.OrderedScenarios() {
+		add(p.Scenarios[i])
 	}
 	return out
 }
@@ -349,4 +349,47 @@ func (p *Protocol) TokenUsage(id string) (issuedIn, verifiedIn []string) {
 		}
 	}
 	return issuedIn, verifiedIn
+}
+
+// expandedStepIDs returns the step ID of each message step in flows with
+// fragments expanded, in order. A step inside an included fragment is
+// qualified as "<include>.<id>", where <include> is the include step's ID
+// or, without one, the fragment's ID. A step without an ID yields "".
+// seen holds the scenarios being expanded, to stop at an include cycle.
+func (p *Protocol) expandedStepIDs(flows []Flow, prefix string, seen []string) []string {
+	var ids []string
+	for _, f := range flows {
+		if !f.IsInclude() {
+			ids = append(ids, qualifyStepID(prefix, f.ID))
+			continue
+		}
+		frag := p.ScenarioByID(f.Include)
+		if frag == nil || slices.Contains(seen, f.Include) {
+			continue
+		}
+		ids = append(ids, p.expandedStepIDs(frag.Flows, includePrefix(prefix, f), append(slices.Clone(seen), f.Include))...)
+	}
+	return ids
+}
+
+// includePrefix returns the step ID prefix for the flows of include step f.
+func includePrefix(prefix string, f Flow) string {
+	name := f.ID
+	if name == "" {
+		name = f.Include
+	}
+	return qualifyStepID(prefix, name)
+}
+
+// qualifyStepID joins a fragment prefix and a step ID with ".", which flow
+// IDs cannot contain. It returns "" when id is empty.
+func qualifyStepID(prefix, id string) string {
+	switch {
+	case id == "":
+		return ""
+	case prefix == "":
+		return id
+	default:
+		return prefix + "." + id
+	}
 }

@@ -5,7 +5,11 @@ export interface Walkthrough {
   id: string;
   name: string;
   description?: string;
+  // language is the narration source language.
+  language?: string;
+  pronunciations?: Record<string, Record<string, string>>;
   roles: Role[];
+  groups?: Group[];
   scenarios: Scenario[];
   tokens?: TokenDef[];
   findings?: Finding[];
@@ -25,12 +29,48 @@ export interface Scenario {
   name: string;
   description?: string;
   fragment?: boolean;
+  group?: string;
+  variant_of?: string;
+  variant_label?: string;
+  narration?: Narration;
+  briefing?: Briefing;
+  samples?: Sample[];
   participants: string[];
   steps: Step[];
 }
 
+// Narration is spoken text keyed by BCP 47 language tag.
+export type Narration = Record<string, string>;
+
+export interface Briefing {
+  why?: string;
+  points?: string[];
+  narration?: Narration;
+}
+
+export interface Sample {
+  language: string;
+  label?: string;
+  role?: string;
+  // code is inline or resolved from source through the sample lock.
+  code?: string;
+  source?: { repo: string; ref?: string; path: string; region: string };
+}
+
+export interface Group {
+  id: string;
+  name: string;
+  description?: string;
+}
+
 export interface Step {
   number: number;
+  // id is the step's flow ID, "<include>.<id>" inside a fragment.
+  id?: string;
+  narration?: Narration;
+  representations?: Record<string, { narration?: Narration }>;
+  // curl is a curl command equivalent to the example request.
+  curl?: string;
   from: string;
   to: string;
   label: string;
@@ -54,6 +94,7 @@ export interface Example {
   response?: HttpResponse;
   tokens?: ExampleToken[];
   note?: string;
+  samples?: Sample[];
 }
 
 export interface Header {

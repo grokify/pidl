@@ -1,0 +1,285 @@
+{
+  "version": 1,
+  "samples": [
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/agent_identity_test.go",
+      "region": "agent-identity.request.agent",
+      "sha256": "9fa559d6b4d354ea0bc19199076523ffa2af2a56d479103a263fc1cd5d72122f",
+      "code": "token, err := agent.MintToken() // the current agent token, renewed before it expires\nif err != nil {\n\tt.Fatal(err)\n}\nreq, err := http.NewRequestWithContext(ctx, http.MethodGet, resURL+\"/api/documents\", nil)\nif err != nil {\n\tt.Fatal(err)\n}\naauth.AttachSignatureKey(req, token) // Signature-Key: sig=jwt;jwt=\"...\"\nif err := aauth.SignRequest(req, agent.Key, \"\"); err != nil {\n\tt.Fatal(err) // Signature-Input and Signature over method, authority, path and Signature-Key\n}\nres, err := hc.Do(req)\nif err != nil {\n\tt.Fatal(err)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/agent_identity_test.go",
+      "region": "agent-identity.request.resource",
+      "sha256": "ae2a9391863d611a3cbee5d5224c3e58f1dfd077b3d9de229f64ee04307ba00e",
+      "code": "// The signature proves the request comes from the key in cnf.jwk of\n// the agent token; the token, signed by the agent provider, says\n// which agent holds that key.\nagent, err := aauth.VerifyAndExtractAgent(r.Context(), r, aauth.VerifyAgentTokenOptions{\n\tResolver: a.resolver, // agent provider keys, discovered from the token's iss\n})\nif err != nil {\n\taauth.WriteSignatureFailure(w, err) // 401 with Signature-Error\n\treturn\n}\n// Decide on the agent: here, any agent from one provider's domain.\nif !strings.HasSuffix(agent.Subject, \"@agent.example\") {\n\taauth.WriteProblem(w, http.StatusForbidden, aauth.ErrCodeInvalidRequest, \"unknown agent\")\n\treturn\n}\nrespondJSON(w, map[string]string{\"agent\": agent.Subject, \"documents\": \"plan.md, notes.md\"})"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/agent_token_test.go",
+      "region": "agent-token.agent-token.agent",
+      "sha256": "b3e1404af7b7ffb723dbf693ac89df7ab4ffa57e89b6286adc607e4fd12d9e8c",
+      "code": "claims, err := aauth.VerifyAgentToken(ctx, issued.AgentToken, aauth.VerifyAgentTokenOptions{\n\tResolver: aauth.NewJWKSResolver(hc), // the provider's keys, from its metadata\n})\nif err != nil {\n\tt.Fatal(err)\n}\nid, err := aauth.ParseAgentIdentifier(claims.Subject)\nif err != nil {\n\tt.Fatal(err)\n}\n// The agent signs with its own key and presents tokens from the\n// provider, renewed before they expire.\nagent, err := aauth.NewAgent(id, aauth.WithKey(key), aauth.WithPersonServer(claims.PS),\n\taauth.WithTokenSource(apc.TokenSource(func(ctx context.Context) (*agentprovider.TokenResponse, error) {\n\t\treturn apc.Issue(ctx, key, enrollment)\n\t})))\nif err != nil {\n\tt.Fatal(err)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/agent_token_test.go",
+      "region": "agent-token.agent-token.ap",
+      "sha256": "5b463f9d84bac49fe1bdef9afc075bb877e5ab32d5302f9c3e0351108f81572e",
+      "code": "// The provider signs agent tokens with its own key, never an agent's.\nkey, err := aauth.GenerateKey(aauth.AlgEd25519)\nif err != nil {\n\tt.Fatal(err)\n}\nap, err := agentprovider.New(agentprovider.Config{\n\tIssuer:     issuer,\n\tDomain:     \"agent.example\", // agent identifiers are aauth:\u003cname\u003e@agent.example\n\tKey:        key,\n\tRegistrar:  enrollments{ps: ps}, // decides which agent each key is\n\tHTTPClient: hc,\n})\nif err != nil {\n\tt.Fatal(err)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/agent_token_test.go",
+      "region": "agent-token.attest.agent",
+      "sha256": "b1a6302632ca207aab47ceb896dbdce70bf552f7772d3fa9a0043cd8af3bde59",
+      "code": "key, err := aauth.GenerateKey(aauth.AlgEd25519) // or a key held in a platform keystore\nif err != nil {\n\tt.Fatal(err)\n}\napc := \u0026agentprovider.Client{BaseURL: apURL, HTTPClient: hc}\nenrollment := map[string]string{\"device\": \"laptop-42\"}\n// Issue signs the request with the new key under the hwk scheme.\nissued, err := apc.Issue(ctx, key, enrollment)\nif err != nil {\n\tt.Fatal(err)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/agent_token_test.go",
+      "region": "agent-token.attest.ap",
+      "sha256": "d51d7eec3386977744bac206e9c860e59276c2a6c96afcf0bf71fa78a087186f",
+      "code": "var body struct {\n\tDevice string `json:\"device\"`\n}\nif err := json.Unmarshal(req.Body, \u0026body); err != nil || body.Device == \"\" {\n\treturn nil, errors.New(\"enrollment names the device\")\n}\n// A stable local part per install (bootstrap §6), and the person\n// server this agent works with, carried as the ps claim.\nreturn \u0026agentprovider.Registration{Name: \"assistant-\" + body.Device, PS: e.ps}, nil"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/consent_test.go",
+      "region": "consent.approve.ps",
+      "sha256": "4383c7bd4a2f486e1c7e7008a14fb92ba285bf08ff1c055cafda94681c6bfc5a",
+      "code": "p, err := w.ps.ConsumeCodeFor(r.Context(), r.URL.Query().Get(\"code\"), r.RemoteAddr)\nif err != nil {\n\thttp.Error(rw, \"this link has expired or was already used\", http.StatusBadRequest)\n\treturn\n}\n// The code only links this browser to the request: authenticate the\n// person before acting on their decision.\nperson, ok := signedInPerson(r)\nif !ok {\n\thttp.Error(rw, \"sign in first\", http.StatusUnauthorized)\n\treturn\n}\n// After showing what the agent asks for, record the approval.\nif err := w.ps.Approve(r.Context(), p.ID, personserver.Grant{Person: person}); err != nil {\n\thttp.Error(rw, err.Error(), http.StatusConflict)\n\treturn\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/consent_test.go",
+      "region": "consent.direct-user.agent",
+      "sha256": "6e198515bbea5e2667e2c34d46b36e00760cee7f2599546800607bf01bf55ef6",
+      "code": "// When the PS defers for the person, show them where to go. The\n// client keeps polling while they decide.\npsc.OnRequirement = func(r aauth.Requirement) {\n\tif r.Requirement != aauth.RequirementInteraction {\n\t\treturn\n\t}\n\tlink := r.URL + \"?code=\" + url.QueryEscape(r.Code)\n\tshowUser(w, link, r.Code) // open a browser, or print the link and code\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/consent_test.go",
+      "region": "consent.interaction-required.ps",
+      "sha256": "60d94bc1389a69276b8a863c45f7d3f6dbc3e8db38549994505167c118e04a13",
+      "code": "// The PS asks the person before granting access. Deferring with\n// requirement=interaction answers 202 with Location, the\n// interaction URL and a single-use code; the agent polls Location\n// while the person decides at the URL.\nif r.ResourceToken == nil || r.Scope == \"\" {\n\treturn personserver.Deny(\"no scope requested\")\n}\nreturn personserver.DeferInteraction()"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/consent_test.go",
+      "region": "consent.poll.agent",
+      "sha256": "59fb84bc8079e0446d20bdcf1a236953958dedde10326d8c83a524d85c71cb4f",
+      "code": "// The pending URL is polled with GET, re-signed each time. Prefer:\n// wait asks the PS to hold each poll open until something changes,\n// rather than answering at once with another 202.\npsc.PreferWaitSeconds = 10"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/deployment_test.go",
+      "region": "federated-authorization.federate.as",
+      "sha256": "acbbd7b94d04ad25e7d154605e1ba67b834037a05921bf0921e66ffe245494fd",
+      "code": "// The PS has verified the agent and the person; the AS applies the\n// resource's own policy to the resource token the PS sent on.\nif r.Resource.Scope != \"documents:read\" {\n\treturn accessserver.Deny(\"only read access is offered\"), nil\n}\n// Allow issues the auth token that goes back to the PS.\nreturn accessserver.Allow(r.Resource.Scope), nil"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/deployment_test.go",
+      "region": "federated-authorization.federate.ps",
+      "sha256": "bb244735b834928eeeac73a954d2855782a6ca6657fcfeb27787b24b90fca126",
+      "code": "// The PS sends a resource token addressed to an access server on to\n// that server, signing the request under jwks_uri with its own key.\nfed := accessserver.NewClient(ps.Signer(), hc)\nfed.PreferWaitSeconds = 10 // long-poll when the AS defers\nreturn fed"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/deployment_test.go",
+      "region": "ps-authorization.auth-token-request.ps",
+      "sha256": "ad944ed1c571e6584f647a65341ab5cbb90ca674d74bd895005255bc0c16990e",
+      "code": "cfg := personserver.Config{\n\tIssuer:     issuer,\n\tKey:        key,\n\tSubjectKey: subjectKey,\n\tStore:      personserver.NewMemoryStore(),\n\tDecider: personserver.DeciderFunc(func(_ context.Context, r *personserver.TokenRequest) (personserver.Decision, error) {\n\t\tif r.Kind == personserver.KindPersonToken {\n\t\t\treturn decidePersonToken(r), nil\n\t\t}\n\t\treturn decideAuthToken(r), nil\n\t}),\n\tInteractionURL: issuer + \"/consent\", // the page that calls ConsumeCode and Approve\n\tFederator:      fed,                 // auth tokens for resources that chose an access server\n\tHTTPClient:     hc,\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/person_identity_test.go",
+      "region": "person-identity.request.agent",
+      "sha256": "e3116890d8a4a448b164e004d4d07a995939b514562ee9c953a59d44cd2c9989",
+      "code": "req, err := http.NewRequestWithContext(ctx, http.MethodGet, resURL+\"/api/documents\", nil)\nif err != nil {\n\tt.Fatal(err)\n}\n// Present the person token instead of the agent token: it names the\n// person and carries the agent's key, so the same signature works.\naauth.AttachSignatureKey(req, personToken)\nif err := aauth.SignRequest(req, agent.Key, \"\"); err != nil {\n\tt.Fatal(err)\n}\nres, err := hc.Do(req)\nif err != nil {\n\tt.Fatal(err)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/person_identity_test.go",
+      "region": "person-identity.request.resource",
+      "sha256": "9093ad4d1bd08fca778258b7551dd95698d4e87dcf8015c61f85bba549a135f3",
+      "code": "// The person token is addressed to this resource and bound to the\n// key that signed the request.\nperson, err := aauth.VerifyAndExtractPerson(r.Context(), r, p.url, p.verify)\nif err != nil {\n\taauth.WriteSignatureFailure(w, err)\n\treturn\n}\n// sub is unique within its PS only: key the person's record by both.\nif !p.trusted[person.Issuer] {\n\taauth.WriteProblem(w, http.StatusForbidden, aauth.ErrCodeInvalidRequest, \"person server not accepted\")\n\treturn\n}\nrespondJSON(w, map[string]string{\"ps\": person.Issuer, \"person\": person.Subject})"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/person_token_test.go",
+      "region": "person-token.request.agent",
+      "sha256": "e56a6d29f5465484f7a5e1e1c871b1563e7392ba6f8354558c3951ccc45af8c5",
+      "code": "// A person token is issued for one resource: it becomes the token's\n// aud. The client signs the request with the agent token and caches\n// the result until shortly before it expires.\npersonToken, err := psc.PersonToken(ctx, aauth.PersonTokenRequest{Resource: resourceURL})\nif err != nil {\n\tt.Fatal(err)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/person_token_test.go",
+      "region": "person-token.request.ps",
+      "sha256": "5f65c4fa7c4b7ff163ef0f48b8ba91fb59b1a1796e91867cf9d2995310c43ece",
+      "code": "// The person token says which person the agent acts for. This PS\n// enrolled the agent from alice's signed-in session, so an agent it\n// has not bound yet is bound to her; a bound agent keeps its person.\nif r.Person == \"\" {\n\treturn personserver.Allow(personserver.Grant{Person: \"alice\"})\n}\nreturn personserver.Allow(personserver.Grant{})"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/ps_authorization_test.go",
+      "region": "ps-authorization.api-request.agent",
+      "sha256": "9bc9146b4ffc48f50a17d0f466d9a116e9de50c7b4d0aeb54a599478de55fdea",
+      "code": "req, err = http.NewRequestWithContext(ctx, http.MethodGet, res.url+\"/api/documents\", nil)\nif err != nil {\n\tt.Fatal(err)\n}\naauth.AttachSignatureKey(req, at.AuthToken) // present the auth token\nif err := aauth.SignRequest(req, agent.Key, \"\"); err != nil {\n\tt.Fatal(err)\n}\napiRes, err := hc.Do(req)\nif err != nil {\n\tt.Fatal(err)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/ps_authorization_test.go",
+      "region": "ps-authorization.api-request.resource",
+      "sha256": "347fdd01e9613d5b448e462d1d0091b852358ea3e8923f446e6fe9920c7f9f85",
+      "code": "claims, err := aauth.VerifyAndExtractAuth(r.Context(), r, d.url, aauth.AuthTokenVerifyOptions{\n\tTokenVerifyOptions: d.verify,\n\t// Accept tokens only from the server this resource's tokens name,\n\t// and key the person's record by (iss, sub).\n\tCheckSubject: func(_ context.Context, iss, _ string) error {\n\t\tif iss != d.audience {\n\t\t\treturn fmt.Errorf(\"%w: unexpected issuer %s\", aauth.ErrInvalidToken, iss)\n\t\t}\n\t\treturn nil\n\t},\n})\nif err != nil {\n\taauth.WriteSignatureFailure(w, err) // 401 with Signature-Error\n\treturn\n}\nif !strings.Contains(\" \"+claims.Scope+\" \", \" documents:read \") {\n\taauth.WriteProblem(w, http.StatusForbidden, aauth.ErrCodeInvalidScope, \"documents:read is required\")\n\treturn\n}\nrespondJSON(w, map[string]any{\"owner\": claims.Subject, \"documents\": []string{\"plan.md\", \"notes.md\"}})"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/ps_authorization_test.go",
+      "region": "ps-authorization.auth-token-request.agent",
+      "sha256": "3da7e4b21f90761456508a8249a6dac37b9e40c9912ea0abfea0fa9ba10e205f",
+      "code": "// Redeem the resource token with the token presented to get it, and\n// say the agent can bring the person in. The call follows 202\n// responses while the person decides.\nat, err := psc.RequestAuthToken(ctx, aauth.AuthTokenRequest{\n\tResourceToken:     ar.ResourceToken,\n\tPresentedToken:    personToken,\n\tTokenRequestHints: aauth.TokenRequestHints{Capabilities: []string{aauth.CapabilityInteraction}},\n})\nif err != nil {\n\tt.Fatal(err)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/ps_authorization_test.go",
+      "region": "ps-authorization.auth-token.agent",
+      "sha256": "af0b63a05a395e9b2ebb4b0fc736e206e482d11dea18793cca1ede24394d53b7",
+      "code": "// Check the auth token before presenting it: issued by the server the\n// resource token named, for this resource, bound to this agent's key.\ngranted, err := aauth.VerifyAuthTokenResponse(ctx, at.AuthToken, aauth.AuthResponseVerifyOptions{\n\tTokenVerifyOptions: w.verify, Resource: rc, Agent: agent, Presented: personToken,\n})\nif err != nil {\n\tt.Fatal(err)\n}\nt.Logf(\"granted %q until %v\", granted.Scope, granted.ExpiresAt)"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/ps_authorization_test.go",
+      "region": "ps-authorization.authorize.agent",
+      "sha256": "261d771917eb821bf7b869051d3b619b1ac2bdd408ef39b089a1711de5f32d3e",
+      "code": "body, err := json.Marshal(aauth.AuthorizeRequest{Scope: \"documents:read\"})\nif err != nil {\n\tt.Fatal(err)\n}\nreq, err := http.NewRequestWithContext(ctx, http.MethodPost, res.url+\"/authorize\", bytes.NewReader(body))\nif err != nil {\n\tt.Fatal(err)\n}\nreq.Header.Set(\"Content-Type\", \"application/json\")\naauth.AttachSignatureKey(req, personToken) // present the person token\nif err := aauth.SignRequest(req, agent.Key, \"\"); err != nil {\n\tt.Fatal(err) // signs with a Content-Digest of the body\n}\nauthRes, err := hc.Do(req)\nif err != nil {\n\tt.Fatal(err)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/ps_authorization_test.go",
+      "region": "ps-authorization.authorize.resource",
+      "sha256": "c8c67f2a3fa520d04ab2b3f3de20556bcc04b7dca8c80a66e4c8f93788394a47",
+      "code": "// The handler verifies the person token and the request signature,\n// then asks Decide. The resource token it returns names the server\n// that decides: the agent's PS, or this resource's access server.\nreturn \u0026aauth.AuthorizationHandler{\n\tResource: d.url,\n\tVerify:   d.verify, // the PS's keys, discovered from its metadata\n\tDecide: func(_ context.Context, _ *http.Request, person *aauth.PersonClaims, ar aauth.AuthorizeRequest) (aauth.AuthorizeDecision, error) {\n\t\tif ar.Scope != \"documents:read\" {\n\t\t\treturn aauth.AuthorizeDecision{}, \u0026aauth.ProblemError{Status: http.StatusBadRequest, Code: aauth.ErrCodeInvalidScope}\n\t\t}\n\t\trt, err := aauth.IssueResourceToken(aauth.ResourceTokenParams{\n\t\t\tResource: d.url, Audience: d.audience, Scope: ar.Scope,\n\t\t}, person, d.key, d.jwk.Kid)\n\t\treturn aauth.AuthorizeDecision{ResourceToken: rt}, err\n\t},\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/ps_authorization_test.go",
+      "region": "ps-authorization.resource-token.agent",
+      "sha256": "7ae3a621089f2ccf0020a2ef169ca720fdefe29f15a025d210d4d8ccd9e608c0",
+      "code": "var ar aauth.AuthorizeResponse\nif authRes.StatusCode != http.StatusOK {\n\tt.Fatalf(\"authorize: %s\", authRes.Status)\n}\nif err := json.NewDecoder(authRes.Body).Decode(\u0026ar); err != nil {\n\tt.Fatal(err)\n}\n// Check the resource token before sending it to the PS: issued by\n// this resource, for this agent's key, this PS and this person.\nrc, err := aauth.VerifyResourceChallenge(ctx, ar.ResourceToken, aauth.ResourceChallengeOptions{\n\tTokenVerifyOptions: w.verify, Resource: res.url, Agent: agent, PS: agent.PS, Presented: personToken,\n})\nif err != nil {\n\tt.Fatal(err)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/resource_managed_test.go",
+      "region": "resource-managed.complete-interaction.resource",
+      "sha256": "cb36379fd451a09d35b77002fb6f5306923ffb49df0c037a2babf44e85250c9c",
+      "code": "code, err := interactioncode.Canonicalize(r.URL.Query().Get(\"code\"))\nperson, signedIn := signedInPerson(r) // the resource's own login\nif err != nil || !signedIn {\n\thttp.Error(w, \"sign in and use the code your agent showed you\", http.StatusBadRequest)\n\treturn\n}\nl.mu.Lock()\ndefer l.mu.Unlock()\nfor _, p := range l.pending {\n\tif c, err := interactioncode.Canonicalize(p.code); err == nil \u0026\u0026 c == code \u0026\u0026 p.session == \"\" {\n\t\t// The person approved: the session belongs to this agent's key.\n\t\tp.session = randomToken()\n\t\tl.sessions[p.session] = p.agentJKT\n\t\trespondJSON(w, map[string]string{\"approved_by\": person})\n\t\treturn\n\t}\n}\nhttp.Error(w, \"unknown or used code\", http.StatusBadRequest)"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/resource_managed_test.go",
+      "region": "resource-managed.interaction-required.agent",
+      "sha256": "b0c80e575d08bdba71aea100b8d25d15775d7bb3bb71bb615450721daeb7fd77",
+      "code": "// A 202 with requirement=interaction: show the person the URL and\n// code, and poll Location, re-signing each poll, until the resource\n// answers.\nopts := aauth.DeferredOptions{\n\tSign:                sign,\n\tDefaultPollInterval: time.Second,\n\tOnRequirement: func(r aauth.Requirement) {\n\t\tif r.Requirement == aauth.RequirementInteraction {\n\t\t\topenBrowser(w, r.URL+\"?code=\"+url.QueryEscape(r.Code))\n\t\t}\n\t},\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/resource_managed_test.go",
+      "region": "resource-managed.interaction-required.resource",
+      "sha256": "30920295ea55926aab7db17edb30ad07cefbd9b9992839b5d2064bcfdb2e133a",
+      "code": "// Only an agent that declared the interaction capability can bring\n// the person here.\nif !aauth.CanRaise(r, aauth.RequirementInteraction) {\n\taauth.WriteProblem(w, http.StatusForbidden, aauth.TokenErrUserUnreachable, \"the person must approve this agent\")\n\treturn\n}\ncode, err := interactioncode.Generate()\nif err != nil {\n\taauth.WriteProblem(w, http.StatusInternalServerError, aauth.ErrCodeServerError, \"\")\n\treturn\n}\nid := randomToken()\nl.mu.Lock()\nl.pending[id] = \u0026approvalRequest{code: code, agentJKT: agent.Cnf.JWK.Thumbprint()}\nl.mu.Unlock()\n// 202 with Location to poll, and the URL and code for the person.\naauth.ChainInteraction(w, l.url+\"/pending/\"+id, l.url+\"/interact\", code)"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/resource_managed_test.go",
+      "region": "resource-managed.poll.agent",
+      "sha256": "da277b54a644de26face2cafcc566c3888f7e918dddb05646a8c4e36b234523c",
+      "code": "final, err := aauth.FollowDeferred(ctx, hc, req.URL, res, opts)\nif err != nil {\n\tt.Fatal(err)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/resource_managed_test.go",
+      "region": "resource-managed.poll.resource",
+      "sha256": "0ff207b34543f50d088006353f748f4bb6f92a5f563e70331082c2b742dee88d",
+      "code": "agent, err := aauth.VerifyAndExtractAgent(r.Context(), r, aauth.VerifyAgentTokenOptions{Resolver: l.resolver})\nif err != nil {\n\taauth.WriteSignatureFailure(w, err)\n\treturn\n}\nl.mu.Lock()\np := l.pending[strings.TrimPrefix(r.URL.Path, \"/pending/\")]\nl.mu.Unlock()\nif p == nil || p.agentJKT != agent.Cnf.JWK.Thumbprint() {\n\taauth.WriteProblem(w, http.StatusNotFound, aauth.ErrCodeInvalidRequest, \"no such request\")\n\treturn\n}\nif p.session == \"\" { // still waiting for the person\n\tw.Header().Set(aauth.HeaderLocation, l.url+r.URL.Path)\n\tw.Header().Set(aauth.HeaderRetryAfter, \"1\")\n\tw.WriteHeader(http.StatusAccepted)\n\trespondJSON(w, aauth.PendingStatus{Status: \"pending\"})\n\treturn\n}\n// Approved: answer the poll with the session token in AAuth-Access.\naauth.WriteAuthorized(w, \"ledger:read\", p.session)"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/resource_managed_test.go",
+      "region": "resource-managed.request.agent",
+      "sha256": "b430842afc72b3167ccac73a27b3c39165840d48800d783696232c9509c3fb34",
+      "code": "req, err := http.NewRequestWithContext(ctx, http.MethodGet, resURL+\"/api/ledger\", nil)\nif err != nil {\n\tt.Fatal(err)\n}\n// Declare that the agent can bring the person to an interaction URL.\ncaps, err := aauth.FormatCapabilities([]string{aauth.CapabilityInteraction})\nif err != nil {\n\tt.Fatal(err)\n}\nreq.Header.Set(aauth.HeaderCapabilities, caps)\nif err := sign(req); err != nil { // agent token in Signature-Key, then sign\n\tt.Fatal(err)\n}\nres, err := hc.Do(req)\nif err != nil {\n\tt.Fatal(err)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/resource_managed_test.go",
+      "region": "resource-managed.request.resource",
+      "sha256": "a17154d4caae020f20f5e592d1dc722336d27f894a0051dfb5dd40c1fcc57ba8",
+      "code": "agent, err := aauth.VerifyAndExtractAgent(r.Context(), r, aauth.VerifyAgentTokenOptions{Resolver: l.resolver})\nif err != nil {\n\taauth.WriteSignatureFailure(w, err)\n\treturn\n}\n// A request carrying a session token this resource issued is served;\n// any other asks the person first.\nif session := r.Header.Get(aauth.HeaderAAuthAccess); session != \"\" {\n\tl.serveSession(w, session, agent)\n\treturn\n}\nl.requireInteraction(w, r, agent)"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/resource_managed_test.go",
+      "region": "resource-managed.session-request.agent",
+      "sha256": "5603e3c8dc23d9a8e8007cf3426917f0053de9c336beafee491578d970650b5d",
+      "code": "req, err = http.NewRequestWithContext(ctx, http.MethodGet, resURL+\"/api/ledger\", nil)\nif err != nil {\n\tt.Fatal(err)\n}\nreq.Header.Set(aauth.HeaderAAuthAccess, session) // covered by the signature\nif err := sign(req); err != nil {\n\tt.Fatal(err)\n}\nres, err = hc.Do(req)\nif err != nil {\n\tt.Fatal(err)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/resource_managed_test.go",
+      "region": "resource-managed.session-request.resource",
+      "sha256": "81ea051762172f21de235413af446d6a1c891b6704908ee5906b97b85ebbb0a4",
+      "code": "// The session token is only good with the key it was issued to; the\n// signature covers AAuth-Access, so it cannot be moved to another\n// request.\nl.mu.Lock()\njkt, ok := l.sessions[session]\nl.mu.Unlock()\nif !ok || jkt != agent.Cnf.JWK.Thumbprint() {\n\taauth.WriteProblem(w, http.StatusUnauthorized, aauth.ErrCodeInvalidRequest, \"unknown session\")\n\treturn\n}\nrespondJSON(w, map[string]any{\"entries\": []string{\"2026-10-01 coffee 4.50\"}})"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/resource_managed_test.go",
+      "region": "resource-managed.session-token.agent",
+      "sha256": "13647cb7904b1245065ebe5f69d4d9137606aa54099698b8a30607df827e7321",
+      "code": "var authorized aauth.AuthorizeResponse\nif err := json.NewDecoder(final.Body).Decode(\u0026authorized); err != nil {\n\tt.Fatal(err)\n}\ncloseBody(t, final)\n// Keep the session token for later calls; a newer AAuth-Access on any\n// response replaces it.\nsession := final.Header.Get(aauth.HeaderAAuthAccess)\nif final.StatusCode != http.StatusOK || session == \"\" {\n\tt.Fatalf(\"%s %+v without a session token\", final.Status, authorized)\n}"
+    },
+    {
+      "repo": "github.com/aauth-dev/aauth-go",
+      "ref": "feat/v0.3.0-walkthrough-samples",
+      "path": "examples/walkthrough/resource_managed_test.go",
+      "region": "resource-managed.session-token.resource",
+      "sha256": "c0efe169fd2dc0a1d4bb1a368ba355146e307a34290b7d64f11eb12312f483e6",
+      "code": "// Approved: answer the poll with the session token in AAuth-Access.\naauth.WriteAuthorized(w, \"ledger:read\", p.session)"
+    }
+  ]
+}

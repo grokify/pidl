@@ -24,17 +24,86 @@ func (p *Protocol) ScenarioByID(id string) *Scenario {
 	return nil
 }
 
-// ScenarioIDs returns scenario IDs in document order. Fragments are
-// included only when includeFragments is true.
+// ScenarioIDs returns scenario IDs in output order (see OrderedScenarios).
+// Fragments are included only when includeFragments is true.
 func (p *Protocol) ScenarioIDs(includeFragments bool) []string {
 	var ids []string
-	for _, s := range p.Scenarios {
-		if s.Fragment && !includeFragments {
+	for _, i := range p.OrderedScenarios() {
+		if p.Scenarios[i].Fragment && !includeFragments {
 			continue
 		}
-		ids = append(ids, s.ID)
+		ids = append(ids, p.Scenarios[i].ID)
 	}
 	return ids
+}
+
+// GroupByID returns the group with the given ID, or nil.
+func (p *Protocol) GroupByID(id string) *Group {
+	for i := range p.Groups {
+		if p.Groups[i].ID == id {
+			return &p.Groups[i]
+		}
+	}
+	return nil
+}
+
+// OrderedScenarios returns indexes into Scenarios in output order. Main
+// scenarios come first: grouped scenarios in group order, then scenarios
+// without a known group, each in document order within its section, with
+// every variant placed directly after its base in document order. Fragments
+// follow in document order. A file without groups or variants keeps
+// document order.
+func (p *Protocol) OrderedScenarios() []int {
+	index := make(map[string]int, len(p.Scenarios))
+	for i, sc := range p.Scenarios {
+		if _, dup := index[sc.ID]; !dup {
+			index[sc.ID] = i
+		}
+	}
+	// isBase reports whether scenario i is listed on its own rather than
+	// under a base: it is not a variant, or its base is unusable.
+	isBase := func(i int) bool {
+		sc := p.Scenarios[i]
+		if sc.VariantOf == "" {
+			return true
+		}
+		b, ok := index[sc.VariantOf]
+		return !ok || b == i || p.Scenarios[b].Fragment || p.Scenarios[b].VariantOf != ""
+	}
+	variants := map[int][]int{}
+	for i, sc := range p.Scenarios {
+		if !sc.Fragment && !isBase(i) {
+			b := index[sc.VariantOf]
+			variants[b] = append(variants[b], i)
+		}
+	}
+
+	var bases []int
+	placed := make(map[int]bool, len(p.Scenarios))
+	addBases := func(match func(Scenario) bool) {
+		for i, sc := range p.Scenarios {
+			if !sc.Fragment && isBase(i) && !placed[i] && match(sc) {
+				bases = append(bases, i)
+				placed[i] = true
+			}
+		}
+	}
+	for _, g := range p.Groups {
+		addBases(func(sc Scenario) bool { return sc.Group == g.ID })
+	}
+	addBases(func(Scenario) bool { return true })
+
+	out := make([]int, 0, len(p.Scenarios))
+	for _, b := range bases {
+		out = append(out, b)
+		out = append(out, variants[b]...)
+	}
+	for i, sc := range p.Scenarios {
+		if sc.Fragment {
+			out = append(out, i)
+		}
+	}
+	return out
 }
 
 // EntityIndex returns the position of entity id in Entities, or -1.

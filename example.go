@@ -33,6 +33,10 @@ type FlowExample struct {
 	// Tokens are decoded tokens the message carries, in display order.
 	Tokens []ExampleToken `json:"tokens,omitempty"`
 
+	// Samples are code that sends or handles this message, such as SDK
+	// calls, shown beside the HTTP form.
+	Samples []Sample `json:"samples,omitempty"`
+
 	// Note explains anything the reader should notice in this example.
 	Note string `json:"note,omitempty"`
 }

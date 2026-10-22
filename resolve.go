@@ -173,6 +173,11 @@ func (p *Protocol) clone() *Protocol {
 	copy(result.Entities, p.Entities)
 	copy(result.Phases, p.Phases)
 	copy(result.Flows, p.Flows)
+	if len(p.Groups) > 0 {
+		result.Groups = make([]Group, len(p.Groups))
+		copy(result.Groups, p.Groups)
+	}
+	result.Pronunciations = mergePronunciations(nil, p.Pronunciations)
 	if len(p.Scenarios) > 0 {
 		result.Scenarios = make([]Scenario, len(p.Scenarios))
 		copy(result.Scenarios, p.Scenarios)
@@ -244,6 +249,15 @@ func mergeBase(base, derived *Protocol) *Protocol {
 	// replacing the base one in place, then new derived scenarios
 	result.Scenarios = mergeScenarios(base.Scenarios, derived.Scenarios)
 
+	// Merge groups the same way
+	result.Groups = mergeGroups(base.Groups, derived.Groups)
+
+	// Merge pronunciations: derived spoken forms win per term and language
+	result.Pronunciations = mergePronunciations(base.Pronunciations, derived.Pronunciations)
+	if result.ProtocolMeta.Language == "" {
+		result.ProtocolMeta.Language = base.ProtocolMeta.Language
+	}
+
 	// Merge metadata
 	result.Metadata = mergeMetadata(base.Metadata, derived.Metadata)
 
@@ -274,6 +288,55 @@ func mergeScenarios(base, derived []Scenario) []Scenario {
 	for _, sc := range derived {
 		if !used[sc.ID] {
 			out = append(out, sc)
+		}
+	}
+	return out
+}
+
+// mergeGroups keeps base order, replaces base groups that derived
+// redefines in their base position, and appends derived groups that are
+// new.
+func mergeGroups(base, derived []Group) []Group {
+	if len(base) == 0 && len(derived) == 0 {
+		return nil
+	}
+	byID := make(map[string]Group, len(derived))
+	for _, g := range derived {
+		byID[g.ID] = g
+	}
+	out := make([]Group, 0, len(base)+len(derived))
+	used := make(map[string]bool, len(derived))
+	for _, g := range base {
+		if d, ok := byID[g.ID]; ok {
+			out = append(out, d)
+			used[g.ID] = true
+			continue
+		}
+		out = append(out, g)
+	}
+	for _, g := range derived {
+		if !used[g.ID] {
+			out = append(out, g)
+		}
+	}
+	return out
+}
+
+// mergePronunciations returns a new map with base's entries overlaid by
+// over's, per term and language. It returns nil when both are empty.
+func mergePronunciations(base, over map[string]map[string]string) map[string]map[string]string {
+	if len(base) == 0 && len(over) == 0 {
+		return nil
+	}
+	out := make(map[string]map[string]string, len(base)+len(over))
+	for _, m := range []map[string]map[string]string{base, over} {
+		for term, byLang := range m {
+			if out[term] == nil {
+				out[term] = make(map[string]string, len(byLang))
+			}
+			for lang, spoken := range byLang {
+				out[term][lang] = spoken
+			}
 		}
 	}
 	return out
@@ -372,7 +435,11 @@ func mergeImport(target, imported *Protocol, imp ProtocolImport) *Protocol {
 
 	// Import selected scenarios, with the fragments they include
 	if len(imp.Scenarios) > 0 {
-		result.Scenarios = append(result.Scenarios, importScenarios(imported, imp)...)
+		scenarios := importScenarios(imported, imp)
+		result.Scenarios = append(result.Scenarios, scenarios...)
+		result.Groups = appendImportedGroups(result.Groups, imported, imp, scenarios)
+		// The importing document's spoken forms win
+		result.Pronunciations = mergePronunciations(imported.Pronunciations, result.Pronunciations)
 	}
 
 	// Import flows if requested
@@ -438,6 +505,8 @@ func importScenarios(imported *Protocol, imp ProtocolImport) []Scenario {
 		}
 		ns := sc
 		ns.ID = prefix(sc.ID)
+		ns.Group = prefix(sc.Group)
+		ns.VariantOf = prefix(sc.VariantOf)
 		ns.Participants = make([]string, len(sc.Participants))
 		for i, id := range sc.Participants {
 			ns.Participants[i] = prefix(id)
@@ -454,6 +523,31 @@ func importScenarios(imported *Protocol, imp ProtocolImport) []Scenario {
 		out = append(out, ns)
 	}
 	return out
+}
+
+// appendImportedGroups appends the imported groups that the imported
+// scenarios use, with the alias prefix applied, in the imported file's
+// group order. Groups already present are kept as they are.
+func appendImportedGroups(groups []Group, imported *Protocol, imp ProtocolImport, scenarios []Scenario) []Group {
+	used := map[string]bool{}
+	for _, sc := range scenarios {
+		if sc.Group != "" {
+			used[sc.Group] = true
+		}
+	}
+	have := make(map[string]bool, len(groups))
+	for _, g := range groups {
+		have[g.ID] = true
+	}
+	for _, g := range imported.Groups {
+		ng := g
+		ng.ID = imp.Alias + g.ID
+		if used[ng.ID] && !have[ng.ID] {
+			groups = append(groups, ng)
+			have[ng.ID] = true
+		}
+	}
+	return groups
 }
 
 // mergeMetadata merges metadata from base and derived protocols.

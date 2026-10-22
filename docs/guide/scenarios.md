@@ -50,10 +50,39 @@ Replace the top-level `flows` array with a `scenarios` array. Each scenario has 
 Order is never set with numbers. It comes from where things sit in the file:
 
 - **Roles** follow the `entities` array. Diagram columns, tables and outlines all use it. To change the column order of every diagram, move the entity.
-- **Scenarios** follow the `scenarios` array, with fragments listed after the main scenarios.
+- **Scenarios** follow the `scenarios` array, arranged by group when the file declares groups, with variants after their base and fragments last.
 - **Steps** follow each scenario's `flows` array.
 
 A scenario's `participants` list chooses which roles appear. It never reorders them, and validation reports a list that is out of `entities` order.
+
+## Sections, Variants and Step IDs
+
+A complete protocol has many scenarios. Groups put them in sections, variants pair alternative forms of one journey, and step IDs give each step a name that links, samples and narration can rely on:
+
+```json
+{
+  "groups": [
+    {"id": "identity", "name": "Agent identity"},
+    {"id": "access", "name": "Access modes"}
+  ],
+  "scenarios": [
+    {"id": "agent-identity", "name": "Agent identity", "group": "identity", "flows": [
+      {"id": "sign", "from": "agent", "to": "resource", "action": "signed_request"},
+      {"id": "ok", "from": "resource", "to": "agent", "action": "response", "mode": "response"}
+    ]},
+    {"id": "agent-identity-approval", "name": "Agent identity with approval", "group": "identity",
+     "variant_of": "agent-identity", "variant_label": "With user approval", "flows": [ ... ]},
+    {"id": "ps-authorization", "name": "PS authorization", "group": "access", "flows": [
+      {"id": "request", "from": "agent", "to": "resource", "action": "request"},
+      {"id": "consent", "include": "consent"}
+    ]}
+  ]
+}
+```
+
+- **Groups** set the order of sections. `pidl scenarios` lists scenarios under their group's name, and `--all-scenarios` numbers files in the same order.
+- **Variants** follow their base and share its group. Viewers show a variant as a toggle on its base's entry.
+- **Step IDs** are unique within a scenario. A step inside an included fragment is addressed as `<include>.<id>`, for example `consent.approve`, so `#ps-authorization/consent.approve` links to that step in the viewer even after steps are added before it.
 
 ## Shared Steps: Fragments and Includes
 

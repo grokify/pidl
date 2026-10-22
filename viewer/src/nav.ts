@@ -7,20 +7,30 @@ export interface Position {
   step: number;
 }
 
-// parseHash reads "#<scenario-id>/<step>". Unknown scenarios fall back to
-// the first one; steps are clamped to the scenario.
+// parseHash reads "#<scenario-id>/<step>", where <step> is a step number
+// or a step ID. Unknown scenarios fall back to the first one; numbers are
+// clamped to the scenario and unknown step IDs open the overview.
 export function parseHash(hash: string, w: Walkthrough): Position {
   const first = w.scenarios[0]?.id ?? "";
-  const m = /^#?([^/]+)(?:\/(\d+))?$/.exec(decodeURIComponent(hash));
+  const m = /^#?([^/]+)(?:\/([^/]+))?$/.exec(decodeURIComponent(hash));
   const sc = m ? w.scenarios.find((s) => s.id === m[1]) : undefined;
-  if (!sc) {
+  if (!sc || !m) {
     return { scenarioId: first, step: 0 };
   }
-  return { scenarioId: sc.id, step: clampStep(sc, m && m[2] ? Number(m[2]) : 0) };
+  const target = m[2] ?? "";
+  if (/^\d+$/.test(target) || target === "") {
+    return { scenarioId: sc.id, step: clampStep(sc, Number(target)) };
+  }
+  const i = sc.steps.findIndex((s) => s.id === target);
+  return { scenarioId: sc.id, step: i + 1 };
 }
 
-export function formatHash(p: Position): string {
-  return `#${encodeURIComponent(p.scenarioId)}/${p.step}`;
+// formatHash writes the step's ID when it has one, so links survive steps
+// being added or moved, and its number otherwise.
+export function formatHash(p: Position, w?: Walkthrough): string {
+  const sc = w?.scenarios.find((s) => s.id === p.scenarioId);
+  const id = p.step > 0 ? sc?.steps[p.step - 1]?.id : undefined;
+  return `#${encodeURIComponent(p.scenarioId)}/${id ? encodeURIComponent(id) : p.step}`;
 }
 
 export function clampStep(sc: Scenario, step: number): number {

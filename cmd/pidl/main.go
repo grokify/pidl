@@ -79,6 +79,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cmdDebug(rest, stdout, stderr)
 	case "analyze":
 		return cmdAnalyze(rest, stdout, stderr)
+	case "samples":
+		return cmdSamples(rest, stdout, stderr)
 	case "version", "--version", "-v":
 		fmt.Fprintf(stdout, "pidl version %s\n", version)
 		return 0
@@ -116,6 +118,7 @@ Commands:
   debug        Interactive protocol debugger
   analyze      Security analysis of protocol
   scenarios    List scenarios in a PIDL file, in output order
+  samples      Resolve and check code samples from source repositories
   roles        List protocol roles from PIDL files
   components   List deployment components from PIDL files
   trust        List trust relationships from PIDL files
@@ -187,6 +190,7 @@ func cmdGenerate(args []string, stdout, stderr io.Writer) int {
 	fs.SetOutput(stderr)
 	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table, outline, outline-json, walkthrough-json, viewer")
 	output := fs.String("o", "", "Output file (default: stdout)")
+	samplesLock := fs.String("samples", "", "Sample lock file for walkthrough-json and viewer (default: <file without .json>.samples.json, when present)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
 	templateDir := fs.String("template-dir", "", "Path to custom SVG template directory")
 	theme := fs.String("theme", "", "SVG theme (light, dark, auto)")
@@ -319,6 +323,21 @@ Infographic Examples:
 	if errs := p.Validate(); errs.HasErrors() {
 		fmt.Fprintf(stderr, "Validation errors in %s:\n%s", filename, errs)
 		return 1
+	}
+
+	if format == render.FormatWalkthroughJSON || format == render.FormatViewer {
+		lockPath, explicit := *samplesLock, *samplesLock != ""
+		if !explicit {
+			lockPath = pidl.SampleLockPath(filename)
+		}
+		lock, err := pidl.ReadSampleLock(lockPath)
+		switch {
+		case err == nil:
+			p = p.WithSamples(lock)
+		case explicit || !os.IsNotExist(err):
+			fmt.Fprintf(stderr, "Error reading samples %s: %v\n", lockPath, err)
+			return 1
+		}
 	}
 
 	// renderOne renders one protocol (or scenario projection) in the
@@ -1119,15 +1138,38 @@ Examples:
 	fmt.Fprintf(stdout, "Scenarios in %s\n\n", p.ProtocolMeta.Name)
 	fmt.Fprintf(stdout, "%-3s %-24s %-30s %-9s %5s  %s\n", "#", "ID", "NAME", "KIND", "STEPS", "PARTICIPANTS")
 	fmt.Fprintln(stdout, strings.Repeat("-", 100))
+	section := "\x00"
 	for _, s := range summaries {
 		kind := "main"
-		if s.Fragment {
+		switch {
+		case s.Fragment:
 			kind = "fragment"
+		case s.VariantOf != "":
+			kind = "variant"
+		}
+		if len(p.Groups) > 0 {
+			if h := scenarioSection(p, s); h != section {
+				fmt.Fprintf(stdout, "%s\n", h)
+				section = h
+			}
 		}
 		fmt.Fprintf(stdout, "%-3d %-24s %-30s %-9s %5d  %s\n",
 			s.Position, truncate(s.ID, 24), truncate(s.Name, 30), kind, s.Steps, strings.Join(s.Participants, ", "))
 	}
 	return 0
+}
+
+// scenarioSection returns the heading a scenario is listed under when the
+// file declares groups: its group's name, "Other" for main scenarios
+// without a group, or "Fragments".
+func scenarioSection(p *pidl.Protocol, s pidl.ScenarioSummary) string {
+	if s.Fragment {
+		return "Fragments"
+	}
+	if g := p.GroupByID(s.Group); g != nil {
+		return g.Name
+	}
+	return "Other"
 }
 
 func cmdComponents(args []string, stdout, stderr io.Writer) int {

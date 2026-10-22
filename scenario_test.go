@@ -159,7 +159,7 @@ func TestScenarioProjectionErrors(t *testing.T) {
 		opts    ProjectOptions
 		wantErr string
 	}{
-		{"unknown id", scenarioProtocol, "nope", ProjectOptions{}, "unknown scenario \"nope\"; choose one of: agent-identity, interaction, three-party"},
+		{"unknown id", scenarioProtocol, "nope", ProjectOptions{}, "unknown scenario \"nope\"; choose one of: agent-identity, three-party, interaction"},
 		{"no id with scenarios", scenarioProtocol, "", ProjectOptions{}, "choose one of"},
 		{"id on legacy document", func() *Protocol {
 			p := scenarioProtocol()

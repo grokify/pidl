@@ -35,7 +35,9 @@ A PIDL document is a JSON object. It describes either one flow (`flows`) or an o
 | `entities` | Yes | Participants in the protocol, in display order |
 | `phases` | No | Logical grouping of flows |
 | `flows` | One of `flows` or `scenarios` | Interactions between entities, as a single flow |
+| `groups` | No | Ordered navigation sections for scenarios (see [Groups](#groups)) |
 | `scenarios` | One of `flows` or `scenarios` | Named, ordered sequences of flows (see [Scenarios](#scenarios)) |
+| `pronunciations` | No | Spoken forms of terms per language (see [Narration](#narration)) |
 | `metadata` | No | Tokens, networks, components and trust relations |
 
 ## Protocol Metadata
@@ -70,6 +72,7 @@ The `protocol` object contains metadata about the protocol being described.
 | `description` | string | No | Brief description |
 | `category` | enum | No | One of: `auth`, `agent`, `messaging`, `provisioning`, `other` |
 | `references` | array | No | Links to specifications |
+| `language` | string | No | BCP 47 tag of the narration source language (default `en-US`) |
 
 ### Reference Object
 
@@ -210,6 +213,9 @@ Flows are the core semantic unit: directed interactions between entities.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
+| `id` | string | No | Step identifier, unique within its scenario and matching `^[a-z][a-z0-9_-]*$` (see [Step IDs](#step-ids)) |
+| `narration` | object | No | Spoken for this step, by language (see [Narration](#narration)) |
+| `representations` | object | No | Narration overrides for `http` or `curl` |
 | `from` | string | Yes¹ | Source entity ID |
 | `to` | string | Yes¹ | Target entity ID |
 | `action` | string | Yes¹ | Action identifier |
@@ -392,7 +398,40 @@ A document has either `flows` or `scenarios`. A document with `flows` behaves as
 | `description` | string | No | Description of the scenario |
 | `participants` | array | No | Entity IDs to show, in `entities` order. Defaults to the entities the scenario uses, including those of included fragments |
 | `fragment` | boolean | No | Marks a reusable sub-flow that other scenarios include |
+| `group` | string | No | ID of the [group](#groups) the scenario is listed under. Fragments have no group |
+| `variant_of` | string | No | ID of the main scenario this one is a [variant](#variants) of |
+| `variant_label` | string | With `variant_of` | Label for the variant in a toggle, such as "With user approval" |
+| `narration` | object | No | Spoken when the scenario opens, by language (see [Narration](#narration)) |
+| `briefing` | object | No | Why the scenario exists, its key points, and narration for them |
+| `samples` | array | No | Code for the scenario as a whole (see [Samples](#samples)) |
 | `flows` | array | Yes | The scenario's steps, in order |
+
+### Groups
+
+A document MAY declare `groups`, an ordered array of navigation sections, each with an `id`, a `name` and an optional `description`. A scenario names its section with `group`:
+
+```json
+{
+  "groups": [
+    {"id": "identity", "name": "Agent identity"},
+    {"id": "access", "name": "Access modes"}
+  ],
+  "scenarios": [
+    {"id": "agent-identity", "name": "Agent identity", "group": "identity", "flows": [ ... ]},
+    {"id": "ps-authorization", "name": "PS authorization", "group": "access", "flows": [ ... ]}
+  ]
+}
+```
+
+Groups set output order: scenarios in group order, then main scenarios without a group, then fragments (see [Ordering](#ordering)).
+
+### Variants
+
+A variant is another form of the same journey, such as an autonomous flow and the same flow with user approval. It names its base with `variant_of` and a short `variant_label`. A variant shares its base's navigation entry, follows it directly in output order, and sits in the same group. A base cannot itself be a variant or a fragment.
+
+### Step IDs
+
+A flow MAY have an `id`, unique within its scenario. IDs give samples, narration and links a stable target that survives steps being added or moved, unlike step numbers. Inside an expanded scenario, a step from an included fragment is addressed as `<include>.<id>`, where `<include>` is the include step's `id` or, without one, the fragment's ID. A scenario that includes the same fragment twice gives those include steps distinct IDs. Viewers accept `#<scenario>/<step-id>` as well as `#<scenario>/<n>`.
 
 ### Include Steps and Fragments
 
@@ -400,7 +439,7 @@ A step `{"include": "<scenario-id>"}` inserts a fragment's flows at that point. 
 
 Diagram formats draw an include step as a labeled box spanning the fragment's participants (PlantUML `ref over`, a shaded Mermaid `rect`, a D2 group, an SVG box), or inline the fragment's flows when expanded.
 
-Fragments are listed after main scenarios wherever scenarios are numbered, so a deck or file listing shows the journeys first and the shared pieces after them.
+Fragments are listed after main scenarios wherever scenarios are numbered or listed, so a deck or file listing shows the journeys first and the shared pieces after them.
 
 ### Working with One Scenario
 
@@ -419,6 +458,42 @@ Token definitions and flow security can say who checks what, so reviews and gene
 | `verifies` | flow `security` | Token IDs the receiver checks |
 
 `issues` and `verifies` let tools follow a token through a scenario: who it was delivered to, who presents it, and who signs the request that carries it.
+
+## Narration
+
+Narration is text written to be spoken, for autoplay, audio and video. On-screen prose such as `description` often contains identifiers (`agent_jkt`, `aa-auth+jwt`) that read badly aloud, so narration is a separate script.
+
+Every narration value is an object keyed by BCP 47 language tag:
+
+```json
+{
+  "protocol": {"id": "aauth", "name": "AAuth", "language": "en-US"},
+  "pronunciations": {"agent_jkt": {"en-US": "agent J K T"}},
+  "scenarios": [{
+    "id": "agent-identity",
+    "name": "Agent identity",
+    "narration": {"en-US": "The agent proves who it is.", "fr-FR": "L'agent prouve son identité."},
+    "briefing": {
+      "why": "Resources need to know which agent is calling before deciding anything else.",
+      "points": ["Every request is signed", "No server issues a token"],
+      "narration": {"en-US": "Why agent identity comes first."}
+    },
+    "flows": [{
+      "id": "sign",
+      "from": "agent", "to": "resource", "action": "signed_request",
+      "narration": {"en-US": "The agent signs the request with its key."},
+      "representations": {
+        "curl": {"narration": {"en-US": "This curl command replays the signed request."}}
+      }
+    }]
+  }]
+}
+```
+
+- **Source language.** `protocol.language` (default `en-US`) is the language a document is written in. Every narration object includes it, and it is the fallback for any language a narration lacks.
+- **Representations.** A step's `representations` override its narration when the reader views the step as `http`, `curl`, or one of the step's sample languages. The fallback order is: the representation's narration in the chosen language, then in the source language, then the step's own narration in the chosen language, then in the source language, then `description`.
+- **Pronunciations** map a term to its spoken form per language, in the shape videoascode reads, so text-to-speech tools can use them unchanged.
+- **Include steps** carry no narration; their fragment's steps do.
 
 ## Flow Examples
 
@@ -453,19 +528,49 @@ A flow can carry an illustrative message for walkthrough viewers. Examples expla
 |-------|----------|-------------|
 | `source` | Yes | Citation, such as a specification section |
 | `kind` | Yes | `draft`: taken from the source, values aligned to the scenario; `derived`: written from the source's normative text |
-| `request` | One of `request`, `response`, `tokens` | `method`, `url`, ordered `headers` (`name`, `value`) and a JSON `body` |
-| `response` | One of `request`, `response`, `tokens` | `status`, ordered `headers` and a JSON `body` |
-| `tokens` | One of `request`, `response`, `tokens` | Decoded tokens: `token` (a token definition ID), `label`, `header` and `payload` |
+| `request` | One of `request`, `response`, `tokens`, `samples` | `method`, `url`, ordered `headers` (`name`, `value`) and a JSON `body` |
+| `response` | One of `request`, `response`, `tokens`, `samples` | `status`, ordered `headers` and a JSON `body` |
+| `tokens` | One of `request`, `response`, `tokens`, `samples` | Decoded tokens: `token` (a token definition ID), `label`, `header` and `payload` |
 | `note` | No | What the reader should notice |
+| `samples` | One of `request`, `response`, `tokens`, `samples` | Code that sends or handles the message (see [Samples](#samples)). A step with no HTTP message, such as a person approving in a browser, can carry samples alone |
 
 Headers are a list so they keep their order. Include steps cannot carry examples.
+
+**Wire form of a body.** A body is written as JSON for readability. On the wire it is the compact JSON encoding with keys in the order written; a body written as a JSON string is sent as the string's contents, for media types that are not JSON. A `Content-Digest` in an example covers this wire form.
+
+**cURL.** Tools generate an equivalent `curl` command for every example request: the method, the URL, each header in order and the wire body. curl cannot create HTTP message signatures, so a signed request's command replays the example's signature headers and says so in a leading comment.
+
+## Samples
+
+A sample is code that sends or handles a step's message, such as an SDK call, shown beside the HTTP and cURL forms. Flow examples and scenarios carry `samples`:
+
+```json
+"samples": [
+  {"language": "go", "label": "Agent", "role": "agent",
+   "source": {"repo": "github.com/aauth-dev/aauth-go", "ref": "v0.3.0",
+              "path": "examples/walkthrough/federated_test.go", "region": "federated.ps-to-as"}},
+  {"language": "python", "code": "client.request_auth_token(resource_token)"}
+]
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `language` | Yes | Highlighter name, such as `go`, `typescript`, `python` or `csharp`. `http` and `curl` are generated, not samples |
+| `label` | No | Distinguishes samples in one language |
+| `role` | No | Entity ID whose developer writes this code |
+| `code` | `code`, `source` or both | Inline code, or a source's code once resolved |
+| `source` | `code`, `source` or both | `repo`, optional `ref` (tag or commit), `path` within the repository, and `region` |
+
+**Regions.** A source names the code between `pidl:begin <region>` and `pidl:end <region>` markers, written in comments in any syntax. Marker lines of other regions inside it are dropped, common indentation is removed, and blank lines at either end are trimmed. Sources should point at tested files, so samples compile and run with each release of the code they show.
+
+**Lock file.** `pidl samples resolve <file>` reads each source from checkouts under a root directory (default `$GOPATH/src`, at `<root>/<repo>`; with `ref`, the file at that ref) and writes the code and its SHA-256 to `<file without .json>.samples.json`. Generation reads the lock, so outputs never need the source repositories or the network. `pidl samples check <file>` fails when a source is not in the lock, its region is missing, or its code changed since it was resolved; CI runs it to keep samples current.
 
 ## Ordering
 
 Order in PIDL comes from one source: the position of an item in its JSON array. Every output generated from a document (diagrams, tables, outlines, file listings) uses the same order, so presentations, guides and diagrams built from one file agree.
 
 1. **Roles** follow the order of `entities`. Diagram columns, role tables and any other list of entities use this order.
-2. **Scenarios** follow the order of `scenarios`.
+2. **Scenarios** follow the order of `scenarios`, arranged by `groups` when present: grouped scenarios in group order, then main scenarios without a group, with each variant directly after its base, then fragments. Within each section, the order of `scenarios` applies.
 3. **Phases** follow the order of `phases`.
 4. **Messages** follow the order of `flows` (top-level or within a scenario). An include step expands in place.
 5. **Derived lists keep the order of the array they come from.** A subset of entities (such as a scenario's participants or a token's checkers) is listed in `entities` order, never in the order written.
@@ -489,6 +594,11 @@ Numeric ordering fields are not used. The `sequence` field on a flow is deprecat
 9. An include must name a fragment scenario, and includes must not form a cycle
 10. A scenario's `participants` must name known entities, once each, in `entities` order, and must cover every entity the scenario uses
 11. Token and entity references in `verified_by`, `claims`, `signed_by`, `issues` and `verifies` must resolve
+12. Group IDs are unique and match `^[a-z][a-z0-9_-]*$`; a scenario's `group` names a declared group, and fragments have no group
+13. `variant_of` names a main scenario that is not itself a variant, in the same group, and `variant_label` is set exactly when `variant_of` is
+14. Flow IDs match `^[a-z][a-z0-9_-]*$` and are unique within their flow list, and step IDs stay unique once fragments are expanded
+15. Narration keys are BCP 47 language tags with non-empty text, and every narration object includes the source language; representation keys are `http`, `curl` or a sample language on the step; include steps carry no narration
+16. A sample has a language other than `http` and `curl`, `code` or `source` (or both, once resolved), a known `role`, and a source path inside its repository
 
 ## Schema
 
