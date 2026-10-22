@@ -3,8 +3,8 @@
 `pidl generate -f postman` turns a PIDL file into a Postman collection you can run: a folder for each scenario, a request for each step the client role sends, values passed from each response to the next request, and checks on every response. The collection is generated from the same examples the walkthrough viewer shows, so the two agree step for step.
 
 ```bash
-# Requests sent through a signing helper (for signed protocols such as AAuth)
-pidl generate -f postman --signer aauth-sandbox -o aauth.postman_collection.json aauth_protocol
+# Signed requests sent through a signing proxy
+pidl generate -f postman --signer proxy -o aauth.postman_collection.json aauth_protocol
 
 # Requests sent directly, with saved example responses for a Postman mock server
 pidl generate -f postman --mock -o aauth-mock.postman_collection.json aauth_protocol
@@ -22,16 +22,17 @@ pidl generate -f postman --mock -o aauth-mock.postman_collection.json aauth_prot
 | Deferred responses | A request answered `202` with `Location` accepts either the `202` (then the next request polls `{{location}}` until it completes) or the final response (then the poll is skipped) |
 | Folder notes | The scenario's description and narration, and the steps between other roles that the collection does not send |
 
-## Signing Helpers
+## Signing Proxies
 
-Protocols with HTTP message signatures cannot be sent from Postman directly. With `--signer aauth-sandbox`, each request goes to `{{signer_url}}/<target URL>`, and the helper signs it and forwards it. The example's signature headers are left out; instead:
+Postman cannot create HTTP message signatures ([RFC 9421](https://www.rfc-editor.org/rfc/rfc9421)). With `--signer proxy`, each request whose example is signed goes to `{{signer_url}}/<target URL>`, and a signing proxy signs it and forwards it. Requests without signatures are sent directly.
 
-| Header | Meaning |
-|--------|---------|
-| `X-Sandbox-Present` | How to sign: `agent`, `person` or `auth` (present that token), `hwk`, `jkt-jwt`, or `none` |
-| `X-Sandbox-Token` | The token to present, from an earlier response (`{{person_token}}`) |
+| Header | Sent to the proxy |
+|--------|-------------------|
+| `Signature`, `Signature-Input`, `Content-Digest` | Left out; the proxy creates them |
+| `Signature-Key` | How to sign: the example's label and scheme, such as `sig=hwk`. For the `jwt` scheme it also carries the token to present when an earlier response delivered it, `sig=jwt;jwt="{{user_token}}"`; without one, the proxy presents its own |
+| Everything else | As in the example, with chained values |
 
-The AAuth sandbox in [aauth-go](https://github.com/aauth-dev/aauth-go) provides this helper.
+The proxy decides what each token means for its protocol. The AAuth sandbox in [aauth-go](https://github.com/aauth-dev/aauth-go) is such a proxy for AAuth.
 
 ## Environments
 
