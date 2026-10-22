@@ -281,7 +281,7 @@ func TestTruncate(t *testing.T) {
 }
 
 func TestFlagTypes(t *testing.T) {
-	var b boundaryFlags
+	var b repeatedFlag
 	var c categoryFlags
 	for _, v := range []string{"x", "y"} {
 		if err := b.Set(v); err != nil {
