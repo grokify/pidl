@@ -14,7 +14,7 @@ import (
 var dataElement = regexp.MustCompile(`<script type="application/json" id="pidl-walkthrough">(.*?)</script>`)
 
 func TestViewerEmbedsWalkthrough(t *testing.T) {
-	p, err := examples.GetProtocol("aauth_protocol")
+	p, err := examples.GetProtocol("oauth2_api_access")
 	if err != nil {
 		t.Fatalf("GetProtocol: %v", err)
 	}
@@ -22,7 +22,7 @@ func TestViewerEmbedsWalkthrough(t *testing.T) {
 	if err != nil {
 		t.Fatalf("RenderString: %v", err)
 	}
-	if !strings.Contains(page, "<title>AAuth walkthrough</title>") {
+	if !strings.Contains(page, "<title>OAuth 2.0 API Access walkthrough</title>") {
 		t.Error("title not set from the protocol name")
 	}
 	m := dataElement.FindStringSubmatch(page)
@@ -33,7 +33,7 @@ func TestViewerEmbedsWalkthrough(t *testing.T) {
 	if err := json.Unmarshal([]byte(m[1]), &w); err != nil {
 		t.Fatalf("embedded data is not walkthrough JSON: %v", err)
 	}
-	if w.Name != "AAuth" || len(w.Scenarios) != 8 {
+	if w.Name != "OAuth 2.0 API Access" || len(w.Scenarios) != 7 {
 		t.Errorf("embedded walkthrough = %s with %d scenarios", w.Name, len(w.Scenarios))
 	}
 	if render.FormatViewer.FileExtension() != ".html" || !render.IsDocumentFormat(render.FormatViewer) {

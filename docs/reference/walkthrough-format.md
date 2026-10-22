@@ -14,7 +14,7 @@ A walkthrough is self-contained: a reader needs none of PIDL's include, ordering
 ## Producing a Walkthrough
 
 ```bash
-pidl generate -f walkthrough-json -o aauth.walkthrough.json aauth_protocol
+pidl generate -f walkthrough-json -o api.walkthrough.json oauth2_api_access
 ```
 
 From Go, `render.NewWalkthroughJSON().Render(w, protocol)` writes the same JSON, and `protocol.Walkthrough(findings)` returns it as a `pidl.Walkthrough`.
@@ -26,8 +26,8 @@ Name walkthrough files `<name>.walkthrough.json`, so their format is clear witho
 ```json
 {
   "format": "pidl-walkthrough/v1",
-  "id": "aauth-protocol",
-  "name": "AAuth",
+  "id": "oauth2-api-access",
+  "name": "OAuth 2.0 API Access",
   "language": "en-US",
   "roles": [{ "position": 1, "id": "person", "name": "Person" }],
   "scenarios": [

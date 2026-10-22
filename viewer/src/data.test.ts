@@ -40,10 +40,10 @@ describe("load", () => {
   });
   it("fetches src without credentials and uses it as base", async () => {
     const calls: { url: string; init?: RequestInit }[] = [];
-    const got = await load({ src: "../w/aauth.walkthrough.json" }, page, fetchOk(calls));
-    expect(calls[0].url).toBe("https://docs.example.com/w/aauth.walkthrough.json");
+    const got = await load({ src: "../w/api.walkthrough.json" }, page, fetchOk(calls));
+    expect(calls[0].url).toBe("https://docs.example.com/w/api.walkthrough.json");
     expect(calls[0].init?.credentials).toBe("omit");
-    expect(got.base).toBe("https://docs.example.com/w/aauth.walkthrough.json");
+    expect(got.base).toBe("https://docs.example.com/w/api.walkthrough.json");
   });
   it("reports a failed fetch", async () => {
     const notFound = (async () => new Response("", { status: 404 })) as unknown as typeof fetch;

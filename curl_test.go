@@ -74,10 +74,10 @@ curl -X POST 'https://ps.example/token' \
 	}
 }
 
-// TestCurlBodyMatchesDigest checks that every AAuth example whose request
+// TestCurlBodyMatchesDigest checks that every example request in the worked example that
 // carries a Content-Digest produces a curl body with that digest.
 func TestCurlBodyMatchesDigest(t *testing.T) {
-	p, err := ParseFile("examples/aauth_protocol.json")
+	p, err := ParseFile("examples/oauth2_api_access.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,7 +109,7 @@ func TestCurlBodyMatchesDigest(t *testing.T) {
 }
 
 func TestWalkthroughCurl(t *testing.T) {
-	p, err := ParseFile("examples/aauth_protocol.json")
+	p, err := ParseFile("examples/oauth2_api_access.json")
 	if err != nil {
 		t.Fatal(err)
 	}

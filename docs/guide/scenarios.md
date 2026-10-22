@@ -1,23 +1,25 @@
 # Scenarios
 
-Most protocols have more than one journey through the same roles. AAuth has five access modes, from agent identity to federated authorization. OAuth has several grants. Scenarios let one PIDL file describe all of them with one shared list of roles, so every diagram, table and outline generated from the file shows roles and journeys in the same order.
+Most protocols have more than one journey through the same roles. OAuth has several grants; AAuth has five access modes, from agent identity to federated authorization. Scenarios let one PIDL file describe all of them with one shared list of roles, so every diagram, table and outline generated from the file shows roles and journeys in the same order.
 
-The built-in `aauth_protocol` example is used throughout this page:
+The built-in `oauth2_api_access` example is used throughout this page:
 
 ```bash
-pidl scenarios aauth_protocol
+pidl scenarios oauth2_api_access
 ```
 
 ```text
 #   ID                       NAME                           KIND      STEPS  PARTICIPANTS
-1   agent-identity           Agent identity                 main          3  ap, agent, resource
-2   resource-managed         Resource-managed access (tw... main          8  person, ap, agent, resource
-3   person-identity          Person identity                main          4  ap, agent, resource, ps
-4   ps-authorization         PS authorization (three-party) main          9  person, ap, agent, resource, ps
-5   federated-authorization  Federated authorization (fo... main         11  person, ap, agent, resource, ps, as
-6   agent-token              Obtain agent token             fragment      2  ap, agent
-7   person-token             Obtain person token            fragment      2  agent, ps
-8   consent                  User consent                   fragment      4  person, agent, ps
+User-delegated access
+1   authorization-code       Authorization code with PKCE   main          8  user, client, as, api
+Service access
+2   client-credentials       Client credentials             main          2  client, as, api
+3   scope-challenge          Client credentials after a ... variant       4  client, as, api
+4   async-export             Asynchronous export            main          5  client, as, api
+5   signed-request           Signed request                 main          2  client, api
+Fragments
+6   client-token             Client credentials token       fragment      2  client, as
+7   call-api                 Call the API                   fragment      2  client, api
 ```
 
 ## Writing Scenarios
@@ -107,16 +109,16 @@ Diagrams draw an include as a labeled box across the fragment's participants. Us
 
 ```bash
 # One scenario
-pidl generate -f mermaid --scenario ps-authorization aauth_protocol
+pidl generate -f mermaid --scenario client-credentials oauth2_api_access
 
 # One scenario with fragments shown step by step
-pidl generate -f mermaid --scenario ps-authorization --expand aauth_protocol
+pidl generate -f mermaid --scenario client-credentials --expand oauth2_api_access
 
-# Every main scenario: 01-agent-identity.svg, 02-resource-managed.svg, ...
-pidl generate -f svg --all-scenarios -o diagrams/ aauth_protocol
+# Every main scenario: 01-authorization-code.svg, 02-client-credentials.svg, ...
+pidl generate -f svg --all-scenarios -o diagrams/ oauth2_api_access
 
-# Add the fragments after the main scenarios: ... 06-agent-token.svg
-pidl generate -f svg --all-scenarios --include-fragments -o diagrams/ aauth_protocol
+# Add the fragments after the main scenarios: ... 06-client-token.svg
+pidl generate -f svg --all-scenarios --include-fragments -o diagrams/ oauth2_api_access
 ```
 
 File numbers match the `#` column of `pidl scenarios`, so a sorted file listing, a slide deck and the scenario list agree.
@@ -131,8 +133,8 @@ Some outputs describe the whole file rather than one scenario:
 | `outline-json` | The same outline as JSON, for deck and guide tooling |
 
 ```bash
-pidl generate -f scenario-matrix aauth_protocol
-pidl generate -f outline -o aauth-outline.md aauth_protocol
+pidl generate -f scenario-matrix oauth2_api_access
+pidl generate -f outline -o api-outline.md oauth2_api_access
 ```
 
 `simulate` and `debug` take `--scenario` and run the scenario with fragments expanded.
@@ -179,11 +181,11 @@ With these fields, `pidl analyze` follows each token through a scenario:
 | SEC020 | A receiver that checks a token without being listed in its `verified_by` |
 | SEC021 | A fragment that no scenario includes |
 
-In the AAuth example, SEC019 flags federated access: the PS signs the request to the AS, but the resource token it presents was delivered to the agent, so a check of `agent_jkt` against the signing key would compare against the PS's key.
+In the `oauth2_api_access` example, SEC019 flags the token request of the authorization code grant: the client presents an authorization code that was delivered to the user's browser, the interception that PKCE defends against.
 
 ```bash
-pidl analyze aauth_protocol                                      # whole file
-pidl analyze --scenario federated-authorization aauth_protocol   # one scenario
+pidl analyze oauth2_api_access                                   # whole file
+pidl analyze --scenario authorization-code oauth2_api_access    # one scenario
 ```
 
 ## Composing Files

@@ -88,13 +88,13 @@ pidl generate [options] <file>
 
 ```bash
 # One scenario of a multi-scenario file
-pidl generate -f mermaid --scenario ps-authorization aauth_protocol
+pidl generate -f mermaid --scenario client-credentials oauth2_api_access
 
 # Every scenario, numbered in file order
-pidl generate -f svg --all-scenarios -o diagrams/ aauth_protocol
+pidl generate -f svg --all-scenarios -o diagrams/ oauth2_api_access
 
 # Step-by-step walkthrough viewer in one HTML file
-pidl generate -f viewer -o aauth.html aauth_protocol
+pidl generate -f viewer -o api.html oauth2_api_access
 
 # PlantUML to stdout
 pidl generate protocol.json
@@ -129,8 +129,8 @@ pidl scenarios [options] <file>
 ### Examples
 
 ```bash
-pidl scenarios aauth_protocol
-pidl scenarios -f json aauth_protocol
+pidl scenarios oauth2_api_access
+pidl scenarios -f json oauth2_api_access
 ```
 
 See the [Scenarios guide](../guide/scenarios.md).

@@ -38,7 +38,7 @@
     "access": "public"
   },
   "scripts": {
-    "data": "go run ../cmd/pidl generate -f walkthrough-json -o public/walkthrough.json aauth_protocol",
+    "data": "go run ../cmd/pidl generate -f walkthrough-json -o public/walkthrough.json oauth2_api_access",
     "dev": "vite",
     "types": "node scripts/types.mjs",
     "typecheck": "tsc --noEmit",

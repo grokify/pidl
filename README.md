@@ -855,7 +855,7 @@ xml, _ := bpmn.Export(p)
 
 | Example | Protocol |
 |---------|----------|
-| `aauth_protocol` | AAuth (draft-11): five access modes as scenarios, with example requests, responses and tokens |
+| `oauth2_api_access` | OAuth 2.0 API access worked end to end: authorization code with PKCE, client credentials, a scope challenge, an asynchronous request and a signed request, as scenarios with example requests, responses and tokens |
 | `oauth2_authorization_code` | OAuth 2.0 Authorization Code Flow |
 | `oauth2_pkce` | OAuth 2.0 with PKCE |
 | `oauth2_with_states` | OAuth 2.0 with State Tracking |

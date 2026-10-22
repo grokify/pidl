@@ -423,8 +423,8 @@ func collectCaptures(steps []postmanStep) map[int][]capture {
 			if strings.EqualFold(h.Name, "Location") || (len(h.Value) >= 16 && !volatileHeader(h.Name)) {
 				cs = append(cs, capture{name: strings.ToLower(h.Name), value: h.Value, header: h.Name})
 			}
-			// String parameters of a structured header, such as the
-			// resource token in AAuth-Requirement.
+			// String parameters of a header, such as a token in a
+			// structured field or the scope in a WWW-Authenticate challenge.
 			for _, m := range headerParamPattern.FindAllStringSubmatch(h.Value, -1) {
 				if len(m[2]) >= 16 {
 					cs = append(cs, capture{name: m[1], value: m[2], header: h.Name, param: m[1]})
@@ -866,9 +866,12 @@ func (c capture) source(st *pidl.WalkthroughStep) bool {
 	return bytes.Contains(st.Example.Response.Body, []byte(c.value))
 }
 
-// headerParamPattern matches the string parameters of a structured header
+// headerParamPattern matches the string parameters of a header value:
+// parameters of a structured field (RFC 9651), separated by ";", and
+// auth-params of a challenge such as WWW-Authenticate (RFC 9110 §11),
+// separated by "," after the scheme.
 // field value (RFC 9651): name="value".
-var headerParamPattern = regexp.MustCompile(`(?:^|;)\s*([a-z*][a-z0-9_.*-]*)="((?:[^"\\]|\\.)*)"`)
+var headerParamPattern = regexp.MustCompile(`(?:^|[;,\s])\s*([a-z*][a-z0-9_.*-]*)="((?:[^"\\]|\\.)*)"`)
 
 // headerParam returns the string parameter name of a header value.
 func headerParam(v, name string) string {
@@ -883,7 +886,7 @@ func headerParam(v, name string) string {
 // script stores the captured value in a collection variable.
 func (c capture) script() string {
 	if c.param != "" {
-		re := `(?:^|;)\s*` + regexp.QuoteMeta(c.param) + `="([^"]*)"`
+		re := `(?:^|[;,\s])\s*` + regexp.QuoteMeta(c.param) + `="([^"]*)"`
 		return fmt.Sprintf("pm.collectionVariables.set(%q, ((pm.response.headers.get(%q) || \"\").match(/%s/) || [])[1]);", c.name, c.header, re)
 	}
 	if c.header != "" {
