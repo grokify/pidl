@@ -38,9 +38,9 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 - 🖥️ **Walkthrough viewer**: a self-contained HTML page that steps through each scenario, highlighting the active roles and message and showing example requests, responses and decoded tokens
 - 🌍 **Embeddable viewer**: `@grokify/pidl-viewer` loads from a CDN with one script tag and shows any walkthrough file, inline or by URL
 - 🧾 **Walkthrough format**: `pidl-walkthrough/v1`, the processed form viewers read, with a JSON Schema and TypeScript types
-- 💻 **Code samples and cURL**: each request as HTTP, a generated `curl` command, or SDK code taken from tested source files and kept current by a lock file
+- 💻 **Code samples and cURL**: each request as HTTP, a generated `curl` command, or SDK code taken from tested source files; each implementation can keep its samples in its own sample set, so the protocol document names none
 - 🎙️ **Narration**: spoken text by language, scenario briefings and pronunciations, for audio and narrated video
-- 📮 **Postman collections**: a runnable collection per protocol, with values chained between requests and checks on every response
+- 📮 **Postman collections**: a runnable collection per protocol, with values chained between requests, checks on every response, and signed requests sent through a signing proxy
 - 🎨 **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT, D2, SVG
 - 🎬 **Animated SVG** with CSS flow visualizations and moving dots
 - 🌐 **Network boundary diagrams** for trust zone visualization
@@ -696,11 +696,13 @@ Formats:
 pidl samples <resolve|check> [options] <file>
 
 Options:
-  --root <dir>   Directory holding repository checkouts at <root>/<repo> (default: $GOPATH/src)
-  --lock <file>  Lock file (default: <file without .json>.samples.json)
+  --root <dir>       Directory holding repository checkouts at <root>/<repo> (default: $GOPATH/src)
+  --lock <file>      A document's lock file (default: <file without .json>.samples.json)
+  --repo-dir <dir>   Read every source from this checkout
+  --protocol <file>  With a sample set, check every step address against this document
 ```
 
-`resolve` writes each sample's code and hash to the lock file; `check` fails when a sample has fallen behind its source.
+`<file>` is a document or a sample set (`pidl-samples/v1`). `resolve` records each sample's code and hash, in the document's lock file or in the set; `check` fails when a sample has fallen behind its source.
 
 ### examples
 

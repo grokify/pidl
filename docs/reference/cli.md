@@ -71,10 +71,10 @@ pidl generate [options] <file>
 | `--all-scenarios` | Render every main scenario to `NN-<id><ext>` in the `-o` directory | false |
 | `--include-fragments` | With `--all-scenarios`, also render fragments after the main scenarios | false |
 | `--resolve` | Resolve `imports` and `extends` before generating | false |
-| `--samples` | Sample lock file for `walkthrough-json` and `viewer` | `<file without .json>.samples.json`, when present |
+| `--samples` | Samples for `walkthrough-json` and `viewer`: the document's lock file or a [sample set](../guide/samples.md#sample-sets). Can be repeated | `<file without .json>.samples.json`, when present |
 | `--client` | Postman: the role whose requests are sent | the first `agent` or `client` entity |
 | `--mock` | Postman: save example responses for a mock server and check only status codes | false |
-| `--signer` | Postman: signer profile for signed protocols (`aauth-sandbox`) | |
+| `--signer` | Postman: `proxy` sends requests with HTTP message signatures through a [signing proxy](../guide/postman.md#signing-proxies) | |
 | `--targets` | Postman environments: a JSON file naming each target's role URLs and signer | |
 | `--target` | Postman environments: the target in `--targets` to write | |
 
@@ -117,8 +117,11 @@ pidl generate -f svg --all-scenarios -o diagrams/ oauth2_api_access
 # Step-by-step walkthrough viewer in one HTML file
 pidl generate -f viewer -o api.html oauth2_api_access
 
-# Postman collection that sends signed requests through the AAuth sandbox
-pidl generate -f postman --signer aauth-sandbox -o aauth.postman_collection.json aauth_protocol
+# Postman collection that sends signed requests through a signing proxy
+pidl generate -f postman --signer proxy -o api.postman_collection.json oauth2_api_access
+
+# Viewer with the code samples of two implementations
+pidl generate -f viewer --samples sdk-go.pidl-samples.json --samples sdk-ts.pidl-samples.json -o api.html api.json
 
 # PlantUML to stdout
 pidl generate protocol.json
@@ -167,23 +170,29 @@ Resolve and check [code samples](../guide/samples.md) whose code comes from mark
 pidl samples <resolve|check> [options] <file>
 ```
 
-`resolve` reads every sample source and writes the code and its SHA-256 to a lock file beside the document. `check` fails when a source is not in the lock, its region is missing, or its code changed since it was resolved; run it in CI.
+`<file>` is a document whose steps carry samples, or a [sample set](../guide/samples.md#sample-sets) (`pidl-samples/v1`). `resolve` reads every sample source and records the code and its SHA-256: for a document in a lock file beside it, for a sample set in the set itself. `check` fails when a source is not resolved, its region is missing, or its code changed since it was resolved; run it in CI.
 
 ### Options
 
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--root` | Directory holding repository checkouts at `<root>/<repo>` | `$GOPATH/src`, or `~/go/src` |
-| `--lock` | Lock file | `<file without .json>.samples.json` |
+| `--lock` | A document's lock file | `<file without .json>.samples.json` |
+| `--repo-dir` | Read every source from this checkout instead of `<root>/<repo>`, such as the repository a sample set lives in | |
+| `--protocol` | With a sample set, also check that every step address names a step of this document | |
 
 ### Examples
 
 ```bash
-# Write the lock file
-pidl samples resolve aauth.json
+# Write a document's lock file
+pidl samples resolve api.json
 
-# Fail when samples have fallen behind their sources
-pidl samples check aauth.json
+# Resolve an implementation's sample set from its own checkout
+pidl samples resolve --repo-dir . sdk-go.pidl-samples.json
+
+# In the implementation's CI: fail when a sample fell behind its source
+# or names a step the protocol no longer has
+pidl samples check --repo-dir . --protocol api.json sdk-go.pidl-samples.json
 ```
 
 ## examples
