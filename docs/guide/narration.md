@@ -1,6 +1,6 @@
 # Narration
 
-Narration is text written to be spoken: the script for audio, autoplay and narrated video of a walkthrough. It is separate from `description` because on-screen prose reads badly aloud. A description can say "the resource token's `agent_jkt` must match"; a narrator should say "the agent's key thumbprint must match".
+Narration is text written to be spoken: the script for audio, autoplay and narrated video of a walkthrough. It is separate from `description` because on-screen prose reads badly aloud. A description can say "the server compares the SHA-256 of `code_verifier` with `code_challenge`"; a narrator should say "the server checks the secret against the challenge".
 
 PIDL keeps narration in the document, beside the steps it describes, and passes it into the [walkthrough](../reference/walkthrough-format.md), where audio and video tools read it. The walkthrough viewer does not play narration yet.
 
@@ -10,18 +10,18 @@ Every narration value is an object keyed by [BCP 47](https://www.rfc-editor.org/
 
 ```json
 {
-  "protocol": {"id": "aauth", "name": "AAuth", "language": "en-US"},
+  "protocol": {"id": "oauth2-api-access", "name": "OAuth 2.0 API Access", "language": "en-US"},
   "scenarios": [{
-    "id": "agent-identity",
-    "name": "Agent identity",
+    "id": "authorization-code",
+    "name": "Authorization code with PKCE",
     "narration": {
-      "en-US": "The agent proves who it is.",
-      "fr-FR": "L'agent prouve son identité."
+      "en-US": "A user lets an application read their reports.",
+      "fr-FR": "Un utilisateur autorise une application à lire ses rapports."
     },
     "flows": [{
-      "id": "sign",
-      "from": "agent", "to": "resource", "action": "signed_request",
-      "narration": {"en-US": "The agent signs the request with its own key."}
+      "id": "token-request",
+      "from": "client", "to": "as", "action": "token_request",
+      "narration": {"en-US": "The application trades the code for a token."}
     }]
   }]
 }
@@ -37,9 +37,9 @@ A briefing introduces a scenario before its first step: why it matters, and what
 
 ```json
 "briefing": {
-  "why": "Resources need to know which agent is calling before deciding anything else.",
-  "points": ["Every request is signed", "No server issues a token"],
-  "narration": {"en-US": "Why agent identity comes first."}
+  "why": "The client never sees the user's credentials, and a stolen code is useless without the PKCE verifier.",
+  "points": ["The browser carries the code, not the token", "PKCE binds the code to the client that asked for it"],
+  "narration": {"en-US": "Why the authorization code grant with PKCE is the default."}
 }
 ```
 
@@ -49,12 +49,12 @@ A reader can view a step as HTTP, as a `curl` command or as a [code sample](samp
 
 ```json
 {
-  "id": "sign",
-  "from": "agent", "to": "resource", "action": "signed_request",
-  "narration": {"en-US": "The agent signs the request with its own key."},
+  "id": "token-request",
+  "from": "client", "to": "as", "action": "token_request",
+  "narration": {"en-US": "The application trades the code for a token."},
   "representations": {
-    "curl": {"narration": {"en-US": "This curl command replays the signed request."}},
-    "go": {"narration": {"en-US": "SignRequest adds the three signature headers."}}
+    "curl": {"narration": {"en-US": "This curl command posts the form the token endpoint expects."}},
+    "go": {"narration": {"en-US": "Exchange sends the code and the verifier in one call."}}
   }
 }
 ```
@@ -73,8 +73,8 @@ Pronunciations map a term to how it is spoken, per language:
 
 ```json
 "pronunciations": {
-  "agent_jkt": {"en-US": "agent J K T"},
-  "AAuth": {"en-US": "A auth"}
+  "PKCE": {"en-US": "pixy"},
+  "OAuth": {"en-US": "oh auth"}
 }
 ```
 
