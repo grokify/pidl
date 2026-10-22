@@ -3,8 +3,8 @@
 The walkthrough viewer turns a PIDL file into a page you can step through, one message at a time. It is built for learning a protocol and for presenting it: pick a scenario, press → and watch the active message, its two roles, and its request and response.
 
 ```bash
-pidl generate -f viewer -o aauth.html aauth_protocol
-open aauth.html
+pidl generate -f viewer -o api.html oauth2_api_access
+open api.html
 ```
 
 The output is one self-contained HTML file. It needs no server and no network, so it can be emailed, attached to an issue or opened straight from disk.
@@ -58,7 +58,7 @@ The viewer lives in `viewer/` (Vite, React and TypeScript):
 ```bash
 cd viewer
 npm ci
-npm run data       # write public/walkthrough.json from the AAuth example
+npm run data       # write public/walkthrough.json from the oauth2_api_access example
 npm run dev        # http://localhost:5173
 npm test
 npm run build:embed  # rebuild render/viewer/viewer.html for the Go binary

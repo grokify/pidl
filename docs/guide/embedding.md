@@ -12,7 +12,7 @@ The walkthrough viewer comes in two forms that read the same [walkthrough format
 Generate the walkthrough and host it next to your pages, or anywhere that serves it over HTTPS:
 
 ```bash
-pidl generate -f walkthrough-json -o aauth.walkthrough.json aauth_protocol
+pidl generate -f walkthrough-json -o api.walkthrough.json oauth2_api_access
 ```
 
 Generate it in CI from the PIDL source rather than committing it, so it never falls behind the protocol.
@@ -23,7 +23,7 @@ Generate it in CI from the PIDL source rather than committing it, so it never fa
 <div id="walkthrough"></div>
 <script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js"
         data-pidl-target="#walkthrough"
-        data-pidl-src="aauth.walkthrough.json"></script>
+        data-pidl-src="api.walkthrough.json"></script>
 ```
 
 The script mounts the viewer on the element named by `data-pidl-target` once the page has loaded. It reads the walkthrough from the first of these that is present:
@@ -44,7 +44,7 @@ A page that shows one walkthrough needs nothing else, much as a Swagger UI page 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AAuth Protocol Walkthrough</title>
+  <title>API Access Walkthrough</title>
   <style>
     body { margin: 0; }
     #walkthrough { height: 100vh; }
@@ -54,12 +54,12 @@ A page that shows one walkthrough needs nothing else, much as a Swagger UI page 
   <div id="walkthrough"></div>
   <script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js"
           data-pidl-target="#walkthrough"
-          data-pidl-src="aauth.walkthrough.json"></script>
+          data-pidl-src="api.walkthrough.json"></script>
 </body>
 </html>
 ```
 
-Put `aauth.walkthrough.json` next to the page, or give `data-pidl-src` a full URL.
+Put `api.walkthrough.json` next to the page, or give `data-pidl-src` a full URL.
 
 ### Versions
 
@@ -73,7 +73,7 @@ Every version on npm is on jsDelivr at `https://cdn.jsdelivr.net/npm/@grokify/pi
         integrity="sha384-<hash>"
         crossorigin="anonymous"
         data-pidl-target="#walkthrough"
-        data-pidl-src="aauth.walkthrough.json"></script>
+        data-pidl-src="api.walkthrough.json"></script>
 ```
 
 jsDelivr shows the hash on the package's page; to compute it yourself:
@@ -87,12 +87,12 @@ curl -s https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-vi
 
 ```html
 <div id="walkthrough"></div>
-<script type="application/json" id="aauth-data">
-  { "format": "pidl-walkthrough/v1", "id": "aauth-protocol", ... }
+<script type="application/json" id="api-data">
+  { "format": "pidl-walkthrough/v1", "id": "oauth2-api-access", ... }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js"
         data-pidl-target="#walkthrough"
-        data-pidl-data="aauth-data"></script>
+        data-pidl-data="api-data"></script>
 ```
 
 ### One Page for Any Walkthrough
@@ -100,7 +100,7 @@ curl -s https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-vi
 A page with a script tag that names no walkthrough shows the one in its `?src=` parameter, so one page can show any walkthrough:
 
 ```text
-https://example.com/viewer.html?src=https://example.org/aauth.walkthrough.json
+https://example.com/viewer.html?src=https://example.org/api.walkthrough.json
 ```
 
 `?src=` loads only `https:` URLs, or URLs on the page's own origin. The top bar names the host a walkthrough came from when it is not the page's own, so readers can tell whose content they are reading.
@@ -114,7 +114,7 @@ https://example.com/viewer.html?src=https://example.org/aauth.walkthrough.json
 <div id="b"></div>
 <script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js"></script>
 <script>
-  PidlViewer.mount(document.getElementById("a"), { src: "aauth.walkthrough.json" });
+  PidlViewer.mount(document.getElementById("a"), { src: "api.walkthrough.json" });
   PidlViewer.mount(document.getElementById("b"), { data: myWalkthrough });
 </script>
 ```
@@ -124,7 +124,7 @@ As an ES module, with types, from npm or a CDN:
 ```js
 import { mount } from "https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.mjs";
 
-const viewer = await mount(document.querySelector("#walkthrough"), { src: "aauth.walkthrough.json" });
+const viewer = await mount(document.querySelector("#walkthrough"), { src: "api.walkthrough.json" });
 // later: viewer.unmount();
 ```
 

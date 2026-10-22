@@ -547,7 +547,7 @@ A sample is code that sends or handles a step's message, such as an SDK call, sh
 ```json
 "samples": [
   {"language": "go", "label": "Agent", "role": "agent",
-   "source": {"repo": "github.com/aauth-dev/aauth-go", "ref": "v0.3.0",
+   "source": {"repo": "example.com/sdk", "ref": "v1.2.0",
               "path": "examples/walkthrough/federated_test.go", "region": "federated.ps-to-as"}},
   {"language": "python", "code": "client.request_auth_token(resource_token)"}
 ]
