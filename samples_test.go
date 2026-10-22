@@ -179,6 +179,12 @@ func TestValidateSamplesErrors(t *testing.T) {
 		{"unknown role", func(s *Sample) { s.Role = "nobody" }, ".role", "unknown entity"},
 		{"absolute path", func(s *Sample) { s.Source.Path = "/etc/passwd" }, ".source.path", "within the repository"},
 		{"escaping path", func(s *Sample) { s.Source.Path = "../x.go" }, ".source.path", "within the repository"},
+		{"escaping path inside", func(s *Sample) { s.Source.Path = "a/../../x.go" }, ".source.path", "within the repository"},
+		{"rooted path", func(s *Sample) { s.Source.Path = `\etc\passwd` }, ".source.path", "within the repository"},
+		{"drive letter", func(s *Sample) { s.Source.Path = "C:/x.go" }, ".source.path", "within the repository"},
+		{"backslashes", func(s *Sample) { s.Source.Path = `examples\x.go` }, ".source.path", "within the repository"},
+		{"dot element", func(s *Sample) { s.Source.Path = "./x.go" }, ".source.path", "within the repository"},
+		{"empty path", func(s *Sample) { s.Source.Path = "" }, ".source.path", "within the repository"},
 		{"repo required", func(s *Sample) { s.Source.Repo = "" }, ".source.repo", "required"},
 		{"bad region", func(s *Sample) { s.Source.Region = "a b" }, ".source.region", "must match"},
 	}
