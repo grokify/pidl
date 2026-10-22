@@ -53,7 +53,7 @@ npm login
 npm publish --access public   # runs the tests and build:lib first
 ```
 
-Then, in the package's settings on npmjs.com, add a trusted publisher: GitHub Actions, repository `grokify/pidl`, workflow `viewer-release.yaml`.
+Then, in the package's settings on npmjs.com, add a trusted publisher: GitHub Actions, repository `grokify/pidl`, workflow `viewer-release.yaml`. The workflow skips a version that is already on npm, so the tag for a version published by hand does not fail.
 
 ## License
 

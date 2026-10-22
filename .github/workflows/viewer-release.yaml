@@ -36,6 +36,21 @@ jobs:
             echo "viewer/package.json is $version but the tag is $GITHUB_REF_NAME"
             exit 1
           fi
+      # The first version is published by hand (see viewer/README.md);
+      # a version already on npm is not published again.
+      - name: Version is not yet published
+        id: unpublished
+        run: |
+          name="$(node -p 'require("./package.json").name')"
+          version="$(node -p 'require("./package.json").version')"
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "$name@$version is already published"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
       - run: npm ci
+        if: steps.unpublished.outputs.publish == 'true'
       # prepublishOnly runs the tests and npm run build:lib.
       - run: npm publish --provenance --access public
+        if: steps.unpublished.outputs.publish == 'true'
