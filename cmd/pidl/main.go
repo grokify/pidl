@@ -191,7 +191,7 @@ func cmdGenerate(args []string, stdout, stderr io.Writer) int {
 	formatStr := fs.String("f", "plantuml", "Output format: plantuml, mermaid, mermaid-state, mermaid-component, mermaid-trust, markdown-matrix, dot, d2, d2-flow, d2-arch, svg, svg-animated, svg-network, svg-component, svg-trust, infographic, scenario-matrix, token-table, outline, outline-json, walkthrough-json, viewer, postman, postman-environment")
 	output := fs.String("o", "", "Output file (default: stdout)")
 	postmanClient := fs.String("client", "", "Postman: role whose requests are sent (default: the first agent or client entity)")
-	postmanSigner := fs.String("signer", "", "Postman: signer profile for signed protocols (aauth-sandbox)")
+	postmanSigner := fs.String("signer", "", "Postman: signer profile for requests with HTTP message signatures (proxy)")
 	postmanMock := fs.Bool("mock", false, "Postman: save example responses for a mock server and check only status codes")
 	postmanTargets := fs.String("targets", "", "Postman environments: targets file (JSON) naming each target's role URLs and signer")
 	postmanTarget := fs.String("target", "", "Postman environments: target to write from --targets")
@@ -370,8 +370,8 @@ Infographic Examples:
 			return (&render.PostmanEnvironmentRenderer{Name: *postmanTarget, Target: &t}).RenderString(p)
 		}
 		if format == render.FormatPostman {
-			if *postmanSigner != render.SignerNone && *postmanSigner != render.SignerAAuthSandbox {
-				return "", fmt.Errorf("unknown signer profile %q (want aauth-sandbox)", *postmanSigner)
+			if *postmanSigner != render.SignerNone && *postmanSigner != render.SignerProxy {
+				return "", fmt.Errorf("unknown signer profile %q (want proxy)", *postmanSigner)
 			}
 			if *postmanMock && *postmanSigner != render.SignerNone {
 				return "", fmt.Errorf("--mock and --signer cannot be combined")
