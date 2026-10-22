@@ -7,139 +7,166 @@
   "maintainers": [
     "grokify"
   ],
-  "unreleased": {
-    "highlights": [
-      {
-        "description": "Embeddable viewer: @grokify/pidl-viewer shows any walkthrough from a CDN with one script tag, by inline JSON, a URL or ?src=, isolated from the page's styles"
-      },
-      {
-        "description": "Walkthrough format: pidl-walkthrough/v1 is the documented, versioned form viewers read, with a JSON Schema generated from the Go types and TypeScript types generated from the schema"
-      },
-      {
-        "description": "Code samples and cURL: the viewer shows each request as HTTP, a generated curl command or SDK code taken from tested source regions and kept current by a lock file; the AAuth example shows Go code from aauth-go"
-      },
-      {
-        "description": "Postman collections: pidl generate -f postman writes a runnable collection with values chained between requests and checks on every response, plus environments per target"
-      }
-    ],
-    "added": [
-      {
-        "description": "Scenario groups, variants and step IDs: groups order sections, variants follow their base, and flows carry IDs addressed as <include>.<id> inside fragments, for deep links",
-        "commit": "a7f4e88"
-      },
-      {
-        "description": "Narration keyed by BCP 47 language with the protocol's source language as fallback, scenario briefings, narration overrides per representation, and pronunciations merged through extends and imports",
-        "commit": "0f4e1b7"
-      },
-      {
-        "description": "A curl command for every example request, with a defined wire form for example bodies; signed requests note that their signature headers are replayed",
-        "commit": "617097f"
-      },
-      {
-        "description": "Code samples on flow examples and scenarios: inline code or a region between pidl:begin and pidl:end markers in a repository file; pidl samples resolve writes a lock file and pidl samples check fails on drift",
-        "commit": "006dde7"
-      },
-      {
-        "description": "A step with no HTTP message, such as a person approving in a browser, can carry code samples alone",
-        "commit": "31c998e"
-      },
-      {
-        "description": "Built-in examples apply their sample lock when loaded, so generating from an example name includes its code",
-        "commit": "2d95f06"
-      },
-      {
-        "description": "Viewer tabs for HTTP, cURL and each sample language, remembered across steps, with highlighting and a copy button",
-        "commit": "a35c1f0"
-      },
-      {
-        "description": "The AAuth example gives every step a stable ID and Go samples from aauth-go's tested walkthrough regions for the agent, agent provider, resource, PS and AS",
-        "commit": "1de14aa"
-      },
-      {
-        "description": "postman and postman-environment output formats: a folder per scenario, chained values, checks against each example, polling for deferred responses, an aauth-sandbox signer profile, mock mode and environments per target",
-        "commit": "26a45c8"
-      },
-      {
-        "description": "Postman chaining captures string parameters of structured response headers, such as the resource token in AAuth-Requirement",
-        "commit": "ea35be2"
-      },
-      {
-        "description": "ResolveOptions.FS resolves the documents that extends and imports name from an fs.FS; built-in examples that extend others are resolved when loaded",
-        "commit": "a76ac1a"
-      },
-      {
-        "description": "aauth_petstore example: the Petstore as an AAuth resource, browsing with the agent's identity and ordering with a person token and an approved auth token",
-        "commit": "a4610fe"
-      },
-      {
-        "description": "Walkthroughs carry \"format\": \"pidl-walkthrough/v1\"; the viewer reads any v1 walkthrough and refuses another major version",
-        "commit": "ebc8393"
-      },
-      {
-        "description": "schema/walkthrough.schema.json generated from pidl.Walkthrough in a nested module, embedded as schema.WalkthroughSchemaJSON, with the example kinds as an enum",
-        "commit": "2ca8fe5"
-      },
-      {
-        "description": "Viewer TypeScript types generated from the walkthrough schema",
-        "commit": "7011a0b"
-      },
-      {
-        "description": "The viewer loads a walkthrough from inline data, a URL or ?src=, accepting https: or same-origin URLs and fetching without credentials",
-        "commit": "a5db2f3"
-      },
-      {
-        "description": "PidlViewer.mount and an embeddable build (IIFE and ES module) that renders into a shadow root, so several viewers can share a page",
-        "commit": "9514ac4"
-      },
-      {
-        "description": "Auto-mount from a script tag's data-pidl-target, data-pidl-data and data-pidl-src attributes, with errors shown in the target",
-        "commit": "a733212"
-      },
-      {
-        "description": "The @grokify/pidl-viewer npm package with type declarations, the walkthrough schema and jsDelivr and unpkg entry points",
-        "commit": "5e97077"
-      }
-    ],
-    "fixed": [
-      {
-        "description": "Sample source paths are checked the same way on every platform, which fixes the Windows test failure; they are validated with oscompat's ValidateSlashPath instead of filepath.IsAbs",
-        "commit": "d583370"
-      }
-    ],
-    "dependencies": [
-      {
-        "description": "Add github.com/grokify/oscompat v0.8.0 for platform-independent path checks",
-        "commit": "d583370"
-      }
-    ],
-    "infrastructure": [
-      {
-        "description": "CI tests and lints the walkthrough schema generator and checks the schema is current",
-        "commit": "06944db"
-      },
-      {
-        "description": "CI checks the generated viewer types are current and builds the embeddable viewer",
-        "commit": "dee31fb"
-      },
-      {
-        "description": "A release tag publishes @grokify/pidl-viewer to npm with provenance through trusted publishing",
-        "commit": "c7274f3"
-      }
-    ],
-    "documentation": [
-      {
-        "description": "Guides for code samples and cURL, narration, Postman collections and embedding the viewer; the walkthrough format reference; the viewer guide covers the cURL and code tabs and step-ID links"
-      },
-      {
-        "description": "The CLI reference lists the samples, roles, components and trust commands, the Postman formats and the new generate options; the README lists the new features"
-      },
-      {
-        "description": "Links to files outside the documentation site are fixed, so the site builds in strict mode",
-        "commit": "eddacb3"
-      }
-    ]
-  },
   "releases": [
+    {
+      "version": "v0.9.0",
+      "date": "2026-10-22",
+      "highlights": [
+        {
+          "description": "Embeddable viewer: @grokify/pidl-viewer shows any walkthrough from a CDN with one script tag, by inline JSON, a URL or ?src=, isolated from the page's styles"
+        },
+        {
+          "description": "Walkthrough format: pidl-walkthrough/v1 is the documented, versioned form viewers read, with a JSON Schema generated from the Go types and TypeScript types generated from the schema"
+        },
+        {
+          "description": "Code samples and cURL: the viewer shows each request as HTTP, a generated curl command or SDK code from tested source regions; sample sets let each implementation keep its samples beside its own code, so a protocol document names none"
+        },
+        {
+          "description": "Postman collections: pidl generate -f postman writes a runnable collection with values chained between requests, checks on every response, signed requests sent through a signing proxy, and environments per target"
+        },
+        {
+          "description": "A worked OAuth 2.0 example, oauth2_api_access, exercises every walkthrough feature with messages drawn from the RFCs"
+        }
+      ],
+      "added": [
+        {
+          "description": "Scenario groups, variants and step IDs: groups order sections, variants follow their base, and flows carry IDs addressed as <include>.<id> inside fragments, for deep links",
+          "commit": "a7f4e88"
+        },
+        {
+          "description": "Narration keyed by BCP 47 language with the protocol's source language as fallback, scenario briefings, narration overrides per representation, and pronunciations merged through extends and imports",
+          "commit": "0f4e1b7"
+        },
+        {
+          "description": "A curl command for every example request, with a defined wire form for example bodies; signed requests note that their signature headers are replayed",
+          "commit": "617097f"
+        },
+        {
+          "description": "Code samples on flow examples and scenarios: inline code or a region between pidl:begin and pidl:end markers in a repository file; pidl samples resolve writes a lock file and pidl samples check fails on drift",
+          "commit": "006dde7"
+        },
+        {
+          "description": "A step with no HTTP message, such as a person approving in a browser, can carry code samples alone",
+          "commit": "31c998e"
+        },
+        {
+          "description": "Built-in examples apply their sample lock when loaded, so generating from an example name includes its code",
+          "commit": "2d95f06"
+        },
+        {
+          "description": "Sample sets (pidl-samples/v1): code samples an implementation keeps apart from the protocol document, each attached to a step by its address, resolved into the set itself and joined with Protocol.WithSampleSet",
+          "commit": "7570e74"
+        },
+        {
+          "description": "pidl samples resolve and check accept a sample set; --repo-dir reads every source from one checkout and --protocol checks every step address; generate --samples can be repeated and takes a lock or a sample set",
+          "commit": "3d76c54"
+        },
+        {
+          "description": "schema/samples.schema.json generated from pidl.SampleSet and embedded as schema.SampleSetSchemaJSON",
+          "commit": "316cde9"
+        },
+        {
+          "description": "Viewer tabs for HTTP, cURL and each sample language, remembered across steps, with highlighting and a copy button",
+          "commit": "a35c1f0"
+        },
+        {
+          "description": "postman and postman-environment output formats: a folder per scenario, chained values, checks against each example, polling for deferred responses, mock mode and environments per target",
+          "commit": "26a45c8"
+        },
+        {
+          "description": "--signer proxy sends requests with HTTP message signatures through a signing proxy: Signature, Signature-Input and Content-Digest are left for the proxy, and Signature-Key names only the scheme and, for jwt, the chained token to present; unsigned requests are sent directly",
+          "commit": "7b65b99"
+        },
+        {
+          "description": "Postman chaining captures string parameters of response headers: parameters of structured fields, and auth-params of challenges such as the scope of a WWW-Authenticate Bearer challenge",
+          "commit": "181e751"
+        },
+        {
+          "description": "ResolveOptions.FS resolves the documents that extends and imports name from an fs.FS; built-in examples that extend others are resolved when loaded",
+          "commit": "a76ac1a"
+        },
+        {
+          "description": "Walkthroughs carry \"format\": \"pidl-walkthrough/v1\"; the viewer reads any v1 walkthrough and refuses another major version",
+          "commit": "ebc8393"
+        },
+        {
+          "description": "schema/walkthrough.schema.json generated from pidl.Walkthrough in a nested module, embedded as schema.WalkthroughSchemaJSON, with the example kinds as an enum",
+          "commit": "2ca8fe5"
+        },
+        {
+          "description": "Viewer TypeScript types generated from the walkthrough schema",
+          "commit": "7011a0b"
+        },
+        {
+          "description": "The viewer loads a walkthrough from inline data, a URL or ?src=, accepting https: or same-origin URLs and fetching without credentials",
+          "commit": "a5db2f3"
+        },
+        {
+          "description": "PidlViewer.mount and an embeddable build (IIFE and ES module) that renders into a shadow root, so several viewers can share a page",
+          "commit": "9514ac4"
+        },
+        {
+          "description": "Auto-mount from a script tag's data-pidl-target, data-pidl-data and data-pidl-src attributes, with errors shown in the target",
+          "commit": "a733212"
+        },
+        {
+          "description": "The @grokify/pidl-viewer npm package with type declarations, the walkthrough schema and jsDelivr and unpkg entry points",
+          "commit": "5e97077"
+        },
+        {
+          "description": "oauth2_api_access example: the authorization code grant with PKCE, client credentials, a scope challenge, an asynchronous export and a signed request, with shared fragments, decoded JWT access tokens, step IDs, narration, a briefing and pronunciations",
+          "commit": "f3f6652"
+        }
+      ],
+      "removed": [
+        {
+          "description": "The aauth_protocol and aauth_petstore examples and the AAuth example's Go sample lock; pidl's built-in examples describe no single protocol in depth and carry no implementation's code",
+          "commit": "4fda029"
+        }
+      ],
+      "fixed": [
+        {
+          "description": "Sample source paths are checked the same way on every platform, which fixes the Windows test failure; they are validated with oscompat's ValidateSlashPath instead of filepath.IsAbs",
+          "commit": "d583370"
+        }
+      ],
+      "dependencies": [
+        {
+          "description": "Add github.com/grokify/oscompat v0.8.0 for platform-independent path checks",
+          "commit": "d583370"
+        }
+      ],
+      "infrastructure": [
+        {
+          "description": "CI tests and lints the walkthrough schema generator and checks the schema is current",
+          "commit": "06944db"
+        },
+        {
+          "description": "CI checks the generated viewer types are current and builds the embeddable viewer",
+          "commit": "dee31fb"
+        },
+        {
+          "description": "A release tag publishes @grokify/pidl-viewer to npm with provenance through trusted publishing",
+          "commit": "c7274f3"
+        }
+      ],
+      "documentation": [
+        {
+          "description": "Guides for code samples and cURL (with sample sets), narration, Postman collections (with signing proxies) and embedding the viewer; the walkthrough format reference; the viewer guide covers the cURL and code tabs and step-ID links; the guides and references use the worked OAuth 2.0 example"
+        },
+        {
+          "description": "The CLI reference lists the samples, roles, components and trust commands, the Postman formats and the new generate and samples options; the README lists the new features"
+        },
+        {
+          "description": "The specification describes sample sets",
+          "commit": "35dc4cb"
+        },
+        {
+          "description": "Links to files outside the documentation site are fixed, so the site builds in strict mode",
+          "commit": "eddacb3"
+        }
+      ]
+    },
     {
       "version": "v0.8.0",
       "date": "2026-10-19",
