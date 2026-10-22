@@ -298,7 +298,7 @@
         "path",
         "region"
       ],
-      "description": "SampleSource refers to the code between \"pidl:begin \u003cregion\u003e\" and \"pidl:end \u003cregion\u003e\" markers, in comments, in a file of a repository."
+      "description": "SampleSource refers to the code between \"pidl:begin <region>\" and \"pidl:end <region>\" markers, in comments, in a file of a repository."
     },
     "TokenClaim": {
       "properties": {
@@ -465,7 +465,7 @@
         },
         "id": {
           "type": "string",
-          "description": "ID is the step's flow ID, qualified as \"\u003cinclude\u003e.\u003cid\u003e\" for a step\ninside an included fragment; empty when the flow has no ID."
+          "description": "ID is the step's flow ID, qualified as \"<include>.<id>\" for a step\ninside an included fragment; empty when the flow has no ID."
         },
         "from": {
           "type": "string"
