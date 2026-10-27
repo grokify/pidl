@@ -1,0 +1,63 @@
+{
+  "protocol": {
+    "id": "demo",
+    "name": "Demo",
+    "version": "1.0",
+    "language": "en-US",
+    "description": "A small protocol for matcher tests: a token fragment, a challenged API call, a person's approval and a poll."
+  },
+  "entities": [
+    {"id": "person", "name": "Person", "type": "user"},
+    {"id": "agent", "name": "Agent", "type": "agent"},
+    {"id": "ap", "name": "Agent provider", "type": "server"},
+    {"id": "resource", "name": "Resource", "type": "resource_server"},
+    {"id": "ps", "name": "Person server", "type": "authorization_server"}
+  ],
+  "scenarios": [
+    {
+      "id": "challenge",
+      "name": "Challenged on the API call",
+      "flows": [
+        {"include": "agent-token"},
+        {
+          "id": "request", "from": "agent", "to": "resource", "action": "signed_request", "label": "Call the API",
+          "example": {"source": "test", "kind": "derived",
+                      "request": {"method": "GET", "url": "https://resource.example/api/documents"}}
+        },
+        {
+          "id": "person-token-required", "from": "resource", "to": "agent", "action": "challenge", "label": "401 person token", "mode": "response",
+          "example": {"source": "test", "kind": "derived",
+                      "response": {"status": 401, "headers": [{"name": "AAuth-Requirement", "value": "requirement=person-token"}]}}
+        },
+        {"id": "direct-user", "from": "agent", "to": "person", "action": "redirect", "label": "Send the person to approve"},
+        {"id": "approve", "from": "person", "to": "ps", "action": "approve", "label": "Approve"},
+        {
+          "id": "poll", "from": "agent", "to": "ps", "action": "poll", "label": "Poll",
+          "example": {"source": "test", "kind": "derived",
+                      "request": {"method": "GET", "url": "https://ps.example/pending/f7a3b9c"},
+                      "response": {"status": 200}}
+        },
+        {"id": "polled", "from": "ps", "to": "agent", "action": "auth_token", "label": "auth_token", "mode": "response"},
+        {"id": "audit", "from": "agent", "to": "ps", "action": "audit", "label": "Report an action"},
+        {
+          "id": "confirm", "from": "agent", "to": "ps", "action": "confirm", "label": "Confirm",
+          "match": {"method": "POST", "path": "/confirm/{id}", "status": 204}
+        }
+      ]
+    },
+    {
+      "id": "agent-token",
+      "name": "Agent token",
+      "fragment": true,
+      "flows": [
+        {
+          "id": "attest", "from": "agent", "to": "ap", "action": "attest", "label": "Request an agent token",
+          "example": {"source": "test", "kind": "derived",
+                      "request": {"method": "POST", "url": "https://ap.example/agent-token"},
+                      "response": {"status": 200}}
+        },
+        {"id": "agent-token", "from": "ap", "to": "agent", "action": "agent_token", "label": "agent_token", "mode": "response"}
+      ]
+    }
+  ]
+}
