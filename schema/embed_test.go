@@ -13,6 +13,8 @@ import (
 func TestWalkthroughSchemaFormat(t *testing.T) {
 	checkFormat(t, schema.WalkthroughSchemaJSON, "Walkthrough", pidl.WalkthroughFormat, "https://github.com/grokify/pidl/schema/walkthrough.schema.json")
 	checkFormat(t, schema.SampleSetSchemaJSON, "SampleSet", pidl.SampleSetFormat, "https://github.com/grokify/pidl/schema/samples.schema.json")
+	checkFormat(t, schema.ObservationSchemaJSON, "Observation", pidl.ObservationFormat, "https://github.com/grokify/pidl/schema/observation.schema.json")
+	checkFormat(t, schema.BindingSchemaJSON, "Binding", pidl.BindingFormat, "https://github.com/grokify/pidl/schema/binding.schema.json")
 }
 
 func checkFormat(t *testing.T, data []byte, def, want, id string) {
