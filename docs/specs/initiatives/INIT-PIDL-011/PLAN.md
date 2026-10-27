@@ -9,7 +9,7 @@ The walkthrough format and embeddable viewer (`INIT-PIDL-007`) released in v0.9.
 
 ## Build Order
 
-1. **A spike first.** The captured AAuth Petstore run from the sandbox, with its two journeys, its health check and its key fetches, aligned by throwaway code to the AAuth scenarios and shown in the viewer. The spike answers three questions before any format is fixed: whether the default rules plus a binding are enough, how often a step needs an explicit rule, and whether instance splitting by first step works on a real capture. It also produces the fixture the later tests use.
+1. **A spike first (done).** The captured AAuth Petstore run from the sandbox, with its two journeys, its health check and its key fetches, aligned by throwaway code to the AAuth scenarios and shown in the viewer. It answered whether the default rules plus a binding are enough, how often a step needs an explicit rule, and whether instance splitting works on a real capture; the TRD's Spike Findings record the answers and the changes they made. The capture becomes the fixture the later tests use.
 2. **The formats and the matcher.** The observation and binding types and schemas, then rules, scoring, alignment, repeated steps, scenario instances and the time window, with their property tests, before any adapter beyond the sandbox trace.
 3. **The overlay.** `--observation` and `--binding` on `pidl generate`, the walkthrough fields in both versions, the self-contained page, token carriage and decoding, and redaction.
 4. **The viewer.** The switch, the instance label, the badges, and extra exchanges in place.
