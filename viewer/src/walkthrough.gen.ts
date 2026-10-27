@@ -84,6 +84,16 @@ export interface WalkthroughScenario {
   samples?: Sample[];
   participants: string[];
   steps: WalkthroughStep[];
+  /**
+   * ObservedRun is set on a scenario entry that shows a run observed in a
+   * real system: one instance of the scenario found in a capture.
+   */
+  observed_run?: ObservedRun;
+  /**
+   * ObservedExtra are the run's exchanges that matched no step, each
+   * placed after the step it followed.
+   */
+  observed_extra?: ObservedExtra[];
 }
 /**
  * Narration is text written to be spoken, keyed by BCP 47 language tag.
@@ -186,6 +196,15 @@ export interface WalkthroughStep {
   verifies?: string[];
   example?: FlowExample;
   /**
+   * Observed is the exchange a real run produced for this step, in a
+   * scenario entry with an ObservedRun. ObservedStatus is matched,
+   * notSeen, skipped, unmatchable or unobservable; ObservedStrength is
+   * strong or weak for a matched step.
+   */
+  observed?: ObservedMessage;
+  observed_status?: string;
+  observed_strength?: string;
+  /**
    * Curl is a curl command equivalent to the example request.
    */
   curl?: string;
@@ -276,6 +295,124 @@ export interface Finding {
   location?: string;
 }
 /**
+ * ObservedExtra is an observed exchange that matched no step.
+ *
+ * This interface was referenced by `Walkthrough`'s JSON-Schema
+ * via the `definition` "ObservedExtra".
+ */
+export interface ObservedExtra {
+  /**
+   * AfterStep is the number of the step it followed, or 0 when it came
+   * before the first matched step.
+   */
+  after_step: number;
+  /**
+   * From and To are the participants, when the binding resolved them.
+   */
+  from?: string;
+  to?: string;
+  observed: ObservedMessage;
+}
+/**
+ * ObservedMessage is an exchange observed in a real system, shown as a step's example is: request, response and decoded tokens.
+ *
+ * This interface was referenced by `Walkthrough`'s JSON-Schema
+ * via the `definition` "ObservedMessage".
+ */
+export interface ObservedMessage {
+  time?: string;
+  /**
+   * From and To are the capturing tool's labels for sender and receiver.
+   */
+  from?: string;
+  to?: string;
+  /**
+   * RequestID is the value of a request ID header, when the capture has one.
+   */
+  request_id?: string;
+  request?: ExampleRequest;
+  response?: ExampleResponse;
+  /**
+   * Tokens are the tokens found in the message, decoded and not verified.
+   */
+  tokens?: ExampleToken[];
+  /**
+   * Label and Annotations are evidence the capturing tool recorded.
+   */
+  label?: string;
+  annotations?: ExchangeAnnotation[];
+  /**
+   * Repeats is how many exchanges a repeated step took, when more than one.
+   */
+  repeats?: number;
+  /**
+   * BodyTruncated reports that a body was cut at the capture's size limit.
+   */
+  body_truncated?: boolean;
+}
+/**
+ * ExampleRequest is an illustrative HTTP request.
+ *
+ * This interface was referenced by `Walkthrough`'s JSON-Schema
+ * via the `definition` "ExampleRequest".
+ */
+export interface ExampleRequest {
+  method: string;
+  url: string;
+  headers?: ExampleHeader[];
+  /**
+   * Body is the request body as JSON, kept byte for byte so key order
+   * survives a round trip.
+   */
+  body?: unknown;
+}
+/**
+ * ExampleHeader is one HTTP header.
+ *
+ * This interface was referenced by `Walkthrough`'s JSON-Schema
+ * via the `definition` "ExampleHeader".
+ */
+export interface ExampleHeader {
+  name: string;
+  value: string;
+}
+/**
+ * ExampleResponse is an illustrative HTTP response.
+ *
+ * This interface was referenced by `Walkthrough`'s JSON-Schema
+ * via the `definition` "ExampleResponse".
+ */
+export interface ExampleResponse {
+  status: number;
+  headers?: ExampleHeader[];
+  body?: unknown;
+}
+/**
+ * ExchangeAnnotation is a piece of evidence about an exchange.
+ *
+ * This interface was referenced by `Walkthrough`'s JSON-Schema
+ * via the `definition` "ExchangeAnnotation".
+ */
+export interface ExchangeAnnotation {
+  /**
+   * Kind classifies the annotation, such as "assertion" or "client-event".
+   */
+  kind: string;
+  /**
+   * Text is the annotation as a person reads it.
+   */
+  text: string;
+  /**
+   * OK is the result of an assertion; unset for other kinds.
+   */
+  ok?: boolean;
+  /**
+   * Time is when the annotated event happened, when it differs from the
+   * exchange's time.
+   */
+  time?: string;
+}
+/**
  * WalkthroughToken is a token definition with the claims its checkers use.
  *
  * This interface was referenced by `Walkthrough`'s JSON-Schema
@@ -311,41 +448,54 @@ export interface TokenClaim {
   description?: string;
 }
 /**
- * ExampleHeader is one HTTP header.
+ * ObservedRun summarizes one instance of a scenario found in a capture.
  *
  * This interface was referenced by `Walkthrough`'s JSON-Schema
- * via the `definition` "ExampleHeader".
+ * via the `definition` "ObservedRun".
  */
-export interface ExampleHeader {
-  name: string;
-  value: string;
-}
-/**
- * ExampleRequest is an illustrative HTTP request.
- *
- * This interface was referenced by `Walkthrough`'s JSON-Schema
- * via the `definition` "ExampleRequest".
- */
-export interface ExampleRequest {
-  method: string;
-  url: string;
-  headers?: ExampleHeader[];
+export interface ObservedRun {
   /**
-   * Body is the request body as JSON, kept byte for byte so key order
-   * survives a round trip.
+   * Scenario is the ID of the scenario this entry is an instance of.
    */
-  body?: unknown;
-}
-/**
- * ExampleResponse is an illustrative HTTP response.
- *
- * This interface was referenced by `Walkthrough`'s JSON-Schema
- * via the `definition` "ExampleResponse".
- */
-export interface ExampleResponse {
-  status: number;
-  headers?: ExampleHeader[];
-  body?: unknown;
+  scenario: string;
+  /**
+   * Source names the tool that captured the run; RequestFidelity says
+   * whether its requests are the wire messages or a client's.
+   */
+  source: string;
+  request_fidelity?: "wire" | "client";
+  /**
+   * Instance is this instance's number, from 1, of Instances found.
+   */
+  instance: number;
+  instances: number;
+  /**
+   * From and To bound the instance's exchanges in time.
+   */
+  from?: string;
+  to?: string;
+  /**
+   * RunnerUp is the next-best scenario at this point of the capture.
+   */
+  runner_up?: string;
+  /**
+   * Counts of step outcomes; Matched counts every matched step and Weak
+   * the matched steps that are weak. Explained counts exchanges matched
+   * to steps and Extra those that matched none.
+   */
+  matched: number;
+  weak: number;
+  not_seen: number;
+  skipped: number;
+  unmatchable: number;
+  unobservable: number;
+  explained: number;
+  extra: number;
+  /**
+   * Redacted reports that raw token, signature and credential values
+   * were masked.
+   */
+  redacted: boolean;
 }
 /**
  * SampleSource refers to the code between "pidl:begin <region>" and "pidl:end <region>" markers, in comments, in a file of a repository.
