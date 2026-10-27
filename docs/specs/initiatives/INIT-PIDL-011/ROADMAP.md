@@ -12,7 +12,7 @@ A walkthrough keeps its explanation and gains the exchanges that a real run prod
 - [ ] `RMI-PIDL-131` `pidl-observation/v1` and `pidl-binding/v1`: types, reader, writer, validation and generated schemas with the drift test
 - [ ] `RMI-PIDL-132` Role-labeled trace adapter, with the AAuth Petstore capture as the first fixture
   - Depends on: `RMI-PIDL-131`
-- [ ] `RMI-PIDL-133` Rules: request, response, standalone and unobservable steps; defaults from each request step's example; step `match`; the binding's labels, hosts, path-based label resolution, paths, rewrites, unobservable participants and overrides; header names in any case; exact, prefix and regular-expression values; the literal-identifier warning; `unmatchable` for steps with no rule
+- [ ] `RMI-PIDL-133` Rules: request, response, standalone and unobservable steps; example defaults and step `match`; binding labels, hosts, paths, rewrites and overrides; header and value matching; the literal-identifier warning
   - Depends on: `RMI-PIDL-131`
 - [ ] `RMI-PIDL-151` Repeated steps (`repeat`) and body predicates by JSON pointer
   - Depends on: `RMI-PIDL-133`
