@@ -231,6 +231,7 @@ Flows are the core semantic unit: directed interactions between entities.
 | `alternatives` | array | No | Alternative flow paths |
 | `verification` | object | No | Evidentiary provenance (tier/source/citation) |
 | `example` | object | No | Illustrative request, response and decoded tokens (see [Flow Examples](#flow-examples)) |
+| `match` | object | No | Which observed exchanges are this step, when the example is not enough (see [Observed Runs](guides/observed-runs.md)) |
 
 ¹ Not set on an include step, which has `include` instead.
 
@@ -456,8 +457,11 @@ Token definitions and flow security can say who checks what, so reviews and gene
 | `signed_by` | flow `security` | Entity that signs the request, when it is not the sender |
 | `issues` | flow `security` | Token IDs the flow delivers |
 | `verifies` | flow `security` | Token IDs the receiver checks |
+| `carried_in` | token definition | Where the token travels in messages: `{"in": "header", "name", "param", "typ"}` or `{"in": "body", "path", "typ"}`, so it can be found and decoded in observed exchanges |
 
 `issues` and `verifies` let tools follow a token through a scenario: who it was delivered to, who presents it, and who signs the request that carries it.
+
+In `carried_in`, `param` names the structured field parameter that holds the token, such as `jwt` in `Signature-Key`; `path` is a JSON pointer into the body; and `typ` is the JWT `typ` header a value found there must have to be this token, because one place can carry several tokens, such as whichever token a request presents in `Signature-Key`.
 
 ## Narration
 
@@ -631,6 +635,7 @@ Numeric ordering fields are not used. The `sequence` field on a flow is deprecat
 14. Flow IDs match `^[a-z][a-z0-9_-]*$` and are unique within their flow list, and step IDs stay unique once fragments are expanded
 15. Narration keys are BCP 47 language tags with non-empty text, and every narration object includes the source language; representation keys are `http`, `curl` or a sample language on the step; include steps carry no narration
 16. A sample has a language other than `http` and `curl`, `code` or `source` (or both, once resolved), a known `role`, and a source path inside its repository
+17. A flow's `match` has a valid status and regular expressions, and its body predicates are JSON pointers; a token's `carried_in` places are a header with a name or a body member with a pointer
 
 ## Schema
 

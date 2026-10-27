@@ -71,10 +71,10 @@ pidl generate [options] <file>
 | `--all-scenarios` | Render every main scenario to `NN-<id><ext>` in the `-o` directory | false |
 | `--include-fragments` | With `--all-scenarios`, also render fragments after the main scenarios | false |
 | `--resolve` | Resolve `imports` and `extends` before generating | false |
-| `--samples` | Samples for `walkthrough-json` and `viewer`: the document's lock file or a [sample set](../guide/samples.md#sample-sets). Can be repeated | `<file without .json>.samples.json`, when present |
+| `--samples` | Samples for `walkthrough-json` and `viewer`: the document's lock file or a [sample set](../guides/samples.md#sample-sets). Can be repeated | `<file without .json>.samples.json`, when present |
 | `--client` | Postman: the role whose requests are sent | the first `agent` or `client` entity |
 | `--mock` | Postman: save example responses for a mock server and check only status codes | false |
-| `--signer` | Postman: `proxy` sends requests with HTTP message signatures through a [signing proxy](../guide/postman.md#signing-proxies) | |
+| `--signer` | Postman: `proxy` sends requests with HTTP message signatures through a [signing proxy](../guides/postman.md#signing-proxies) | |
 | `--targets` | Postman environments: a JSON file naming each target's role URLs and signer | |
 | `--target` | Postman environments: the target in `--targets` to write | |
 
@@ -102,7 +102,7 @@ pidl generate [options] <file>
 | `outline-json` | The outline as JSON (whole file) |
 | `walkthrough-json` | A [walkthrough](walkthrough-format.md) (`pidl-walkthrough/v1`): expanded scenarios with examples and findings, for viewers (whole file) |
 | `viewer` | Self-contained HTML walkthrough viewer (whole file) |
-| `postman` | [Postman collection](../guide/postman.md): a folder per scenario, chained requests and checks (whole file) |
+| `postman` | [Postman collection](../guides/postman.md): a folder per scenario, chained requests and checks (whole file) |
 | `postman-environment` | Postman environment for one target in a `--targets` file |
 
 ### Examples
@@ -160,17 +160,17 @@ pidl scenarios oauth2_api_access
 pidl scenarios -f json oauth2_api_access
 ```
 
-See the [Scenarios guide](../guide/scenarios.md).
+See the [Scenarios guide](../guides/scenarios.md).
 
 ## samples
 
-Resolve and check [code samples](../guide/samples.md) whose code comes from marked regions of files in source repositories.
+Resolve and check [code samples](../guides/samples.md) whose code comes from marked regions of files in source repositories.
 
 ```bash
 pidl samples <resolve|check> [options] <file>
 ```
 
-`<file>` is a document whose steps carry samples, or a [sample set](../guide/samples.md#sample-sets) (`pidl-samples/v1`). `resolve` reads every sample source and records the code and its SHA-256: for a document in a lock file beside it, for a sample set in the set itself. `check` fails when a source is not resolved, its region is missing, or its code changed since it was resolved; run it in CI.
+`<file>` is a document whose steps carry samples, or a [sample set](../guides/samples.md#sample-sets) (`pidl-samples/v1`). `resolve` reads every sample source and records the code and its SHA-256: for a document in a lock file beside it, for a sample set in the set itself. `check` fails when a source is not resolved, its region is missing, or its code changed since it was resolved; run it in CI.
 
 ### Options
 

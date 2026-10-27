@@ -44,6 +44,15 @@ When a flow has an [example](../SPECIFICATION.md#flow-examples), the cards show 
 
 A request's response appears only when you reach it, so the walkthrough reveals each answer in order. A pending response pairs with the poll it answers.
 
+## Observed Runs
+
+A walkthrough generated with an observation (see [Observed Runs](observed-runs.md)) has an entry for each run of a scenario observed in a real system, right after the scenario, named "Observed: …". On such an entry a **Concept / Observed** switch appears in the top bar:
+
+- **Observed** (the default) shows each step's real exchange in the cards, with an *observed* badge and the time it happened. The step caption adds the gap from the previous exchange, a *Weak match* mark when only the participants and method agreed, and why a step has no exchange: not seen, skipped, not matchable, or not observable because a person acts in a browser.
+- **Concept** shows each step's example, as on any scenario.
+
+The header summarizes the run: its instance and source, steps matched (and how many weakly), steps not seen, and exchanges that matched no step. Those extra exchanges, such as servers fetching each other's keys, appear dotted between the steps they fell between, and open in the cards like any step. Tokens are decoded but not verified, and raw token, signature and credential values are masked unless the walkthrough was generated with `--raw`.
+
 ## Presenting
 
 **Present** (or P) places the page on a fixed 1600×900 stage scaled to the window, letterboxed, so it looks the same on any projector or shared screen. **Theme** cycles auto, light and dark.

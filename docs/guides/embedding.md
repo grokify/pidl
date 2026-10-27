@@ -21,7 +21,7 @@ Generate it in CI from the PIDL source rather than committing it, so it never fa
 
 ```html
 <div id="walkthrough"></div>
-<script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js"
+<script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.10.0/dist-lib/pidl-viewer.js"
         data-pidl-target="#walkthrough"
         data-pidl-src="api.walkthrough.json"></script>
 ```
@@ -52,7 +52,7 @@ A page that shows one walkthrough needs nothing else, much as a Swagger UI page 
 </head>
 <body>
   <div id="walkthrough"></div>
-  <script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js"
+  <script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.10.0/dist-lib/pidl-viewer.js"
           data-pidl-target="#walkthrough"
           data-pidl-src="api.walkthrough.json"></script>
 </body>
@@ -65,11 +65,11 @@ Put `api.walkthrough.json` next to the page, or give `data-pidl-src` a full URL.
 
 Every version on npm is on jsDelivr at `https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@<version>/dist-lib/pidl-viewer.js`, and on unpkg at the same path under `https://unpkg.com/`.
 
-- **Name an exact version**, such as `@0.9.0`. A file at an exact version never changes, so a new release cannot change your pages. A range such as `@0.9` follows new releases, but CDNs cache it for days, so pages can show different versions for a while.
+- **Name an exact version**, such as `@0.10.0`. A file at an exact version never changes, so a new release cannot change your pages. A range such as `@0.10` follows new releases, but CDNs cache it for days, so pages can show different versions for a while.
 - **Check the file with Subresource Integrity.** Add the file's hash and `crossorigin`, and the browser refuses the script if the CDN ever serves anything else:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js"
+<script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.10.0/dist-lib/pidl-viewer.js"
         integrity="sha384-<hash>"
         crossorigin="anonymous"
         data-pidl-target="#walkthrough"
@@ -79,7 +79,7 @@ Every version on npm is on jsDelivr at `https://cdn.jsdelivr.net/npm/@grokify/pi
 jsDelivr shows the hash on the package's page; to compute it yourself:
 
 ```bash
-curl -s https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js \
+curl -s https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.10.0/dist-lib/pidl-viewer.js \
   | openssl dgst -sha384 -binary | openssl base64 -A
 ```
 
@@ -90,7 +90,7 @@ curl -s https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-vi
 <script type="application/json" id="api-data">
   { "format": "pidl-walkthrough/v1", "id": "oauth2-api-access", ... }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js"
+<script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.10.0/dist-lib/pidl-viewer.js"
         data-pidl-target="#walkthrough"
         data-pidl-data="api-data"></script>
 ```
@@ -112,7 +112,7 @@ https://example.com/viewer.html?src=https://example.org/api.walkthrough.json
 ```html
 <div id="a"></div>
 <div id="b"></div>
-<script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.10.0/dist-lib/pidl-viewer.js"></script>
 <script>
   PidlViewer.mount(document.getElementById("a"), { src: "api.walkthrough.json" });
   PidlViewer.mount(document.getElementById("b"), { data: myWalkthrough });
@@ -122,7 +122,7 @@ https://example.com/viewer.html?src=https://example.org/api.walkthrough.json
 As an ES module, with types, from npm or a CDN:
 
 ```js
-import { mount } from "https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.mjs";
+import { mount } from "https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.10.0/dist-lib/pidl-viewer.mjs";
 
 const viewer = await mount(document.querySelector("#walkthrough"), { src: "api.walkthrough.json" });
 // later: viewer.unmount();

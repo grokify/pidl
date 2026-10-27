@@ -19,7 +19,7 @@ Phases 1 and 2 are one release unit; phases 3 to 5 can follow in the same releas
 
 ## Release
 
-pidl v0.11.0 and `@grokify/pidl-viewer` 0.11.0 together. Each consuming project migrates in its own pull request after the release:
+pidl v0.12.0 and `@grokify/pidl-viewer` 0.12.0 together. Each consuming project migrates in its own pull request after the release:
 
 1. Run `pidl migrate -w` on its documents and review the notes.
 2. Regenerate its diagrams and walkthroughs.

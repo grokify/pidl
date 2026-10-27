@@ -8,7 +8,7 @@ It reads walkthroughs (`pidl-walkthrough/v1`), which `pidl generate -f walkthrou
 
 ```html
 <div id="walkthrough"></div>
-<script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.9.0/dist-lib/pidl-viewer.js"
+<script src="https://cdn.jsdelivr.net/npm/@grokify/pidl-viewer@0.10.0/dist-lib/pidl-viewer.js"
         data-pidl-target="#walkthrough"
         data-pidl-src="aauth.walkthrough.json"></script>
 ```
@@ -23,7 +23,7 @@ const viewer = await mount(document.querySelector("#walkthrough"), { src: "aauth
 
 The viewer renders inside a shadow root, so page and viewer styles stay apart, and several viewers can share a page.
 
-See [Embedding the Viewer](https://github.com/grokify/pidl/blob/main/docs/guide/embedding.md) for every option, and the [walkthrough format](https://github.com/grokify/pidl/blob/main/docs/reference/walkthrough-format.md) reference.
+See [Embedding the Viewer](https://github.com/grokify/pidl/blob/main/docs/guides/embedding.md) for every option, and the [walkthrough format](https://github.com/grokify/pidl/blob/main/docs/reference/walkthrough-format.md) reference.
 
 ## Observed Runs
 
@@ -43,7 +43,7 @@ npm run build:embed  # render/viewer/viewer.html for pidl generate -f viewer
 
 ## Release
 
-The package is released with PIDL and shares its version: the `v0.9.0` tag publishes `@grokify/pidl-viewer@0.9.0`.
+The package is released with PIDL and shares its version: the `v0.10.0` tag publishes `@grokify/pidl-viewer@0.10.0`.
 
 1. Set `version` in `package.json` to the release version, and run `npm install` to update `package-lock.json`.
 2. Push, and wait for CI to pass.
