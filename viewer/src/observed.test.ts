@@ -103,7 +103,9 @@ describe("observed details", () => {
   });
 
   it("summarizes the run", () => {
-    expect(observedRunLabel(order)).toBe("Observed 2 of 2 · aauth-sandbox · 14 matched (2 weak) · 7 extra · values redacted");
+    expect(observedRunLabel(order)).toBe("Observed 2 of 2 · aauth-sandbox · 14 matched · 7 extra · values redacted");
+    const weak = { ...order, observed_run: { ...order.observed_run!, weak: 2 } };
+    expect(observedRunLabel(weak)).toBe("Observed 2 of 2 · aauth-sandbox · 14 matched (2 weak) · 7 extra · values redacted");
   });
 
   it("notes the capturing tool's name and assertions", () => {

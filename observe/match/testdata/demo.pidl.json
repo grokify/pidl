@@ -11,7 +11,8 @@
     {"id": "agent", "name": "Agent", "type": "agent"},
     {"id": "ap", "name": "Agent provider", "type": "server"},
     {"id": "resource", "name": "Resource", "type": "resource_server"},
-    {"id": "ps", "name": "Person server", "type": "authorization_server"}
+    {"id": "ps", "name": "Person server", "type": "authorization_server"},
+    {"id": "as", "name": "Access server", "type": "authorization_server"}
   ],
   "scenarios": [
     {
@@ -43,6 +44,22 @@
           "id": "confirm", "from": "agent", "to": "ps", "action": "confirm", "label": "Confirm",
           "match": {"method": "POST", "path": "/confirm/{id}", "status": 204}
         }
+      ]
+    },
+    {
+      "id": "federated",
+      "name": "Federated",
+      "flows": [
+        {
+          "id": "token-request", "from": "agent", "to": "ps", "action": "token", "label": "Request an auth token",
+          "example": {"source": "test", "kind": "derived", "request": {"method": "POST", "url": "https://ps.example/token"}}
+        },
+        {
+          "id": "federate", "from": "ps", "to": "as", "action": "federate", "label": "Ask the access server",
+          "example": {"source": "test", "kind": "derived", "request": {"method": "POST", "url": "https://as.example/token"}}
+        },
+        {"id": "federated", "from": "as", "to": "ps", "action": "token", "label": "Access server's answer", "mode": "response"},
+        {"id": "auth-token", "from": "ps", "to": "agent", "action": "auth_token", "label": "auth_token", "mode": "response"}
       ]
     },
     {

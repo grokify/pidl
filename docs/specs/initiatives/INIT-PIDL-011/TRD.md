@@ -145,7 +145,7 @@ Each step has a rule, built in layers: the defaults drawn from its example, then
 **Request and response steps.** A document models one HTTP exchange as two steps: the request step (`agent` to `ap`), whose example has the request, and the response step (`ap` to `agent`), whose example has none. The matcher classifies each step of the expanded scenario in order:
 
 - a step whose example has a request is a **request step**;
-- a step without one that directly follows a request step, with that step's participants reversed, is its **response step**;
+- a response step without one is the **response step** of the nearest earlier request going the other way between the same two participants, even with other steps between them, as when a person server talks to an access server before answering the agent;
 - a step involving an unobservable participant is **unobservable**;
 - any other step without an example request is a **standalone step**.
 
@@ -211,7 +211,7 @@ A token definition gains `carried_in` (`carriedIn` in `pidl/v1`):
 ]}
 ```
 
-The current examples name a token's place only in a free-text label, so this field is new. For a matched step, the builder finds each defined token in the observed request and response, splits a JWT into header, payload and signature, and writes the first two decoded into the observed exchange's tokens, with the claims the definition lists marked. It does not verify a signature, and the output labels each token "decoded, not verified". A value that is not a JWT is shown as it is.
+The current examples name a token's place only in a free-text label, so this field is new. Several tokens can travel in one place, such as whichever token a request presents in `Signature-Key`, so a place can name the JWT `typ` a value must have to be that token (`"typ": "aa-agent+jwt"`). For a matched step, the builder finds each defined token in the observed request and response, splits a JWT into header, payload and signature, and writes the first two decoded into the observed exchange's tokens, with the claims the definition lists marked. It does not verify a signature, and the output labels each token "decoded, not verified". A value that is not a JWT is shown as it is.
 
 ## Walkthrough Output
 

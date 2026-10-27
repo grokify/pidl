@@ -40,8 +40,8 @@ func scenarios(r *Report) []string {
 }
 
 // checkOrderFlow checks the order flow's instance: every observable step
-// matched, the person's steps unobservable, and only the poll and its
-// response weak (the poll's example path holds a literal identifier).
+// a strong match, and the person's steps unobservable. The document's poll
+// rule templates the pending URL, so the poll matches strongly too.
 func checkOrderFlow(t *testing.T, f Found) {
 	t.Helper()
 	if f.Scenario != "ps-authorization-challenge" || f.RunnerUp != "ps-authorization" {
@@ -59,8 +59,8 @@ func checkOrderFlow(t *testing.T, f Found) {
 			t.Errorf("%s = %s", r.Step.Step.ID, r.Status)
 		}
 	}
-	if !slices.Equal(weak, []string{"consent.poll", "auth-token"}) {
-		t.Errorf("weak matches = %v, want the poll and its response", weak)
+	if len(weak) != 0 {
+		t.Errorf("weak matches = %v, want none", weak)
 	}
 	if f.Unobservable != 2 || f.NotSeen != 0 || f.Explained != 7 || len(f.Extra) != 7 {
 		t.Errorf("counts: unobservable %d, notSeen %d, explained %d, extra %d", f.Unobservable, f.NotSeen, f.Explained, len(f.Extra))
@@ -84,12 +84,8 @@ func TestMatchPetstoreCapture(t *testing.T) {
 		t.Errorf("browsing: matched %d, strong %d, extra %d", browse.Matched, browse.Strong, len(browse.Extra))
 	}
 	checkOrderFlow(t, r.Instances[1])
-	var warned []string
-	for _, wn := range r.Warnings {
-		warned = append(warned, wn.Scenario+"/"+wn.Step)
-	}
-	if !slices.Equal(warned, []string{"resource-managed/poll", "consent/poll"}) {
-		t.Errorf("warnings = %v, want each literal identifier once, where it is defined", warned)
+	if len(r.Warnings) != 0 {
+		t.Errorf("warnings = %v; the document templates its poll paths", r.Warnings)
 	}
 }
 

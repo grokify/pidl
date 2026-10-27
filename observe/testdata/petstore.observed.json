@@ -131,7 +131,7 @@
               },
               {
                 "name": "Signature-Key",
-                "value": "sig=jkt-jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+                "value": "sig=jkt-jwt;jwt=\"[redacted]\""
               },
               {
                 "name": "User-Agent",
@@ -223,7 +223,7 @@
               }
             ],
             "body": {
-              "agent_token": "eyJhbGciOiJFZDI1NTE5…",
+              "agent_token": "[redacted]",
               "expires_in": 3599
             }
           }
@@ -327,7 +327,7 @@
               },
               {
                 "name": "Signature-Key",
-                "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+                "value": "sig=jwt;jwt=\"[redacted]\""
               },
               {
                 "name": "User-Agent",
@@ -734,7 +734,7 @@
               },
               {
                 "name": "Signature-Key",
-                "value": "sig=jkt-jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+                "value": "sig=jkt-jwt;jwt=\"[redacted]\""
               },
               {
                 "name": "User-Agent",
@@ -826,7 +826,7 @@
               }
             ],
             "body": {
-              "agent_token": "eyJhbGciOiJFZDI1NTE5…",
+              "agent_token": "[redacted]",
               "expires_in": 3599
             }
           }
@@ -942,7 +942,7 @@
               },
               {
                 "name": "Signature-Key",
-                "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+                "value": "sig=jwt;jwt=\"[redacted]\""
               },
               {
                 "name": "User-Agent",
@@ -1136,7 +1136,7 @@
               },
               {
                 "name": "Signature-Key",
-                "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+                "value": "sig=jwt;jwt=\"[redacted]\""
               },
               {
                 "name": "User-Agent",
@@ -1234,7 +1234,7 @@
             ],
             "body": {
               "expires_in": 3599,
-              "person_token": "eyJhbGciOiJFZDI1NTE5…"
+              "person_token": "[redacted]"
             }
           }
         },
@@ -1349,7 +1349,7 @@
               },
               {
                 "name": "Signature-Key",
-                "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+                "value": "sig=jwt;jwt=\"[redacted]\""
               },
               {
                 "name": "User-Agent",
@@ -1429,7 +1429,7 @@
             "headers": [
               {
                 "name": "Aauth-Requirement",
-                "value": "requirement=auth-token; resource-token=\"eyJhbGciOiJFZDI1NTE5…\""
+                "value": "requirement=auth-token; resource-token=\"[redacted]\""
               },
               {
                 "name": "Content-Length",
@@ -1623,7 +1623,7 @@
               },
               {
                 "name": "Signature-Key",
-                "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+                "value": "sig=jwt;jwt=\"[redacted]\""
               },
               {
                 "name": "User-Agent",
@@ -1635,8 +1635,8 @@
                 "interaction"
               ],
               "justification": "Order Fido, as the person asked",
-              "presented_token": "eyJhbGciOiJFZDI1NTE5…",
-              "resource_token": "eyJhbGciOiJFZDI1NTE5…"
+              "presented_token": "[redacted]",
+              "resource_token": "[redacted]"
             }
           }
         },
@@ -1858,7 +1858,7 @@
               },
               {
                 "name": "Signature-Key",
-                "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+                "value": "sig=jwt;jwt=\"[redacted]\""
               },
               {
                 "name": "User-Agent",
@@ -1868,7 +1868,7 @@
           }
         },
         "observed_status": "matched",
-        "observed_strength": "weak",
+        "observed_strength": "strong",
         "curl": "# The signature headers are replayed from the example; curl cannot create HTTP message signatures.\ncurl 'https://ps.example/pending/f7a3b9c' \\\n  -H 'Prefer: wait=45' \\\n  -H 'Signature-Input: sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\");created=1730217710' \\\n  -H 'Signature: sig=:SIGNATURE-PLACEHOLDER:' \\\n  -H 'Signature-Key: sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiYWEtYWdlbnQrand0Iiwia2lkIjoiYXAta2V5LTEifQ.eyJpc3MiOi…\"'",
         "location": "scenarios[8].flows[3] (consent)"
       },
@@ -1948,13 +1948,13 @@
               }
             ],
             "body": {
-              "auth_token": "eyJhbGciOiJFZDI1NTE5…",
+              "auth_token": "[redacted]",
               "expires_in": 3599
             }
           }
         },
         "observed_status": "matched",
-        "observed_strength": "weak",
+        "observed_strength": "strong",
         "location": "scenarios[5].flows[8] (ps-authorization-challenge)"
       },
       {
@@ -2066,7 +2066,7 @@
               },
               {
                 "name": "Signature-Key",
-                "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+                "value": "sig=jwt;jwt=\"[redacted]\""
               },
               {
                 "name": "User-Agent",
@@ -2161,7 +2161,7 @@
       "to": "2026-10-27T09:02:31.682422092Z",
       "runner_up": "ps-authorization",
       "matched": 14,
-      "weak": 2,
+      "weak": 0,
       "not_seen": 0,
       "skipped": 0,
       "unmatchable": 0,
@@ -2527,7 +2527,7 @@
               },
               {
                 "name": "Signature-Key",
-                "value": "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+                "value": "sig=jwt;jwt=\"[redacted]\""
               },
               {
                 "name": "User-Agent",

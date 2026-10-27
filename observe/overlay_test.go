@@ -71,7 +71,7 @@ func TestApplyPetstore(t *testing.T) {
 	}
 	run := order.ObservedRun
 	if run.Source != "aauth-sandbox" || run.RequestFidelity != pidl.RequestFidelityWire || run.Instance != 2 || run.Instances != 2 ||
-		run.RunnerUp != "ps-authorization" || run.Matched != 14 || run.Weak != 2 || run.Unobservable != 2 ||
+		run.RunnerUp != "ps-authorization" || run.Matched != 14 || run.Weak != 0 || run.Unobservable != 2 ||
 		run.Explained != 7 || run.Extra != 7 || !run.Redacted || run.From == nil || run.To == nil || run.To.Before(*run.From) {
 		t.Errorf("run summary = %+v", run)
 	}
@@ -182,8 +182,11 @@ const tokenDocument = `{
   "entities": [{"id": "agent", "name": "Agent", "type": "agent"}, {"id": "ap", "name": "AP", "type": "server"}],
   "metadata": {"tokens": [
     {"id": "agent_token", "name": "Agent token", "type": "jwt", "carried_in": [
-      {"in": "header", "name": "Signature-Key", "param": "jwt"},
+      {"in": "header", "name": "Signature-Key", "param": "jwt", "typ": "aa-agent+jwt"},
       {"in": "body", "path": "/agent_token"}
+    ]},
+    {"id": "person_token", "name": "Person token", "type": "jwt", "carried_in": [
+      {"in": "header", "name": "Signature-Key", "param": "jwt", "typ": "aa-person+jwt"}
     ]},
     {"id": "api_key", "name": "API key", "type": "opaque", "carried_in": [{"in": "header", "name": "Authorization"}]}
   ]},

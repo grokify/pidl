@@ -314,3 +314,27 @@ func TestTestBody(t *testing.T) {
 		t.Errorf("body test = %v, candidate %v; a failed body test only lowers the score", got.Body, got.Candidate())
 	}
 }
+
+func TestPrepareResponseAfterOtherSteps(t *testing.T) {
+	p, err := pidl.ParseFile("testdata/demo.pidl.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	w := p.Walkthrough(nil)
+	var sc *pidl.WalkthroughScenario
+	for i := range w.Scenarios {
+		if w.Scenarios[i].ID == "federated" {
+			sc = &w.Scenarios[i]
+		}
+	}
+	steps, _ := Prepare(&w, sc, nil)
+	// The person server's answer to the agent comes after its own exchange
+	// with the access server, so it pairs with the agent's request, not
+	// with the step before it.
+	if got := byID(steps, "auth-token"); got.Kind != KindResponse || got.PairedWith != byID(steps, "token-request").Index {
+		t.Errorf("auth-token = %s paired with %d, want the agent's request", got.Kind, got.PairedWith)
+	}
+	if got := byID(steps, "federated"); got.Kind != KindResponse || got.PairedWith != byID(steps, "federate").Index {
+		t.Errorf("federated = %s paired with %d", got.Kind, got.PairedWith)
+	}
+}
