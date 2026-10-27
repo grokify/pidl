@@ -73,7 +73,7 @@ PIDL is pre-1.0 and its documents are maintained by the same people who maintain
 ### Migration
 
 21. **`pidl migrate`.** Upgrades a document written before v1 to `pidl/v1`: the header, names and values, `flows` into one scenario, missing step IDs from the action, process details from participants to steps, metadata to the top level, and animation and colors into views. It prints a note for every change that needs review, writes in place with `-w`, and with `--check` exits non-zero when a document needs migrating.
-22. **Reading old documents.** For the v0.10 series, reading a document without `format` migrates it in memory and reports that it should be migrated. v1.0.0 removes this.
+22. **Reading old documents.** For the v0.11 series, reading a document without `format` migrates it in memory and reports that it should be migrated. v1.0.0 removes this.
 23. **Every built-in example** is migrated, and its walkthrough and diagrams regenerated.
 
 ### Documentation
