@@ -81,6 +81,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cmdAnalyze(rest, stdout, stderr)
 	case "samples":
 		return cmdSamples(rest, stdout, stderr)
+	case "observe":
+		return cmdObserve(rest, stdout, stderr)
 	case "version", "--version", "-v":
 		fmt.Fprintf(stdout, "pidl version %s\n", version)
 		return 0
@@ -119,6 +121,7 @@ Commands:
   analyze      Security analysis of protocol
   scenarios    List scenarios in a PIDL file, in output order
   samples      Resolve and check code samples from source repositories
+  observe      Convert captures of real runs into observations
   roles        List protocol roles from PIDL files
   components   List deployment components from PIDL files
   trust        List trust relationships from PIDL files
@@ -195,6 +198,7 @@ func cmdGenerate(args []string, stdout, stderr io.Writer) int {
 	postmanMock := fs.Bool("mock", false, "Postman: save example responses for a mock server and check only status codes")
 	postmanTargets := fs.String("targets", "", "Postman environments: targets file (JSON) naming each target's role URLs and signer")
 	postmanTarget := fs.String("target", "", "Postman environments: target to write from --targets")
+	observed := addObserveFlags(fs)
 	var samplesFiles repeatedFlag
 	fs.Var(&samplesFiles, "samples", "Samples for walkthrough-json and viewer: a document's lock file or a sample set (pidl-samples/v1). Can be repeated. (default: <file without .json>.samples.json, when present)")
 	template := fs.String("template", "", "SVG template name (default, minimal, sketch, blueprint, dark)")
@@ -331,6 +335,19 @@ Infographic Examples:
 	if errs := p.Validate(); errs.HasErrors() {
 		fmt.Fprintf(stderr, "Validation errors in %s:\n%s", filename, errs)
 		return 1
+	}
+
+	var observedTransform func(*pidl.Walkthrough) error
+	if observed.set() {
+		if format != render.FormatWalkthroughJSON && format != render.FormatViewer {
+			fmt.Fprintf(stderr, "Error: --observation works with -f walkthrough-json and -f viewer\n")
+			return 2
+		}
+		observedTransform, err = observed.transform(p, stderr)
+		if err != nil {
+			fmt.Fprintf(stderr, "Error reading the observation: %v\n", err)
+			return 1
+		}
 	}
 
 	if format == render.FormatWalkthroughJSON || format == render.FormatViewer {
@@ -487,6 +504,8 @@ Infographic Examples:
 
 			renderer := render.NewInfographicRenderer(opts)
 			diagram = renderer.Render(p)
+		} else if observedTransform != nil {
+			diagram, err = renderObserved(format, p, observedTransform)
 		} else {
 			diagram, err = render.RenderString(format, p)
 		}
