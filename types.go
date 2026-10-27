@@ -125,6 +125,10 @@ type TokenDefinition struct {
 	// them in entities order.
 	VerifiedBy []string `json:"verified_by,omitempty"`
 
+	// CarriedIn says where the token travels in messages, so tokens can be
+	// found and decoded in exchanges observed in a real system.
+	CarriedIn []TokenCarriage `json:"carried_in,omitempty"`
+
 	// Claims lists the claims checkers rely on, in display order.
 	Claims []TokenClaim `json:"claims,omitempty"`
 }
@@ -1101,4 +1105,17 @@ type DataPortMapping struct {
 	InputPort string `json:"input_port"`
 	// Transformation describes any data transformation applied.
 	Transformation string `json:"transformation,omitempty"`
+}
+
+// TokenCarriage is one place a token travels.
+type TokenCarriage struct {
+	// In is "header" or "body".
+	In string `json:"in"`
+	// Name is the header's name, for a token in a header.
+	Name string `json:"name,omitempty"`
+	// Param is the structured field parameter holding the token, such as
+	// "jwt" in Signature-Key; empty when the token is the whole value.
+	Param string `json:"param,omitempty"`
+	// Path is a JSON pointer to the token in the body, for a token in a body.
+	Path string `json:"path,omitempty"`
 }
