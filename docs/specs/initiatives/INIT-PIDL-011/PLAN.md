@@ -22,7 +22,7 @@ Phases 1 and 2 can be reviewed on their own: the matcher and the overlay have no
 
 ## Release
 
-pidl v0.10.0 and `@grokify/pidl-viewer` 0.10.0 together. The v1 format (`INIT-PIDL-008`) follows in v0.11.0, and the observed fields already carry their v2 names. Consumers upgrade in their own changes:
+Phases 1 and 2, with the AAuth document's rules and the guide, ship as pidl v0.10.0 and `@grokify/pidl-viewer` 0.10.0 together. Phases 3 and 4 follow in v0.11.0, and the v1 format (`INIT-PIDL-008`) in v0.12.0; the observed fields already carry their v2 names. Consumers upgrade in their own changes:
 
 1. `agent-protocols` adds the AAuth match rules and token carriage to its document and regenerates the explorer.
 2. `aauth-postman` adds the binding and the demo target.

@@ -60,5 +60,5 @@ PIDL's source format becomes `pidl/v1`: participants and scenarios of steps for 
 
 - [ ] `RMI-PIDL-129` Specification for `pidl/v1`, a migration guide with every rename and move, and a system view and styling guide
   - Depends on: `RMI-PIDL-121`, `RMI-PIDL-124`, `RMI-PIDL-128`
-- [ ] `RMI-PIDL-130` The new description in the README, docs site and roadmap; v0.11.0 release notes and changelog
+- [ ] `RMI-PIDL-130` The new description in the README, docs site and roadmap; v0.12.0 release notes and changelog
   - Depends on: `RMI-PIDL-129`

@@ -21,8 +21,9 @@
 | v0.7.0 | Ordered Roles and Scenarios, plus D2, determinism and Windows fixes | ✅ Done |
 | v0.8.0 | Walkthrough Viewer and Flow Examples | ✅ Done |
 | v0.9.0 | Walkthrough Format, Embeddable Viewer, Code Samples, Postman, Narration | ✅ Done |
-| v0.10.0 | Live Runs in the Viewer (`INIT-PIDL-011`) | 🔲 Next |
-| v0.11.0 | PIDL v1 Format and the System View (`INIT-PIDL-008`) | 🔲 Planned |
+| v0.10.0 | Live Runs in the Viewer (`INIT-PIDL-011`, phases 1 and 2) | ✅ Done |
+| v0.11.0 | Live Runs: More Sources and Checking (`INIT-PIDL-011`, phases 3 and 4) | 🔲 Next |
+| v0.12.0 | PIDL v1 Format and the System View (`INIT-PIDL-008`) | 🔲 Planned |
 | v1.0.0 | Production Ready Release | 🔲 Next |
 
 ---
@@ -341,19 +342,30 @@ One PIDL file holds a protocol's ordered roles and an ordered list of named scen
 
 ---
 
-## Next: v0.10.0 — Live Runs in the Viewer
+## Completed: v0.10.0 — Live Runs in the Viewer
 
 A walkthrough keeps its explanation and gains the exchanges a real run produced, so a developer sees the concept and their own system's messages side by side. See [`INIT-PIDL-011`](initiatives/INIT-PIDL-011/ROADMAP.md).
 
-- [ ] `pidl-observation/v1` and `pidl-binding/v1`, with adapters for a role-labeled trace, HAR and a Newman report
-- [ ] Matching by rules the document and a binding carry: scenario instances, repeated steps and a time window
-- [ ] `--observation` and `--binding` on `pidl generate`, with token decoding and redaction by default
-- [ ] A Concept / Observed switch in the viewer, with extra exchanges shown where they happened
-- [ ] `pidl observe check`, and the AAuth demo against the aauth-go sandbox
+- [x] `pidl-observation/v1` and `pidl-binding/v1`, with an adapter for the aauth-go sandbox's trace
+- [x] Matching by rules the document and a binding carry: step pairs, scenario instances, repeated steps, a time window, and strong and weak matches
+- [x] `--observation` and `--binding` on `pidl generate`, with token decoding by `carried_in` and redaction by default
+- [x] A Concept / Observed switch in the viewer, with extra exchanges shown where they happened
+- [x] The AAuth document's match rules and token carriage, and the Observed Runs guide
 
 ---
 
-## Planned: v0.11.0 — PIDL v1 Format and the System View
+## Next: v0.11.0 — Live Runs: More Sources and Checking
+
+The rest of [`INIT-PIDL-011`](initiatives/INIT-PIDL-011/ROADMAP.md).
+
+- [ ] HAR and Newman report adapters, and joining a client's observation to a server's trace
+- [ ] `pidl observe check`, failing when a required step was not seen
+- [ ] A second protocol example matched with no change to the tool
+- [ ] Client events that say why a request was sent
+
+---
+
+## Planned: v0.12.0 — PIDL v1 Format and the System View
 
 One source format, `pidl/v1`, for protocols and processes alike, with presentation kept in a `views` block and a migrator for existing documents. See [`INIT-PIDL-008`](initiatives/INIT-PIDL-008/ROADMAP.md).
 
