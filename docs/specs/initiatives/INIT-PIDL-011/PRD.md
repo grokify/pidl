@@ -51,52 +51,53 @@ A real capture is also messier than an example. It holds several journeys one af
 
 ### Binding
 
-10. **A binding file.** `pidl-binding/v1` describes one deployment: each participant's hosts, the labels a capturing tool uses for it, the paths of its endpoints where they differ from the document's examples, URL rewrites a capture needs (such as the prefix a signing proxy adds), and per-step overrides.
+10. **A binding file.** `pidl-binding/v1` describes one deployment: each participant's hosts, the labels a capturing tool uses for it, the paths of its endpoints where they differ from the document's examples, URL rewrites a capture needs (such as the prefix a signing proxy adds), and overrides keyed by scenario and step, since step IDs repeat across scenarios.
 
 ### Matching
 
 11. **Required tests.** An exchange can match a step only when the participants agree (by label or host, through the binding) and the method agrees.
 12. **Scored tests.** The path (as a template or as the binding maps it), the response status, and anything an explicit rule names raise the score. A deployment's own paths and hosts never prevent a match on their own.
-13. **Default rules.** Where a step's example has a request and response, its method, path and status are the default rules. A step whose example has none matches only through an explicit rule or the binding; until then it is reported as not matchable, never silently not seen.
-14. **Explicit rules.** A step may carry a `match`: method; path as a template or regular expression; status; headers, compared with names in any case and values as exact strings, prefixes or regular expressions; body predicates by JSON pointer; `repeat`; and `optional`. A binding may override a step's rule for its deployment.
+13. **Default rules, and steps as halves of an exchange.** A document models a request and its response as two steps, and only the request step's example has a request. Where a request step's example has a request and response, its method, path and status are the default rules. A step that follows a request step with its participants reversed is that request's response: it is filled from the same exchange and takes the request step's status. Any other step without an example request matches only through an explicit rule or the binding; until then it is reported as not matchable, never silently not seen.
+14. **Explicit rules.** A step may carry a `match`: method; path as a template or regular expression (example paths often hold literal identifiers, such as a pending request's ID, that a real run never repeats); status; headers, compared with names in any case and values as exact strings, prefixes or regular expressions; body predicates by JSON pointer; `repeat`; and `optional`. A binding may override a step's rule for its deployment.
 15. **Ordered alignment.** Within a scenario instance, exchanges are aligned to steps in order, maximizing the total score, so a message that recurs in a scenario matches its own step.
 16. **Repeated messages.** A step with `repeat: true` takes every consecutive exchange that matches it, such as a client polling while a person decides.
-17. **Scenario instances.** A capture is split into the consecutive scenario instances it contains. The user names the scenarios to look for, in order, or the tool chooses at each point the scenario that matches best and reports its choice.
+17. **Scenario instances.** A capture is split into the consecutive scenario instances it contains. The user names the scenarios to look for, in order, or the tool chooses at each point, among scenarios that are not fragments, the one that explains the most exchanges while leaving the fewest required steps unseen, and reports its choice and the runner-up. A scenario's share of its own steps matched is not the measure, because it favors small scenarios.
 18. **Time window.** Matching can be limited to a time range, to leave out activity before or after the run.
-19. **Statuses.** Each step ends `matched`, `notSeen`, `skipped` (optional, or on an alternative path) or `unmatchable` (no rule). Each exchange is `matched` or `extra`, and an extra exchange records the step it followed.
+19. **Statuses.** Each step ends `matched`, `notSeen`, `skipped` (optional, or on an alternative path), `unmatchable` (no rule) or `unobservable` (it involves a participant a capture cannot see, such as a person in a browser). Each exchange is `matched` or `extra`, and an extra exchange records the step it followed.
+20. **Strong and weak matches.** A match that passes only the required tests (participants and method) is weak; one that also passes a path, status, header or body test is strong. Weak matches are reported and counted apart, so that a summary of every step matched cannot hide a wrong match.
 
 ### Output and Check
 
-20. **Built by the existing generator.** `pidl generate -f walkthrough-json` and `-f viewer` take an observation and a binding, the way they already take code samples. The viewer output is a self-contained page that opens from disk.
-21. **Additive fields.** The walkthrough keeps each step's `example` and adds the observed exchange and the step's status. Field names follow the walkthrough format's version: snake_case in v1, camelCase in v2. Nothing already in the walkthrough changes meaning.
-22. **Run summary.** The walkthrough records the source, the time range, the scenario instances found, and the counts of matched, not-seen, skipped, unmatchable and extra items.
-23. **Check.** `pidl observe check` exits non-zero when a required step is `notSeen`, prints a short report, and can write it as JSON.
+21. **Built by the existing generator.** `pidl generate -f walkthrough-json` and `-f viewer` take an observation and a binding, the way they already take code samples. The viewer output is a self-contained page that opens from disk.
+22. **Additive fields.** The walkthrough keeps each step's `example` and adds the observed exchange and the step's status. Field names follow the walkthrough format's version: snake_case in v1, camelCase in v2. Nothing already in the walkthrough changes meaning.
+23. **Run summary.** The walkthrough records the source, the time range, the scenario instances found, and the counts of strong and weak matches and of not-seen, skipped, unmatchable, unobservable and extra items.
+24. **Check.** `pidl observe check` exits non-zero when a required step is `notSeen`, prints a short report, and can write it as JSON.
 
 ### Tokens and Redaction
 
-24. **Token carriage in the document.** A token definition says where the token travels: a header and parameter, or a body field. Decoding follows the definition, so the tool names no protocol's headers.
-25. **Decoded, not verified.** Tokens are decoded to their header and claims. The output never claims a token is valid.
-26. **Redaction by default.** Raw token strings, signatures, and credentials in `Authorization` and `Cookie` headers are masked in every output. Decoded claims are kept, because they are what teaches the protocol. `--raw` keeps the full values for a developer's own use.
+25. **Token carriage in the document.** A token definition says where the token travels: a header and parameter, or a body field. Decoding follows the definition, so the tool names no protocol's headers.
+26. **Decoded, not verified.** Tokens are decoded to their header and claims. The output never claims a token is valid.
+27. **Redaction by default.** Raw token strings, signatures, and credentials in `Authorization` and `Cookie` headers are masked in every output. Decoded claims are kept, because they are what teaches the protocol. `--raw` keeps the full values for a developer's own use.
 
 ### Client Events
 
-27. **Why a request was sent.** A client may record its own events (such as "received a challenge for a person token, requesting one"). They join the observation by a request ID header when the client sends one, and otherwise by method, URL and time, and appear on the step they explain.
+28. **Why a request was sent.** A client may record its own events (such as "received a challenge for a person token, requesting one"). They join the observation by a request ID header when the client sends one, and otherwise by method, URL and time, and appear on the step they explain.
 
 ### Viewer
 
-28. **Concept and Observed.** A switch shows a step's example or its observed exchange. A scenario without an observation shows no switch.
-29. **Instances and badges.** The viewer names the scenario instance on screen (for example, instance 2 of 2), and each step shows its status.
-30. **Extra exchanges in place.** An exchange the document does not describe appears between the steps it fell between, and opens in the same panels.
-31. **Time.** An observed step shows when it happened and the gap from the step before it.
+29. **Concept and Observed.** A switch shows a step's example or its observed exchange. A scenario without an observation shows no switch.
+30. **Instances and badges.** The viewer names the scenario instance on screen (for example, instance 2 of 2), and each step shows its status, with weak matches marked as such.
+31. **Extra exchanges in place.** An exchange the document does not describe appears between the steps it fell between, and opens in the same panels.
+32. **Time.** An observed step shows when it happened and the gap from the step before it.
 
 ### Documentation and the First Consumer
 
-32. **Guide.** A guide explains the three files (document, observation, binding), the commands, what a match does and does not mean, and how to handle observations of real systems.
-33. **AAuth example.** The AAuth document gains the match rules and token carriage it needs, including rules for its steps whose examples have no request. The aauth-postman repository keeps the binding for the sandbox and a target that runs the scenarios and opens the result.
+33. **Guide.** A guide explains the three files (document, observation, binding), the commands, what a match does and does not mean, and how to handle observations of real systems.
+34. **AAuth example.** The AAuth document gains the match rules and token carriage it needs, including rules for its steps whose examples have no request and templates in place of the literal identifiers in its example paths. It also describes a resource that challenges on the API call itself, as the Petstore does, so that first challenge is a step rather than an extra exchange. The aauth-postman repository keeps the binding for the sandbox and a target that runs the scenarios and opens the result.
 
 ## Success Criteria
 
-1. The sandbox trace of the Petstore run builds a walkthrough with two scenario instances (browsing, then ordering), every step of each matched, the health check before the run left out by the time window or shown as extra, and the key and metadata fetches shown as extra between the steps they fell between.
+1. The sandbox trace of the Petstore run builds a walkthrough with two scenario instances (browsing, then ordering), found without naming the scenarios. Every observable step of each is a strong match under the AAuth document's rules and the sandbox binding, the person's steps are `unobservable`, the health check before the run is left out by the time window or shown as extra, and the key and metadata fetches are shown as extra between the steps they fell between.
 2. The ordering flow driven from Newman and from omniagent matches its steps in both runs. omniagent's additional calls, such as loading the API description, appear as extra.
 3. Removing a step from the run, or sending it out of order, makes `check` fail and the viewer mark the step.
 4. A second protocol example with a small captured run works with no change to the tool, only to its document and binding.

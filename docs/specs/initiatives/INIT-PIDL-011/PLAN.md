@@ -9,7 +9,7 @@ The walkthrough format and embeddable viewer (`INIT-PIDL-007`) released in v0.9.
 
 ## Build Order
 
-1. **A spike first.** The captured AAuth Petstore run from the sandbox, with its two journeys, its health check and its key fetches, aligned by throwaway code to the AAuth scenarios and shown in the viewer. The spike answers three questions before any format is fixed: whether the default rules plus a binding are enough, how often a step needs an explicit rule, and whether instance splitting by first step works on a real capture. It also produces the fixture the later tests use.
+1. **A spike first (done).** The captured AAuth Petstore run from the sandbox, with its two journeys, its health check and its key fetches, aligned by throwaway code to the AAuth scenarios and shown in the viewer. It answered whether the default rules plus a binding are enough, how often a step needs an explicit rule, and whether instance splitting works on a real capture; the TRD's Spike Findings record the answers and the changes they made. The capture becomes the fixture the later tests use.
 2. **The formats and the matcher.** The observation and binding types and schemas, then rules, scoring, alignment, repeated steps, scenario instances and the time window, with their property tests, before any adapter beyond the sandbox trace.
 3. **The overlay.** `--observation` and `--binding` on `pidl generate`, the walkthrough fields in both versions, the self-contained page, token carriage and decoding, and redaction.
 4. **The viewer.** The switch, the instance label, the badges, and extra exchanges in place.
@@ -22,7 +22,7 @@ Phases 1 and 2 can be reviewed on their own: the matcher and the overlay have no
 
 ## Release
 
-pidl v0.11.0 and `@grokify/pidl-viewer` 0.11.0 together, or the next versions after `INIT-PIDL-008` ships. Consumers upgrade in their own changes:
+pidl v0.10.0 and `@grokify/pidl-viewer` 0.10.0 together. The v1 format (`INIT-PIDL-008`) follows in v0.11.0, and the observed fields already carry their v2 names. Consumers upgrade in their own changes:
 
 1. `agent-protocols` adds the AAuth match rules and token carriage to its document and regenerates the explorer.
 2. `aauth-postman` adds the binding and the demo target.

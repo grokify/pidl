@@ -118,8 +118,10 @@ Given a `client` observation and a `wire` observation of the same run, the joine
   "rewrite": [
     {"match": "^http://sandbox:8099/(https://.*)$", "to": "$1"}
   ],
+  "unobservable": ["person"],
   "steps": {
-    "consent": {"match": {"method": "GET", "path": "^/pending/", "repeat": true}}
+    "*/consent.poll": {"match": {"method": "GET", "path": "^/pending/", "repeat": true}},
+    "ps-authorization-challenge/request": {"match": {"method": "POST", "path": "/v2/store/order", "status": 401}}
   }
 }
 ```
@@ -128,7 +130,8 @@ Given a `client` observation and a `wire` observation of the same run, the joine
 - `labelsByPath` resolves a generic label, such as a trace's `client`, by the request path. Where it cannot be resolved, the exchange keeps an unknown sender, which still matches a step whose sender is not required to agree.
 - `paths` gives a participant's path for a step where the deployment's path differs from the document's example. It replaces the example's path for that step's rule.
 - `rewrite` applies regular-expression rewrites to every exchange's URL before matching, in order.
-- `steps` overrides a step's `match` for this deployment only.
+- `unobservable` lists participants a capture cannot see, in addition to those whose role type is `user`.
+- `steps` overrides a step's `match` for this deployment only. A key is `<scenario>/<step>`, or `*/<step>` for every scenario that contains the step, because step IDs repeat across scenarios: `request` is a `GET` in one scenario and the protected `POST` in another. A scenario-specific key wins over a wildcard.
 
 ## Matching
 
@@ -136,7 +139,20 @@ Given a `client` observation and a `wire` observation of the same run, the joine
 
 Each step has a rule. It comes from, in order of precedence: the binding's `steps` override, the step's own `match`, and the defaults drawn from its example. The binding's `paths` replace the rule's path where they name the step.
 
-**Defaults.** Where the example has a request and a response, the defaults are its method, its path read as a template (segments in braces are wildcards), and its status. Where the example has no request, the step has no default rule. Unless a `match` or the binding supplies one, it is `unmatchable`, and the tool reports it once per run, so an author knows which steps need rules.
+**Defaults.** Where the example has a request and a response, the defaults are its method, its path read as a template (segments in braces are wildcards), and its status.
+
+**Request and response steps.** A document models one HTTP exchange as two steps: the request step (`agent` to `ap`), whose example has the request, and the response step (`ap` to `agent`), whose example has none. The matcher classifies each step of the expanded scenario in order:
+
+- a step whose example has a request is a **request step**;
+- a step without one that directly follows a request step, with that step's participants reversed, is its **response step**;
+- a step involving an unobservable participant is **unobservable**;
+- any other step without an example request is a **standalone step**.
+
+Only request and standalone steps are aligned. A response step is filled from its request step's exchange (the response half) and takes the same status. A standalone step has no default rule: unless a `match` or the binding supplies one, it is `unmatchable`, and the tool reports it once per run, so an author knows which steps need rules.
+
+**Observability.** A participant is unobservable when its role type is `user` (a person, acting in a browser or out of band), or when the binding lists it under `unobservable`. Its steps are `unobservable`: a server's capture cannot see them, so they are neither matched nor counted as missing.
+
+**Literal identifiers in example paths.** Examples are written with concrete values, such as `/pending/f7a3b9c`, that no real run repeats. A path segment of six or more characters mixing letters and digits, in a step with no explicit rule, draws a warning that suggests a template (`/pending/{id}`), so authors template them once in the document.
 
 **Explicit rule.**
 
@@ -162,18 +178,20 @@ Each step has a rule. It comes from, in order of precedence: the binding's `step
 
 A pair of an exchange and a step is a candidate only when the participants agree (an unknown sender agrees with any) and the method agrees. Its score is the sum of the tests that pass, with initial weights: path 3, status 2, each named header 2, each body predicate 2, sender known and agreeing 1. A test the rule does not name is not scored. The weights are constants in one place, and the report prints each pair's score so a poor default shows.
 
+**Strength.** A match is **strong** when a path, status, header or body test passed, and **weak** when only the required tests did. A weak match is often right (a resource that challenges on its API call rather than at an authorization endpoint matches on participants and method alone) and sometimes wrong (a follow-up `GET` taking the place of the protected call). Either way it is reported as weak, counted apart from strong matches, and marked in the viewer.
+
 ### Alignment within an instance
 
-Exchanges are assigned to the steps of one scenario instance by dynamic programming over the two sequences. The assignment keeps order, uses each exchange once, assigns each step at most one exchange (or a consecutive run of them when it repeats), and maximizes the total score. Exchanges left over are `extra`; steps left over are `notSeen`, `skipped` when optional or on an alternative path, or `unmatchable` when they have no rule. Ties prefer the earlier exchange.
+Exchanges are assigned to the request and standalone steps of one scenario instance by dynamic programming over the two sequences; response steps then take their request step's exchange. The assignment keeps order, uses each exchange once, assigns each step at most one exchange (or a consecutive run of them when it repeats), and maximizes the total score. Exchanges left over are `extra`; steps left over are `notSeen`, `skipped` when optional or on an alternative path, or `unmatchable` when they have no rule. Unobservable steps take no part in the alignment. Ties prefer the earlier exchange.
 
 ### Scenario instances
 
 A capture usually holds more than one journey. The matcher reads it from left to right within the time window:
 
-1. At the first unconsumed exchange, try each candidate scenario: the next one in the user's `--scenarios` list, or every scenario when no list is given.
-2. An instance of a scenario starts at the first exchange that matches its first matchable step, and runs until the exchange before one that starts a new instance of any candidate after the current instance has matched at least one later step, or to the end of the window.
-3. Align the instance. Score it by the share of its required steps matched, then by total score.
-4. Take the best-scoring candidate, record it as an instance, mark exchanges before its start as `extra`, and continue after its last exchange.
+1. At the first unconsumed exchange, try each candidate scenario: the next one in the user's `--scenarios` list, or every scenario that is not a fragment when no list is given. Fragments are building blocks that other scenarios include, not journeys of their own.
+2. An instance of a scenario starts at the first exchange that matches its first matchable step, and runs until the exchange before the next one that matches the first matchable step of any candidate (a new journey begins with its first step again), or to the end of the window.
+3. Align the instance. Rank it by the exchanges it explains minus its required steps not seen, then by its count of strong matches, then by total score. Neither the share of a scenario's own steps matched nor the exchanges explained alone will do: the first favors small scenarios, and the second lets a long scenario claim a short journey while leaving most of its steps unseen.
+4. Take the best-ranked candidate, record it as an instance, mark exchanges before its start as `extra`, and continue after its last exchange.
 
 The report lists the instances found and, for each, the runner-up scenario and its score. Interleaved concurrent journeys are not separated (a non-goal); they show as one instance with many extra exchanges.
 
@@ -202,6 +220,7 @@ The walkthrough changes only by addition. The new names follow the version of th
 |---------|-----------------------|-----------------------|
 | The step's observed exchange | `observed` | `observed` |
 | The step's status | `observed_status` | `observedStatus` |
+| A match's strength (`strong` or `weak`) | `observed_strength` | `observedStrength` |
 | The run's summary on a scenario | `observed_run` | `observedRun` |
 | Exchanges between steps | `observed_extra` | `observedExtra` |
 | The step an extra exchange followed | `after_step` | `afterStep` |
@@ -214,7 +233,8 @@ In v1:
   "scenarios": [{
     "id": "ps-authorization",
     "observed_run": {"source": "aauth-sandbox", "instance": 2, "instances": 2,
-                     "matched": 9, "not_seen": 0, "skipped": 0, "unmatchable": 0, "extra": 6},
+                     "matched": 12, "weak": 2, "not_seen": 0, "skipped": 0, "unmatchable": 0,
+                     "unobservable": 2, "extra": 7},
     "steps": [{
       "id": "…",
       "example": {"…": "unchanged"},
@@ -227,7 +247,7 @@ In v1:
 }
 ```
 
-A scenario instance found in the capture is written as its own scenario entry, with the instance number in its summary. `observed` and the status are absent on a step with no observation, and a viewer that does not know them ignores them. Both schemas gain the fields, and the generated TypeScript types follow.
+A scenario instance found in the capture is written as its own scenario entry, with the instance number in its summary. In the summary, `matched` counts every matched step and `weak` the matched steps that are weak. A response step's `observed` holds only the response, and its status and strength are its request step's. `observed` and the status are absent on a step with no observation, and a viewer that does not know them ignores them. Both schemas gain the fields, and the generated TypeScript types follow.
 
 ## Redaction
 
@@ -275,7 +295,9 @@ If a second tool needs the Newman reader, it moves to a hand-written `newman` pa
 - **Captured fixtures.** A sandbox trace of the AAuth Petstore run (two scenario instances, a health check before them, key fetches between steps), the same run as a Newman report, and a small HAR. Token and signature values in committed fixtures are truncated with an ellipsis; tests that need a decodable token use the generated ones.
 - **Golden tests.** Each adapter's output, the join, the built walkthrough in v1 and v2, the self-contained page, and the check report.
 - **Matching properties.** Exchanges in order all match; swapping two makes one extra or a step not seen; a duplicated exchange is extra; a polled step absorbs its repeats; removing a required step gives `notSeen` and exit 1; a step with no example request and no rule is `unmatchable`; header names match in any case.
-- **Instances.** A capture with two journeys gives two instances; noise before the first is extra or left out by the time window.
+- **Instances.** A capture with two journeys gives two instances, the same with and without named scenarios; fragments are never chosen as instances; noise before the first is extra or left out by the time window.
+- **Pairs and observability.** A response step takes its request step's exchange and status; a person's steps are `unobservable`; a standalone step with no rule is `unmatchable`.
+- **Strength.** A match on participants and method only is weak; adding a passing path or status test makes it strong; a binding override turns a misleading weak match into the right strong one.
 - **A second protocol.** An OAuth authorization-code example from the built-in documents, with a small hand-written run, exercises the matcher with no change to the code.
 - **Redaction.** No output written without `--raw` contains a fixture's raw token or signature value.
 - **Schemas.** The generated schemas pass the drift test and the camelCase lint.
@@ -287,9 +309,33 @@ If a second tool needs the Newman reader, it moves to a hand-written `newman` pa
 - Outputs are redacted unless `--raw` is given, and the guide says that an observation is as sensitive as the traffic it came from and is not for committing or sharing.
 - Committed fixtures carry no values that grant access.
 
+## Spike Findings
+
+A throwaway matcher ran on a real capture before this design was settled: the AAuth explorer walkthrough, an aauth-go sandbox trace of the Petstore run (19 exchanges), and the same run's Newman report (10 requests).
+
+| Question | Result |
+|----------|--------|
+| Are default rules plus a binding enough? | Only with a binding. The `api-request` example is `GET /api/documents`, so by default it matched the Petstore's follow-up `GET`, and the real protected call (`POST /v2/store/order`, 200) became extra. One binding override fixed it. |
+| How many steps need an explicit rule? | 3 of the 6 request steps in `ps-authorization` for this deployment: the protected call (method), the authorization step (the Petstore challenges on its API call), and the poll (a literal ID in the example path). Response steps need none once paired. |
+| Does instance splitting work? | With named scenarios: two instances, browsing and ordering, every observable step matched. With automatic choice it took three tries. Ranked by the share of a scenario's own steps matched, a two-step scenario won twice and left the order flow as 12 extra exchanges. Ranked by exchanges explained, fragments competed as journeys and a long scenario claimed the browsing span with 8 steps unseen. Excluding fragments, ranking by exchanges explained minus required steps not seen, and ending an instance where any candidate's first step recurs found the same two instances as the named run. |
+
+What the spike changed in this document:
+
+- A step is half an exchange; response steps are filled from their request step's exchange.
+- Steps involving a person are `unobservable`, not `notSeen`.
+- Automatic scenario choice excludes fragments, ranks by exchanges explained minus required steps not seen, and ends an instance where a first step recurs.
+- Weak matches are reported and counted apart from strong ones.
+- Literal identifiers in example paths draw a warning suggesting a template.
+- Binding overrides are keyed by scenario and step, with a wildcard for every scenario, because step IDs repeat across scenarios.
+
+What it confirmed: the time window dropped a health check made before the run; Newman joined to the trace 10 of 10 by method and the URL with the signing helper's prefix removed; path-based label resolution resolved every `client` sender; extra exchanges in place were informative (7 key and metadata fetches between the order flow's steps); and redaction with decoded claims kept rendered well in the existing viewer.
+
+It also found a gap in the AAuth document rather than the tool: the Petstore answers its API call with a challenge for a person token before anything else, and the document's scenarios had no such step. With a challenge-first variant added to the document and three scenario-scoped binding overrides for the Petstore's protected `POST`, automatic choice picked that variant over `ps-authorization`, every exchange of the order flow became a step, six of its request steps matched strongly, and only the poll (a literal identifier in its example path) stayed weak; the remaining extra exchanges were key and metadata fetches.
+
 ## Open Questions
 
 - Whether a step's `match` belongs in the source format or only in a binding. It starts in the document, because most deployments want the same rules, and the binding overrides it.
 - Whether alternatives should be matched as separate candidates in the first release or only reported as `skipped`.
 - Whether `pidl observe check` should accept a threshold for extra exchanges.
 - Whether key and metadata fetches, which every AAuth run contains, should become optional steps in the AAuth document rather than extra exchanges.
+- Whether a scenario that legitimately repeats its first step mid-journey (a token refresh, say) needs a way to say so, since the first-step boundary would split it. A named scenario list avoids the split today; segmenting the whole capture by dynamic programming is the fuller answer if real captures need it.

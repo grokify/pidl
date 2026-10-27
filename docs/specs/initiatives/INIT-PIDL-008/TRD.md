@@ -71,7 +71,7 @@ The JSON is illustrative; the generated schema is normative.
 
 | v0 | v1 | Notes |
 |----|----|-------|
-| `Protocol` | `Document` | `type Protocol = Document` kept, deprecated, through the v0.10 series |
+| `Protocol` | `Document` | `type Protocol = Document` kept, deprecated, through the v0.11 series |
 | `ProtocolMeta` (`protocol` object) | fields on `Document` | |
 | `Entity` (`entities`) | `Participant` (`participants`) | `type Entity = Participant`, deprecated |
 | `Flow` (`flows`) | `Step` (`steps`) | `type Flow = Step`, deprecated |

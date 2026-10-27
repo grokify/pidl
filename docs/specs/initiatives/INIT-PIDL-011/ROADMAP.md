@@ -12,13 +12,13 @@ A walkthrough keeps its explanation and gains the exchanges that a real run prod
 - [ ] `RMI-PIDL-131` `pidl-observation/v1` and `pidl-binding/v1`: types, reader, writer, validation and generated schemas with the drift test
 - [ ] `RMI-PIDL-132` Role-labeled trace adapter, with the AAuth Petstore capture as the first fixture
   - Depends on: `RMI-PIDL-131`
-- [ ] `RMI-PIDL-133` Rules: defaults from each step's example, step `match`, the binding's labels, hosts, path-based label resolution, paths, rewrites and overrides; header names in any case; exact, prefix and regular-expression values; `unmatchable` for steps with no rule
+- [ ] `RMI-PIDL-133` Rules: request, response, standalone and unobservable steps; example defaults and step `match`; binding labels, hosts, paths, rewrites and overrides; header and value matching; the literal-identifier warning
   - Depends on: `RMI-PIDL-131`
 - [ ] `RMI-PIDL-151` Repeated steps (`repeat`) and body predicates by JSON pointer
   - Depends on: `RMI-PIDL-133`
-- [ ] `RMI-PIDL-134` Scoring and ordered alignment within an instance by dynamic programming, step and exchange statuses, and the property tests
+- [ ] `RMI-PIDL-134` Scoring, strong and weak matches, ordered alignment within an instance by dynamic programming with response steps paired, step and exchange statuses, and the property tests
   - Depends on: `RMI-PIDL-151`
-- [ ] `RMI-PIDL-150` Scenario instances: splitting a capture by first step, a named scenario list or the best match, the time window, and the instance report
+- [ ] `RMI-PIDL-150` Scenario instances: splitting a capture where a first step recurs, a named scenario list or the best-ranked non-fragment candidate (exchanges explained minus required steps not seen), the time window, and the instance report with the runner-up
   - Depends on: `RMI-PIDL-134`
 
 ## Phase 2 — The Overlay and the Viewer
@@ -33,7 +33,7 @@ A walkthrough keeps its explanation and gains the exchanges that a real run prod
   - Depends on: `RMI-PIDL-136`
 - [ ] `RMI-PIDL-138` Redaction of raw tokens, signatures and credentials in every output, and `--raw`
   - Depends on: `RMI-PIDL-137`
-- [ ] `RMI-PIDL-139` Viewer: Concept / Observed switch, the instance label, status badges, repeat counts and observed times
+- [ ] `RMI-PIDL-139` Viewer: Concept / Observed switch, the instance label, status badges with weak matches marked, repeat counts and observed times
   - Depends on: `RMI-PIDL-136`
 - [ ] `RMI-PIDL-140` Viewer: extra exchanges between the steps they fell between, and steps that were not seen or not matchable
   - Depends on: `RMI-PIDL-139`
@@ -57,7 +57,7 @@ A walkthrough keeps its explanation and gains the exchanges that a real run prod
 
 **Theme:** Developers learning AAuth see their own run beside the explanation
 
-- [ ] `RMI-PIDL-146` AAuth document: match rules for its steps without example requests, and token carriage, checked against the Petstore capture
+- [ ] `RMI-PIDL-146` AAuth document: match rules for its standalone steps, templates for the literal identifiers in its example paths, token carriage, and the challenge-first resource, checked against the Petstore capture with every observable step a strong match
   - Depends on: `RMI-PIDL-137`, `RMI-PIDL-150`
 - [ ] `RMI-PIDL-147` Client events: the event observation, joined by request ID or by method, URL and time, and shown on the step they explain
   - Depends on: `RMI-PIDL-143`
