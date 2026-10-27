@@ -56,6 +56,20 @@ var Specs = []Spec{
 		Title:       "PIDL Sample Set",
 		Description: "Code samples an implementation keeps apart from a protocol document, each attached to a step by its address, read by `pidl samples` and `pidl generate --samples`.",
 	},
+	{
+		Output: "../observation.schema.json", Value: &pidl.Observation{}, Definition: "Observation",
+		Format:      pidl.ObservationFormat,
+		ID:          "https://github.com/grokify/pidl/schema/observation.schema.json",
+		Title:       "PIDL Observation",
+		Description: "A captured run of a real system: its HTTP exchanges in order, whatever tool captured them, matched to a document's steps by `pidl generate --observation`.",
+	},
+	{
+		Output: "../binding.schema.json", Value: &pidl.Binding{}, Definition: "Binding",
+		Format:      pidl.BindingFormat,
+		ID:          "https://github.com/grokify/pidl/schema/binding.schema.json",
+		Title:       "PIDL Binding",
+		Description: "How one deployment of a protocol names its participants, paths and steps, so observed exchanges can be matched to a document's steps.",
+	},
 }
 
 func main() {
@@ -115,6 +129,9 @@ func Generate(spec Spec) ([]byte, error) {
 func enums(t reflect.Type) *jsonschema.Schema {
 	if t == reflect.TypeFor[pidl.ExampleKind]() {
 		return &jsonschema.Schema{Type: "string", Enum: []any{pidl.ExampleKindDraft, pidl.ExampleKindDerived}}
+	}
+	if t == reflect.TypeFor[pidl.RequestFidelity]() {
+		return &jsonschema.Schema{Type: "string", Enum: []any{pidl.RequestFidelityWire, pidl.RequestFidelityClient}}
 	}
 	return nil
 }

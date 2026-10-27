@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/grokify/pidl/schema/binding.schema.json",
+  "$ref": "#/$defs/Binding",
+  "$defs": {
+    "Binding": {
+      "properties": {
+        "format": {
+          "type": "string",
+          "const": "pidl-binding/v1",
+          "description": "Format names the format and its major version: pidl-binding/v1."
+        },
+        "participants": {
+          "additionalProperties": {
+            "$ref": "#/$defs/BindingParticipant"
+          },
+          "type": "object",
+          "description": "Participants maps a document participant ID to how a capture names it."
+        },
+        "labelsByPath": {
+          "items": {
+            "$ref": "#/$defs/BindingLabelRule"
+          },
+          "type": "array",
+          "description": "LabelsByPath resolves a generic sender label, such as a trace's\n\"client\", by the request path."
+        },
+        "paths": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "type": "object",
+          "description": "Paths gives, per participant, the path of a step where the\ndeployment's path differs from the document's example. Keys are step\naddresses, as in Steps."
+        },
+        "rewrite": {
+          "items": {
+            "$ref": "#/$defs/BindingRewrite"
+          },
+          "type": "array",
+          "description": "Rewrite rewrites every exchange's URL before matching, in order."
+        },
+        "unobservable": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Unobservable lists participants a capture cannot see, in addition to\nthose whose role type is user."
+        },
+        "steps": {
+          "additionalProperties": {
+            "$ref": "#/$defs/BindingStep"
+          },
+          "type": "object",
+          "description": "Steps replaces a step's rule for this deployment. A key is\n\"<scenario>/<step-id>\", or \"*/<step-id>\" for every scenario that has\nthe step: step IDs repeat across scenarios. A scenario's key wins over\nthe wildcard."
+        }
+      },
+      "type": "object",
+      "required": [
+        "format",
+        "participants"
+      ],
+      "description": "Binding describes one deployment of a protocol, so observed exchanges can be matched to a document's steps: the labels a capturing tool uses for each participant and the hosts it answers at, paths that differ from the document's examples, URL rewrites a capture needs, and rules that replace a step's own for this deployment."
+    },
+    "BindingLabelRule": {
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Label is the sender label the rule applies to, such as \"client\"."
+        },
+        "path": {
+          "type": "string",
+          "description": "Path is a regular expression the request path must match."
+        },
+        "participant": {
+          "type": "string",
+          "description": "Participant is the participant the sender is taken to be."
+        }
+      },
+      "type": "object",
+      "required": [
+        "label",
+        "path",
+        "participant"
+      ],
+      "description": "BindingLabelRule resolves a sender label by the request path."
+    },
+    "BindingParticipant": {
+      "properties": {
+        "labels": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Labels are the capturing tool's names for the participant."
+        },
+        "hosts": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Hosts are the host names the participant answers at."
+        }
+      },
+      "type": "object",
+      "description": "BindingParticipant is how a capture names one participant."
+    },
+    "BindingRewrite": {
+      "properties": {
+        "match": {
+          "type": "string",
+          "description": "Match is a regular expression over the whole URL."
+        },
+        "to": {
+          "type": "string",
+          "description": "To is the replacement, with $1-style references to Match's groups."
+        }
+      },
+      "type": "object",
+      "required": [
+        "match",
+        "to"
+      ],
+      "description": "BindingRewrite rewrites a URL by a regular expression."
+    },
+    "BindingStep": {
+      "properties": {
+        "match": {
+          "$ref": "#/$defs/StepMatch"
+        }
+      },
+      "type": "object",
+      "required": [
+        "match"
+      ],
+      "description": "BindingStep is a deployment's rule for one step."
+    },
+    "StepMatch": {
+      "properties": {
+        "method": {
+          "type": "string",
+          "description": "Method is the HTTP method."
+        },
+        "path": {
+          "type": "string",
+          "description": "Path is a template, whose segments in braces match any one segment\n(\"/pending/{id}\"), or a regular expression when it starts with \"^\"."
+        },
+        "status": {
+          "type": "integer",
+          "description": "Status is the response status."
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "description": "Headers maps a header name, compared without regard to case, to a\nvalue: exact, a prefix when it ends with \"*\", or a regular expression\nwhen it starts with \"^\". Response headers are searched before request\nheaders."
+        },
+        "body": {
+          "additionalProperties": true,
+          "type": "object",
+          "description": "Body maps a JSON pointer into the request body to the value it must\nhave, or to true when the member must merely exist."
+        },
+        "repeat": {
+          "type": "boolean",
+          "description": "Repeat lets the step take every consecutive exchange that matches it,\nsuch as a client polling."
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Optional lets a run omit the step without failing a check."
+        }
+      },
+      "type": "object",
+      "description": "StepMatch is a rule that says which observed exchanges are a step."
+    }
+  },
+  "title": "PIDL Binding",
+  "description": "How one deployment of a protocol names its participants, paths and steps, so observed exchanges can be matched to a document's steps."
+}

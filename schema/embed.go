@@ -1,6 +1,7 @@
 // Package schema provides the embedded JSON Schemas: PIDL, the source
-// format people write; the walkthrough format PIDL generates; and the
-// sample set format implementations keep their code samples in.
+// format people write; the walkthrough format PIDL generates; the sample
+// set format implementations keep their code samples in; and the
+// observation and binding formats for matching real runs to steps.
 package schema
 
 import (
@@ -26,3 +27,15 @@ var WalkthroughSchemaJSON []byte
 //
 //go:embed samples.schema.json
 var SampleSetSchemaJSON []byte
+
+// ObservationSchemaJSON is the JSON Schema of the observation format
+// (pidl-observation/v1), generated from pidl.Observation by schema/gen.
+//
+//go:embed observation.schema.json
+var ObservationSchemaJSON []byte
+
+// BindingSchemaJSON is the JSON Schema of the binding format
+// (pidl-binding/v1), generated from pidl.Binding by schema/gen.
+//
+//go:embed binding.schema.json
+var BindingSchemaJSON []byte
