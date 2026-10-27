@@ -16,6 +16,10 @@ type WalkthroughJSONRenderer struct {
 	// Set Analyze to false to attach none.
 	Analyze  bool
 	Analysis analyze.AnalysisOptions
+
+	// Transform, when set, changes the walkthrough after it is built and
+	// before it is written, such as adding a run observed in a real system.
+	Transform func(*pidl.Walkthrough) error
 }
 
 // NewWalkthroughJSON creates a WalkthroughJSONRenderer that attaches
@@ -45,11 +49,27 @@ func (r *WalkthroughJSONRenderer) Render(w io.Writer, p *pidl.Protocol) error {
 
 // RenderString returns the walkthrough as indented JSON.
 func (r *WalkthroughJSONRenderer) RenderString(p *pidl.Protocol) (string, error) {
-	data, err := json.MarshalIndent(r.Walkthrough(p), "", "  ")
+	w, err := r.Build(p)
+	if err != nil {
+		return "", err
+	}
+	data, err := json.MarshalIndent(w, "", "  ")
 	if err != nil {
 		return "", err
 	}
 	return string(data) + "\n", nil
+}
+
+// Build returns the walkthrough with findings attached and Transform
+// applied.
+func (r *WalkthroughJSONRenderer) Build(p *pidl.Protocol) (pidl.Walkthrough, error) {
+	w := r.Walkthrough(p)
+	if r.Transform != nil {
+		if err := r.Transform(&w); err != nil {
+			return pidl.Walkthrough{}, err
+		}
+	}
+	return w, nil
 }
 
 // Walkthrough returns the walkthrough with findings attached.

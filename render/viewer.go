@@ -59,7 +59,11 @@ func (r *ViewerRenderer) RenderString(p *pidl.Protocol) (string, error) {
 	}
 	// json.Marshal escapes <, > and & as <, > and &, so the
 	// data cannot close the script element it sits in.
-	data, err := json.Marshal(r.Walkthrough.Walkthrough(p))
+	w, err := r.Walkthrough.Build(p)
+	if err != nil {
+		return "", err
+	}
+	data, err := json.Marshal(w)
 	if err != nil {
 		return "", err
 	}
