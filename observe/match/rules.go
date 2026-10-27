@@ -34,7 +34,8 @@ type Kind int
 const (
 	// KindRequest is a step whose example has a request.
 	KindRequest Kind = iota
-	// KindResponse is the response half of the request step before it.
+	// KindResponse is the response half of an earlier request step: the
+	// nearest one going the other way between the same participants.
 	KindResponse
 	// KindStandalone is any other observable step; it matches only by an
 	// explicit rule.
@@ -119,9 +120,8 @@ func Prepare(w *pidl.Walkthrough, sc *pidl.WalkthroughScenario, b *pidl.Binding)
 		switch {
 		case unobservable[ws.From] || unobservable[ws.To]:
 			s.Kind = KindUnobservable
-		case ws.Response && i > 0 && steps[i-1].Kind == KindRequest &&
-			sc.Steps[i-1].From == ws.To && sc.Steps[i-1].To == ws.From:
-			s.Kind, s.PairedWith = KindResponse, i-1
+		case ws.Response && pairable(steps, sc.Steps, i) >= 0:
+			s.Kind, s.PairedWith = KindResponse, pairable(steps, sc.Steps, i)
 		case ws.Example != nil && ws.Example.Request != nil:
 			s.Kind = KindRequest
 		default:
@@ -133,6 +133,23 @@ func Prepare(w *pidl.Walkthrough, sc *pidl.WalkthroughScenario, b *pidl.Binding)
 		steps[i] = s
 	}
 	return steps, warnings
+}
+
+// pairable returns the request a response at index i answers: the nearest
+// earlier request going the other way between the same two participants,
+// as when a person server talks to an access server between the agent's
+// request and its answer. It returns -1 when there is none, or when that
+// request cannot be matched.
+func pairable(steps []Step, ws []pidl.WalkthroughStep, i int) int {
+	for j := i - 1; j >= 0; j-- {
+		if !ws[j].Response && ws[j].From == ws[i].To && ws[j].To == ws[i].From {
+			if steps[j].Kind == KindRequest || (steps[j].Kind == KindStandalone && steps[j].HasRule) {
+				return j
+			}
+			return -1
+		}
+	}
+	return -1
 }
 
 // resolveRule builds a request or standalone step's rule: the example's

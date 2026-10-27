@@ -667,7 +667,8 @@
         "in": { "type": "string", "enum": ["header", "body"] },
         "name": { "type": "string", "description": "The header's name, for a token in a header" },
         "param": { "type": "string", "description": "The structured field parameter holding the token, such as jwt in Signature-Key; empty when the token is the whole value" },
-        "path": { "type": "string", "description": "A JSON pointer to the token in the body, for a token in a body" }
+        "path": { "type": "string", "description": "A JSON pointer to the token in the body, for a token in a body" },
+        "typ": { "type": "string", "description": "The JWT typ header a value found here must have to be this token, such as aa-agent+jwt; several tokens can travel in one place" }
       }
     },
     "tokenClaim": {

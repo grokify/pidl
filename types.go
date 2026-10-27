@@ -1118,4 +1118,10 @@ type TokenCarriage struct {
 	Param string `json:"param,omitempty"`
 	// Path is a JSON pointer to the token in the body, for a token in a body.
 	Path string `json:"path,omitempty"`
+
+	// Typ is the JWT typ header a value found here must have to be this
+	// token, such as "aa-agent+jwt". Several tokens can travel in one place,
+	// such as whichever token a request presents in Signature-Key; typ says
+	// which one a value is.
+	Typ string `json:"typ,omitempty"`
 }

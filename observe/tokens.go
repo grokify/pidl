@@ -50,8 +50,12 @@ func (f *tokenFinder) find(h pidl.ObservedHeaders, body json.RawMessage, part st
 			if value == "" {
 				continue
 			}
+			hdr, payload, ok := decodeJWT(value)
+			if c.Typ != "" && (!ok || jwtTyp(hdr) != c.Typ) {
+				continue
+			}
 			t := pidl.ExampleToken{Token: d.id, Label: where + " in the " + part + "; decoded, not verified"}
-			if hdr, payload, ok := decodeJWT(value); ok {
+			if ok {
 				t.Header, t.Payload = hdr, payload
 			}
 			out = append(out, t)
@@ -140,6 +144,17 @@ func decodeJWT(token string) (json.RawMessage, json.RawMessage, bool) {
 		return nil, nil, false
 	}
 	return hdr, payload, true
+}
+
+// jwtTyp returns a decoded JWT header's typ.
+func jwtTyp(hdr json.RawMessage) string {
+	var h struct {
+		Typ string `json:"typ"`
+	}
+	if json.Unmarshal(hdr, &h) != nil {
+		return ""
+	}
+	return h.Typ
 }
 
 // sortedLongestFirst orders values so a longer one is replaced before a
