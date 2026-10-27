@@ -40,6 +40,7 @@ PIDL models protocols as directed interaction graphs between entities, enabling 
 - 🧾 **Walkthrough format**: `pidl-walkthrough/v1`, the processed form viewers read, with a JSON Schema and TypeScript types
 - 💻 **Code samples and cURL**: each request as HTTP, a generated `curl` command, or SDK code taken from tested source files; each implementation can keep its samples in its own sample set, so the protocol document names none
 - 🎙️ **Narration**: spoken text by language, scenario briefings and pronunciations, for audio and narrated video
+- 🔭 **Observed runs**: a real system's run beside the walkthrough's examples, matched to its steps by rules in the document and a deployment binding, with tokens decoded and raw values masked
 - 📮 **Postman collections**: a runnable collection per protocol, with values chained between requests, checks on every response, and signed requests sent through a signing proxy
 - 🎨 **Multiple output formats**: PlantUML, Mermaid, Graphviz DOT, D2, SVG
 - 🎬 **Animated SVG** with CSS flow visualizations and moving dots
