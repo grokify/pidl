@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "./components/Card";
 import { Stage } from "./components/Stage";
 import { MessagePanel } from "./components/MessagePanel";
@@ -12,14 +12,24 @@ import { usePrefs } from "./hooks/usePrefs";
 import { useWidth } from "./hooks/useWidth";
 import { PAGE_HOST, type Host } from "./host";
 import { exchangeFor } from "./nav";
+import { isObserved, observedGap, observedRunLabel, prepareObserved, viewScenario, type Mode } from "./observed";
 import { representations } from "./reps";
 import type { Walkthrough } from "./types";
 
-export default function App({ walkthrough, host = PAGE_HOST }: { walkthrough: Walkthrough; host?: Host }) {
+export default function App({ walkthrough: loaded, host = PAGE_HOST }: { walkthrough: Walkthrough; host?: Host }) {
+  // An observed entry's extra exchanges become steps, so the diagram and
+  // the step keys reach them in either mode.
+  const walkthrough = useMemo(() => prepareObserved(loaded), [loaded]);
   // An embedded viewer takes keys only while it has focus.
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
   const keyTarget = host.keys === "page" ? window : root;
-  const { scenario, step, goTo, selectScenario } = usePosition(walkthrough, host.hash, keyTarget);
+  const { scenario: entry, step, goTo, selectScenario } = usePosition(walkthrough, host.hash, keyTarget);
+  // An observed entry shows the run by default; the switch shows the
+  // concept, each step's example, instead.
+  const [mode, setMode] = useState<Mode>("observed");
+  const observed = isObserved(entry);
+  const scenario = useMemo(() => viewScenario(entry, mode), [entry, mode]);
+  const showObserved = observed && mode === "observed";
   const { ref, width } = useWidth<HTMLDivElement>(900);
   const prefs = usePrefs(keyTarget, host.page);
   const reps = representations(walkthrough);
@@ -50,14 +60,20 @@ export default function App({ walkthrough, host = PAGE_HOST }: { walkthrough: Wa
         onTheme={prefs.cycleTheme}
         present={prefs.present}
         onPresent={prefs.togglePresent}
+        mode={observed ? mode : undefined}
+        onMode={setMode}
       />
       <main className="content">
-        <Card title={scenario.name} meta={scenario.fragment ? "Shared steps" : `${scenario.participants.length} roles · ${scenario.steps.length} steps`} className="diagram-card">
+        <Card
+          title={scenario.name}
+          meta={observed ? observedRunLabel(scenario) : scenario.fragment ? "Shared steps" : `${scenario.participants.length} roles · ${scenario.steps.length} steps`}
+          className="diagram-card"
+        >
           <ScenarioIntro scenario={scenario} />
           <div className="diagram-wrap" ref={ref}>
-            <SequenceDiagram scenario={scenario} roles={walkthrough.roles} width={width} active={step} onSelect={goTo} />
+            <SequenceDiagram scenario={scenario} roles={walkthrough.roles} width={width} active={step} onSelect={goTo} observed={showObserved} />
           </div>
-          <StepNarrative scenario={scenario} roles={walkthrough.roles} step={step} />
+          <StepNarrative scenario={scenario} roles={walkthrough.roles} step={step} observed={showObserved} />
           <StepControls step={step} total={scenario.steps.length} onStep={goTo} />
         </Card>
         <div className="side">
@@ -66,7 +82,7 @@ export default function App({ walkthrough, host = PAGE_HOST }: { walkthrough: Wa
               req.example ? (
                 <MessagePanel kind="request" step={req} roles={walkthrough.roles} tokens={walkthrough.tokens ?? []} {...repProps} />
               ) : (
-                <NoExample step={req} roles={walkthrough.roles} />
+                <NoExample step={req} roles={walkthrough.roles} reason={observed ? observedGap(req, mode) : undefined} />
               )
             ) : (
               <p className="empty">
@@ -81,7 +97,7 @@ export default function App({ walkthrough, host = PAGE_HOST }: { walkthrough: Wa
               res.example ? (
                 <MessagePanel kind="response" step={res} roles={walkthrough.roles} tokens={walkthrough.tokens ?? []} {...repProps} />
               ) : (
-                <NoExample step={res} roles={walkthrough.roles} />
+                <NoExample step={res} roles={walkthrough.roles} reason={observed ? observedGap(res, mode) : undefined} />
               )
             ) : (
               <p className="empty">

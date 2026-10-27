@@ -18,6 +18,12 @@ interface Props {
   onRep: (rep: string) => void;
 }
 
+const KIND_TITLE: Record<string, string> = {
+  draft: "Taken from the source, values aligned to this scenario",
+  derived: "Written from the source's normative text",
+  observed: "Observed in a real run; tokens decoded, not verified",
+};
+
 // MessagePanel shows one side of an exchange in the chosen representation
 // (HTTP, curl or code), and the decoded tokens it carries.
 export function MessagePanel({ kind, step, roles, tokens, reps, rep, onRep }: Props) {
@@ -38,7 +44,7 @@ export function MessagePanel({ kind, step, roles, tokens, reps, rep, onRep }: Pr
         <span className="message-step">
           Step {step.number}: {name(step.from)} {step.response ? "⇢" : "→"} {name(step.to)}
         </span>
-        <span className={`kind kind-${ex.kind}`} title={ex.kind === "draft" ? "Taken from the source, values aligned to this scenario" : "Written from the source's normative text"}>
+        <span className={`kind kind-${ex.kind}`} title={KIND_TITLE[ex.kind] ?? ex.kind}>
           {ex.kind}
         </span>
         <span className="source">{ex.source}</span>
