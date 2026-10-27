@@ -1,6 +1,7 @@
 package match
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -262,5 +263,54 @@ func TestLiteralSegment(t *testing.T) {
 		if got := literalSegment(path); got != want {
 			t.Errorf("literalSegment(%q) = %q, want %q", path, got, want)
 		}
+	}
+}
+
+func TestBodyMatches(t *testing.T) {
+	body := json.RawMessage(`{"grant_type": "authorization_code", "petId": 1, "quantity": 1.0,
+	  "a/b": {"c~d": [10, {"e": true}]}, "tags": []}`)
+	tests := []struct {
+		name string
+		pred map[string]json.RawMessage
+		want bool
+	}{
+		{"equal string", map[string]json.RawMessage{"/grant_type": json.RawMessage(`"authorization_code"`)}, true},
+		{"different string", map[string]json.RawMessage{"/grant_type": json.RawMessage(`"refresh_token"`)}, false},
+		{"numbers by value", map[string]json.RawMessage{"/petId": json.RawMessage(`1.0`), "/quantity": json.RawMessage(`1`)}, true},
+		{"exists", map[string]json.RawMessage{"/quantity": json.RawMessage(`true`)}, true},
+		{"missing member", map[string]json.RawMessage{"/status": json.RawMessage(`true`)}, false},
+		{"escaped pointer and array index", map[string]json.RawMessage{"/a~1b/c~0d/1/e": json.RawMessage(`true`), "/a~1b/c~0d/0": json.RawMessage(`10`)}, true},
+		{"index out of range", map[string]json.RawMessage{"/a~1b/c~0d/5": json.RawMessage(`true`)}, false},
+		{"leading zero index", map[string]json.RawMessage{"/a~1b/c~0d/01": json.RawMessage(`true`)}, false},
+		{"empty array value", map[string]json.RawMessage{"/tags": json.RawMessage(`[]`)}, true},
+		{"object value", map[string]json.RawMessage{"/a~1b": json.RawMessage(`{"c~d": [10, {"e": true}]}`)}, true},
+		{"all must hold", map[string]json.RawMessage{"/petId": json.RawMessage(`1`), "/grant_type": json.RawMessage(`"x"`)}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := BodyMatches(tt.pred, body); got != tt.want {
+				t.Errorf("BodyMatches = %v, want %v", got, tt.want)
+			}
+		})
+	}
+	if BodyMatches(map[string]json.RawMessage{"/a": json.RawMessage(`true`)}, json.RawMessage(`"not an object"`)) {
+		t.Error("a text body satisfied a predicate")
+	}
+	if BodyMatches(map[string]json.RawMessage{"/a": json.RawMessage(`true`)}, nil) {
+		t.Error("an empty body satisfied a predicate")
+	}
+}
+
+func TestTestBody(t *testing.T) {
+	step := Step{Step: &pidl.WalkthroughStep{From: "agent", To: "ps"}, Rule: pidl.StepMatch{
+		Method: "POST", Body: map[string]json.RawMessage{"/grant_type": json.RawMessage(`"authorization_code"`)},
+	}}
+	r := Resolved{From: "agent", To: "ps", Exchange: &pidl.Exchange{Request: pidl.ObservedRequest{Method: "POST", Body: json.RawMessage(`{"grant_type":"authorization_code"}`)}}}
+	if got := Test(step, r); got.Body != Passed {
+		t.Errorf("body test = %v, want passed", got.Body)
+	}
+	r.Exchange.Request.Body = json.RawMessage(`{"grant_type":"refresh_token"}`)
+	if got := Test(step, r); got.Body != Failed || !got.Candidate() {
+		t.Errorf("body test = %v, candidate %v; a failed body test only lowers the score", got.Body, got.Candidate())
 	}
 }
