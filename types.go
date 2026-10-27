@@ -956,6 +956,12 @@ type Flow struct {
 	// Example is an illustrative request, response and decoded tokens for
 	// this step, used by walkthrough viewers.
 	Example *FlowExample `json:"example,omitempty"`
+
+	// Match is the rule that says which observed exchanges are this step,
+	// when the example's method, path and status are not enough or the
+	// step has no example request. A binding can replace it for one
+	// deployment.
+	Match *StepMatch `json:"match,omitempty"`
 }
 
 // StateMutation represents a state change for an entity triggered by a flow.

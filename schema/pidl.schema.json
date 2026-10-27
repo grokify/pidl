@@ -529,7 +529,27 @@
         },
         "example": {
           "$ref": "#/$defs/flowExample"
+        },
+        "match": {
+          "$ref": "#/$defs/stepMatch"
         }
+      }
+    },
+    "stepMatch": {
+      "type": "object",
+      "description": "A rule that says which observed exchanges are this step. Every field is optional; a field left empty is not tested",
+      "properties": {
+        "method": { "type": "string", "description": "The HTTP method" },
+        "path": { "type": "string", "description": "A template whose segments in braces match any one segment, such as /pending/{id}, or a regular expression when it starts with ^" },
+        "status": { "type": "integer", "minimum": 100, "maximum": 599, "description": "The response status" },
+        "headers": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Header name, compared without regard to case, to a value: exact, a prefix when it ends with *, or a regular expression when it starts with ^"
+        },
+        "body": { "type": "object", "description": "JSON pointer into the request body to the value it must have, or to true when the member must merely exist" },
+        "repeat": { "type": "boolean", "description": "The step takes every consecutive exchange that matches it, such as a client polling" },
+        "optional": { "type": "boolean", "description": "A run may omit the step without failing a check" }
       }
     },
     "stateMutation": {
