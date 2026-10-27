@@ -51,7 +51,7 @@ A real capture is also messier than an example. It holds several journeys one af
 
 ### Binding
 
-10. **A binding file.** `pidl-binding/v1` describes one deployment: each participant's hosts, the labels a capturing tool uses for it, the paths of its endpoints where they differ from the document's examples, URL rewrites a capture needs (such as the prefix a signing proxy adds), and per-step overrides.
+10. **A binding file.** `pidl-binding/v1` describes one deployment: each participant's hosts, the labels a capturing tool uses for it, the paths of its endpoints where they differ from the document's examples, URL rewrites a capture needs (such as the prefix a signing proxy adds), and overrides keyed by scenario and step, since step IDs repeat across scenarios.
 
 ### Matching
 

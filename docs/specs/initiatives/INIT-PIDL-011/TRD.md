@@ -120,7 +120,8 @@ Given a `client` observation and a `wire` observation of the same run, the joine
   ],
   "unobservable": ["person"],
   "steps": {
-    "consent": {"match": {"method": "GET", "path": "^/pending/", "repeat": true}}
+    "*/consent.poll": {"match": {"method": "GET", "path": "^/pending/", "repeat": true}},
+    "ps-authorization-challenge/request": {"match": {"method": "POST", "path": "/v2/store/order", "status": 401}}
   }
 }
 ```
@@ -130,7 +131,7 @@ Given a `client` observation and a `wire` observation of the same run, the joine
 - `paths` gives a participant's path for a step where the deployment's path differs from the document's example. It replaces the example's path for that step's rule.
 - `rewrite` applies regular-expression rewrites to every exchange's URL before matching, in order.
 - `unobservable` lists participants a capture cannot see, in addition to those whose role type is `user`.
-- `steps` overrides a step's `match` for this deployment only.
+- `steps` overrides a step's `match` for this deployment only. A key is `<scenario>/<step>`, or `*/<step>` for every scenario that contains the step, because step IDs repeat across scenarios: `request` is a `GET` in one scenario and the protected `POST` in another. A scenario-specific key wins over a wildcard.
 
 ## Matching
 
@@ -325,10 +326,11 @@ What the spike changed in this document:
 - Automatic scenario choice excludes fragments, ranks by exchanges explained minus required steps not seen, and ends an instance where a first step recurs.
 - Weak matches are reported and counted apart from strong ones.
 - Literal identifiers in example paths draw a warning suggesting a template.
+- Binding overrides are keyed by scenario and step, with a wildcard for every scenario, because step IDs repeat across scenarios.
 
 What it confirmed: the time window dropped a health check made before the run; Newman joined to the trace 10 of 10 by method and the URL with the signing helper's prefix removed; path-based label resolution resolved every `client` sender; extra exchanges in place were informative (7 key and metadata fetches between the order flow's steps); and redaction with decoded claims kept rendered well in the existing viewer.
 
-It also found a gap in the AAuth document rather than the tool: the Petstore answers its API call with a challenge for a person token before anything else, and the document's scenarios have no such step.
+It also found a gap in the AAuth document rather than the tool: the Petstore answers its API call with a challenge for a person token before anything else, and the document's scenarios had no such step. With a challenge-first variant added to the document and three scenario-scoped binding overrides for the Petstore's protected `POST`, automatic choice picked that variant over `ps-authorization`, every exchange of the order flow became a step, six of its request steps matched strongly, and only the poll (a literal identifier in its example path) stayed weak; the remaining extra exchanges were key and metadata fetches.
 
 ## Open Questions
 
