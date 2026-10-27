@@ -71,7 +71,7 @@ func TestApplyPetstore(t *testing.T) {
 	}
 	run := order.ObservedRun
 	if run.Source != "aauth-sandbox" || run.RequestFidelity != pidl.RequestFidelityWire || run.Instance != 2 || run.Instances != 2 ||
-		run.RunnerUp != "ps-authorization" || run.Matched != 14 || run.Weak != 2 || run.Unobservable != 2 ||
+		run.RunnerUp != "ps-authorization" || run.Matched != 14 || run.Weak != 0 || run.Unobservable != 2 ||
 		run.Explained != 7 || run.Extra != 7 || !run.Redacted || run.From == nil || run.To == nil || run.To.Before(*run.From) {
 		t.Errorf("run summary = %+v", run)
 	}

@@ -71,8 +71,9 @@ func TestGenerateWithObservation(t *testing.T) {
 	if !strings.Contains(stderr.String(), "observed: 2 scenario instance(s) [agent-identity, ps-authorization-challenge]") {
 		t.Errorf("report = %q", stderr.String())
 	}
-	if !strings.Contains(stderr.String(), `warning: consent/poll: example path /pending/f7a3b9c`) {
-		t.Errorf("no literal-identifier warning in %q", stderr.String())
+	// The AAuth document gives its polls a template, so nothing warns.
+	if strings.Contains(stderr.String(), "warning:") {
+		t.Errorf("unexpected warning in %q", stderr.String())
 	}
 	data, err := os.ReadFile(out)
 	if err != nil {
