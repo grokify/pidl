@@ -9,6 +9,132 @@
   ],
   "releases": [
     {
+      "version": "v0.10.0",
+      "date": "2026-10-27",
+      "highlights": [
+        {
+          "description": "Observed runs: pidl generate --observation shows a real system's run beside the walkthrough's examples, each step with the request it sent, the response it got and the tokens it carried, and the exchanges the protocol does not describe"
+        },
+        {
+          "description": "Two new formats: pidl-observation/v1 records what a run exchanged and pidl-binding/v1 describes one deployment's participants, hosts and paths, each with a JSON Schema generated from the Go types"
+        },
+        {
+          "description": "Protocol-agnostic matching: documents say how a step is recognized (match) and where a token travels (carried_in); pidl splits a capture into scenario instances and aligns its exchanges to their steps"
+        },
+        {
+          "description": "The viewer's Concept / Observed switch shows either the document's examples or the run's exchanges, with timing, match strength and the extra exchanges between steps"
+        }
+      ],
+      "added": [
+        {
+          "description": "The pidl-observation/v1 and pidl-binding/v1 formats, with generated and embedded schemas",
+          "commit": "dbc48d4"
+        },
+        {
+          "description": "Observation and binding schemas generated from the Go types and embedded as schema constants",
+          "commit": "266e69e"
+        },
+        {
+          "description": "A flow's match rule: method, path template or pattern, status, headers, body JSON pointers, repeat and optional",
+          "commit": "4e01b5a"
+        },
+        {
+          "description": "Binding step rules keyed by scenario and expanded step ID, by defining scenario and flow ID, or by flow ID alone",
+          "commit": "4d0871d"
+        },
+        {
+          "description": "observe/match classifies steps as requests, responses, standalone or unobservable, resolves their rules and scores exchanges against them",
+          "commit": "ce9e702"
+        },
+        {
+          "description": "Body predicates by JSON pointer in match rules",
+          "commit": "172f504"
+        },
+        {
+          "description": "Alignment of a capture's exchanges to a scenario instance's steps, with strong and weak matches, repeated steps and extra exchanges",
+          "commit": "5b16714"
+        },
+        {
+          "description": "Splitting a capture into scenario instances, ranked by the steps they explain, within an optional time window",
+          "commit": "98939c8"
+        },
+        {
+          "description": "A token definition's carried_in says where the token travels: a header and parameter, or a body JSON pointer, optionally narrowed by JWT typ",
+          "commit": "e6e1f54"
+        },
+        {
+          "description": "Observed runs in the walkthrough format: observed_run and observed_extra on a scenario; observed, observed_status and observed_strength on a step",
+          "commit": "90f0ad9"
+        },
+        {
+          "description": "The walkthrough renderer's Build method and Transform field, so a walkthrough can be changed before it is written",
+          "commit": "afaaa8c"
+        },
+        {
+          "description": "Package observe adds observed entries after their base scenario, decodes the tokens each exchange carries without verifying them, and masks raw token, signature and credential values unless asked not to",
+          "commit": "357c35e"
+        },
+        {
+          "description": "pidl generate --observation, --binding, --scenarios, --from, --to and --raw; pidl observe import --from sandbox reads the aauth-go sandbox trace",
+          "commit": "398664d"
+        },
+        {
+          "description": "observe/adapter/sandbox reads the aauth-go sandbox trace as an observation",
+          "commit": "ad545c8"
+        },
+        {
+          "description": "The viewer's Concept / Observed switch, with each exchange's time and gap, match strength, notes from the capturing tool, and extra exchanges drawn between the steps they followed",
+          "commit": "949e6d4"
+        },
+        {
+          "description": "Carried tokens are told apart by JWT typ, and a response step pairs with the nearest earlier request going the other way, so a response can follow other steps",
+          "commit": "2229198"
+        }
+      ],
+      "dependencies": [
+        {
+          "description": "Bump github.com/grokify/oscompat from v0.8.0 to v0.9.0",
+          "commit": "d38a2c4"
+        }
+      ],
+      "infrastructure": [
+        {
+          "description": "Bump actions/setup-go from 6 to 7",
+          "commit": "65c0d5f"
+        },
+        {
+          "description": "Tidy the schema generator module",
+          "commit": "d8a93e1"
+        },
+        {
+          "description": "Rebuild the embedded viewer with observed runs",
+          "commit": "531b4ae"
+        }
+      ],
+      "documentation": [
+        {
+          "description": "The user guides move from docs/guide to docs/guides",
+          "commit": "25fc545"
+        },
+        {
+          "description": "New Observed Runs guide; the viewer guide describes the Concept / Observed switch; the specification describes match, carried_in and their validation",
+          "commit": "88c4b75"
+        },
+        {
+          "description": "The README, CLI reference and walkthrough format reference describe observed runs and the observe command",
+          "commit": "ac37086"
+        },
+        {
+          "description": "INIT-PIDL-011 specifies live runs in the viewer, with the spike's findings and each phase's decisions",
+          "commit": "81c5e50"
+        },
+        {
+          "description": "INIT-PIDL-008 specifies the v1 format and system view; the roadmap places live runs in v0.10.0, the rest of INIT-PIDL-011 in v0.11.0 and INIT-PIDL-008 in v0.12.0",
+          "commit": "81e167b"
+        }
+      ]
+    },
+    {
       "version": "v0.9.0",
       "date": "2026-10-22",
       "highlights": [

@@ -6,6 +6,7 @@ Release notes for each PIDL version.
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| [v0.10.0](v0.10.0.md) | 2026-10-27 | Observed runs: a real system's run beside the walkthrough, with the observation and binding formats, protocol-agnostic match rules and token carriage, and the viewer's Concept / Observed switch |
 | [v0.9.0](v0.9.0.md) | 2026-10-22 | Embeddable viewer on a CDN, the walkthrough format with schemas, code samples and cURL with sample sets, Postman collections with a signing proxy, narration, and a worked OAuth 2.0 example |
 | [v0.8.0](v0.8.0.md) | 2026-10-19 | Walkthrough viewer: a self-contained HTML page per protocol with step highlighting, narratives, requests, responses and decoded tokens; flow examples; fully worked AAuth examples |
 | [v0.7.0](v0.7.0.md) | 2026-10-19 | Scenarios and fragments, consistent ordering, overview outputs, token verification, AAuth example; D2, determinism and Windows fixes |
@@ -18,10 +19,10 @@ Release notes for each PIDL version.
 
 ## Latest Release
 
-The current stable release is **v0.9.0**.
+The current stable release is **v0.10.0**.
 
 ```bash
-go install github.com/grokify/pidl/cmd/pidl@v0.9.0
+go install github.com/grokify/pidl/cmd/pidl@v0.10.0
 ```
 
 ## Changelog
