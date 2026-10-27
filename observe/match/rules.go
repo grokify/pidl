@@ -15,10 +15,13 @@
 package match
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -340,8 +343,8 @@ type Tests struct {
 	// SenderKnown reports that the exchange's sender resolved and agreed,
 	// not merely that it was unknown.
 	SenderKnown bool
-	// Path, Status and Headers are the scored tests.
-	Path, Status, Headers Outcome
+	// Path, Status, Headers and Body are the scored tests.
+	Path, Status, Headers, Body Outcome
 }
 
 // Candidate reports whether the exchange passed the required tests.
@@ -381,6 +384,9 @@ func Test(s Step, r Resolved) Tests {
 				break
 			}
 		}
+	}
+	if len(s.Rule.Body) > 0 {
+		t.Body = outcome(BodyMatches(s.Rule.Body, r.Exchange.Request.Body))
 	}
 	return t
 }
@@ -432,4 +438,113 @@ func ValueMatches(rule, value string) bool {
 		return strings.HasPrefix(value, strings.TrimSuffix(rule, "*"))
 	}
 	return rule == value
+}
+
+// BodyMatches reports whether a request body satisfies every predicate: a
+// JSON pointer to the value the member must have, or to true when it must
+// merely exist. Numbers compare by value. A body that is not JSON
+// satisfies no predicate.
+func BodyMatches(predicates map[string]json.RawMessage, body json.RawMessage) bool {
+	doc, ok := decodeJSON(body)
+	if !ok {
+		return false
+	}
+	for ptr, want := range predicates {
+		got, found := Pointer(doc, ptr)
+		if !found {
+			return false
+		}
+		if string(bytes.TrimSpace(want)) == "true" {
+			continue
+		}
+		w, ok := decodeJSON(want)
+		if !ok || !jsonEqual(got, w) {
+			return false
+		}
+	}
+	return true
+}
+
+// Pointer resolves a JSON pointer (RFC 6901) in a decoded document.
+func Pointer(doc any, ptr string) (any, bool) {
+	if ptr == "" {
+		return doc, true
+	}
+	if !strings.HasPrefix(ptr, "/") {
+		return nil, false
+	}
+	cur := doc
+	for _, tok := range strings.Split(ptr[1:], "/") {
+		tok = strings.ReplaceAll(strings.ReplaceAll(tok, "~1", "/"), "~0", "~")
+		switch v := cur.(type) {
+		case map[string]any:
+			next, ok := v[tok]
+			if !ok {
+				return nil, false
+			}
+			cur = next
+		case []any:
+			i, err := strconv.Atoi(tok)
+			if err != nil || i < 0 || i >= len(v) || (len(tok) > 1 && tok[0] == '0') {
+				return nil, false
+			}
+			cur = v[i]
+		default:
+			return nil, false
+		}
+	}
+	return cur, true
+}
+
+func decodeJSON(b json.RawMessage) (any, bool) {
+	if len(bytes.TrimSpace(b)) == 0 {
+		return nil, false
+	}
+	dec := json.NewDecoder(bytes.NewReader(b))
+	dec.UseNumber()
+	var v any
+	if err := dec.Decode(&v); err != nil {
+		return nil, false
+	}
+	return v, true
+}
+
+// jsonEqual compares decoded JSON values, numbers by value.
+func jsonEqual(a, b any) bool {
+	switch x := a.(type) {
+	case json.Number:
+		y, ok := b.(json.Number)
+		if !ok {
+			return false
+		}
+		if x == y {
+			return true
+		}
+		fx, errx := x.Float64()
+		fy, erry := y.Float64()
+		return errx == nil && erry == nil && fx == fy
+	case map[string]any:
+		y, ok := b.(map[string]any)
+		if !ok || len(x) != len(y) {
+			return false
+		}
+		for k, v := range x {
+			if w, ok := y[k]; !ok || !jsonEqual(v, w) {
+				return false
+			}
+		}
+		return true
+	case []any:
+		y, ok := b.([]any)
+		if !ok || len(x) != len(y) {
+			return false
+		}
+		for i := range x {
+			if !jsonEqual(x[i], y[i]) {
+				return false
+			}
+		}
+		return true
+	}
+	return a == b
 }
