@@ -83,7 +83,9 @@ type Step struct {
 	PairedWith int
 }
 
-// Warning is a note for the author of a document or binding.
+// Warning is a note for the author of a document or binding. Scenario and
+// Step name where the author fixes it: the scenario or fragment that
+// defines the step, and the step's own ID.
 type Warning struct {
 	Scenario string
 	Step     string
@@ -173,7 +175,11 @@ func resolveRule(s *Step, scenario string, b *pidl.Binding) []Warning {
 	if pathFromExample {
 		if seg := literalSegment(s.Rule.Path); seg != "" {
 			tmpl := strings.Replace(s.Rule.Path, "/"+seg, "/{id}", 1)
-			return []Warning{{Scenario: scenario, Step: ws.ID, Message: fmt.Sprintf(
+			where, id := ws.DefinedIn, ws.FlowID
+			if where == "" || id == "" {
+				where, id = scenario, ws.ID
+			}
+			return []Warning{{Scenario: where, Step: id, Message: fmt.Sprintf(
 				"example path %s has a literal identifier %q that a real run will not repeat; give the step a match with a template such as %s", s.Rule.Path, seg, tmpl)}}
 		}
 	}
