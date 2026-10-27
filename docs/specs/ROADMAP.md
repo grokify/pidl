@@ -1,8 +1,8 @@
 # PIDL Roadmap
 
-**Protocol Interaction Description Language** - A JSON-based DSL for describing protocol choreography that compiles to diagrams.
+**Process & Interaction Description Language** - A JSON-based language for describing protocols, workflows and system interactions, with synchronized sequence and system views.
 
-**Current Version**: v0.7.0
+**Current Version**: v0.9.0
 **Status**: Active Development
 
 ---
@@ -19,6 +19,9 @@
 | v0.5.0 | Data Lineage, Parallel, Cost, Workflow Exports, Integrations | ✅ Done |
 | v0.6.0 | Flow Verification Provenance | ✅ Done |
 | v0.7.0 | Ordered Roles and Scenarios, plus D2, determinism and Windows fixes | ✅ Done |
+| v0.8.0 | Walkthrough Viewer and Flow Examples | ✅ Done |
+| v0.9.0 | Walkthrough Format, Embeddable Viewer, Code Samples, Postman, Narration | ✅ Done |
+| v0.10.0 | PIDL v1 Format and the System View (`INIT-PIDL-008`) | 🔲 Next |
 | v1.0.0 | Production Ready Release | 🔲 Next |
 
 ---
@@ -334,6 +337,18 @@ One PIDL file holds a protocol's ordered roles and an ordered list of named scen
 - [x] Deterministic network and trust SVG output
 - [x] Process port matching links a labeled flow's output to one input
 - [x] Text files check out with LF on every platform
+
+---
+
+## Next: v0.10.0 — PIDL v1 Format and the System View
+
+One source format, `pidl/v1`, for protocols and processes alike, with presentation kept in a `views` block and a migrator for existing documents. See [`INIT-PIDL-008`](initiatives/INIT-PIDL-008/ROADMAP.md).
+
+- [ ] Participants and scenarios of steps for every kind; process details on steps; required step IDs
+- [ ] camelCase property names and values; a schema generated from the Go types
+- [ ] `pidl migrate`, and every built-in example migrated
+- [ ] A system view: grid layout, links derived from the steps, `svg-system` and `system-text`
+- [ ] Walkthrough v2, a Sequence / System switch in the viewer, and a CSS custom property styling contract
 
 ---
 

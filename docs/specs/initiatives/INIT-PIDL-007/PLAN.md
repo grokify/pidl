@@ -25,4 +25,4 @@ The format comes first so the CDN script, the first reader outside this reposito
 
 ## Follow-On
 
-A hosted app (`INIT-PIDL-008`): upload or link a walkthrough or PIDL file, render it server-side, share a link. It reuses the format and the embeddable viewer.
+A hosted app (`INIT-PIDL-010`): upload or link a walkthrough or PIDL file, render it server-side, share a link. It reuses the format and the embeddable viewer.
