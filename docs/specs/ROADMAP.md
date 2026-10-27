@@ -281,7 +281,7 @@ pidl generate -f infographic --size=datasheet-tile --no-animate --theme=minimal 
 |----------|---------|--------|
 | `SPECIFICATION.md` | Process profile section | ✅ Done |
 | `README.md` | Process spec quick start | ✅ Done |
-| `docs/guide/process.md` | When to use process vs protocol | ✅ Done |
+| `docs/guides/process.md` | When to use process vs protocol | ✅ Done |
 | `mkdocs.yml` | Navigation updated | ✅ Done |
 
 ---

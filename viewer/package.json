@@ -9,7 +9,7 @@
     "sequence-diagram",
     "viewer"
   ],
-  "homepage": "https://github.com/grokify/pidl/blob/main/docs/guide/embedding.md",
+  "homepage": "https://github.com/grokify/pidl/blob/main/docs/guides/embedding.md",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/grokify/pidl.git",

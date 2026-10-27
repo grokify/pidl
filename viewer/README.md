@@ -23,7 +23,7 @@ const viewer = await mount(document.querySelector("#walkthrough"), { src: "aauth
 
 The viewer renders inside a shadow root, so page and viewer styles stay apart, and several viewers can share a page.
 
-See [Embedding the Viewer](https://github.com/grokify/pidl/blob/main/docs/guide/embedding.md) for every option, and the [walkthrough format](https://github.com/grokify/pidl/blob/main/docs/reference/walkthrough-format.md) reference.
+See [Embedding the Viewer](https://github.com/grokify/pidl/blob/main/docs/guides/embedding.md) for every option, and the [walkthrough format](https://github.com/grokify/pidl/blob/main/docs/reference/walkthrough-format.md) reference.
 
 ## Observed Runs
 

@@ -211,7 +211,7 @@ pidl generate -f infographic --size=linkedin-square --title="ETL Pipeline" etl_p
 pidl analyze etl_pipeline
 ```
 
-See [Process Guide](docs/guide/process.md) for detailed documentation.
+See [Process Guide](docs/guides/process.md) for detailed documentation.
 
 ## PIDL Format
 
