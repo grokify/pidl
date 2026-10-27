@@ -30,7 +30,7 @@ type Binding struct {
 
 	// Paths gives, per participant, the path of a step where the
 	// deployment's path differs from the document's example. Keys are step
-	// addresses, as in Steps.
+	// keys, as in Steps.
 	Paths map[string]map[string]string `json:"paths,omitempty"`
 
 	// Rewrite rewrites every exchange's URL before matching, in order.
@@ -40,10 +40,12 @@ type Binding struct {
 	// those whose role type is user.
 	Unobservable []string `json:"unobservable,omitempty"`
 
-	// Steps replaces a step's rule for this deployment. A key is
-	// "<scenario>/<step-id>", or "*/<step-id>" for every scenario that has
-	// the step: step IDs repeat across scenarios. A scenario's key wins over
-	// the wildcard.
+	// Steps replaces a step's rule for this deployment. A key names, from
+	// most to least specific: "<scenario>/<expanded-id>", the step in one
+	// scenario as the walkthrough qualifies it ("ps-authorization/consent.poll");
+	// "<defining-scenario>/<flow-id>", the flow wherever it appears, as
+	// sample sets address steps ("consent/poll"); or "*/<flow-id>", any flow
+	// with that ID. Step IDs repeat across scenarios, so a bare ID is not a key.
 	Steps map[string]BindingStep `json:"steps,omitempty"`
 }
 
@@ -173,16 +175,46 @@ func (b *Binding) WriteFile(path string) error {
 	return os.WriteFile(path, append(data, '\n'), 0o600)
 }
 
-// StepRule returns the binding's rule for a step of a scenario: the
-// scenario's own key if present, else the wildcard key.
-func (b *Binding) StepRule(scenario, step string) (StepMatch, bool) {
-	if s, ok := b.Steps[scenario+"/"+step]; ok {
-		return s.Match, true
+// StepKeys returns the keys that can name a step, most specific first:
+// the step in its scenario, the flow where it is defined, and any flow
+// with its ID. expandedID is the walkthrough's qualified step ID,
+// definedIn the scenario or fragment that defines the flow, and flowID the
+// flow's own ID.
+func StepKeys(scenario, expandedID, definedIn, flowID string) []string {
+	var keys []string
+	if scenario != "" && expandedID != "" {
+		keys = append(keys, scenario+"/"+expandedID)
 	}
-	if s, ok := b.Steps["*/"+step]; ok {
-		return s.Match, true
+	if definedIn != "" && flowID != "" && definedIn+"/"+flowID != scenario+"/"+expandedID {
+		keys = append(keys, definedIn+"/"+flowID)
 	}
-	return StepMatch{}, false
+	if flowID != "" {
+		keys = append(keys, "*/"+flowID)
+	}
+	return keys
+}
+
+// StepRule returns the binding's rule for a step and the key that named
+// it, trying StepKeys in order.
+func (b *Binding) StepRule(scenario, expandedID, definedIn, flowID string) (StepMatch, string, bool) {
+	for _, k := range StepKeys(scenario, expandedID, definedIn, flowID) {
+		if s, ok := b.Steps[k]; ok {
+			return s.Match, k, true
+		}
+	}
+	return StepMatch{}, "", false
+}
+
+// StepPath returns the binding's path for a step at a participant and the
+// key that named it, trying StepKeys in order.
+func (b *Binding) StepPath(participant, scenario, expandedID, definedIn, flowID string) (string, string, bool) {
+	paths := b.Paths[participant]
+	for _, k := range StepKeys(scenario, expandedID, definedIn, flowID) {
+		if p, ok := paths[k]; ok {
+			return p, k, true
+		}
+	}
+	return "", "", false
 }
 
 // Validate checks the binding's structure: its format, regular
@@ -221,7 +253,7 @@ func (b *Binding) Validate() ValidationErrors {
 		}
 		for _, key := range sortedKeys(b.Paths[id]) {
 			if !validStepKey(key) {
-				errs = append(errs, ValidationError{Field: fmt.Sprintf("paths[%s][%s]", id, key), Message: `must be "<scenario>/<step-id>" or "*/<step-id>"`})
+				errs = append(errs, ValidationError{Field: fmt.Sprintf("paths[%s][%s]", id, key), Message: `must be "<scenario>/<step>" or "*/<step>"`})
 			}
 		}
 	}
@@ -233,15 +265,15 @@ func (b *Binding) Validate() ValidationErrors {
 	for _, key := range sortedKeys(b.Steps) {
 		field := fmt.Sprintf("steps[%s]", key)
 		if !validStepKey(key) {
-			errs = append(errs, ValidationError{Field: field, Message: `must be "<scenario>/<step-id>" or "*/<step-id>"`})
+			errs = append(errs, ValidationError{Field: field, Message: `must be "<scenario>/<step>" or "*/<step>"`})
 		}
 		errs = append(errs, b.Steps[key].Match.Validate(field+".match")...)
 	}
 	return errs
 }
 
-// validStepKey reports whether key is "<scenario>/<step-id>" or
-// "*/<step-id>", with neither part empty.
+// validStepKey reports whether key is "<scenario>/<step>" or "*/<step>",
+// with neither part empty.
 func validStepKey(key string) bool {
 	scenario, step, ok := strings.Cut(key, "/")
 	return ok && scenario != "" && step != "" && !strings.Contains(step, "/")

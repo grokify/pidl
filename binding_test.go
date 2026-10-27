@@ -3,6 +3,7 @@ package pidl
 import (
 	"encoding/json"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -47,25 +48,70 @@ func TestParseBindingRefusesOtherVersion(t *testing.T) {
 	}
 }
 
+func TestStepKeys(t *testing.T) {
+	tests := []struct {
+		name                                  string
+		scenario, expanded, definedIn, flowID string
+		want                                  []string
+	}{
+		{"flow in its own scenario", "challenge", "request", "challenge", "request", []string{"challenge/request", "*/request"}},
+		{"flow from a fragment", "ps-authorization", "consent.poll", "consent", "poll", []string{"ps-authorization/consent.poll", "consent/poll", "*/poll"}},
+		{"no ID", "s", "", "s", "", nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := StepKeys(tt.scenario, tt.expanded, tt.definedIn, tt.flowID)
+			if strings.Join(got, " ") != strings.Join(tt.want, " ") {
+				t.Errorf("StepKeys = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestBindingStepRule(t *testing.T) {
-	b, err := ParseBinding([]byte(bindingJSON))
-	if err != nil {
-		t.Fatal(err)
+	b := &Binding{Format: BindingFormat, Steps: map[string]BindingStep{
+		"ps-authorization/consent.poll": {Match: StepMatch{Status: 202}},
+		"consent/poll":                  {Match: StepMatch{Status: 200}},
+		"*/poll":                        {Match: StepMatch{Method: "GET", Repeat: true}},
+		"challenge/request":             {Match: StepMatch{Method: "POST"}},
+		"*/request":                     {Match: StepMatch{Method: "GET"}},
+	}}
+	tests := []struct {
+		name                                  string
+		scenario, expanded, definedIn, flowID string
+		wantKey                               string
+	}{
+		{"scenario key wins", "ps-authorization", "consent.poll", "consent", "poll", "ps-authorization/consent.poll"},
+		{"defining scenario next", "ps-authorization-challenge", "consent.poll", "consent", "poll", "consent/poll"},
+		{"wildcard last", "other", "poll", "other", "poll", "*/poll"},
+		{"flow in its scenario", "challenge", "request", "challenge", "request", "challenge/request"},
+		{"same ID elsewhere takes the wildcard", "agent-identity", "request", "agent-identity", "request", "*/request"},
 	}
-	m, ok := b.StepRule("challenge", "request")
-	if !ok || m.Method != "POST" || m.Status != 401 {
-		t.Errorf("scenario key: %+v, %v; want the scenario's own rule", m, ok)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, key, ok := b.StepRule(tt.scenario, tt.expanded, tt.definedIn, tt.flowID)
+			if !ok || key != tt.wantKey {
+				t.Errorf("StepRule key = %q, %v; want %q", key, ok, tt.wantKey)
+			}
+		})
 	}
-	m, ok = b.StepRule("agent-identity", "request")
-	if !ok || m.Method != "GET" {
-		t.Errorf("wildcard key: %+v, %v; want the wildcard rule", m, ok)
-	}
-	m, ok = b.StepRule("ps-authorization", "consent.poll")
-	if !ok || !m.Repeat {
-		t.Errorf("wildcard repeat: %+v, %v", m, ok)
-	}
-	if _, ok := b.StepRule("x", "missing"); ok {
+	if _, _, ok := b.StepRule("x", "missing", "x", "missing"); ok {
 		t.Error("found a rule that is not there")
+	}
+}
+
+func TestBindingStepPath(t *testing.T) {
+	b := &Binding{Format: BindingFormat, Paths: map[string]map[string]string{
+		"resource": {"*/api-request": "/v2/store/order", "agent-identity/request": "/v2/pet/findByStatus"},
+	}}
+	if p, key, ok := b.StepPath("resource", "agent-identity", "request", "agent-identity", "request"); !ok || p != "/v2/pet/findByStatus" || key != "agent-identity/request" {
+		t.Errorf("StepPath = %q, %q, %v", p, key, ok)
+	}
+	if p, _, ok := b.StepPath("resource", "ps-authorization", "api-request", "ps-authorization", "api-request"); !ok || p != "/v2/store/order" {
+		t.Errorf("wildcard StepPath = %q, %v", p, ok)
+	}
+	if _, _, ok := b.StepPath("ap", "s", "x", "s", "x"); ok {
+		t.Error("found a path for a participant with none")
 	}
 }
 
@@ -128,5 +174,27 @@ func TestBindingValidate(t *testing.T) {
 	}
 	if errs := (&Binding{Format: BindingFormat}).Validate(); len(errs) != 1 || errs[0].Field != "participants" {
 		t.Errorf("empty binding: %v", errs)
+	}
+}
+
+func TestProtocolValidatesStepMatch(t *testing.T) {
+	p, err := Parse([]byte(`{
+	  "protocol": {"id": "m", "name": "M", "version": "1.0"},
+	  "entities": [{"id": "a", "name": "A", "type": "agent"}, {"id": "b", "name": "B", "type": "server"}],
+	  "scenarios": [{"id": "s", "name": "S", "flows": [
+	    {"id": "x", "from": "a", "to": "b", "action": "call", "label": "Call", "match": {"path": "^(", "status": 42}}
+	  ]}]
+	}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]bool{}
+	for _, e := range p.Validate() {
+		if strings.Contains(e.Field, ".match.") {
+			got[e.Field[strings.Index(e.Field, ".match."):]] = true
+		}
+	}
+	if !got[".match.path"] || !got[".match.status"] {
+		t.Errorf("match errors = %v, want path and status", got)
 	}
 }

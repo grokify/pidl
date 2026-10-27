@@ -32,7 +32,7 @@
             "type": "object"
           },
           "type": "object",
-          "description": "Paths gives, per participant, the path of a step where the\ndeployment's path differs from the document's example. Keys are step\naddresses, as in Steps."
+          "description": "Paths gives, per participant, the path of a step where the\ndeployment's path differs from the document's example. Keys are step\nkeys, as in Steps."
         },
         "rewrite": {
           "items": {
@@ -53,7 +53,7 @@
             "$ref": "#/$defs/BindingStep"
           },
           "type": "object",
-          "description": "Steps replaces a step's rule for this deployment. A key is\n\"<scenario>/<step-id>\", or \"*/<step-id>\" for every scenario that has\nthe step: step IDs repeat across scenarios. A scenario's key wins over\nthe wildcard."
+          "description": "Steps replaces a step's rule for this deployment. A key names, from\nmost to least specific: \"<scenario>/<expanded-id>\", the step in one\nscenario as the walkthrough qualifies it (\"ps-authorization/consent.poll\");\n\"<defining-scenario>/<flow-id>\", the flow wherever it appears, as\nsample sets address steps (\"consent/poll\"); or \"*/<flow-id>\", any flow\nwith that ID. Step IDs repeat across scenarios, so a bare ID is not a key."
         }
       },
       "type": "object",
