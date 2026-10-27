@@ -19,6 +19,9 @@ func (p *Protocol) validateExamples() ValidationErrors {
 			if f.Example != nil {
 				errs = append(errs, validateExample(fmt.Sprintf("%s[%d].example", list.field, i), f.Example, tokenIDs)...)
 			}
+			if f.Match != nil {
+				errs = append(errs, f.Match.Validate(fmt.Sprintf("%s[%d].match", list.field, i))...)
+			}
 		}
 	}
 	return errs

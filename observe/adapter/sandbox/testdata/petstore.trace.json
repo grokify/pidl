@@ -1,0 +1,1262 @@
+[
+  {
+    "from": "agent",
+    "request": {
+      "body": {},
+      "headers": [
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "Content-Digest",
+          "sha-256=:RBNvo1WzZ4oRRq0W9+hknpT7T8If536DEMBg9hyq/4o=:"
+        ],
+        [
+          "Content-Length",
+          "2"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Signature",
+          "sig=:…:"
+        ],
+        [
+          "Signature-Input",
+          "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\" \"content-digest\" \"content-type\");created=1793091744"
+        ],
+        [
+          "Signature-Key",
+          "sig=jkt-jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+        ],
+        [
+          "User-Agent",
+          "Go-http-client/2.0"
+        ]
+      ],
+      "method": "POST",
+      "url": "https://ap.aauth.test/agent-token"
+    },
+    "response": {
+      "body": {
+        "agent_token": "eyJhbGciOiJFZDI1NTE5…",
+        "expires_in": 3599
+      },
+      "headers": [
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:24.18813138Z",
+    "to": "ap"
+  },
+  {
+    "from": "agent",
+    "request": {
+      "body": {},
+      "headers": [
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "Cache-Control",
+          "no-cache"
+        ],
+        [
+          "Content-Digest",
+          "sha-256=:RBNvo1WzZ4oRRq0W9+hknpT7T8If536DEMBg9hyq/4o=:"
+        ],
+        [
+          "Content-Length",
+          "2"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Postman-Token",
+          "431ae66c-4f9e-4123-8b89-202870174d5c"
+        ],
+        [
+          "Signature",
+          "sig=:…:"
+        ],
+        [
+          "Signature-Input",
+          "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\" \"content-digest\" \"content-type\");created=1793091751"
+        ],
+        [
+          "Signature-Key",
+          "sig=jkt-jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+        ],
+        [
+          "User-Agent",
+          "PostmanRuntime/7.39.0"
+        ]
+      ],
+      "method": "POST",
+      "url": "https://ap.aauth.test/agent-token"
+    },
+    "response": {
+      "body": {
+        "agent_token": "eyJhbGciOiJFZDI1NTE5…",
+        "expires_in": 3599
+      },
+      "headers": [
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.426494675Z",
+    "to": "ap"
+  },
+  {
+    "from": "client",
+    "request": {
+      "headers": [
+        [
+          "Accept",
+          "application/json"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "User-Agent",
+          "Go-http-client/2.0"
+        ]
+      ],
+      "method": "GET",
+      "url": "https://ap.aauth.test/.well-known/aauth-agent.json"
+    },
+    "response": {
+      "body": {
+        "issuer": "https://ap.aauth.test",
+        "jwks_uri": "https://ap.aauth.test/jwks.json"
+      },
+      "headers": [
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.475941425Z",
+    "to": "ap"
+  },
+  {
+    "from": "client",
+    "request": {
+      "headers": [
+        [
+          "Accept",
+          "application/json"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "User-Agent",
+          "Go-http-client/2.0"
+        ]
+      ],
+      "method": "GET",
+      "url": "https://ap.aauth.test/jwks.json"
+    },
+    "response": {
+      "body": {
+        "keys": [
+          {
+            "alg": "Ed25519",
+            "crv": "Ed25519",
+            "kid": "1w4ES_gc092gCGV_9rboFeNnOZYKNkWfEPHAF6CiiBw",
+            "kty": "OKP",
+            "use": "sig",
+            "x": "aJfOaE2uJh9-LyIOmuo2k7Rs3gBSHIjvJxAIYOKmij4"
+          }
+        ]
+      },
+      "headers": [
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.476328717Z",
+    "to": "ap"
+  },
+  {
+    "from": "agent",
+    "request": {
+      "headers": [
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "Cache-Control",
+          "no-cache"
+        ],
+        [
+          "Postman-Token",
+          "913389b1-e188-441b-be26-d61de86479f0"
+        ],
+        [
+          "Signature",
+          "sig=:…:"
+        ],
+        [
+          "Signature-Input",
+          "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\" \"@query\");created=1793091751"
+        ],
+        [
+          "Signature-Key",
+          "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+        ],
+        [
+          "User-Agent",
+          "PostmanRuntime/7.39.0"
+        ]
+      ],
+      "method": "GET",
+      "url": "https://petstore.aauth.test/v2/pet/findByStatus?status=available"
+    },
+    "response": {
+      "body": [
+        {
+          "category": {
+            "id": 1,
+            "name": "Dogs"
+          },
+          "id": 1,
+          "name": "Fido",
+          "photoUrls": [
+            "https://example.com/pets/Fido.jpg"
+          ],
+          "status": "available",
+          "tags": [
+            {
+              "id": 1,
+              "name": "friendly"
+            },
+            {
+              "id": 3,
+              "name": "playful"
+            }
+          ]
+        },
+        {
+          "category": {
+            "id": 1,
+            "name": "Dogs"
+          },
+          "id": 2,
+          "name": "Rex",
+          "photoUrls": [
+            "https://example.com/pets/Rex.jpg"
+          ],
+          "status": "available",
+          "tags": [
+            {
+              "id": 1,
+              "name": "friendly"
+            }
+          ]
+        },
+        {
+          "category": {
+            "id": 2,
+            "name": "Cats"
+          },
+          "id": 3,
+          "name": "Whiskers",
+          "photoUrls": [
+            "https://example.com/pets/Whiskers.jpg"
+          ],
+          "status": "available",
+          "tags": [
+            {
+              "id": 2,
+              "name": "calm"
+            }
+          ]
+        },
+        {
+          "category": {
+            "id": 3,
+            "name": "Fish"
+          },
+          "id": 5,
+          "name": "Bubbles",
+          "photoUrls": [
+            "https://example.com/pets/Bubbles.jpg"
+          ],
+          "status": "available",
+          "tags": [
+            {
+              "id": 2,
+              "name": "calm"
+            }
+          ]
+        }
+      ],
+      "headers": [
+        [
+          "Content-Length",
+          "688"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Date",
+          "Tue, 27 Oct 2026 09:02:31 GMT"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.477172717Z",
+    "to": "petstore.aauth.test"
+  },
+  {
+    "from": "agent",
+    "request": {
+      "body": {},
+      "headers": [
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "Cache-Control",
+          "no-cache"
+        ],
+        [
+          "Content-Digest",
+          "sha-256=:RBNvo1WzZ4oRRq0W9+hknpT7T8If536DEMBg9hyq/4o=:"
+        ],
+        [
+          "Content-Length",
+          "2"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Postman-Token",
+          "fdbf44dd-3021-4a10-993c-882b8ad68b82"
+        ],
+        [
+          "Signature",
+          "sig=:…:"
+        ],
+        [
+          "Signature-Input",
+          "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\" \"content-digest\" \"content-type\");created=1793091751"
+        ],
+        [
+          "Signature-Key",
+          "sig=jkt-jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+        ],
+        [
+          "User-Agent",
+          "PostmanRuntime/7.39.0"
+        ]
+      ],
+      "method": "POST",
+      "url": "https://ap.aauth.test/agent-token"
+    },
+    "response": {
+      "body": {
+        "agent_token": "eyJhbGciOiJFZDI1NTE5…",
+        "expires_in": 3599
+      },
+      "headers": [
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.501307092Z",
+    "to": "ap"
+  },
+  {
+    "from": "agent",
+    "request": {
+      "body": {
+        "petId": 1,
+        "quantity": 1
+      },
+      "headers": [
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "Cache-Control",
+          "no-cache"
+        ],
+        [
+          "Content-Digest",
+          "sha-256=:/X0ubX+P/IAcUL+6wagGanWLEuO6z3YTdyLFmAMixv8=:"
+        ],
+        [
+          "Content-Length",
+          "33"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Postman-Token",
+          "266a3c2f-592d-473c-aa15-20956be598c6"
+        ],
+        [
+          "Signature",
+          "sig=:…:"
+        ],
+        [
+          "Signature-Input",
+          "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\" \"content-digest\" \"content-type\");created=1793091751"
+        ],
+        [
+          "Signature-Key",
+          "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+        ],
+        [
+          "User-Agent",
+          "PostmanRuntime/7.39.0"
+        ]
+      ],
+      "method": "POST",
+      "url": "https://petstore.aauth.test/v2/store/order"
+    },
+    "response": {
+      "headers": [
+        [
+          "Aauth-Requirement",
+          "requirement=person-token"
+        ],
+        [
+          "Content-Length",
+          "0"
+        ],
+        [
+          "Date",
+          "Tue, 27 Oct 2026 09:02:31 GMT"
+        ]
+      ],
+      "status": 401
+    },
+    "time": "2026-10-27T09:02:31.526310008Z",
+    "to": "petstore.aauth.test"
+  },
+  {
+    "from": "ps",
+    "request": {
+      "headers": [
+        [
+          "Accept",
+          "application/json"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "User-Agent",
+          "Go-http-client/2.0"
+        ]
+      ],
+      "method": "GET",
+      "url": "https://ap.aauth.test/.well-known/aauth-agent.json"
+    },
+    "response": {
+      "body": {
+        "issuer": "https://ap.aauth.test",
+        "jwks_uri": "https://ap.aauth.test/jwks.json"
+      },
+      "headers": [
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.553662425Z",
+    "to": "ap"
+  },
+  {
+    "from": "ps",
+    "request": {
+      "headers": [
+        [
+          "Accept",
+          "application/json"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "User-Agent",
+          "Go-http-client/2.0"
+        ]
+      ],
+      "method": "GET",
+      "url": "https://ap.aauth.test/jwks.json"
+    },
+    "response": {
+      "body": {
+        "keys": [
+          {
+            "alg": "Ed25519",
+            "crv": "Ed25519",
+            "kid": "1w4ES_gc092gCGV_9rboFeNnOZYKNkWfEPHAF6CiiBw",
+            "kty": "OKP",
+            "use": "sig",
+            "x": "aJfOaE2uJh9-LyIOmuo2k7Rs3gBSHIjvJxAIYOKmij4"
+          }
+        ]
+      },
+      "headers": [
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.553891425Z",
+    "to": "ap"
+  },
+  {
+    "from": "agent",
+    "request": {
+      "body": {
+        "capabilities": [
+          "interaction"
+        ],
+        "resource": "https://petstore.aauth.test"
+      },
+      "headers": [
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "Cache-Control",
+          "no-cache"
+        ],
+        [
+          "Content-Digest",
+          "sha-256=:Z5dDtSTPiJZE0huKH6tfmYKBImXAw2FlLkR/doQA7bU=:"
+        ],
+        [
+          "Content-Length",
+          "90"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Postman-Token",
+          "6eaa3980-4f12-4b00-a5ad-7ff7d39f731b"
+        ],
+        [
+          "Signature",
+          "sig=:…:"
+        ],
+        [
+          "Signature-Input",
+          "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\" \"content-digest\" \"content-type\");created=1793091751"
+        ],
+        [
+          "Signature-Key",
+          "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+        ],
+        [
+          "User-Agent",
+          "PostmanRuntime/7.39.0"
+        ]
+      ],
+      "method": "POST",
+      "url": "https://ps.aauth.test/person"
+    },
+    "response": {
+      "body": {
+        "expires_in": 3599,
+        "person_token": "eyJhbGciOiJFZDI1NTE5…"
+      },
+      "headers": [
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.555652175Z",
+    "to": "ps"
+  },
+  {
+    "from": "client",
+    "request": {
+      "headers": [
+        [
+          "Accept",
+          "application/json"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "User-Agent",
+          "Go-http-client/2.0"
+        ]
+      ],
+      "method": "GET",
+      "url": "https://ps.aauth.test/.well-known/aauth-person.json"
+    },
+    "response": {
+      "body": {
+        "auth_token_endpoint": "https://ps.aauth.test/token",
+        "issuer": "https://ps.aauth.test",
+        "jwks_uri": "https://ps.aauth.test/jwks.json",
+        "person_token_endpoint": "https://ps.aauth.test/person",
+        "revocation_endpoint": "https://ps.aauth.test/ps/revoke"
+      },
+      "headers": [
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.582998092Z",
+    "to": "ps"
+  },
+  {
+    "from": "client",
+    "request": {
+      "headers": [
+        [
+          "Accept",
+          "application/json"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "User-Agent",
+          "Go-http-client/2.0"
+        ]
+      ],
+      "method": "GET",
+      "url": "https://ps.aauth.test/jwks.json"
+    },
+    "response": {
+      "body": {
+        "keys": [
+          {
+            "alg": "Ed25519",
+            "crv": "Ed25519",
+            "kid": "l0RV7_-ZsqkSVNrcY71_hnpGxQVka_pvfRQX0UEBOfY",
+            "kty": "OKP",
+            "use": "sig",
+            "x": "9rC5Rhx8Q19171Yv0YIIeOIMeRdByHrJPOseUKMhY2w"
+          }
+        ]
+      },
+      "headers": [
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.5832338Z",
+    "to": "ps"
+  },
+  {
+    "from": "agent",
+    "request": {
+      "body": {
+        "petId": 1,
+        "quantity": 1
+      },
+      "headers": [
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "Cache-Control",
+          "no-cache"
+        ],
+        [
+          "Content-Digest",
+          "sha-256=:/X0ubX+P/IAcUL+6wagGanWLEuO6z3YTdyLFmAMixv8=:"
+        ],
+        [
+          "Content-Length",
+          "33"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Postman-Token",
+          "df2766c0-c3a8-424b-8677-8406910e72a1"
+        ],
+        [
+          "Signature",
+          "sig=:…:"
+        ],
+        [
+          "Signature-Input",
+          "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\" \"content-digest\" \"content-type\");created=1793091751"
+        ],
+        [
+          "Signature-Key",
+          "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+        ],
+        [
+          "User-Agent",
+          "PostmanRuntime/7.39.0"
+        ]
+      ],
+      "method": "POST",
+      "url": "https://petstore.aauth.test/v2/store/order"
+    },
+    "response": {
+      "headers": [
+        [
+          "Aauth-Requirement",
+          "requirement=auth-token; resource-token=\"eyJhbGciOiJFZDI1NTE5…\""
+        ],
+        [
+          "Content-Length",
+          "0"
+        ],
+        [
+          "Date",
+          "Tue, 27 Oct 2026 09:02:31 GMT"
+        ]
+      ],
+      "status": 401
+    },
+    "time": "2026-10-27T09:02:31.583808175Z",
+    "to": "petstore.aauth.test"
+  },
+  {
+    "from": "ps",
+    "request": {
+      "headers": [
+        [
+          "Accept",
+          "application/json"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "User-Agent",
+          "Go-http-client/2.0"
+        ]
+      ],
+      "method": "GET",
+      "url": "https://petstore.aauth.test/.well-known/aauth-resource.json"
+    },
+    "response": {
+      "body": {
+        "issuer": "https://petstore.aauth.test",
+        "jwks_uri": "https://petstore.aauth.test/jwks.json",
+        "name": "Petstore",
+        "scope_descriptions": {
+          "write:orders": "Place and cancel orders for pets on your behalf.",
+          "write:pets": "Add, change and remove pets in the catalog."
+        }
+      },
+      "headers": [
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Length",
+          "258"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Date",
+          "Tue, 27 Oct 2026 09:02:31 GMT"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.609524675Z",
+    "to": "petstore.aauth.test"
+  },
+  {
+    "from": "ps",
+    "request": {
+      "headers": [
+        [
+          "Accept",
+          "application/json"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "User-Agent",
+          "Go-http-client/2.0"
+        ]
+      ],
+      "method": "GET",
+      "url": "https://petstore.aauth.test/jwks.json"
+    },
+    "response": {
+      "body": {
+        "keys": [
+          {
+            "alg": "Ed25519",
+            "crv": "Ed25519",
+            "kid": "ib8DhmQjg53w1Yai3xmncY3DD0JQbyvXlxHYmEiT3fg",
+            "kty": "OKP",
+            "use": "sig",
+            "x": "-0cH64lrv7bILFV1mBtlFu9S1FmoArLVmC0S5sjBiR4"
+          }
+        ]
+      },
+      "headers": [
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Length",
+          "171"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Date",
+          "Tue, 27 Oct 2026 09:02:31 GMT"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.609805634Z",
+    "to": "petstore.aauth.test"
+  },
+  {
+    "from": "agent",
+    "request": {
+      "body": {
+        "capabilities": [
+          "interaction"
+        ],
+        "justification": "Order Fido, as the person asked",
+        "presented_token": "eyJhbGciOiJFZDI1NTE5…",
+        "resource_token": "eyJhbGciOiJFZDI1NTE5…"
+      },
+      "headers": [
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "Cache-Control",
+          "no-cache"
+        ],
+        [
+          "Content-Digest",
+          "sha-256=:nDzCFe0s44hJ/7mhPRnLhzXdPS/FnugepzMt/w7nfAw=:"
+        ],
+        [
+          "Content-Length",
+          "1471"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Postman-Token",
+          "fe0d66ef-9bd7-4243-b366-b565916c1757"
+        ],
+        [
+          "Prefer",
+          "wait=45"
+        ],
+        [
+          "Signature",
+          "sig=:…:"
+        ],
+        [
+          "Signature-Input",
+          "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\" \"content-digest\" \"content-type\");created=1793091751"
+        ],
+        [
+          "Signature-Key",
+          "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+        ],
+        [
+          "User-Agent",
+          "PostmanRuntime/7.39.0"
+        ]
+      ],
+      "method": "POST",
+      "url": "https://ps.aauth.test/token"
+    },
+    "response": {
+      "body": {
+        "status": "pending"
+      },
+      "headers": [
+        [
+          "Aauth-Requirement",
+          "requirement=interaction; url=\"https://ps.aauth.test/interaction\"; code=\"S5RM-RBH8\""
+        ],
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Location",
+          "https://ps.aauth.test/pending/2U5_3Rqrgp425Fp-Op9knL6CkaXDoAop"
+        ],
+        [
+          "Retry-After",
+          "1"
+        ]
+      ],
+      "status": 202
+    },
+    "time": "2026-10-27T09:02:31.610320175Z",
+    "to": "ps"
+  },
+  {
+    "from": "agent",
+    "request": {
+      "headers": [
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "Cache-Control",
+          "no-cache"
+        ],
+        [
+          "Postman-Token",
+          "54a23de1-b3d9-450b-ba14-da905ce09053"
+        ],
+        [
+          "Prefer",
+          "wait=45"
+        ],
+        [
+          "Signature",
+          "sig=:…:"
+        ],
+        [
+          "Signature-Input",
+          "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\");created=1793091751"
+        ],
+        [
+          "Signature-Key",
+          "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+        ],
+        [
+          "User-Agent",
+          "PostmanRuntime/7.39.0"
+        ]
+      ],
+      "method": "GET",
+      "url": "https://ps.aauth.test/pending/2U5_3Rqrgp425Fp-Op9knL6CkaXDoAop"
+    },
+    "response": {
+      "body": {
+        "auth_token": "eyJhbGciOiJFZDI1NTE5…",
+        "expires_in": 3599
+      },
+      "headers": [
+        [
+          "Cache-Control",
+          "no-store"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.633299967Z",
+    "to": "ps"
+  },
+  {
+    "from": "agent",
+    "request": {
+      "body": {
+        "petId": 1,
+        "quantity": 1
+      },
+      "headers": [
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "Cache-Control",
+          "no-cache"
+        ],
+        [
+          "Content-Digest",
+          "sha-256=:/X0ubX+P/IAcUL+6wagGanWLEuO6z3YTdyLFmAMixv8=:"
+        ],
+        [
+          "Content-Length",
+          "33"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Postman-Token",
+          "4833c5ab-5ca8-4efb-95c1-502802f9eb06"
+        ],
+        [
+          "Signature",
+          "sig=:…:"
+        ],
+        [
+          "Signature-Input",
+          "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\" \"content-digest\" \"content-type\");created=1793091751"
+        ],
+        [
+          "Signature-Key",
+          "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+        ],
+        [
+          "User-Agent",
+          "PostmanRuntime/7.39.0"
+        ]
+      ],
+      "method": "POST",
+      "url": "https://petstore.aauth.test/v2/store/order"
+    },
+    "response": {
+      "body": {
+        "complete": false,
+        "id": 1,
+        "petId": 1,
+        "quantity": 1,
+        "status": "placed"
+      },
+      "headers": [
+        [
+          "Content-Length",
+          "67"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Date",
+          "Tue, 27 Oct 2026 09:02:31 GMT"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.657605967Z",
+    "to": "petstore.aauth.test"
+  },
+  {
+    "from": "agent",
+    "request": {
+      "headers": [
+        [
+          "Accept",
+          "*/*"
+        ],
+        [
+          "Accept-Encoding",
+          "gzip"
+        ],
+        [
+          "Cache-Control",
+          "no-cache"
+        ],
+        [
+          "Postman-Token",
+          "132a5950-2f0f-4e9f-a137-62194948a2ff"
+        ],
+        [
+          "Signature",
+          "sig=:…:"
+        ],
+        [
+          "Signature-Input",
+          "sig=(\"@method\" \"@authority\" \"@path\" \"signature-key\");created=1793091751"
+        ],
+        [
+          "Signature-Key",
+          "sig=jwt;jwt=\"eyJhbGciOiJFZDI1NTE5…\""
+        ],
+        [
+          "User-Agent",
+          "PostmanRuntime/7.39.0"
+        ]
+      ],
+      "method": "GET",
+      "url": "https://petstore.aauth.test/v2/store/order/1"
+    },
+    "response": {
+      "body": {
+        "complete": false,
+        "id": 1,
+        "petId": 1,
+        "quantity": 1,
+        "status": "placed"
+      },
+      "headers": [
+        [
+          "Content-Length",
+          "67"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Date",
+          "Tue, 27 Oct 2026 09:02:31 GMT"
+        ]
+      ],
+      "status": 200
+    },
+    "time": "2026-10-27T09:02:31.682422092Z",
+    "to": "petstore.aauth.test"
+  }
+]

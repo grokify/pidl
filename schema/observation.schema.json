@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/grokify/pidl/schema/observation.schema.json",
+  "$ref": "#/$defs/Observation",
+  "$defs": {
+    "Exchange": {
+      "properties": {
+        "time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time is when the request was made. A tool that has no clock keeps the\norder and leaves it unset."
+        },
+        "from": {
+          "type": "string",
+          "description": "From and To are the capturing tool's labels for the sender and the\nreceiver, kept as written. A binding maps them to participants."
+        },
+        "to": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "RequestID is the value of a request ID header, when the capture has\none. It joins client events and other sources to the exchange."
+        },
+        "request": {
+          "$ref": "#/$defs/ObservedRequest"
+        },
+        "response": {
+          "$ref": "#/$defs/ObservedResponse"
+        },
+        "bodyTruncated": {
+          "type": "boolean",
+          "description": "BodyTruncated reports that a body was cut at the size limit."
+        },
+        "label": {
+          "type": "string",
+          "description": "Label is a name a tool gave the exchange, such as a Newman request's\nname. It never changes a match."
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/ExchangeAnnotation"
+          },
+          "type": "array",
+          "description": "Annotations are evidence a tool produced about the exchange, such as\nassertions or a client's own events. They never change a match."
+        }
+      },
+      "type": "object",
+      "required": [
+        "request",
+        "response"
+      ],
+      "description": "Exchange is one HTTP request and its response."
+    },
+    "ExchangeAnnotation": {
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "Kind classifies the annotation, such as \"assertion\" or \"client-event\"."
+        },
+        "text": {
+          "type": "string",
+          "description": "Text is the annotation as a person reads it."
+        },
+        "ok": {
+          "type": "boolean",
+          "description": "OK is the result of an assertion; unset for other kinds."
+        },
+        "time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time is when the annotated event happened, when it differs from the\nexchange's time."
+        }
+      },
+      "type": "object",
+      "required": [
+        "kind",
+        "text"
+      ],
+      "description": "ExchangeAnnotation is a piece of evidence about an exchange."
+    },
+    "Observation": {
+      "properties": {
+        "format": {
+          "type": "string",
+          "const": "pidl-observation/v1",
+          "description": "Format names the format and its major version: pidl-observation/v1."
+        },
+        "source": {
+          "$ref": "#/$defs/ObservationSource",
+          "description": "Source says which tool produced the observation and what it covers."
+        },
+        "exchanges": {
+          "items": {
+            "$ref": "#/$defs/Exchange"
+          },
+          "type": "array",
+          "description": "Exchanges are the requests and responses, in the order they happened."
+        }
+      },
+      "type": "object",
+      "required": [
+        "format",
+        "source",
+        "exchanges"
+      ],
+      "description": "Observation is a captured run of a real system: the HTTP exchanges it made, in order, whatever tool captured them."
+    },
+    "ObservationSource": {
+      "properties": {
+        "tool": {
+          "type": "string",
+          "description": "Tool names the tool that captured the exchanges, such as\n\"aauth-sandbox\", \"har\" or \"newman\"."
+        },
+        "requestFidelity": {
+          "type": "string",
+          "enum": [
+            "wire",
+            "client"
+          ],
+          "description": "RequestFidelity is wire or client; empty when unknown."
+        },
+        "from": {
+          "type": "string",
+          "format": "date-time",
+          "description": "From and To bound the time the observation covers."
+        },
+        "to": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "type": "object",
+      "required": [
+        "tool"
+      ],
+      "description": "ObservationSource describes where an observation came from."
+    },
+    "ObservedHeaders": {
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array",
+        "maxItems": 2,
+        "minItems": 2
+      },
+      "type": "array",
+      "description": "ObservedHeaders are header fields as name and value pairs, in their original order and case."
+    },
+    "ObservedRequest": {
+      "properties": {
+        "method": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "headers": {
+          "$ref": "#/$defs/ObservedHeaders"
+        },
+        "body": {
+          "description": "Body is a JSON value for a JSON body, a JSON string for other text,\nor {\"base64\": \"…\", \"mediaType\": \"…\"} for binary content."
+        }
+      },
+      "type": "object",
+      "required": [
+        "method",
+        "url"
+      ],
+      "description": "ObservedRequest is a captured HTTP request."
+    },
+    "ObservedResponse": {
+      "properties": {
+        "status": {
+          "type": "integer"
+        },
+        "headers": {
+          "$ref": "#/$defs/ObservedHeaders"
+        },
+        "body": {
+          "description": "Body is encoded as ObservedRequest.Body is."
+        }
+      },
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "description": "ObservedResponse is a captured HTTP response."
+    }
+  },
+  "title": "PIDL Observation",
+  "description": "A captured run of a real system: its HTTP exchanges in order, whatever tool captured them, matched to a document's steps by `pidl generate --observation`."
+}

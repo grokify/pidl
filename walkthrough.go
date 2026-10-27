@@ -72,6 +72,14 @@ type WalkthroughStep struct {
 	Issues          []string                           `json:"issues,omitempty"`
 	Verifies        []string                           `json:"verifies,omitempty"`
 	Example         *FlowExample                       `json:"example,omitempty"`
+
+	// Match is the step's own rule for matching observed exchanges, from
+	// the document. DefinedIn is the scenario or fragment that defines the
+	// step and FlowID its unqualified ID, which a binding's step keys name.
+	// They serve generation in process and are not part of the format.
+	Match     *StepMatch `json:"-"`
+	DefinedIn string     `json:"-"`
+	FlowID    string     `json:"-"`
 	// Curl is a curl command equivalent to the example request.
 	Curl     string    `json:"curl,omitempty"`
 	Location string    `json:"location"`
@@ -226,6 +234,8 @@ func (p *Protocol) walkthroughSteps(flows []Flow, location func(int) string, pre
 			Representations: f.Representations,
 			Note:            f.Note,
 			Example:         f.Example,
+			Match:           f.Match,
+			FlowID:          f.ID,
 			Location:        loc,
 			Findings:        byPath[flowPathPattern.FindString(loc)],
 		}
@@ -238,6 +248,9 @@ func (p *Protocol) walkthroughSteps(flows []Flow, location func(int) string, pre
 				})
 			}
 			step.Curl = cmd
+		}
+		if len(seen) > 0 {
+			step.DefinedIn = seen[len(seen)-1]
 		}
 		if f.Security != nil {
 			step.SignedBy = f.Security.SignedBy

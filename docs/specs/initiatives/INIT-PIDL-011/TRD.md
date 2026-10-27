@@ -29,8 +29,9 @@ The document says what a protocol is, the observation says what happened, and th
 
 | Path | Contents |
 |------|----------|
-| `observe/` | the observation and binding types, reader and writer, validation, joining and redaction |
-| `observe/match/` | rules, scoring, alignment, repeated steps, scenario instances and statuses |
+| root package `pidl` | the observation, binding and step match types, reader, writer and validation, beside the other formats, so the schema generator reads their doc comments; `Flow.Match` in the source format |
+| `observe/` | joining sources and redaction |
+| `observe/match/` | step kinds, rules, exchange resolution, scoring, alignment, repeated steps, scenario instances and statuses |
 | `observe/adapter/sandbox/` | reads a role-labeled trace |
 | `observe/adapter/har/` | reads HAR 1.2 |
 | `observe/adapter/newman/` | reads a Newman JSON report |
@@ -131,13 +132,13 @@ Given a `client` observation and a `wire` observation of the same run, the joine
 - `paths` gives a participant's path for a step where the deployment's path differs from the document's example. It replaces the example's path for that step's rule.
 - `rewrite` applies regular-expression rewrites to every exchange's URL before matching, in order.
 - `unobservable` lists participants a capture cannot see, in addition to those whose role type is `user`.
-- `steps` overrides a step's `match` for this deployment only. A key is `<scenario>/<step>`, or `*/<step>` for every scenario that contains the step, because step IDs repeat across scenarios: `request` is a `GET` in one scenario and the protected `POST` in another. A scenario-specific key wins over a wildcard.
+- `steps` overrides a step's `match` for this deployment only, and `paths` uses the same keys. A key names, from most to least specific: `<scenario>/<expanded-id>`, the step in one scenario as the walkthrough qualifies it (`ps-authorization/consent.poll`); `<defining-scenario>/<flow-id>`, the flow wherever it appears, as sample sets address steps (`consent/poll`); or `*/<flow-id>`, any flow with that ID. Step IDs repeat across scenarios, `request` being a `GET` in one and the protected `POST` in another, so a bare ID is not a key.
 
 ## Matching
 
 ### Rules
 
-Each step has a rule. It comes from, in order of precedence: the binding's `steps` override, the step's own `match`, and the defaults drawn from its example. The binding's `paths` replace the rule's path where they name the step.
+Each step has a rule, built in layers: the defaults drawn from its example, then the step's own `match`, then the binding's `steps` entry, each replacing the fields it sets and leaving the others, and finally the binding's `paths`, which replace the path. A binding can so change one field, such as the method, and keep the example's status. Walkthrough steps carry the document's `match`, the scenario that defines the step and its unqualified ID for this in process; they are not part of the walkthrough format.
 
 **Defaults.** Where the example has a request and a response, the defaults are its method, its path read as a template (segments in braces are wildcards), and its status.
 
@@ -152,7 +153,7 @@ Only request and standalone steps are aligned. A response step is filled from it
 
 **Observability.** A participant is unobservable when its role type is `user` (a person, acting in a browser or out of band), or when the binding lists it under `unobservable`. Its steps are `unobservable`: a server's capture cannot see them, so they are neither matched nor counted as missing.
 
-**Literal identifiers in example paths.** Examples are written with concrete values, such as `/pending/f7a3b9c`, that no real run repeats. A path segment of six or more characters mixing letters and digits, in a step with no explicit rule, draws a warning that suggests a template (`/pending/{id}`), so authors template them once in the document.
+**Literal identifiers in example paths.** Examples are written with concrete values, such as `/pending/f7a3b9c`, that no real run repeats. A path segment of six or more characters with at least two letters and two digits (so `f7a3b9c` counts and `oauth2` does not), in a step whose path no rule replaces, draws a warning, once, naming the scenario or fragment that defines the step, that suggests a template (`/pending/{id}`), so authors template them once in the document.
 
 **Explicit rule.**
 
@@ -171,7 +172,7 @@ Only request and standalone steps are aligned. A response step is filled from it
 - `path` is a template, or a regular expression when it starts with `^`.
 - `headers` compare names in any case. A value is an exact string, a prefix when it ends with `*`, or a regular expression when it starts with `^`.
 - `body` maps a JSON pointer to a value that must be equal, or to `true` meaning the member must exist.
-- `repeat: true` lets the step take every consecutive exchange that matches it.
+- `repeat: true` lets the step take every matching exchange between the previous matched step and the next, passing over unrelated exchanges such as key fetches between two polls.
 - `optional: true` lets a run omit the step without failing a check.
 
 ### Scoring
@@ -191,7 +192,7 @@ A capture usually holds more than one journey. The matcher reads it from left to
 1. At the first unconsumed exchange, try each candidate scenario: the next one in the user's `--scenarios` list, or every scenario that is not a fragment when no list is given. Fragments are building blocks that other scenarios include, not journeys of their own.
 2. An instance of a scenario starts at the first exchange that matches its first matchable step, and runs until the exchange before the next one that matches the first matchable step of any candidate (a new journey begins with its first step again), or to the end of the window.
 3. Align the instance. Rank it by the exchanges it explains minus its required steps not seen, then by its count of strong matches, then by total score. Neither the share of a scenario's own steps matched nor the exchanges explained alone will do: the first favors small scenarios, and the second lets a long scenario claim a short journey while leaving most of its steps unseen.
-4. Take the best-ranked candidate, record it as an instance, mark exchanges before its start as `extra`, and continue after its last exchange.
+4. Take the best-ranked candidate, record it as an instance, mark exchanges before its start as outside any instance, and continue where its run ends. A candidate must explain more exchanges than it leaves required steps unseen; when the best does not, its first exchange (a health check before a run, say) is outside any instance and the search moves past it.
 
 The report lists the instances found and, for each, the runner-up scenario and its score. Interleaved concurrent journeys are not separated (a non-goal); they show as one instance with many extra exchanges.
 
