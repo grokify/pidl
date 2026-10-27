@@ -64,6 +64,7 @@ nav:
     - Scenarios: guides/scenarios.md
     - Walkthrough Viewer: guides/viewer.md
     - Embedding the Viewer: guides/embedding.md
+    - Observed Runs: guides/observed-runs.md
     - Code Samples and cURL: guides/samples.md
     - Narration: guides/narration.md
     - Postman Collections: guides/postman.md
