@@ -1,6 +1,6 @@
 {
   "name": "@grokify/pidl-viewer",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Step-by-step walkthrough viewer for PIDL protocols, embeddable in any page",
   "keywords": [
     "pidl",
