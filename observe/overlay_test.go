@@ -182,8 +182,11 @@ const tokenDocument = `{
   "entities": [{"id": "agent", "name": "Agent", "type": "agent"}, {"id": "ap", "name": "AP", "type": "server"}],
   "metadata": {"tokens": [
     {"id": "agent_token", "name": "Agent token", "type": "jwt", "carried_in": [
-      {"in": "header", "name": "Signature-Key", "param": "jwt"},
+      {"in": "header", "name": "Signature-Key", "param": "jwt", "typ": "aa-agent+jwt"},
       {"in": "body", "path": "/agent_token"}
+    ]},
+    {"id": "person_token", "name": "Person token", "type": "jwt", "carried_in": [
+      {"in": "header", "name": "Signature-Key", "param": "jwt", "typ": "aa-person+jwt"}
     ]},
     {"id": "api_key", "name": "API key", "type": "opaque", "carried_in": [{"in": "header", "name": "Authorization"}]}
   ]},
