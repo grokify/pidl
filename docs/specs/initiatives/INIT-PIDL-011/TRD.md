@@ -224,7 +224,7 @@ The walkthrough changes only by addition. The new names follow the version of th
 | A match's strength (`strong` or `weak`) | `observed_strength` | `observedStrength` |
 | The run's summary on a scenario | `observed_run` | `observedRun` |
 | Exchanges between steps | `observed_extra` | `observedExtra` |
-| The step an extra exchange followed | `after_step` | `afterStep` |
+| The number of the step an extra exchange followed (0 before the first) | `after_step` | `afterStep` |
 | An observed exchange's request ID | `request_id` | `requestId` |
 
 In v1:
@@ -243,12 +243,13 @@ In v1:
                    "tokens": [], "annotations": [], "repeats": 1},
       "observed_status": "matched"
     }],
-    "observed_extra": [{"after_step": "person-token", "time": "…", "request": {"…": "…"}, "response": {"…": "…"}}]
+    "observed_extra": [{"after_step": 4, "from": "ps", "to": "ap",
+                        "observed": {"time": "…", "request": {"…": "…"}, "response": {"…": "…"}}}]
   }]
 }
 ```
 
-A scenario instance found in the capture is written as its own scenario entry, with the instance number in its summary. In the summary, `matched` counts every matched step and `weak` the matched steps that are weak. A response step's `observed` holds only the response, and its status and strength are its request step's. `observed` and the status are absent on a step with no observation, and a viewer that does not know them ignores them. Both schemas gain the fields, and the generated TypeScript types follow.
+A scenario instance found in the capture is written as its own scenario entry, with the ID `<scenario>.observed-<n>`, right after the scenario it is an instance of, with the instance number in its summary. `after_step` is a step number rather than an ID, because a flow need not have an ID. In the summary, `matched` counts every matched step and `weak` the matched steps that are weak. A response step's `observed` holds only the response, and its status and strength are its request step's. `observed` and the status are absent on a step with no observation, and a viewer that does not know them ignores them. Both schemas gain the fields, and the generated TypeScript types follow.
 
 ## Redaction
 

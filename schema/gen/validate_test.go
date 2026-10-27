@@ -12,6 +12,7 @@ import (
 
 	"github.com/grokify/pidl"
 	"github.com/grokify/pidl/examples"
+	"github.com/grokify/pidl/observe"
 	"github.com/grokify/pidl/render"
 	"github.com/grokify/pidl/schema"
 )
@@ -153,6 +154,56 @@ func TestObservationAndBindingValidate(t *testing.T) {
 		if err := sch.Validate(missing); err == nil {
 			t.Errorf("%s: a document missing a required member validated", tc.schema)
 		}
+	}
+}
+
+// TestObservedWalkthroughValidates adds the Petstore run observed behind
+// the aauth-go sandbox to the AAuth walkthrough and validates the result
+// against the walkthrough schema.
+func TestObservedWalkthroughValidates(t *testing.T) {
+	p, err := pidl.ParseFile("../../observe/match/testdata/aauth_protocol.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	o, err := pidl.ReadObservation("../../observe/adapter/sandbox/testdata/petstore.observation.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := pidl.ReadBinding("../../observe/match/testdata/petstore.binding.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	w := p.Walkthrough(nil)
+	report, err := observe.Apply(p, &w, o, b, observe.Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(report.Instances) == 0 {
+		t.Fatal("no instances observed")
+	}
+	data, err := json.Marshal(w)
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := jsonschema.UnmarshalJSON(bytes.NewReader(schema.WalkthroughSchemaJSON))
+	if err != nil {
+		t.Fatal(err)
+	}
+	c := jsonschema.NewCompiler()
+	const url = "https://github.com/grokify/pidl/schema/walkthrough.schema.json"
+	if err := c.AddResource(url, doc); err != nil {
+		t.Fatal(err)
+	}
+	sch, err := c.Compile(url)
+	if err != nil {
+		t.Fatal(err)
+	}
+	v, err := jsonschema.UnmarshalJSON(bytes.NewReader(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := sch.Validate(v); err != nil {
+		t.Fatalf("observed walkthrough does not validate: %v", err)
 	}
 }
 

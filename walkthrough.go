@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"slices"
+	"time"
 )
 
 // WalkthroughFormat identifies the walkthrough format and its major
@@ -47,7 +48,90 @@ type WalkthroughScenario struct {
 	Samples      []Sample          `json:"samples,omitempty"`
 	Participants []string          `json:"participants"`
 	Steps        []WalkthroughStep `json:"steps"`
+
+	// ObservedRun is set on a scenario entry that shows a run observed in a
+	// real system: one instance of the scenario found in a capture.
+	ObservedRun *ObservedRun `json:"observed_run,omitempty"`
+	// ObservedExtra are the run's exchanges that matched no step, each
+	// placed after the step it followed.
+	ObservedExtra []ObservedExtra `json:"observed_extra,omitempty"`
 }
+
+// ObservedRun summarizes one instance of a scenario found in a capture.
+type ObservedRun struct {
+	// Scenario is the ID of the scenario this entry is an instance of.
+	Scenario string `json:"scenario"`
+	// Source names the tool that captured the run; RequestFidelity says
+	// whether its requests are the wire messages or a client's.
+	Source          string          `json:"source"`
+	RequestFidelity RequestFidelity `json:"request_fidelity,omitempty"`
+	// Instance is this instance's number, from 1, of Instances found.
+	Instance  int `json:"instance"`
+	Instances int `json:"instances"`
+	// From and To bound the instance's exchanges in time.
+	From *time.Time `json:"from,omitempty"`
+	To   *time.Time `json:"to,omitempty"`
+	// RunnerUp is the next-best scenario at this point of the capture.
+	RunnerUp string `json:"runner_up,omitempty"`
+	// Counts of step outcomes; Matched counts every matched step and Weak
+	// the matched steps that are weak. Explained counts exchanges matched
+	// to steps and Extra those that matched none.
+	Matched      int `json:"matched"`
+	Weak         int `json:"weak"`
+	NotSeen      int `json:"not_seen"`
+	Skipped      int `json:"skipped"`
+	Unmatchable  int `json:"unmatchable"`
+	Unobservable int `json:"unobservable"`
+	Explained    int `json:"explained"`
+	Extra        int `json:"extra"`
+	// Redacted reports that raw token, signature and credential values
+	// were masked.
+	Redacted bool `json:"redacted"`
+}
+
+// ObservedMessage is an exchange observed in a real system, shown as a
+// step's example is: request, response and decoded tokens.
+type ObservedMessage struct {
+	Time *time.Time `json:"time,omitempty"`
+	// From and To are the capturing tool's labels for sender and receiver.
+	From string `json:"from,omitempty"`
+	To   string `json:"to,omitempty"`
+	// RequestID is the value of a request ID header, when the capture has one.
+	RequestID string           `json:"request_id,omitempty"`
+	Request   *ExampleRequest  `json:"request,omitempty"`
+	Response  *ExampleResponse `json:"response,omitempty"`
+	// Tokens are the tokens found in the message, decoded and not verified.
+	Tokens []ExampleToken `json:"tokens,omitempty"`
+	// Label and Annotations are evidence the capturing tool recorded.
+	Label       string               `json:"label,omitempty"`
+	Annotations []ExchangeAnnotation `json:"annotations,omitempty"`
+	// Repeats is how many exchanges a repeated step took, when more than one.
+	Repeats int `json:"repeats,omitempty"`
+	// BodyTruncated reports that a body was cut at the capture's size limit.
+	BodyTruncated bool `json:"body_truncated,omitempty"`
+}
+
+// ObservedExtra is an observed exchange that matched no step.
+type ObservedExtra struct {
+	// AfterStep is the number of the step it followed, or 0 when it came
+	// before the first matched step.
+	AfterStep int `json:"after_step"`
+	// From and To are the participants, when the binding resolved them.
+	From     string          `json:"from,omitempty"`
+	To       string          `json:"to,omitempty"`
+	Observed ObservedMessage `json:"observed"`
+}
+
+// Observed status and strength values of a walkthrough step.
+const (
+	ObservedMatched      = "matched"
+	ObservedNotSeen      = "notSeen"
+	ObservedSkipped      = "skipped"
+	ObservedUnmatchable  = "unmatchable"
+	ObservedUnobservable = "unobservable"
+	ObservedStrong       = "strong"
+	ObservedWeak         = "weak"
+)
 
 // WalkthroughStep is one message of an expanded scenario.
 type WalkthroughStep struct {
@@ -80,6 +164,14 @@ type WalkthroughStep struct {
 	Match     *StepMatch `json:"-"`
 	DefinedIn string     `json:"-"`
 	FlowID    string     `json:"-"`
+
+	// Observed is the exchange a real run produced for this step, in a
+	// scenario entry with an ObservedRun. ObservedStatus is matched,
+	// notSeen, skipped, unmatchable or unobservable; ObservedStrength is
+	// strong or weak for a matched step.
+	Observed         *ObservedMessage `json:"observed,omitempty"`
+	ObservedStatus   string           `json:"observed_status,omitempty"`
+	ObservedStrength string           `json:"observed_strength,omitempty"`
 	// Curl is a curl command equivalent to the example request.
 	Curl     string    `json:"curl,omitempty"`
 	Location string    `json:"location"`

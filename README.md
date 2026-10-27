@@ -664,6 +664,11 @@ Options:
   --expand          Show included fragments step by step instead of as boxes
   --all-scenarios   Render every main scenario to NN-<id><ext> in the -o directory
   --include-fragments  With --all-scenarios, also render fragments
+  --observation     walkthrough-json and viewer: a run observed in a real system (pidl-observation/v1)
+  --binding         With --observation: the deployment's binding (pidl-binding/v1)
+  --scenarios       With --observation: scenario IDs to look for, in order (default: all but fragments)
+  --from, --to      With --observation: match only exchanges in this RFC 3339 time range
+  --raw             With --observation: keep raw tokens and signatures instead of masking them
 ```
 
 Formats:
@@ -689,6 +694,14 @@ Formats:
 | `viewer` | Self-contained HTML walkthrough viewer (whole file) |
 | `postman` | Postman collection: a folder per scenario, chained requests and checks (whole file) |
 | `postman-environment` | Postman environment for one target in a `--targets` file |
+
+### observe
+
+```bash
+pidl observe import --from sandbox [-o <file>] <capture>
+```
+
+Converts a capture of a real run into an observation (`pidl-observation/v1`): `sandbox` reads the aauth-go sandbox's trace. Show it beside a document's steps with `pidl generate -f viewer --observation <file> --binding <file> <document>`.
 
 ### samples
 

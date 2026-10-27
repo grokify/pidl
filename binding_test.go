@@ -198,3 +198,40 @@ func TestProtocolValidatesStepMatch(t *testing.T) {
 		t.Errorf("match errors = %v, want path and status", got)
 	}
 }
+
+func TestValidateTokenCarriage(t *testing.T) {
+	p, err := Parse([]byte(`{
+	  "protocol": {"id": "c", "name": "C", "version": "1.0"},
+	  "entities": [{"id": "a", "name": "A", "type": "agent"}],
+	  "metadata": {"tokens": [{"id": "t", "name": "T", "carried_in": [
+	    {"in": "header", "name": "Signature-Key", "param": "jwt"},
+	    {"in": "body", "path": "/token"},
+	    {"in": "header"},
+	    {"in": "header", "name": "X", "path": "/p"},
+	    {"in": "body", "path": "token"},
+	    {"in": "body", "path": "/t", "name": "X"},
+	    {"in": "cookie"}
+	  ]}]},
+	  "flows": [{"from": "a", "to": "a", "action": "x", "label": "X"}]
+	}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]bool{}
+	for _, e := range p.Validate() {
+		if strings.Contains(e.Field, "carried_in") {
+			got[e.Field] = true
+		}
+	}
+	for _, f := range []string{
+		"metadata.tokens[0].carried_in[2].name", "metadata.tokens[0].carried_in[3].path",
+		"metadata.tokens[0].carried_in[4].path", "metadata.tokens[0].carried_in[5]", "metadata.tokens[0].carried_in[6].in",
+	} {
+		if !got[f] {
+			t.Errorf("no error for %s; got %v", f, got)
+		}
+	}
+	if got["metadata.tokens[0].carried_in[0].name"] || got["metadata.tokens[0].carried_in[1].path"] {
+		t.Errorf("valid carriage reported: %v", got)
+	}
+}

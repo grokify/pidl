@@ -1,6 +1,9 @@
 package pidl
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func (p *Protocol) validateTokenDefinitions() ValidationErrors {
 	var errs ValidationErrors
@@ -18,6 +21,7 @@ func (p *Protocol) validateTokenDefinitions() ValidationErrors {
 	seen := make(map[string]bool)
 	for i, t := range p.Metadata.Tokens {
 		field := fmt.Sprintf("metadata.tokens[%d]", i)
+		errs = append(errs, validateTokenCarriage(field+".carried_in", t.CarriedIn)...)
 
 		if t.ID == "" {
 			errs = append(errs, ValidationError{
@@ -377,5 +381,33 @@ func (p *Protocol) validateTrustRelations() ValidationErrors {
 		}
 	}
 
+	return errs
+}
+
+// validateTokenCarriage checks where a token definition says the token
+// travels: a header by name, or a body member by JSON pointer.
+func validateTokenCarriage(field string, places []TokenCarriage) ValidationErrors {
+	var errs ValidationErrors
+	for i, c := range places {
+		f := fmt.Sprintf("%s[%d]", field, i)
+		switch c.In {
+		case "header":
+			if c.Name == "" {
+				errs = append(errs, ValidationError{Field: f + ".name", Message: "required for a token in a header"})
+			}
+			if c.Path != "" {
+				errs = append(errs, ValidationError{Field: f + ".path", Message: "only for a token in a body"})
+			}
+		case "body":
+			if !strings.HasPrefix(c.Path, "/") {
+				errs = append(errs, ValidationError{Field: f + ".path", Message: `a JSON pointer starting with "/" is required for a token in a body`})
+			}
+			if c.Name != "" || c.Param != "" {
+				errs = append(errs, ValidationError{Field: f, Message: "name and param are only for a token in a header"})
+			}
+		default:
+			errs = append(errs, ValidationError{Field: f + ".in", Message: `must be "header" or "body"`})
+		}
+	}
 	return errs
 }

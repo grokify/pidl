@@ -25,13 +25,13 @@ A walkthrough keeps its explanation and gains the exchanges that a real run prod
 
 **Theme:** The same viewer shows the concept or the run
 
-- [ ] `RMI-PIDL-135` `--observation` and `--binding` on `pidl generate -f walkthrough-json` and `-f viewer`, with `pidl observe import`, and golden tests on the trace fixture
+- [x] `RMI-PIDL-135` `--observation` and `--binding` on `pidl generate -f walkthrough-json` and `-f viewer`, with `pidl observe import`, and golden tests on the trace fixture
   - Depends on: `RMI-PIDL-132`, `RMI-PIDL-150`
-- [ ] `RMI-PIDL-136` Walkthrough fields for observed exchanges, statuses, run summaries and extra exchanges, named for v1 and v2, with schemas and TypeScript types
+- [x] `RMI-PIDL-136` Walkthrough fields for observed exchanges, statuses, run summaries and extra exchanges, named for v1 and v2, with schemas and TypeScript types
   - Depends on: `RMI-PIDL-135`
-- [ ] `RMI-PIDL-137` Token carriage in token definitions and decoding of observed tokens, labeled decoded, not verified, tested with generated tokens
+- [x] `RMI-PIDL-137` Token carriage in token definitions and decoding of observed tokens, labeled decoded, not verified, tested with generated tokens
   - Depends on: `RMI-PIDL-136`
-- [ ] `RMI-PIDL-138` Redaction of raw tokens, signatures and credentials in every output, and `--raw`
+- [x] `RMI-PIDL-138` Redaction of raw tokens, signatures and credentials in every output, and `--raw`
   - Depends on: `RMI-PIDL-137`
 - [ ] `RMI-PIDL-139` Viewer: Concept / Observed switch, the instance label, status badges with weak matches marked, repeat counts and observed times
   - Depends on: `RMI-PIDL-136`

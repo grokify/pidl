@@ -651,7 +651,23 @@
           "type": "array",
           "items": { "$ref": "#/$defs/tokenClaim" },
           "description": "Claims that checkers rely on, in display order"
+        },
+        "carried_in": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/tokenCarriage" },
+          "description": "Where the token travels in messages, so it can be found and decoded in exchanges observed in a real system"
         }
+      }
+    },
+    "tokenCarriage": {
+      "type": "object",
+      "description": "One place a token travels",
+      "required": ["in"],
+      "properties": {
+        "in": { "type": "string", "enum": ["header", "body"] },
+        "name": { "type": "string", "description": "The header's name, for a token in a header" },
+        "param": { "type": "string", "description": "The structured field parameter holding the token, such as jwt in Signature-Key; empty when the token is the whole value" },
+        "path": { "type": "string", "description": "A JSON pointer to the token in the body, for a token in a body" }
       }
     },
     "tokenClaim": {
