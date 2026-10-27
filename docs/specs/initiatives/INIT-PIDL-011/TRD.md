@@ -277,7 +277,8 @@ pidl observe check <document> --observation <file>... [--binding b.json]
 - A scenario with an observed run shows a **Concept / Observed** switch. The switch changes which of a step's example or observed exchange the request, response and token panels show; the sequence diagram does not change.
 - The header names the instance, such as "Observed: instance 2 of 2, aauth-sandbox".
 - A badge on each step shows its status, and a repeated step shows how many exchanges it took. A `notSeen` or `unmatchable` step has no observed panel and says which.
-- Extra exchanges appear between the steps they fell between, drawn dashed between their participants, and open in the same panels.
+- Extra exchanges appear between the steps they fell between, drawn dotted between their participants, and open in the same panels. The viewer makes each one a step of the entry (`extra-<n>`) when it loads the walkthrough and renumbers the steps, so the step keys, links and the diagram reach them in both modes; one the binding could not resolve to participants cannot be drawn and is left out.
+- Observed is the default mode on an observed entry; the switch sits in the top bar.
 - An observed step shows its time and the gap from the previous observed exchange.
 - The viewer keeps reading walkthroughs with none of these fields.
 
