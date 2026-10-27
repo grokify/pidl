@@ -9,6 +9,9 @@ interface Props {
   // active is the 1-based active step; 0 shows the overview.
   active: number;
   onSelect: (step: number) => void;
+  // observed marks each row with its observed status: extra exchanges
+  // dashed, weak matches flagged, steps the run did not perform dimmed.
+  observed?: boolean;
 }
 
 type RowState = "overview" | "past" | "active" | "future";
@@ -20,7 +23,13 @@ function rowState(index: number, active: number): RowState {
   return "future";
 }
 
-export function SequenceDiagram({ scenario, roles, width, active, onSelect }: Props) {
+// observedClass names a row's observed status for styling.
+function observedClass(status?: string, strength?: string): string {
+  if (!status) return "";
+  return `obs obs-${status}${strength === "weak" ? " obs-weak" : ""}`;
+}
+
+export function SequenceDiagram({ scenario, roles, width, active, onSelect, observed = false }: Props) {
   const layout = useMemo(() => layoutScenario(scenario, roles, width), [scenario, roles, width]);
   const scroller = useRef<HTMLDivElement>(null);
   const activeStep = active > 0 ? scenario.steps[active - 1] : undefined;
@@ -93,10 +102,12 @@ export function SequenceDiagram({ scenario, roles, width, active, onSelect }: Pr
             const marker = state === "active" ? "url(#arrow-active)" : "url(#arrow)";
             const labelX = r.self ? r.x1 + 46 : (r.x1 + r.x2) / 2;
             const findings = s.findings?.length ?? 0;
+            const obs = observed ? observedClass(s.observed_status, s.observed_strength) : s.observed_status === "extra" ? "obs obs-extra" : "";
+            const repeats = observed && s.observed?.repeats ? ` ×${s.observed.repeats}` : "";
             return (
               <g
                 key={r.index}
-                className={`row ${state} ${s.response ? "response" : ""}`}
+                className={`row ${state} ${s.response ? "response" : ""} ${obs}`}
                 onClick={() => onSelect(r.index + 1)}
                 role="button"
                 aria-label={`Step ${s.number}: ${s.label}`}
@@ -109,6 +120,7 @@ export function SequenceDiagram({ scenario, roles, width, active, onSelect }: Pr
                 )}
                 <text className="label" x={labelX} y={r.y - 8} textAnchor={r.self ? "start" : "middle"}>
                   {s.label}
+                  {repeats}
                 </text>
                 <g className="badge" transform={`translate(${r.x1 + (r.x2 >= r.x1 ? 14 : -14)}, ${r.y + 13})`}>
                   <circle r={9} />

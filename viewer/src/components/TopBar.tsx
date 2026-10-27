@@ -1,5 +1,6 @@
 import type { Theme } from "../hooks/usePrefs";
 import { scenarioGroups } from "../nav";
+import type { Mode } from "../observed";
 import type { Scenario, Walkthrough } from "../types";
 
 interface Props {
@@ -12,11 +13,14 @@ interface Props {
   onTheme: () => void;
   present: boolean;
   onPresent: () => void;
+  // mode is set for an observed entry, which offers the Concept / Observed switch.
+  mode?: Mode;
+  onMode?: (mode: Mode) => void;
 }
 
 const THEME_LABEL: Record<Theme, string> = { auto: "Auto", light: "Light", dark: "Dark" };
 
-export function TopBar({ walkthrough, source, scenario, onScenario, theme, onTheme, present, onPresent }: Props) {
+export function TopBar({ walkthrough, source, scenario, onScenario, theme, onTheme, present, onPresent, mode, onMode }: Props) {
   const { main, fragments } = scenarioGroups(walkthrough);
   return (
     <header className="topbar">
@@ -45,6 +49,16 @@ export function TopBar({ walkthrough, source, scenario, onScenario, theme, onThe
           )}
         </select>
       </label>
+      {mode && onMode && (
+        <div className="mode-switch" role="group" aria-label="Show the concept or the observed run">
+          <button className={mode === "concept" ? "on" : ""} aria-pressed={mode === "concept"} onClick={() => onMode("concept")} title="Each step's example, as the document explains it">
+            Concept
+          </button>
+          <button className={mode === "observed" ? "on" : ""} aria-pressed={mode === "observed"} onClick={() => onMode("observed")} title="The exchanges a real run produced">
+            Observed
+          </button>
+        </div>
+      )}
       <div className="view-controls">
         <button onClick={onTheme} title="Theme: auto, light or dark">
           Theme: {THEME_LABEL[theme]}

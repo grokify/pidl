@@ -2,12 +2,16 @@ import type { Role, Step } from "../types";
 
 // NoExample stands in for a message the walkthrough has no example for. It
 // still names the step, so a response is never shown without its request.
-export function NoExample({ step, roles }: { step: Step; roles: Role[] }) {
+// reason, when given, says why the message is missing, such as a step an
+// observed run did not perform.
+export function NoExample({ step, roles, reason }: { step: Step; roles: Role[]; reason?: string }) {
   const name = (id: string) => roles.find((r) => r.id === id)?.name ?? id;
   const isPerson = (id: string) => roles.find((r) => r.id === id)?.type === "user";
-  const why = isPerson(step.from) || isPerson(step.to)
-    ? "The person acts in a browser here, outside the protocol messages."
-    : "No example message for this step.";
+  const why = reason
+    ? reason
+    : isPerson(step.from) || isPerson(step.to)
+      ? "The person acts in a browser here, outside the protocol messages."
+      : "No example message for this step.";
   return (
     <div className="no-example">
       <p className="message-step">

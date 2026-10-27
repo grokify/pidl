@@ -33,9 +33,9 @@ A walkthrough keeps its explanation and gains the exchanges that a real run prod
   - Depends on: `RMI-PIDL-136`
 - [x] `RMI-PIDL-138` Redaction of raw tokens, signatures and credentials in every output, and `--raw`
   - Depends on: `RMI-PIDL-137`
-- [ ] `RMI-PIDL-139` Viewer: Concept / Observed switch, the instance label, status badges with weak matches marked, repeat counts and observed times
+- [x] `RMI-PIDL-139` Viewer: Concept / Observed switch, the instance label, status badges with weak matches marked, repeat counts and observed times
   - Depends on: `RMI-PIDL-136`
-- [ ] `RMI-PIDL-140` Viewer: extra exchanges between the steps they fell between, and steps that were not seen or not matchable
+- [x] `RMI-PIDL-140` Viewer: extra exchanges between the steps they fell between, and steps that were not seen or not matchable
   - Depends on: `RMI-PIDL-139`
 
 ## Phase 3 — More Sources and Checking

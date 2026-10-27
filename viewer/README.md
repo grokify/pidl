@@ -25,6 +25,10 @@ The viewer renders inside a shadow root, so page and viewer styles stay apart, a
 
 See [Embedding the Viewer](https://github.com/grokify/pidl/blob/main/docs/guide/embedding.md) for every option, and the [walkthrough format](https://github.com/grokify/pidl/blob/main/docs/reference/walkthrough-format.md) reference.
 
+## Observed Runs
+
+A walkthrough generated with `pidl generate --observation` has an entry for each run observed in a real system. On such an entry the viewer shows a **Concept / Observed** switch. Observed, the default, shows each step's observed exchange in the request, response and token panels, the run's summary in the header, when each exchange happened and the gap from the one before, and a mark on weak matches. Exchanges the document does not describe appear between the steps they fell between, dotted; steps the run did not perform, or that a server's capture cannot see, are dimmed and say why. Concept shows each step's example, as for any scenario.
+
 ## Develop
 
 ```bash
