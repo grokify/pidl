@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://grokify.github.io/pidl/releases/v0.9.0/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../v0.10.0/">
       
       
         <link rel="next" href="../v0.8.0/">
@@ -264,7 +264,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../guide/format/" class="md-tabs__link">
+        <a href="../../guides/format/" class="md-tabs__link">
           
   
   
@@ -609,7 +609,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/format/" class="md-nav__link">
+      <a href="../../guides/format/" class="md-nav__link">
         
   
   
@@ -637,7 +637,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/entities/" class="md-nav__link">
+      <a href="../../guides/entities/" class="md-nav__link">
         
   
   
@@ -665,7 +665,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/flows/" class="md-nav__link">
+      <a href="../../guides/flows/" class="md-nav__link">
         
   
   
@@ -693,7 +693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/phases/" class="md-nav__link">
+      <a href="../../guides/phases/" class="md-nav__link">
         
   
   
@@ -721,7 +721,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/scenarios/" class="md-nav__link">
+      <a href="../../guides/scenarios/" class="md-nav__link">
         
   
   
@@ -749,7 +749,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/viewer/" class="md-nav__link">
+      <a href="../../guides/viewer/" class="md-nav__link">
         
   
   
@@ -777,7 +777,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/embedding/" class="md-nav__link">
+      <a href="../../guides/embedding/" class="md-nav__link">
         
   
   
@@ -805,7 +805,35 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/samples/" class="md-nav__link">
+      <a href="../../guides/observed-runs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observed Runs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/samples/" class="md-nav__link">
         
   
   
@@ -833,7 +861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/narration/" class="md-nav__link">
+      <a href="../../guides/narration/" class="md-nav__link">
         
   
   
@@ -861,7 +889,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/postman/" class="md-nav__link">
+      <a href="../../guides/postman/" class="md-nav__link">
         
   
   
@@ -889,7 +917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/annotations/" class="md-nav__link">
+      <a href="../../guides/annotations/" class="md-nav__link">
         
   
   
@@ -917,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/alternatives/" class="md-nav__link">
+      <a href="../../guides/alternatives/" class="md-nav__link">
         
   
   
@@ -945,7 +973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/process/" class="md-nav__link">
+      <a href="../../guides/process/" class="md-nav__link">
         
   
   
@@ -973,7 +1001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/workflow-exports/" class="md-nav__link">
+      <a href="../../guides/workflow-exports/" class="md-nav__link">
         
   
   
@@ -1001,7 +1029,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/extending/" class="md-nav__link">
+      <a href="../../guides/extending/" class="md-nav__link">
         
   
   
@@ -1475,6 +1503,34 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.10.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.10.0
   
 
     
@@ -2026,7 +2082,7 @@
 <li>Several viewers can share a page. Each takes the step keys only while it has focus.</li>
 <li><code>?src=</code> loads only <code>https:</code> URLs or the page's own origin, and fetches without cookies.</li>
 </ul>
-<p><code>pidl generate -f viewer</code> still writes one self-contained HTML file for offline use. See <a href="../../guide/embedding/">Embedding the Viewer</a>.</p>
+<p><code>pidl generate -f viewer</code> still writes one self-contained HTML file for offline use. See <a href="../../guides/embedding/">Embedding the Viewer</a>.</p>
 <h3 id="walkthrough-format">Walkthrough Format<a class="headerlink" href="#walkthrough-format" title="Permanent link">&para;</a></h3>
 <p><code>pidl generate -f walkthrough-json</code> writes <code>pidl-walkthrough/v1</code>, the processed form viewers read: every scenario with fragments expanded, each step's example, generated <code>curl</code> command, samples and narration, and analyzer findings. The format is now documented and versioned:</p>
 <ul>
@@ -2043,7 +2099,7 @@
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pidl<span class="w"> </span>samples<span class="w"> </span>check<span class="w"> </span>--repo-dir<span class="w"> </span>.<span class="w"> </span>--protocol<span class="w"> </span>api.json<span class="w"> </span>sdk-go.pidl-samples.json<span class="w">   </span><span class="c1"># in the SDK&#39;s CI</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pidl<span class="w"> </span>generate<span class="w"> </span>-f<span class="w"> </span>viewer<span class="w"> </span>--samples<span class="w"> </span>sdk-go.pidl-samples.json<span class="w"> </span>--samples<span class="w"> </span>sdk-ts.pidl-samples.json<span class="w"> </span>-o<span class="w"> </span>api.html<span class="w"> </span>api.json
 </span></code></pre></div>
-<p>An address that names no step is an error, so a set cannot fall silently behind the protocol. Samples can also be written inline on a step's example, with a lock file beside the document. The set format has its own schema, <code>schema/samples.schema.json</code>. See <a href="../../guide/samples/">Code Samples and cURL</a>.</p>
+<p>An address that names no step is an error, so a set cannot fall silently behind the protocol. Samples can also be written inline on a step's example, with a lock file beside the document. The set format has its own schema, <code>schema/samples.schema.json</code>. See <a href="../../guides/samples/">Code Samples and cURL</a>.</p>
 <h3 id="postman-collections">Postman Collections<a class="headerlink" href="#postman-collections" title="Permanent link">&para;</a></h3>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pidl<span class="w"> </span>generate<span class="w"> </span>-f<span class="w"> </span>postman<span class="w"> </span>--signer<span class="w"> </span>proxy<span class="w"> </span>-o<span class="w"> </span>api.postman_collection.json<span class="w"> </span>oauth2_api_access
 </span></code></pre></div>
@@ -2053,9 +2109,9 @@
 <li><code>--mock</code> saves the example responses for a Postman mock server.</li>
 <li><code>-f postman-environment</code> writes an environment for a named target, with per-scenario overrides.</li>
 </ul>
-<p>See <a href="../../guide/postman/">Postman Collections</a>.</p>
+<p>See <a href="../../guides/postman/">Postman Collections</a>.</p>
 <h3 id="narration">Narration<a class="headerlink" href="#narration" title="Permanent link">&para;</a></h3>
-<p>Scenarios and steps can carry narration keyed by BCP 47 language, with the protocol's source language as the fallback. Scenarios can carry a briefing, steps can override their narration for the HTTP, cURL or code view, and pronunciations tell text-to-speech tools how to say terms. The walkthrough carries all of it for audio and video tools; the viewer does not play narration yet. See <a href="../../guide/narration/">Narration</a>.</p>
+<p>Scenarios and steps can carry narration keyed by BCP 47 language, with the protocol's source language as the fallback. Scenarios can carry a briefing, steps can override their narration for the HTTP, cURL or code view, and pronunciations tell text-to-speech tools how to say terms. The walkthrough carries all of it for audio and video tools; the viewer does not play narration yet. See <a href="../../guides/narration/">Narration</a>.</p>
 <h3 id="scenario-structure">Scenario Structure<a class="headerlink" href="#scenario-structure" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Groups</strong> order scenarios into sections.</li>
@@ -2080,7 +2136,7 @@
 </ul>
 <h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
 <ul>
-<li>New guides: <a href="../../guide/samples/">Code Samples and cURL</a>, <a href="../../guide/narration/">Narration</a>, <a href="../../guide/postman/">Postman Collections</a> and <a href="../../guide/embedding/">Embedding the Viewer</a>.</li>
+<li>New guides: <a href="../../guides/samples/">Code Samples and cURL</a>, <a href="../../guides/narration/">Narration</a>, <a href="../../guides/postman/">Postman Collections</a> and <a href="../../guides/embedding/">Embedding the Viewer</a>.</li>
 <li>New <a href="../../reference/walkthrough-format/">walkthrough format reference</a>, and sample sets in the <a href="../../SPECIFICATION/#sample-sets">specification</a>.</li>
 <li>The <a href="../../reference/cli/">CLI reference</a> covers the <code>samples</code> command, the Postman formats and the new options.</li>
 </ul>

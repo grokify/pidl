@@ -1,0 +1,2290 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Protocol Interaction Description Language - A JSON-based DSL for describing protocol choreography">
+      
+      
+      
+        <link rel="canonical" href="https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-011/TRD/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>TRD — Live runs in the viewer - PIDL</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#trd-live-runs-in-the-viewer" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="PIDL" class="md-header__button md-logo" aria-label="PIDL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PIDL
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              TRD — Live runs in the viewer
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/grokify/pidl" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    grokify/pidl
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../guides/format/" class="md-tabs__link">
+          
+  
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../SPECIFICATION/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../examples/" class="md-tabs__link">
+          
+  
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../releases/" class="md-tabs__link">
+          
+  
+  
+  Releases
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../CHANGELOG/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="PIDL" class="md-nav__button md-logo" aria-label="PIDL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PIDL
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/grokify/pidl" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    grokify/pidl
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/format/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PIDL Format
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/entities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Entities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/flows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/phases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/scenarios/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scenarios
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/viewer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walkthrough Viewer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/embedding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Embedding the Viewer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/observed-runs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observed Runs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/samples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Samples and cURL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/narration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Narration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/postman/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Postman Collections
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/annotations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Annotations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/alternatives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Alternatives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process Specifications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/workflow-exports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Exports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/extending/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extending PIDL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../SPECIFICATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../reference/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../reference/walkthrough-format/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walkthrough Format
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../reference/library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go Library
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../examples/oauth2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth 2.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../examples/mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../examples/a2a/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A2A
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../examples/infographic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Infographic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Releases
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.10.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.10.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.7.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.7.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.6.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.6.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.5.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.5.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.4.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.3.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.3.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.2.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.2.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.1.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.1.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="trd-live-runs-in-the-viewer">TRD — Live runs in the viewer<a class="headerlink" href="#trd-live-runs-in-the-viewer" title="Permanent link">&para;</a></h1>
+<p><strong>Initiative:</strong> <code>INIT-PIDL-011</code>
+<strong>Repository:</strong> <code>github.com/grokify/pidl</code></p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Three files meet in the existing generator.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a> document (pidl)      observation (pidl-observation/v1)      binding (pidl-binding/v1)
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a> steps, examples,     what a real run exchanged,             hosts, labels, paths,
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a> token carriage,      from a trace, HAR or Newman            rewrites, step overrides
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a> match rules
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        \                      |                      /
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>   pidl generate -f walkthrough-json | viewer  --observation … --binding …
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                              |
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        walkthrough (or self-contained page) with observed exchanges
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                              |
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                    @grokify/pidl-viewer
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                  (Concept / Observed switch)
+</span></code></pre></div>
+<p>The document says what a protocol is, the observation says what happened, and the binding says how the two line up on one deployment. Nothing in the tool names a protocol.</p>
+<p><strong>Steps.</strong> In the current source format a scenario lists <code>flows</code>, and an entry with <code>include</code> brings in a fragment scenario's flows. In <code>pidl/v1</code> (<code>INIT-PIDL-008</code>) they are <code>steps</code>. This document says <em>step</em> for either. The matcher works on a scenario after fragments are expanded, the same expansion the walkthrough builder already does.</p>
+<h2 id="package-layout">Package Layout<a class="headerlink" href="#package-layout" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>root package <code>pidl</code></td>
+<td>the observation, binding and step match types, reader, writer and validation, beside the other formats, so the schema generator reads their doc comments; <code>Flow.Match</code> in the source format</td>
+</tr>
+<tr>
+<td><code>observe/</code></td>
+<td>joining sources and redaction</td>
+</tr>
+<tr>
+<td><code>observe/match/</code></td>
+<td>step kinds, rules, exchange resolution, scoring, alignment, repeated steps, scenario instances and statuses</td>
+</tr>
+<tr>
+<td><code>observe/adapter/sandbox/</code></td>
+<td>reads a role-labeled trace</td>
+</tr>
+<tr>
+<td><code>observe/adapter/har/</code></td>
+<td>reads HAR 1.2</td>
+</tr>
+<tr>
+<td><code>observe/adapter/newman/</code></td>
+<td>reads a Newman JSON report</td>
+</tr>
+<tr>
+<td><code>cmd/pidl/</code></td>
+<td><code>--observation</code> and <code>--binding</code> on <code>generate</code>; <code>pidl observe import</code> and <code>pidl observe check</code></td>
+</tr>
+<tr>
+<td><code>schema/observation.schema.json</code>, <code>schema/binding.schema.json</code></td>
+<td>generated from the Go types, with the usual drift test</td>
+</tr>
+<tr>
+<td><code>viewer/</code></td>
+<td>the Concept / Observed switch, instance label, badges and extra exchanges in place</td>
+</tr>
+</tbody>
+</table>
+<h2 id="observation-format">Observation Format<a class="headerlink" href="#observation-format" title="Permanent link">&para;</a></h2>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pidl-observation/v1&quot;</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;tool&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;aauth-sandbox&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;requestFidelity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wire&quot;</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">             </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-01T00:00:00Z&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;to&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-01T00:00:03Z&quot;</span><span class="p">},</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">&quot;exchanges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">      </span><span class="nt">&quot;time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-01T00:00:00.120Z&quot;</span><span class="p">,</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">      </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;agent&quot;</span><span class="p">,</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">      </span><span class="nt">&quot;to&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ap&quot;</span><span class="p">,</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">      </span><span class="nt">&quot;requestId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4f1c…&quot;</span><span class="p">,</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">      </span><span class="nt">&quot;request&quot;</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;POST&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://ap.example.test/agent-token&quot;</span><span class="p">,</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">                   </span><span class="nt">&quot;headers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[[</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;application/json&quot;</span><span class="p">]],</span><span class="w"> </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;…&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;…&quot;</span><span class="p">}},</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">      </span><span class="nt">&quot;response&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;headers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[[</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;application/json&quot;</span><span class="p">]],</span><span class="w"> </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;…&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;…&quot;</span><span class="p">}},</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">      </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1. POST agent token&quot;</span><span class="p">,</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">      </span><span class="nt">&quot;annotations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;assertion&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;status 200&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ok&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}]</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="p">}</span>
+</span></code></pre></div>
+<ul>
+<li><code>from</code> and <code>to</code> are the capturing tool's labels, kept as written. The binding maps them to participants.</li>
+<li><code>requestFidelity</code> is <code>wire</code> when the requests are the messages servers received, and <code>client</code> when they are what a client sent before a proxy changed them.</li>
+<li><code>requestId</code> is the value of a request ID header when the capture has one; it joins client events and sources.</li>
+<li>Headers keep their order and their case, as pairs. Comparisons of header names ignore case.</li>
+<li>A JSON body is a JSON value; any other body is a string; a binary body is <code>{"base64": "…", "mediaType": "…"}</code>. A body larger than a limit (64 KiB by default) is cut and the exchange records <code>bodyTruncated: true</code>.</li>
+<li><code>label</code> and <code>annotations</code> carry evidence a tool produced about an exchange, such as a Newman request name and its assertions, or a client's own events. They never change a match.</li>
+<li>Times are RFC 3339. An adapter that has no clock keeps the order and omits <code>time</code>.</li>
+</ul>
+<h2 id="adapters">Adapters<a class="headerlink" href="#adapters" title="Permanent link">&para;</a></h2>
+<p>Each adapter reads a file and writes an observation. Each declares the few fields it reads, in its own small types, so pidl imports no other module.</p>
+<h3 id="role-labeled-trace">Role-labeled trace<a class="headerlink" href="#role-labeled-trace" title="Permanent link">&para;</a></h3>
+<p>The aauth-go sandbox's trace is a list of exchanges with <code>time</code>, <code>from</code>, <code>to</code>, and a request and response each holding method or status, a URL, headers as ordered pairs and a body. It maps one to one, with <code>requestFidelity: "wire"</code>.</p>
+<p>Its labels are the sandbox's names, not participants. <code>agent</code>, <code>ap</code> and <code>ps</code> name its roles; a resource it fronts appears by host name; and <code>client</code> is any caller that is not one of its roles, such as a resource server fetching the agent provider's keys. The binding resolves each one.</p>
+<h3 id="har">HAR<a class="headerlink" href="#har" title="Permanent link">&para;</a></h3>
+<p>HAR 1.2: <code>log.entries[]</code> with <code>startedDateTime</code>, <code>time</code>, <code>request</code> (method, URL, headers as name and value, <code>postData</code> with <code>mimeType</code> and <code>text</code>) and <code>response</code> (status, headers, <code>content</code> with <code>text</code>, <code>mimeType</code> and <code>encoding</code>). <code>content.encoding: "base64"</code> is decoded when the type is text and kept as base64 otherwise. The custom fields <code>_from</code> and <code>_to</code> on an entry become the labels. Other tools' custom fields are ignored. A HAR from a proxy in front of the servers is <code>wire</code>; one from a browser is <code>client</code>.</p>
+<h3 id="newman">Newman<a class="headerlink" href="#newman" title="Permanent link">&para;</a></h3>
+<p>The JSON reporter writes the run summary: <code>collection</code>, <code>environment</code>, <code>globals</code> and <code>run</code>. The adapter reads:</p>
+<ul>
+<li><code>run.executions[]</code>, in order. Each has <code>item.name</code> (kept as <code>label</code>), <code>request</code> (<code>method</code>, <code>url</code> as an object of <code>protocol</code>, <code>host[]</code>, <code>port</code>, <code>path[]</code> and <code>query[]</code>, <code>header[]</code> as <code>key</code> and <code>value</code>, and <code>body.raw</code>), <code>response</code> (<code>code</code>, <code>header[]</code>, <code>responseTime</code>, and <code>stream</code>) and <code>assertions[]</code> (<code>assertion</code>, <code>skipped</code> and an optional <code>error</code>).</li>
+<li><code>stream</code> is a Node <code>Buffer</code> written as <code>{"type": "Buffer", "data": [bytes…]}</code>. The adapter decodes the bytes as text when they are text.</li>
+<li><code>run.timings.started</code> and the response times give times for the exchanges.</li>
+</ul>
+<p>Each assertion becomes an <code>annotations</code> entry with its result; a failed assertion records its message. The source is <code>requestFidelity: "client"</code>: when a signing proxy sits between Postman and the server, Newman's request carries the proxy's URL prefix and lacks the signature headers the proxy adds.</p>
+<h3 id="joining-sources">Joining sources<a class="headerlink" href="#joining-sources" title="Permanent link">&para;</a></h3>
+<p>Given a <code>client</code> observation and a <code>wire</code> observation of the same run, the joiner pairs each client exchange with the first unpaired wire exchange that has the same method and the same URL after the binding's rewrites, within a time window (two seconds by default, configurable), and copies the client exchange's <code>label</code> and <code>annotations</code> onto it. Unpaired client exchanges are reported. Position alone is never used: a server's trace holds exchanges the client never made, such as key fetches between servers.</p>
+<h2 id="binding-file">Binding File<a class="headerlink" href="#binding-file" title="Permanent link">&para;</a></h2>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pidl-binding/v1&quot;</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">&quot;participants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">&quot;agent&quot;</span><span class="p">:</span><span class="w">    </span><span class="p">{</span><span class="nt">&quot;labels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;agent&quot;</span><span class="p">]},</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">&quot;ap&quot;</span><span class="p">:</span><span class="w">       </span><span class="p">{</span><span class="nt">&quot;labels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ap&quot;</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;hosts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ap.example.test&quot;</span><span class="p">]},</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">&quot;ps&quot;</span><span class="p">:</span><span class="w">       </span><span class="p">{</span><span class="nt">&quot;labels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;hosts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ps.example.test&quot;</span><span class="p">]},</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">&quot;resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;labels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;petstore.example.test&quot;</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;hosts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;petstore.example.test&quot;</span><span class="p">]}</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="nt">&quot;labelsByPath&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;client&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^/(\\.well-known/.*|jwks\\.json)$&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;participant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resource&quot;</span><span class="p">}</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="nt">&quot;paths&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="nt">&quot;ap&quot;</span><span class="p">:</span><span class="w">       </span><span class="p">{</span><span class="nt">&quot;agent-token.request&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/agent-token&quot;</span><span class="p">},</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="nt">&quot;resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;api-request&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/v2/store/order&quot;</span><span class="p">}</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">  </span><span class="nt">&quot;rewrite&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;match&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^http://sandbox:8099/(https://.*)$&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;to&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$1&quot;</span><span class="p">}</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">  </span><span class="nt">&quot;unobservable&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;person&quot;</span><span class="p">],</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">  </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">    </span><span class="nt">&quot;*/consent.poll&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;match&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GET&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^/pending/&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;repeat&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}},</span>
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">    </span><span class="nt">&quot;ps-authorization-challenge/request&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;match&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;POST&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/v2/store/order&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">401</span><span class="p">}}</span>
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="p">}</span>
+</span></code></pre></div>
+<ul>
+<li><code>participants</code> maps a PIDL participant ID to the labels a capturing tool uses for it and the hosts it answers at. An exchange's <code>to</code> resolves by label, then by the URL's host. Its <code>from</code> resolves by label.</li>
+<li><code>labelsByPath</code> resolves a generic label, such as a trace's <code>client</code>, by the request path. Where it cannot be resolved, the exchange keeps an unknown sender, which still matches a step whose sender is not required to agree.</li>
+<li><code>paths</code> gives a participant's path for a step where the deployment's path differs from the document's example. It replaces the example's path for that step's rule.</li>
+<li><code>rewrite</code> applies regular-expression rewrites to every exchange's URL before matching, in order.</li>
+<li><code>unobservable</code> lists participants a capture cannot see, in addition to those whose role type is <code>user</code>.</li>
+<li><code>steps</code> overrides a step's <code>match</code> for this deployment only, and <code>paths</code> uses the same keys. A key names, from most to least specific: <code>&lt;scenario&gt;/&lt;expanded-id&gt;</code>, the step in one scenario as the walkthrough qualifies it (<code>ps-authorization/consent.poll</code>); <code>&lt;defining-scenario&gt;/&lt;flow-id&gt;</code>, the flow wherever it appears, as sample sets address steps (<code>consent/poll</code>); or <code>*/&lt;flow-id&gt;</code>, any flow with that ID. Step IDs repeat across scenarios, <code>request</code> being a <code>GET</code> in one and the protected <code>POST</code> in another, so a bare ID is not a key.</li>
+</ul>
+<h2 id="matching">Matching<a class="headerlink" href="#matching" title="Permanent link">&para;</a></h2>
+<h3 id="rules">Rules<a class="headerlink" href="#rules" title="Permanent link">&para;</a></h3>
+<p>Each step has a rule, built in layers: the defaults drawn from its example, then the step's own <code>match</code>, then the binding's <code>steps</code> entry, each replacing the fields it sets and leaving the others, and finally the binding's <code>paths</code>, which replace the path. A binding can so change one field, such as the method, and keep the example's status. Walkthrough steps carry the document's <code>match</code>, the scenario that defines the step and its unqualified ID for this in process; they are not part of the walkthrough format.</p>
+<p><strong>Defaults.</strong> Where the example has a request and a response, the defaults are its method, its path read as a template (segments in braces are wildcards), and its status.</p>
+<p><strong>Request and response steps.</strong> A document models one HTTP exchange as two steps: the request step (<code>agent</code> to <code>ap</code>), whose example has the request, and the response step (<code>ap</code> to <code>agent</code>), whose example has none. The matcher classifies each step of the expanded scenario in order:</p>
+<ul>
+<li>a step whose example has a request is a <strong>request step</strong>;</li>
+<li>a response step without one is the <strong>response step</strong> of the nearest earlier request going the other way between the same two participants, even with other steps between them, as when a person server talks to an access server before answering the agent;</li>
+<li>a step involving an unobservable participant is <strong>unobservable</strong>;</li>
+<li>any other step without an example request is a <strong>standalone step</strong>.</li>
+</ul>
+<p>Only request and standalone steps are aligned. A response step is filled from its request step's exchange (the response half) and takes the same status. A standalone step has no default rule: unless a <code>match</code> or the binding supplies one, it is <code>unmatchable</code>, and the tool reports it once per run, so an author knows which steps need rules.</p>
+<p><strong>Observability.</strong> A participant is unobservable when its role type is <code>user</code> (a person, acting in a browser or out of band), or when the binding lists it under <code>unobservable</code>. Its steps are <code>unobservable</code>: a server's capture cannot see them, so they are neither matched nor counted as missing.</p>
+<p><strong>Literal identifiers in example paths.</strong> Examples are written with concrete values, such as <code>/pending/f7a3b9c</code>, that no real run repeats. A path segment of six or more characters with at least two letters and two digits (so <code>f7a3b9c</code> counts and <code>oauth2</code> does not), in a step whose path no rule replaces, draws a warning, once, naming the scenario or fragment that defines the step, that suggests a template (<code>/pending/{id}</code>), so authors template them once in the document.</p>
+<p><strong>Explicit rule.</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">&quot;match&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/v2/store/order&quot;</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">401</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">&quot;headers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;AAuth-Requirement&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;requirement=auth-token*&quot;</span><span class="p">},</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;/grant_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;authorization_code&quot;</span><span class="p">},</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="nt">&quot;repeat&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="nt">&quot;optional&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">}</span>
+</span></code></pre></div>
+<ul>
+<li><code>path</code> is a template, or a regular expression when it starts with <code>^</code>.</li>
+<li><code>headers</code> compare names in any case. A value is an exact string, a prefix when it ends with <code>*</code>, or a regular expression when it starts with <code>^</code>.</li>
+<li><code>body</code> maps a JSON pointer to a value that must be equal, or to <code>true</code> meaning the member must exist.</li>
+<li><code>repeat: true</code> lets the step take every matching exchange between the previous matched step and the next, passing over unrelated exchanges such as key fetches between two polls.</li>
+<li><code>optional: true</code> lets a run omit the step without failing a check.</li>
+</ul>
+<h3 id="scoring">Scoring<a class="headerlink" href="#scoring" title="Permanent link">&para;</a></h3>
+<p>A pair of an exchange and a step is a candidate only when the participants agree (an unknown sender agrees with any) and the method agrees. Its score is the sum of the tests that pass, with initial weights: path 3, status 2, each named header 2, each body predicate 2, sender known and agreeing 1. A test the rule does not name is not scored. The weights are constants in one place, and the report prints each pair's score so a poor default shows.</p>
+<p><strong>Strength.</strong> A match is <strong>strong</strong> when a path, status, header or body test passed, and <strong>weak</strong> when only the required tests did. A weak match is often right (a resource that challenges on its API call rather than at an authorization endpoint matches on participants and method alone) and sometimes wrong (a follow-up <code>GET</code> taking the place of the protected call). Either way it is reported as weak, counted apart from strong matches, and marked in the viewer.</p>
+<h3 id="alignment-within-an-instance">Alignment within an instance<a class="headerlink" href="#alignment-within-an-instance" title="Permanent link">&para;</a></h3>
+<p>Exchanges are assigned to the request and standalone steps of one scenario instance by dynamic programming over the two sequences; response steps then take their request step's exchange. The assignment keeps order, uses each exchange once, assigns each step at most one exchange (or a consecutive run of them when it repeats), and maximizes the total score. Exchanges left over are <code>extra</code>; steps left over are <code>notSeen</code>, <code>skipped</code> when optional or on an alternative path, or <code>unmatchable</code> when they have no rule. Unobservable steps take no part in the alignment. Ties prefer the earlier exchange.</p>
+<h3 id="scenario-instances">Scenario instances<a class="headerlink" href="#scenario-instances" title="Permanent link">&para;</a></h3>
+<p>A capture usually holds more than one journey. The matcher reads it from left to right within the time window:</p>
+<ol>
+<li>At the first unconsumed exchange, try each candidate scenario: the next one in the user's <code>--scenarios</code> list, or every scenario that is not a fragment when no list is given. Fragments are building blocks that other scenarios include, not journeys of their own.</li>
+<li>An instance of a scenario starts at the first exchange that matches its first matchable step, and runs until the exchange before the next one that matches the first matchable step of any candidate (a new journey begins with its first step again), or to the end of the window.</li>
+<li>Align the instance. Rank it by the exchanges it explains minus its required steps not seen, then by its count of strong matches, then by total score. Neither the share of a scenario's own steps matched nor the exchanges explained alone will do: the first favors small scenarios, and the second lets a long scenario claim a short journey while leaving most of its steps unseen.</li>
+<li>Take the best-ranked candidate, record it as an instance, mark exchanges before its start as outside any instance, and continue where its run ends. A candidate must explain more exchanges than it leaves required steps unseen; when the best does not, its first exchange (a health check before a run, say) is outside any instance and the search moves past it.</li>
+</ol>
+<p>The report lists the instances found and, for each, the runner-up scenario and its score. Interleaved concurrent journeys are not separated (a non-goal); they show as one instance with many extra exchanges.</p>
+<h3 id="time-window">Time window<a class="headerlink" href="#time-window" title="Permanent link">&para;</a></h3>
+<p><code>--from</code> and <code>--to</code> limit matching to exchanges in a time range. Exchanges outside it are left out of the walkthrough and the counts, and the summary says how many.</p>
+<h2 id="tokens">Tokens<a class="headerlink" href="#tokens" title="Permanent link">&para;</a></h2>
+<p>A token definition gains <code>carried_in</code> (<code>carriedIn</code> in <code>pidl/v1</code>):</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;agent_token&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;carried_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="p">{</span><span class="nt">&quot;in&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;header&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Signature-Key&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;param&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;jwt&quot;</span><span class="p">},</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="p">{</span><span class="nt">&quot;in&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;body&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/agent_token&quot;</span><span class="p">}</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">]}</span>
+</span></code></pre></div>
+<p>The current examples name a token's place only in a free-text label, so this field is new. Several tokens can travel in one place, such as whichever token a request presents in <code>Signature-Key</code>, so a place can name the JWT <code>typ</code> a value must have to be that token (<code>"typ": "aa-agent+jwt"</code>). For a matched step, the builder finds each defined token in the observed request and response, splits a JWT into header, payload and signature, and writes the first two decoded into the observed exchange's tokens, with the claims the definition lists marked. It does not verify a signature, and the output labels each token "decoded, not verified". A value that is not a JWT is shown as it is.</p>
+<h2 id="walkthrough-output">Walkthrough Output<a class="headerlink" href="#walkthrough-output" title="Permanent link">&para;</a></h2>
+<p>The walkthrough changes only by addition. The new names follow the version of the walkthrough format being written:</p>
+<table>
+<thead>
+<tr>
+<th>Meaning</th>
+<th><code>pidl-walkthrough/v1</code></th>
+<th><code>pidl-walkthrough/v2</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The step's observed exchange</td>
+<td><code>observed</code></td>
+<td><code>observed</code></td>
+</tr>
+<tr>
+<td>The step's status</td>
+<td><code>observed_status</code></td>
+<td><code>observedStatus</code></td>
+</tr>
+<tr>
+<td>A match's strength (<code>strong</code> or <code>weak</code>)</td>
+<td><code>observed_strength</code></td>
+<td><code>observedStrength</code></td>
+</tr>
+<tr>
+<td>The run's summary on a scenario</td>
+<td><code>observed_run</code></td>
+<td><code>observedRun</code></td>
+</tr>
+<tr>
+<td>Exchanges between steps</td>
+<td><code>observed_extra</code></td>
+<td><code>observedExtra</code></td>
+</tr>
+<tr>
+<td>The number of the step an extra exchange followed (0 before the first)</td>
+<td><code>after_step</code></td>
+<td><code>afterStep</code></td>
+</tr>
+<tr>
+<td>An observed exchange's request ID</td>
+<td><code>request_id</code></td>
+<td><code>requestId</code></td>
+</tr>
+</tbody>
+</table>
+<p>In v1:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;scenarios&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ps-authorization&quot;</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">&quot;observed_run&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;aauth-sandbox&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;instance&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;instances&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">                     </span><span class="nt">&quot;matched&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;weak&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;not_seen&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;skipped&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;unmatchable&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">                     </span><span class="nt">&quot;unobservable&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;extra&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">},</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;…&quot;</span><span class="p">,</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">      </span><span class="nt">&quot;example&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;…&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unchanged&quot;</span><span class="p">},</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">      </span><span class="nt">&quot;observed&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;…&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;request&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;…&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;…&quot;</span><span class="p">},</span><span class="w"> </span><span class="nt">&quot;response&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;…&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;…&quot;</span><span class="p">},</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">                   </span><span class="nt">&quot;tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">&quot;annotations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">&quot;repeats&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">      </span><span class="nt">&quot;observed_status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;matched&quot;</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="p">}],</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">    </span><span class="nt">&quot;observed_extra&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;after_step&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ps&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;to&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ap&quot;</span><span class="p">,</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">                        </span><span class="nt">&quot;observed&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;…&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;request&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;…&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;…&quot;</span><span class="p">},</span><span class="w"> </span><span class="nt">&quot;response&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;…&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;…&quot;</span><span class="p">}}}]</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">  </span><span class="p">}]</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>A scenario instance found in the capture is written as its own scenario entry, with the ID <code>&lt;scenario&gt;.observed-&lt;n&gt;</code>, right after the scenario it is an instance of, with the instance number in its summary. <code>after_step</code> is a step number rather than an ID, because a flow need not have an ID. In the summary, <code>matched</code> counts every matched step and <code>weak</code> the matched steps that are weak. A response step's <code>observed</code> holds only the response, and its status and strength are its request step's. <code>observed</code> and the status are absent on a step with no observation, and a viewer that does not know them ignores them. Both schemas gain the fields, and the generated TypeScript types follow.</p>
+<h2 id="redaction">Redaction<a class="headerlink" href="#redaction" title="Permanent link">&para;</a></h2>
+<p>Every output masks raw token strings (wherever a token definition's carriage finds them, and any value shaped like a JWT), <code>Signature</code> values, the token inside <code>Signature-Key</code>, and the credentials in <code>Authorization</code> and <code>Cookie</code> headers. A masked value becomes <code>[redacted:jwt]</code> or <code>[redacted]</code>. Decoded token headers and claims are kept, because they are what a reader learns from. <code>--raw</code> writes full values, for a developer's own sandbox; the command then warns that the file is as sensitive as the traffic it came from.</p>
+<h2 id="client-events">Client Events<a class="headerlink" href="#client-events" title="Permanent link">&para;</a></h2>
+<p>A client may write its own events as an observation with no exchanges and one annotation per event (<code>{"kind": "client-event", "text": "…", "time": "…", "request": {"method": "…", "url": "…"}, "requestId": "…"}</code>). The joiner attaches each event to the exchange with the same <code>requestId</code> when both have one, and otherwise to the first exchange with the same method and URL at or after the event's time, within the time window. Events that attach to nothing are listed in the report. omniagent is the first client expected to write them.</p>
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pidl<span class="w"> </span>observe<span class="w"> </span>import<span class="w"> </span>--from<span class="w"> </span>sandbox<span class="p">|</span>har<span class="p">|</span>newman<span class="p">|</span>events<span class="w"> </span>&lt;file&gt;<span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>observation.json<span class="o">]</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>pidl<span class="w"> </span>generate<span class="w"> </span>-f<span class="w"> </span>walkthrough-json<span class="p">|</span>viewer<span class="w"> </span>&lt;document&gt;<span class="w"> </span>--observation<span class="w"> </span>&lt;file&gt;...<span class="w"> </span><span class="o">[</span>--binding<span class="w"> </span>b.json<span class="o">]</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">              </span><span class="o">[</span>--scenarios<span class="w"> </span>id,id<span class="o">]</span><span class="w"> </span><span class="o">[</span>--from<span class="w"> </span>t<span class="o">]</span><span class="w"> </span><span class="o">[</span>--to<span class="w"> </span>t<span class="o">]</span><span class="w"> </span><span class="o">[</span>--raw<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>out<span class="o">]</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>pidl<span class="w"> </span>observe<span class="w"> </span>check<span class="w"> </span>&lt;document&gt;<span class="w"> </span>--observation<span class="w"> </span>&lt;file&gt;...<span class="w"> </span><span class="o">[</span>--binding<span class="w"> </span>b.json<span class="o">]</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">              </span><span class="o">[</span>--scenarios<span class="w"> </span>id,id<span class="o">]</span><span class="w"> </span><span class="o">[</span>--from<span class="w"> </span>t<span class="o">]</span><span class="w"> </span><span class="o">[</span>--to<span class="w"> </span>t<span class="o">]</span><span class="w"> </span><span class="o">[</span>--json<span class="w"> </span>report.json<span class="o">]</span>
+</span></code></pre></div>
+<ul>
+<li><code>generate</code> accepts several observations: a <code>wire</code> source, and <code>client</code> sources or client events to join to it. With <code>-f viewer</code> it writes a self-contained page that opens from disk, because the embeddable viewer fetches only same-origin and <code>https:</code> URLs.</li>
+<li><code>check</code> exits 0 when every required step of every instance is matched, 1 when a required step is <code>notSeen</code> or <code>unmatchable</code>, and 2 for an input error. It prints the instances, a table of step statuses and the extra exchanges.</li>
+</ul>
+<h2 id="viewer">Viewer<a class="headerlink" href="#viewer" title="Permanent link">&para;</a></h2>
+<ul>
+<li>A scenario with an observed run shows a <strong>Concept / Observed</strong> switch. The switch changes which of a step's example or observed exchange the request, response and token panels show; the sequence diagram does not change.</li>
+<li>The header names the instance, such as "Observed: instance 2 of 2, aauth-sandbox".</li>
+<li>A badge on each step shows its status, and a repeated step shows how many exchanges it took. A <code>notSeen</code> or <code>unmatchable</code> step has no observed panel and says which.</li>
+<li>Extra exchanges appear between the steps they fell between, drawn dotted between their participants, and open in the same panels. The viewer makes each one a step of the entry (<code>extra-&lt;n&gt;</code>) when it loads the walkthrough and renumbers the steps, so the step keys, links and the diagram reach them in both modes; one the binding could not resolve to participants cannot be drawn and is left out.</li>
+<li>Observed is the default mode on an observed entry; the switch sits in the top bar.</li>
+<li>An observed step shows its time and the gap from the previous observed exchange.</li>
+<li>The viewer keeps reading walkthroughs with none of these fields.</li>
+</ul>
+<h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
+<p>No new Go dependencies. HAR and Newman are read with small types of pidl's own, because pidl has one dependency today and each of the alternatives adds about twenty-seven modules:</p>
+<ul>
+<li><code>github.com/grokify/mogo/net/http/har</code> has HAR types, and a package for them is worth fixing on its own account, but importing it brings in all of mogo's module graph.</li>
+<li><code>github.com/grokify/postman-go</code> is a client for Postman's cloud API, generated from its OpenAPI description. A Newman report is the output of a different tool.</li>
+<li>A new module for capture formats is more structure than two readers justify.</li>
+</ul>
+<p>If a second tool needs the Newman reader, it moves to a hand-written <code>newman</code> package in postman-go, and pidl can import it then.</p>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Generated tokens.</strong> Tests that decode tokens build them at test time, signed with a throwaway key, so they are real JWTs with known claims.</li>
+<li><strong>Captured fixtures.</strong> A sandbox trace of the AAuth Petstore run (two scenario instances, a health check before them, key fetches between steps), the same run as a Newman report, and a small HAR. Token and signature values in committed fixtures are truncated with an ellipsis; tests that need a decodable token use the generated ones.</li>
+<li><strong>Golden tests.</strong> Each adapter's output, the join, the built walkthrough in v1 and v2, the self-contained page, and the check report.</li>
+<li><strong>Matching properties.</strong> Exchanges in order all match; swapping two makes one extra or a step not seen; a duplicated exchange is extra; a polled step absorbs its repeats; removing a required step gives <code>notSeen</code> and exit 1; a step with no example request and no rule is <code>unmatchable</code>; header names match in any case.</li>
+<li><strong>Instances.</strong> A capture with two journeys gives two instances, the same with and without named scenarios; fragments are never chosen as instances; noise before the first is extra or left out by the time window.</li>
+<li><strong>Pairs and observability.</strong> A response step takes its request step's exchange and status; a person's steps are <code>unobservable</code>; a standalone step with no rule is <code>unmatchable</code>.</li>
+<li><strong>Strength.</strong> A match on participants and method only is weak; adding a passing path or status test makes it strong; a binding override turns a misleading weak match into the right strong one.</li>
+<li><strong>A second protocol.</strong> An OAuth authorization-code example from the built-in documents, with a small hand-written run, exercises the matcher with no change to the code.</li>
+<li><strong>Redaction.</strong> No output written without <code>--raw</code> contains a fixture's raw token or signature value.</li>
+<li><strong>Schemas.</strong> The generated schemas pass the drift test and the camelCase lint.</li>
+<li><strong>Viewer.</strong> Rendering tests for the switch, the instance label, the badges and the extra exchanges in place.</li>
+</ul>
+<h2 id="security-and-privacy">Security and Privacy<a class="headerlink" href="#security-and-privacy" title="Permanent link">&para;</a></h2>
+<ul>
+<li>An observation of a real system holds real tokens. The tool reads and writes local files; the viewer loads a file or page it is given and calls no service.</li>
+<li>Outputs are redacted unless <code>--raw</code> is given, and the guide says that an observation is as sensitive as the traffic it came from and is not for committing or sharing.</li>
+<li>Committed fixtures carry no values that grant access.</li>
+</ul>
+<h2 id="spike-findings">Spike Findings<a class="headerlink" href="#spike-findings" title="Permanent link">&para;</a></h2>
+<p>A throwaway matcher ran on a real capture before this design was settled: the AAuth explorer walkthrough, an aauth-go sandbox trace of the Petstore run (19 exchanges), and the same run's Newman report (10 requests).</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Are default rules plus a binding enough?</td>
+<td>Only with a binding. The <code>api-request</code> example is <code>GET /api/documents</code>, so by default it matched the Petstore's follow-up <code>GET</code>, and the real protected call (<code>POST /v2/store/order</code>, 200) became extra. One binding override fixed it.</td>
+</tr>
+<tr>
+<td>How many steps need an explicit rule?</td>
+<td>3 of the 6 request steps in <code>ps-authorization</code> for this deployment: the protected call (method), the authorization step (the Petstore challenges on its API call), and the poll (a literal ID in the example path). Response steps need none once paired.</td>
+</tr>
+<tr>
+<td>Does instance splitting work?</td>
+<td>With named scenarios: two instances, browsing and ordering, every observable step matched. With automatic choice it took three tries. Ranked by the share of a scenario's own steps matched, a two-step scenario won twice and left the order flow as 12 extra exchanges. Ranked by exchanges explained, fragments competed as journeys and a long scenario claimed the browsing span with 8 steps unseen. Excluding fragments, ranking by exchanges explained minus required steps not seen, and ending an instance where any candidate's first step recurs found the same two instances as the named run.</td>
+</tr>
+</tbody>
+</table>
+<p>What the spike changed in this document:</p>
+<ul>
+<li>A step is half an exchange; response steps are filled from their request step's exchange.</li>
+<li>Steps involving a person are <code>unobservable</code>, not <code>notSeen</code>.</li>
+<li>Automatic scenario choice excludes fragments, ranks by exchanges explained minus required steps not seen, and ends an instance where a first step recurs.</li>
+<li>Weak matches are reported and counted apart from strong ones.</li>
+<li>Literal identifiers in example paths draw a warning suggesting a template.</li>
+<li>Binding overrides are keyed by scenario and step, with a wildcard for every scenario, because step IDs repeat across scenarios.</li>
+</ul>
+<p>What it confirmed: the time window dropped a health check made before the run; Newman joined to the trace 10 of 10 by method and the URL with the signing helper's prefix removed; path-based label resolution resolved every <code>client</code> sender; extra exchanges in place were informative (7 key and metadata fetches between the order flow's steps); and redaction with decoded claims kept rendered well in the existing viewer.</p>
+<p>It also found a gap in the AAuth document rather than the tool: the Petstore answers its API call with a challenge for a person token before anything else, and the document's scenarios had no such step. With a challenge-first variant added to the document and three scenario-scoped binding overrides for the Petstore's protected <code>POST</code>, automatic choice picked that variant over <code>ps-authorization</code>, every exchange of the order flow became a step, six of its request steps matched strongly, and only the poll (a literal identifier in its example path) stayed weak; the remaining extra exchanges were key and metadata fetches.</p>
+<h2 id="open-questions">Open Questions<a class="headerlink" href="#open-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Whether a step's <code>match</code> belongs in the source format or only in a binding. It starts in the document, because most deployments want the same rules, and the binding overrides it.</li>
+<li>Whether alternatives should be matched as separate candidates in the first release or only reported as <code>skipped</code>.</li>
+<li>Whether <code>pidl observe check</code> should accept a threshold for extra exchanges.</li>
+<li>Whether key and metadata fetches, which every AAuth run contains, should become optional steps in the AAuth document rather than extra exchanges.</li>
+<li>Whether a scenario that legitimately repeats its first step mid-journey (a token refresh, say) needs a way to say so, since the first-step boundary would split it. A named scenario list avoids the split today; segmenting the whole capture by dynamic programming is the fuller answer if real captures need it.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/grokify/pidl" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.integrate"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

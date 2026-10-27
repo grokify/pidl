@@ -2,282 +2,322 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://grokify.github.io/pidl/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/CHANGELOG/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/SPECIFICATION/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/design/animated-svg/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/examples/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/examples/a2a/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/examples/infographic/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/examples/mcp/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/examples/oauth2/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/getting-started/installation/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/getting-started/quick-start/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/alternatives/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/alternatives/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/annotations/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/annotations/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/embedding/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/embedding/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/entities/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/entities/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/extending/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/extending/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/flows/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/flows/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/format/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/format/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/narration/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/narration/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/phases/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/observed-runs/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/postman/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/phases/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/process/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/postman/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/samples/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/process/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/scenarios/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/samples/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/viewer/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/scenarios/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
-         <loc>https://grokify.github.io/pidl/guide/workflow-exports/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <loc>https://grokify.github.io/pidl/guides/viewer/</loc>
+         <lastmod>2026-10-27</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/guides/workflow-exports/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/reference/cli/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/reference/library/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/reference/walkthrough-format/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/releases/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/releases/v0.1.0/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/releases/v0.10.0/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/releases/v0.2.0/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/releases/v0.3.0/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/releases/v0.4.0/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/releases/v0.5.0/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/releases/v0.6.0/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/releases/v0.7.0/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/releases/v0.8.0/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/releases/v0.9.0/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/ROADMAP/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/features/process-spec/PRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/features/process-spec/TRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-001/PLAN/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-001/PRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-001/ROADMAP/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-001/TRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-002/PLAN/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-002/PRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-002/ROADMAP/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-002/TRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-003/PLAN/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-003/PRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-003/ROADMAP/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-003/TRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-004/PLAN/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-004/PRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-004/ROADMAP/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-004/TRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-005/PLAN/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-005/PRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-005/ROADMAP/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-005/TRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-006/PLAN/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-006/PRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-006/ROADMAP/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-006/TRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-007/PLAN/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-007/PRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-007/ROADMAP/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-007/TRD/</loc>
-         <lastmod>2026-10-22</lastmod>
+         <lastmod>2026-10-27</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-008/PLAN/</loc>
+         <lastmod>2026-10-27</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-008/PRD/</loc>
+         <lastmod>2026-10-27</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-008/ROADMAP/</loc>
+         <lastmod>2026-10-27</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-008/TRD/</loc>
+         <lastmod>2026-10-27</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-011/PLAN/</loc>
+         <lastmod>2026-10-27</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-011/PRD/</loc>
+         <lastmod>2026-10-27</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-011/ROADMAP/</loc>
+         <lastmod>2026-10-27</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/pidl/specs/initiatives/INIT-PIDL-011/TRD/</loc>
+         <lastmod>2026-10-27</lastmod>
     </url>
 </urlset>

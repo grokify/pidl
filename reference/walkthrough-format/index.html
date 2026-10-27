@@ -264,7 +264,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../guide/format/" class="md-tabs__link">
+        <a href="../../guides/format/" class="md-tabs__link">
           
   
   
@@ -609,7 +609,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/format/" class="md-nav__link">
+      <a href="../../guides/format/" class="md-nav__link">
         
   
   
@@ -637,7 +637,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/entities/" class="md-nav__link">
+      <a href="../../guides/entities/" class="md-nav__link">
         
   
   
@@ -665,7 +665,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/flows/" class="md-nav__link">
+      <a href="../../guides/flows/" class="md-nav__link">
         
   
   
@@ -693,7 +693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/phases/" class="md-nav__link">
+      <a href="../../guides/phases/" class="md-nav__link">
         
   
   
@@ -721,7 +721,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/scenarios/" class="md-nav__link">
+      <a href="../../guides/scenarios/" class="md-nav__link">
         
   
   
@@ -749,7 +749,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/viewer/" class="md-nav__link">
+      <a href="../../guides/viewer/" class="md-nav__link">
         
   
   
@@ -777,7 +777,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/embedding/" class="md-nav__link">
+      <a href="../../guides/embedding/" class="md-nav__link">
         
   
   
@@ -805,7 +805,35 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/samples/" class="md-nav__link">
+      <a href="../../guides/observed-runs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observed Runs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/samples/" class="md-nav__link">
         
   
   
@@ -833,7 +861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/narration/" class="md-nav__link">
+      <a href="../../guides/narration/" class="md-nav__link">
         
   
   
@@ -861,7 +889,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/postman/" class="md-nav__link">
+      <a href="../../guides/postman/" class="md-nav__link">
         
   
   
@@ -889,7 +917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/annotations/" class="md-nav__link">
+      <a href="../../guides/annotations/" class="md-nav__link">
         
   
   
@@ -917,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/alternatives/" class="md-nav__link">
+      <a href="../../guides/alternatives/" class="md-nav__link">
         
   
   
@@ -945,7 +973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/process/" class="md-nav__link">
+      <a href="../../guides/process/" class="md-nav__link">
         
   
   
@@ -973,7 +1001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/workflow-exports/" class="md-nav__link">
+      <a href="../../guides/workflow-exports/" class="md-nav__link">
         
   
   
@@ -1001,7 +1029,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/extending/" class="md-nav__link">
+      <a href="../../guides/extending/" class="md-nav__link">
         
   
   
@@ -1258,6 +1286,17 @@
     <span class="md-ellipsis">
       
         Step
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#observed-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observed Runs
       
     </span>
   </a>
@@ -1616,6 +1655,34 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.10.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.10.0
   
 
     
@@ -2101,6 +2168,16 @@
 <td></td>
 <td>code samples for the whole scenario</td>
 </tr>
+<tr>
+<td><code>observed_run</code></td>
+<td></td>
+<td>on an entry showing a run observed in a real system: the scenario it is an instance of, the capture's source, the instance number, the runner-up scenario, counts of step outcomes, and whether raw values were redacted</td>
+</tr>
+<tr>
+<td><code>observed_extra</code></td>
+<td></td>
+<td>that run's exchanges that matched no step, each with <code>after_step</code>, the number of the step it followed (0 before the first)</td>
+</tr>
 </tbody>
 </table>
 <h3 id="step">Step<a class="headerlink" href="#step" title="Permanent link">&para;</a></h3>
@@ -2168,9 +2245,21 @@
 <td></td>
 <td>analyzer findings about this step</td>
 </tr>
+<tr>
+<td><code>observed</code></td>
+<td></td>
+<td>in an observed run's entry: the exchange the run produced for this step, shown as the example is, with its tokens decoded and not verified</td>
+</tr>
+<tr>
+<td><code>observed_status</code>, <code>observed_strength</code></td>
+<td></td>
+<td><code>matched</code>, <code>notSeen</code>, <code>skipped</code>, <code>unmatchable</code> or <code>unobservable</code>; and <code>strong</code> or <code>weak</code> for a match</td>
+</tr>
 </tbody>
 </table>
 <p>The schema has every field, with descriptions.</p>
+<h3 id="observed-runs">Observed Runs<a class="headerlink" href="#observed-runs" title="Permanent link">&para;</a></h3>
+<p><code>pidl generate -f walkthrough-json --observation &lt;file&gt; --binding &lt;file&gt;</code> matches an observation (<code>pidl-observation/v1</code>) to the scenarios and adds an entry for each scenario instance found, right after the scenario it is an instance of, with the ID <code>&lt;scenario&gt;.observed-&lt;n&gt;</code>. The entry keeps every step's example and adds what the run produced. A match means an exchange looked like the step, not that it was valid. Raw token, signature and credential values are masked unless <code>--raw</code> is given; decoded claims are kept.</p>
 <h2 id="versions-and-compatibility">Versions and Compatibility<a class="headerlink" href="#versions-and-compatibility" title="Permanent link">&para;</a></h2>
 <p><code>format</code> names the major version. Within a major version:</p>
 <ul>
