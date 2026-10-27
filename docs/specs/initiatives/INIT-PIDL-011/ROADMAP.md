@@ -9,16 +9,16 @@ A walkthrough keeps its explanation and gains the exchanges that a real run prod
 
 **Theme:** A neutral format and a matcher that holds no knowledge of any protocol and copes with real captures
 
-- [ ] `RMI-PIDL-131` `pidl-observation/v1` and `pidl-binding/v1`: types, reader, writer, validation and generated schemas with the drift test
-- [ ] `RMI-PIDL-132` Role-labeled trace adapter, with the AAuth Petstore capture as the first fixture
+- [x] `RMI-PIDL-131` `pidl-observation/v1` and `pidl-binding/v1`: types, reader, writer, validation and generated schemas with the drift test
+- [x] `RMI-PIDL-132` Role-labeled trace adapter, with the AAuth Petstore capture as the first fixture
   - Depends on: `RMI-PIDL-131`
-- [ ] `RMI-PIDL-133` Rules: request, response, standalone and unobservable steps; example defaults and step `match`; binding labels, hosts, paths, rewrites and overrides; header and value matching; the literal-identifier warning
+- [x] `RMI-PIDL-133` Rules: request, response, standalone and unobservable steps; example defaults and step `match`; binding labels, hosts, paths, rewrites and overrides; header and value matching; the literal-identifier warning
   - Depends on: `RMI-PIDL-131`
-- [ ] `RMI-PIDL-151` Repeated steps (`repeat`) and body predicates by JSON pointer
+- [x] `RMI-PIDL-151` Repeated steps (`repeat`) and body predicates by JSON pointer
   - Depends on: `RMI-PIDL-133`
-- [ ] `RMI-PIDL-134` Scoring, strong and weak matches, ordered alignment within an instance by dynamic programming with response steps paired, step and exchange statuses, and the property tests
+- [x] `RMI-PIDL-134` Scoring, strong and weak matches, ordered alignment within an instance by dynamic programming with response steps paired, step and exchange statuses, and the property tests
   - Depends on: `RMI-PIDL-151`
-- [ ] `RMI-PIDL-150` Scenario instances: splitting a capture where a first step recurs, a named scenario list or the best-ranked non-fragment candidate (exchanges explained minus required steps not seen), the time window, and the instance report with the runner-up
+- [x] `RMI-PIDL-150` Scenario instances: splitting a capture where a first step recurs, a named scenario list or the best-ranked non-fragment candidate (exchanges explained minus required steps not seen), the time window, and the instance report with the runner-up
   - Depends on: `RMI-PIDL-134`
 
 ## Phase 2 — The Overlay and the Viewer
