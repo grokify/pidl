@@ -70,6 +70,8 @@ Name walkthrough files `<name>.walkthrough.json`, so their format is clear witho
 | `group`, `variant_of`, `variant_label` | | navigation: its group, and the scenario it is a variant of |
 | `description`, `narration`, `briefing` | | prose, spoken text by language, and an introduction |
 | `samples` | | code samples for the whole scenario |
+| `observed_run` | | on an entry showing a run observed in a real system: the scenario it is an instance of, the capture's source, the instance number, the runner-up scenario, counts of step outcomes, and whether raw values were redacted |
+| `observed_extra` | | that run's exchanges that matched no step, each with `after_step`, the number of the step it followed (0 before the first) |
 
 ### Step
 
@@ -86,8 +88,14 @@ Name walkthrough files `<name>.walkthrough.json`, so their format is clear witho
 | `example` | | the HTTP request or response, decoded tokens and code samples |
 | `curl` | | a cURL command equivalent to the example request |
 | `findings` | | analyzer findings about this step |
+| `observed` | | in an observed run's entry: the exchange the run produced for this step, shown as the example is, with its tokens decoded and not verified |
+| `observed_status`, `observed_strength` | | `matched`, `notSeen`, `skipped`, `unmatchable` or `unobservable`; and `strong` or `weak` for a match |
 
 The schema has every field, with descriptions.
+
+### Observed Runs
+
+`pidl generate -f walkthrough-json --observation <file> --binding <file>` matches an observation (`pidl-observation/v1`) to the scenarios and adds an entry for each scenario instance found, right after the scenario it is an instance of, with the ID `<scenario>.observed-<n>`. The entry keeps every step's example and adds what the run produced. A match means an exchange looked like the step, not that it was valid. Raw token, signature and credential values are masked unless `--raw` is given; decoded claims are kept.
 
 ## Versions and Compatibility
 
