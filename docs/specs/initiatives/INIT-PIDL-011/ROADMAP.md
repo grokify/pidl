@@ -57,7 +57,7 @@ A walkthrough keeps its explanation and gains the exchanges that a real run prod
 
 **Theme:** Developers learning AAuth see their own run beside the explanation
 
-- [ ] `RMI-PIDL-146` AAuth document: match rules for its standalone steps, templates for the literal identifiers in its example paths, token carriage, and the challenge-first resource, checked against the Petstore capture with every observable step a strong match
+- [x] `RMI-PIDL-146` AAuth document: match rules for its standalone steps, templates for the literal identifiers in its example paths, token carriage, and the challenge-first resource, checked against the Petstore capture with every observable step a strong match
   - Depends on: `RMI-PIDL-137`, `RMI-PIDL-150`
 - [ ] `RMI-PIDL-147` Client events: the event observation, joined by request ID or by method, URL and time, and shown on the step they explain
   - Depends on: `RMI-PIDL-143`
